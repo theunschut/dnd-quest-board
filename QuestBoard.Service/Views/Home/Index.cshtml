@@ -1,69 +1,56 @@
 @model IEnumerable<Quest>
 @{
     ViewData["Title"] = "Quest Board";
+    var posterImages = new string[] { "Poster1.png", "Poster2.png", "Poster3.png", "Poster4.png", "Poster5.png", "Poster6.png" };
+    var random = new Random();
 }
-<div class="row">
+<div class="quest-board-container">
     @foreach (var quest in Model)
     {
-        <div class="col-md-6 col-lg-3 mb-4">
-            <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
+        var posterIndex = Math.Abs(quest.Id.GetHashCode()) % posterImages.Length;
+        var posterImage = posterImages[posterIndex];
+        
+        <div class="fantasy-quest-card" 
+             style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage');"
+             onclick="window.location.href='@Url.Action("Details", "Quest", new { id = quest.Id })'">
+            <div class="quest-content">
+                <div class="quest-header">
+                    <span class="fantasy-difficulty-badge difficulty-@quest.Difficulty.ToString().ToLower()">
                         @quest.Difficulty
                     </span>
-                    <small class="text-muted">
-                        @(quest.IsFinalized ? "Finalized" : "Open")
-                    </small>
+                    <span class="quest-status @(quest.IsFinalized ? "finalized" : "open")">
+                        @(quest.IsFinalized ? "FINALIZED" : "OPEN")
+                    </span>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">@quest.Title</h5>
-                    <p class="card-text">@quest.Description</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            DM: @quest.DmName
-                        </small>
-                    </p>
+                
+                <div class="quest-body">
+                    <h3 class="quest-title">@quest.Title</h3>
+                    <p class="quest-description">@quest.Description</p>
+                    
+                    <div class="quest-dm">
+                        <strong>Dungeon Master:</strong> @quest.DmName
+                    </div>
+                    
                     @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
                     {
-                        <p class="card-text">
+                        <div class="quest-date">
                             <strong>Quest Date:</strong><br>
-                            @quest.FinalizedDate.Value.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
-                        </p>
-                        <p class="card-text">
-                            <strong>Selected Players:</strong><br>
+                            @quest.FinalizedDate.Value.ToString("MMM dd, yyyy 'at' h:mm tt")
+                        </div>
+                        <div class="quest-players">
+                            <strong>Selected Adventurers:</strong><br>
                             @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))
-                        </p>
+                        </div>
                     }
                     else
                     {
-                        <p class="card-text">
-                            <strong>Players signed up:</strong> @quest.PlayerSignups.Count()
-                        </p>
+                        <div class="quest-signups">
+                            <strong>Adventurers signed up:</strong> @quest.PlayerSignups.Count()
+                        </div>
                     }
-                </div>
-                <div class="card-footer">
-                    <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm">
-                        @(quest.IsFinalized ? "View Details" : "Sign Up")
-                    </a>
                 </div>
             </div>
         </div>
     }
 </div>
 
-
-<style>
-    body {
-        background-image: url('/images/Notice Board-blank2.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-
-    .quest-card {
-        background-image: url('/images/Blanks/Poster4.png');
-        background-size: auto;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-</style>
