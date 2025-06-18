@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(git config:*)",
+      "Bash(mkdir:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(mv:*)",
+      "Bash(dotnet build)",
+      "Bash(timeout:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}

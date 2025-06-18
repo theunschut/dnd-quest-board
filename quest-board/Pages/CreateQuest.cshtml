@@ -1,0 +1,145 @@
+@page
+@model CreateQuestModel
+@{
+    ViewData["Title"] = "Create Quest";
+}
+
+<h1>Create New Quest</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Quest.Title" class="form-label">Quest Title</label>
+                <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
+                <span asp-validation-for="Quest.Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Quest.Description" class="form-label">Description</label>
+                <textarea asp-for="Quest.Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
+                <span asp-validation-for="Quest.Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Quest.Difficulty" class="form-label">Difficulty</label>
+                <select asp-for="Quest.Difficulty" class="form-select">
+                    <option value="0">Easy</option>
+                    <option value="1">Medium</option>
+                    <option value="2">Hard</option>
+                    <option value="3">Deadly</option>
+                </select>
+                <span asp-validation-for="Quest.Difficulty" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Quest.DmName" class="form-label">DM Name</label>
+                        <input asp-for="Quest.DmName" class="form-control" placeholder="Your name..." />
+                        <span asp-validation-for="Quest.DmName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Quest.DmEmail" class="form-label">DM Email (Optional)</label>
+                        <input asp-for="Quest.DmEmail" type="email" class="form-control" placeholder="your.email@example.com" />
+                        <span asp-validation-for="Quest.DmEmail" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Proposed Dates & Times</label>
+                <div id="proposed-dates">
+                    <div class="mb-3">
+                        <label class="form-label">Proposed Date 1</label>
+                        <input type="datetime-local" name="ProposedDates[0]" class="form-control" required>
+                        <div class="form-text">Select a date and time for the quest session.</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addProposedDate()">
+                    Add Another Date Option
+                </button>
+                <div class="form-text">Provide multiple date/time options for players to vote on. At least one date is required.</div>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Create Quest</button>
+                <a href="/" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quest Creation Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li>✓ Provide a clear, engaging title</li>
+                    <li>✓ Include difficulty expectations</li>
+                    <li>✓ Offer multiple date options</li>
+                    <li>✓ Set realistic player limits</li>
+                    <li>✓ Include any special requirements</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Form validation and debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission started');
+                
+                // Debug: Log all form data
+                const formData = new FormData(form);
+                console.log('Form data being submitted:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+                
+                // Check if at least one proposed date is filled
+                const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
+                let hasValidDate = false;
+                
+                dateInputs.forEach((input, index) => {
+                    console.log(`Date input ${index} (name: ${input.name}): ${input.value}`);
+                    if (input.value) {
+                        hasValidDate = true;
+                        console.log('Found valid date:', input.value);
+                    }
+                });
+                
+                if (!hasValidDate) {
+                    e.preventDefault();
+                    alert('Please provide at least one proposed date and time.');
+                    return false;
+                }
+                
+                // Check required fields
+                const title = document.querySelector('input[name="Quest.Title"]').value;
+                const description = document.querySelector('textarea[name="Quest.Description"]').value;
+                const dmName = document.querySelector('input[name="Quest.DmName"]').value;
+                
+                if (!title || !description || !dmName) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields (Title, Description, DM Name).');
+                    return false;
+                }
+                
+                console.log('Form validation passed, submitting...');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Creating Quest...';
+            });
+        });
+    </script>
+}

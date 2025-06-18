@@ -1,0 +1,81 @@
+@page
+@model MyQuestsModel
+@{
+    ViewData["Title"] = "My Quests";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Quests</h1>
+    <a href="/CreateQuest" class="btn btn-primary">Create New Quest</a>
+</div>
+
+<div class="alert alert-info">
+    <h5>DM Verification</h5>
+    <p>Enter your DM name to view and manage your quests:</p>
+    <form method="post">
+        <div class="input-group mb-3">
+            <input name="DmName" class="form-control" placeholder="Enter your DM name..." 
+                   value="@Model.DmName" required />
+            <button type="submit" class="btn btn-primary">Find My Quests</button>
+        </div>
+    </form>
+</div>
+
+@if (Model.Quests.Any())
+{
+    <div class="row">
+        @foreach (var quest in Model.Quests)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
+                            @quest.Difficulty
+                        </span>
+                        <small class="text-muted">
+                            @(quest.IsFinalized ? "Finalized" : "Open")
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@quest.Title</h5>
+                        <p class="card-text">@quest.Description</p>
+                        
+                        @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
+                        {
+                            <p class="card-text">
+                                <strong>Date:</strong><br>
+                                <small>@quest.FinalizedDate.Value.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                            </p>
+                            <p class="card-text">
+                                <strong>Players:</strong><br>
+                                <small>@string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</small>
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="card-text">
+                                <strong>Signups:</strong> @quest.PlayerSignups.Count<br>
+                                <strong>Created:</strong> @quest.CreatedAt.ToString("MMM dd, yyyy")
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <a href="/Quest/@quest.Id" class="btn btn-outline-primary btn-sm me-2">View</a>
+                        @if (!quest.IsFinalized)
+                        {
+                            <a href="/ManageQuest/@quest.Id" class="btn btn-outline-success btn-sm">Manage</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else if (!string.IsNullOrEmpty(Model.DmName))
+{
+    <div class="text-center py-5">
+        <h3 class="text-muted">No quests found</h3>
+        <p class="text-muted">You haven't created any quests yet.</p>
+        <a href="/CreateQuest" class="btn btn-primary">Create Your First Quest</a>
+    </div>
+}

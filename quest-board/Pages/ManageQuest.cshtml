@@ -1,0 +1,192 @@
+@page "/ManageQuest/{id:int}"
+@model ManageQuestModel
+@{
+    ViewData["Title"] = $"Manage Quest: {Model.Quest.Title}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Quest: @Model.Quest.Title</h1>
+    <a href="/Quest/@Model.Quest.Id" class="btn btn-outline-secondary">View Public Page</a>
+</div>
+
+@if (!Model.IsAuthorized)
+{
+    <div class="alert alert-warning">
+        <h5>DM Verification Required</h5>
+        <p>Please enter your DM name to manage this quest:</p>
+        <form method="post" asp-page-handler="VerifyDm">
+            <div class="input-group mb-3">
+                <input name="DmName" class="form-control" placeholder="Enter your DM name..." required />
+                <button type="submit" class="btn btn-primary">Verify</button>
+            </div>
+        </form>
+    </div>
+}
+else
+{
+    @if (Model.Quest.IsFinalized)
+    {
+        <div class="alert alert-info">
+            <h5>Quest Finalized</h5>
+            <p>This quest has been finalized with the following details:</p>
+            <p><strong>Date:</strong> @Model.Quest.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+            <p><strong>Selected Players:</strong> @string.Join(", ", Model.Quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Date Selection & Player Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-page-handler="FinalizeQuest">
+                            <h6>Proposed Dates & Voting Results:</h6>
+                            @foreach (var date in Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)))
+                            {
+                                var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
+                                var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
+                                var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
+                                var isRecommended = date == Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
+
+                                <div class="date-option @(isRecommended ? "border-success" : "")">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="SelectedDateId" value="@date.Id" 
+                                               id="date_@date.Id" @(isRecommended ? "checked" : "") />
+                                        <label class="form-check-label" for="date_@date.Id">
+                                            <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                            @if (isRecommended)
+                                            {
+                                                <span class="badge bg-success ms-2">Recommended</span>
+                                            }
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mt-2">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
+                                                <ul class="list-unstyled small">
+                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    {
+                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
+                                                <ul class="list-unstyled small">
+                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    {
+                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
+                                                <ul class="list-unstyled small">
+                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    {
+                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <hr>
+
+                            <h6>Player Selection:</h6>
+                            <p class="text-muted">Select up to 6 players for this quest. Players are listed in signup order.</p>
+                            
+                            @{
+                                var recommendedDate = Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
+                                var availablePlayers = recommendedDate.PlayerVotes
+                                    .Where(v => v.Vote == VoteType.Yes)
+                                    .Select(v => v.PlayerSignup)
+                                    .OrderBy(ps => ps.SignupTime)
+                                    .ToList();
+                            }
+
+                            <div id="player-selection">
+                                @for (int i = 0; i < Model.Quest.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
+                                {
+                                    var player = Model.Quest.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
+                                    var isInTop6 = i < 6 && availablePlayers.Contains(player);
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedPlayerIds" 
+                                               value="@player.Id" id="player_@player.Id" 
+                                               @(isInTop6 ? "checked" : "") />
+                                        <label class="form-check-label" for="player_@player.Id">
+                                            @player.PlayerName
+                                            <small class="text-muted">
+                                                (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                @if (availablePlayers.Contains(player))
+                                                {
+                                                    <span class="text-success">- Available for recommended date</span>
+                                                }
+                                            </small>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-success">Finalize Quest</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">Refresh Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Quest Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Signups:</strong> @Model.Quest.PlayerSignups.Count</p>
+                        <p><strong>Target Players:</strong> 6</p>
+                        <p><strong>Created:</strong> @Model.Quest.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        
+                        <hr>
+                        
+                        <h6>Quick Stats:</h6>
+                        @{
+                            var mostPopularDate = Model.Quest.ProposedDates
+                                .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
+                                .First();
+                            var yesCount = mostPopularDate.PlayerVotes.Count(v => v.Vote == VoteType.Yes);
+                        }
+                        <p><strong>Best Date:</strong><br>
+                           <small>@mostPopularDate.Date.ToString("MMM dd, h:mm tt")</small><br>
+                           <small class="text-success">@yesCount players available</small>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>DM Tips</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small">
+                            <li>✓ Review voting results before selecting date</li>
+                            <li>✓ Consider player availability and signup order</li>
+                            <li>✓ Players will be notified via email when finalized</li>
+                            <li>✓ Once finalized, the quest cannot be changed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
