@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Service.Models;
+﻿namespace QuestBoard.Models;
 
 public enum Difficulty
 {

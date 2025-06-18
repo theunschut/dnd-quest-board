@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Service.Models;
+using QuestBoard.Models;
 
-namespace QuestBoard.Service.Data;
+namespace QuestBoard.Data;
 
 public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : DbContext(options)
 {

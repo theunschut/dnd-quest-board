@@ -15,7 +15,11 @@
       "Bash(dotnet clean:*)",
       "Bash(dotnet build:*)",
       "Bash(sudo mv:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(dotnet add package:*)",
+      "Bash(dotnet add reference:*)",
+      "Bash(dotnet remove:*)",
+      "Bash(dotnet run:*)"
     ],
     "deny": []
   }

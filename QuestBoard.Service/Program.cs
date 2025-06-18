@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Service.Data;
+using QuestBoard.Data;
+using QuestBoard.Repository.Implementations;
+using QuestBoard.Repository.Interfaces;
 using QuestBoard.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +23,13 @@ builder.Services.AddDbContext<QuestBoardContext>(options =>
 
 // Add email service
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Add repositories
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IQuestRepository, QuestRepository>();
+builder.Services.AddScoped<IProposedDateRepository, ProposedDateRepository>();
+builder.Services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
+builder.Services.AddScoped<IPlayerDateVoteRepository, PlayerDateVoteRepository>();
 
 var app = builder.Build();
 

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.Models;
+namespace QuestBoard.Models;
 
 public class ProposedDate
 {

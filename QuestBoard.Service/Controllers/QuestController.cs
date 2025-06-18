@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QuestBoard.Service.Data;
-using QuestBoard.Service.Models;
+using QuestBoard.Repository.Interfaces;
+using QuestBoard.Models;
 using QuestBoard.Service.Services;
 
 namespace QuestBoard.Service.Controllers;
 
-public class QuestController(QuestBoardContext context, IEmailService emailService) : Controller
+public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService) : Controller
 {
     public IActionResult Create()
     {
@@ -35,8 +34,8 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
                 CreatedAt = DateTime.UtcNow
             };
 
-            context.Quests.Add(quest);
-            await context.SaveChangesAsync();
+            await unitOfWork.Quests.AddAsync(quest);
+            await unitOfWork.SaveChangesAsync();
 
             // Add proposed dates from ViewModel
             foreach (var date in viewModel.ProposedDates)
@@ -46,10 +45,10 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
                     QuestId = quest.Id,
                     Date = date
                 };
-                context.ProposedDates.Add(proposedDate);
+                await unitOfWork.ProposedDates.AddAsync(proposedDate);
             }
 
-            await context.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
         }
@@ -62,11 +61,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
 
     public async Task<IActionResult> Details(int id)
     {
-        var quest = await context.Quests
-            .Include(q => q.ProposedDates)
-                .ThenInclude(pd => pd.PlayerVotes)
-            .Include(q => q.PlayerSignups)
-            .FirstOrDefaultAsync(q => q.Id == id);
+        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
 
         if (quest == null)
         {
@@ -88,10 +83,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SignUp(int id)
     {
-        var quest = await context.Quests
-            .Include(q => q.ProposedDates)
-            .Include(q => q.PlayerSignups)
-            .FirstOrDefaultAsync(q => q.Id == id);
+        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
 
         if (quest == null || quest.IsFinalized)
         {
@@ -123,8 +115,8 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
             SignupTime = DateTime.UtcNow
         };
 
-        context.PlayerSignups.Add(playerSignup);
-        await context.SaveChangesAsync();
+        await unitOfWork.PlayerSignups.AddAsync(playerSignup);
+        await unitOfWork.SaveChangesAsync();
 
         // Create date votes
         foreach (var proposedDate in quest.ProposedDates)
@@ -139,11 +131,11 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
                     Vote = (VoteType)vote
                 };
 
-                context.PlayerDateVotes.Add(playerDateVote);
+                await unitOfWork.PlayerDateVotes.AddAsync(playerDateVote);
             }
         }
 
-        await context.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         // Store player name in session for future reference
         HttpContext.Session.SetString($"PlayerName_{id}", playerName);
@@ -153,12 +145,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
 
     public async Task<IActionResult> Manage(int id)
     {
-        var quest = await context.Quests
-            .Include(q => q.ProposedDates)
-                .ThenInclude(pd => pd.PlayerVotes)
-                    .ThenInclude(pv => pv.PlayerSignup)
-            .Include(q => q.PlayerSignups)
-            .FirstOrDefaultAsync(q => q.Id == id);
+        var quest = await unitOfWork.Quests.GetQuestWithManageDetailsAsync(id);
 
         if (quest == null)
         {
@@ -177,7 +164,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyDm(int id)
     {
-        var quest = await context.Quests.FindAsync(id);
+        var quest = await unitOfWork.Quests.GetByIdAsync(id);
         if (quest == null)
         {
             return NotFound();
@@ -201,10 +188,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Finalize(int id)
     {
-        var quest = await context.Quests
-            .Include(q => q.ProposedDates)
-            .Include(q => q.PlayerSignups)
-            .FirstOrDefaultAsync(q => q.Id == id);
+        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
 
         if (quest == null || quest.IsFinalized)
         {
@@ -256,7 +240,8 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
             playerSignup.IsSelected = selectedPlayerIds.Contains(playerSignup.Id);
         }
 
-        await context.SaveChangesAsync();
+        unitOfWork.Quests.Update(quest);
+        await unitOfWork.SaveChangesAsync();
 
         // Send email notifications to selected players
         var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.PlayerEmail));
@@ -290,11 +275,7 @@ public class QuestController(QuestBoardContext context, IEmailService emailServi
             return View(new List<Quest>());
         }
 
-        var quests = await context.Quests
-            .Include(q => q.PlayerSignups)
-            .Where(q => q.DmName.Equals(dmName, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(q => q.CreatedAt)
-            .ToListAsync();
+        var quests = await unitOfWork.Quests.GetQuestsByDmNameAsync(dmName);
 
         ViewBag.DmName = dmName;
         return View(quests);

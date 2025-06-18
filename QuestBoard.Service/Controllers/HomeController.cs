@@ -1,25 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QuestBoard.Service.Data;
+using QuestBoard.Repository.Interfaces;
 
 namespace QuestBoard.Service.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly QuestBoardContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public HomeController(QuestBoardContext context)
+    public HomeController(IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IActionResult> Index()
     {
-        var quests = await _context.Quests
-            .Include(q => q.PlayerSignups)
-            .OrderByDescending(q => q.CreatedAt)
-            .ToListAsync();
-
+        var quests = await _unitOfWork.Quests.GetQuestsWithSignupsAsync();
         return View(quests);
     }
 }
