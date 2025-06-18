@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Quest Board";
     var posterImages = new string[] { "Poster1.png", "Poster2.png", "Poster3.png", "Poster4.png", "Poster5.png", "Poster6.png" };
+    var waxSeals = new string[] { "Crown Seal.png", "Eagle Seal.png", "Flower Seal.png", "Sigil Seal.png" };
     var random = new Random();
 }
 <div class="quest-board-container">
@@ -9,17 +10,27 @@
     {
         var posterIndex = Math.Abs(quest.Id.GetHashCode()) % posterImages.Length;
         var posterImage = posterImages[posterIndex];
+        var sealIndex = Math.Abs(quest.Id.GetHashCode()) % waxSeals.Length;
+        var waxSeal = waxSeals[sealIndex];
+        
+        // Generate truly random position for wax seal (changes on each refresh)
+        var sealTop = 25 + (random.Next(0, 40)); // 25-65% from top (well within poster)
+        var sealLeft = 25 + (random.Next(0, 50)); // 25-75% from left (well within poster)
         
         <div class="fantasy-quest-card" 
              style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage');"
              onclick="window.location.href='@Url.Action("Details", "Quest", new { id = quest.Id })'">
+            
+            <!-- Wax Seal -->
+            <div class="wax-seal" style="top: @(sealTop)%; left: @(sealLeft)%;">
+                <img src="/images/Wax Seals/@waxSeal" alt="@(quest.IsFinalized ? "Finalized" : "Open") Quest" 
+                     class="seal-image @(quest.IsFinalized ? "finalized-seal" : "open-seal")" />
+            </div>
+            
             <div class="quest-content">
                 <div class="quest-header">
                     <span class="fantasy-difficulty-badge difficulty-@quest.Difficulty.ToString().ToLower()">
                         @quest.Difficulty
-                    </span>
-                    <span class="quest-status @(quest.IsFinalized ? "finalized" : "open")">
-                        @(quest.IsFinalized ? "FINALIZED" : "OPEN")
                     </span>
                 </div>
                 
