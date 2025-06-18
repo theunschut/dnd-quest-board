@@ -1,21 +1,22 @@
 # D&D Quest Board
 
-A web application for managing D&D campaign quests with multiple DMs and players.
+A web application for managing D&D campaign quests with multiple DMs and players. Built with ASP.NET Core 8 MVC architecture following repository pattern with domain, repository, and service layers.
 
 ## Features
 
 - **Quest Creation**: DMs can create quests with multiple proposed dates
-- **Player Signup**: Players can sign up and vote on available dates
+- **Player Signup**: Players can sign up and vote on available dates (Yes/No/Maybe)
 - **Quest Management**: DMs can review votes and finalize quest details
 - **Email Notifications**: Automatic email notifications when quests are finalized
-- **Responsive Design**: Bootstrap-based UI that works on all devices
+- **Responsive Design**: Bootstrap 5-based UI with D&D themed styling
+- **Real-time Updates**: Auto-refresh on quest detail pages every 30 seconds
 
 ## Quick Start
 
 ### Using Docker (Recommended)
 
 1. Clone the repository
-2. Copy `.env.example` to `.env` and configure your Gmail SMTP settings (these files are in the root directory)
+2. Configure your Gmail SMTP settings in environment variables or `.env` file
 3. Run with Docker Compose from the root directory:
 
 ```bash
@@ -27,12 +28,11 @@ The application will be available at `http://localhost:8080`
 ### Local Development
 
 1. Install .NET 8 SDK
-2. Navigate to the quest-board directory: `cd quest-board`
-3. Configure email settings in `appsettings.json`
-4. Run the application:
+2. Configure email settings in `QuestBoard.Service/appsettings.json`
+3. Run the application from root directory:
 
 ```bash
-dotnet run
+dotnet run --project QuestBoard.Service
 ```
 
 ### Using Solution File
@@ -41,49 +41,77 @@ From the root directory, you can also build and run using the solution:
 
 ```bash
 dotnet build
-dotnet run --project quest-board
+dotnet run --project QuestBoard.Service
 ```
+
+## Project Structure
+
+The application follows a clean architecture pattern with three main projects:
+
+- **QuestBoard.Domain**: Core business models and enums
+- **QuestBoard.Repository**: Data access layer with Entity Framework Core
+- **QuestBoard.Service**: MVC web application with controllers, views, and services
 
 ## Configuration
 
 ### Email Settings
 
-To enable email notifications, configure Gmail SMTP in your environment variables or `appsettings.json`:
+Configure Gmail SMTP in `QuestBoard.Service/appsettings.json` or environment variables:
 
+```json
+{
+  "EmailSettings": {
+    "SmtpUsername": "your-email@gmail.com",
+    "SmtpPassword": "your-app-password",
+    "FromEmail": "your-email@gmail.com"
+  }
+}
+```
+
+Or use environment variables:
 - `SMTP_USERNAME`: Your Gmail address
 - `SMTP_PASSWORD`: Gmail app-specific password
 - `FROM_EMAIL`: Email address to send from
 
 ### Database
 
-The application uses SQLite by default. The database file will be created automatically on first run.
+The application uses SQLite with Entity Framework Core. The database file (`quests.db`) will be created automatically in the root directory on first run.
 
 ## Usage
 
 1. **Create Quest**: DMs enter their name and quest details with multiple date options
-2. **Player Signup**: Players can view quests and sign up with date preferences
+2. **Player Signup**: Players can view quests and sign up with date preferences (Yes/No/Maybe)
 3. **Manage Quest**: DMs can review signups and voting, then finalize the quest
-4. **Email Notifications**: Selected players receive automatic email notifications
+4. **My Quests**: DMs can manage all their created quests from a personal dashboard
+5. **Email Notifications**: Selected players receive automatic email notifications
+
+## Key Pages
+
+- `/` - Main quest board displaying all available quests
+- `/Quest/Create` - DM quest creation with multiple date options
+- `/Quest/Details/{id}` - Quest details and player signup with date voting
+- `/Quest/Manage/{id}` - DM interface for finalizing quests and selecting players
+- `/Quest/MyQuests` - DM's personal quest management dashboard
 
 ## Docker Deployment
 
-### Raspberry Pi 5
-
-1. Copy the project to your Pi
-2. Configure environment variables in `.env` (in the root directory)
-3. Run from the root directory: `docker-compose up -d`
-4. Access via `http://your-pi-ip:8080`
+### Development
+```bash
+docker-compose up -d
+```
 
 ### Production Notes
 
 - Database is stored in `./quests.db` in the root directory and persisted via Docker volume
 - Configure reverse proxy (nginx) for HTTPS and custom domain
 - Backup the `quests.db` file regularly
+- Set email configuration via environment variables in production
 
 ## Tech Stack
 
-- **Backend**: ASP.NET Core 8 with Razor Pages
+- **Backend**: ASP.NET Core 8 MVC with Repository Pattern
 - **Database**: SQLite with Entity Framework Core
-- **Frontend**: Bootstrap 5 + vanilla JavaScript
-- **Email**: .NET SMTP client with Gmail
+- **Frontend**: Bootstrap 5 + vanilla JavaScript with D&D theming
+- **Email**: .NET SMTP client with Gmail integration
 - **Deployment**: Docker + Docker Compose
+- **Architecture**: Domain-Repository-Service pattern with AutoMapper
