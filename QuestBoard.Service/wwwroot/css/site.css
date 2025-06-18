@@ -265,10 +265,13 @@ p, li, span, small {
 .quest-board-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
-    padding: 2rem;
+    gap: 1rem;
+    padding: 1rem;
     justify-content: center;
     align-items: flex-start;
+    margin-left: -5rem;
+    margin-right: -5rem;
+    max-width: none;
 }
 
 .fantasy-quest-card {
@@ -276,9 +279,9 @@ p, li, span, small {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    width: 300px;
-    height: 420px;
-    margin: 1rem;
+    width: 280px;
+    height: 392px;
+    margin: 0.5rem;
     cursor: pointer;
     transition: transform 0.3s ease, filter 0.3s ease;
     filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
@@ -291,13 +294,13 @@ p, li, span, small {
 
 .quest-content {
     position: absolute;
-    top: 15%;
+    top: 8%;
     left: 12%;
     right: 12%;
     bottom: 15%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 1rem;
     color: #2c1810;
     text-align: center;
@@ -311,9 +314,12 @@ p, li, span, small {
 }
 
 .difficulty-dice {
+    position: absolute;
+    top: 5%;
+    left: 8%;
+    z-index: 10;
     transform: rotate(-5deg);
-    margin-top: -3px;
-    margin-left: -3px;
+    pointer-events: none;
 }
 
 .dice-icon {
@@ -333,9 +339,9 @@ p, li, span, small {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
-    margin: 1rem 0;
+    margin: 0.5rem 0;
 }
 
 .quest-title {
@@ -420,7 +426,7 @@ p, li, span, small {
     }
     
     .quest-content {
-        top: 12%;
+        top: 6%;
         left: 10%;
         right: 10%;
         bottom: 12%;
@@ -445,6 +451,11 @@ p, li, span, small {
     .dice-icon {
         width: 45px;
         height: 45px;
+    }
+    
+    .difficulty-dice {
+        top: 4%;
+        left: 6%;
     }
 }
 
@@ -472,5 +483,10 @@ p, li, span, small {
     .dice-icon {
         width: 40px;
         height: 40px;
+    }
+    
+    .difficulty-dice {
+        top: 3%;
+        left: 5%;
     }
 }
