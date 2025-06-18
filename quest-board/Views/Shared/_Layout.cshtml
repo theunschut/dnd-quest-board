@@ -11,20 +11,20 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="/">D&D Quest Board</a>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">D&D Quest Board</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Quest Board</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Quest Board</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/CreateQuest">Create Quest</a>
+                            <a class="nav-link" asp-controller="Quest" asp-action="Create">Create Quest</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/MyQuests">My Quests</a>
+                            <a class="nav-link" asp-controller="Quest" asp-action="MyQuests">My Quests</a>
                         </li>
                     </ul>
                 </div>

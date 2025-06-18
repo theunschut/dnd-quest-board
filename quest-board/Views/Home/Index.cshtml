@@ -1,26 +1,25 @@
-@page
-@model IndexModel
+@model IEnumerable<QuestBoard.Models.Quest>
 @{
     ViewData["Title"] = "Quest Board";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>D&D Quest Board</h1>
-    <a href="/CreateQuest" class="btn btn-primary">Create New Quest</a>
+    <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create New Quest</a>
 </div>
 
-@if (!Model.Quests.Any())
+@if (!Model.Any())
 {
     <div class="text-center py-5">
         <h3 class="text-muted">No quests available</h3>
         <p class="text-muted">Be the first DM to create a quest!</p>
-        <a href="/CreateQuest" class="btn btn-primary">Create Quest</a>
+        <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create Quest</a>
     </div>
 }
 else
 {
     <div class="row">
-        @foreach (var quest in Model.Quests)
+        @foreach (var quest in Model)
         {
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
@@ -59,7 +58,7 @@ else
                         }
                     </div>
                     <div class="card-footer">
-                        <a href="/Quest/@quest.Id" class="btn btn-outline-primary btn-sm">
+                        <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm">
                             @(quest.IsFinalized ? "View Details" : "Sign Up")
                         </a>
                     </div>

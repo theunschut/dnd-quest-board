@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a D&D Quest Board web application built with ASP.NET Core 8 that allows DMs to create quests and players to sign up and vote on proposed dates. The application handles quest management, player coordination, and email notifications.
+This is a D&D Quest Board web application built with ASP.NET Core 8 MVC that allows DMs to create quests and players to sign up and vote on proposed dates. The application handles quest management, player coordination, and email notifications.
 
 ## Development Commands
 

@@ -1,26 +1,26 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestBoard.Data;
 using QuestBoard.Models;
 
-namespace QuestBoard.Pages;
+namespace QuestBoard.Controllers;
 
-public class IndexModel : PageModel
+public class HomeController : Controller
 {
     private readonly QuestBoardContext _context;
 
-    public IndexModel(QuestBoardContext context)
+    public HomeController(QuestBoardContext context)
     {
         _context = context;
     }
 
-    public IList<Quest> Quests { get; set; } = default!;
-
-    public async Task OnGetAsync()
+    public async Task<IActionResult> Index()
     {
-        Quests = await _context.Quests
+        var quests = await _context.Quests
             .Include(q => q.PlayerSignups)
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync();
+
+        return View(quests);
     }
 }

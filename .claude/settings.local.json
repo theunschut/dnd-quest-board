@@ -10,7 +10,9 @@
       "Bash(mv:*)",
       "Bash(dotnet build)",
       "Bash(timeout:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(cp:*)",
+      "Bash(dotnet clean:*)"
     ],
     "deny": []
   }

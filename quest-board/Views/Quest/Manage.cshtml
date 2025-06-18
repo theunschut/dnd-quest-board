@@ -1,20 +1,20 @@
-@page "/ManageQuest/{id:int}"
-@model ManageQuestModel
+@model QuestBoard.Models.Quest
 @{
-    ViewData["Title"] = $"Manage Quest: {Model.Quest.Title}";
+    ViewData["Title"] = $"Manage Quest: {Model.Title}";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Manage Quest: @Model.Quest.Title</h1>
-    <a href="/Quest/@Model.Quest.Id" class="btn btn-outline-secondary">View Public Page</a>
+    <h1>Manage Quest: @Model.Title</h1>
+    <a href="@Url.Action("Details", "Quest", new { id = Model.Id })" class="btn btn-outline-secondary">View Public Page</a>
 </div>
 
-@if (!Model.IsAuthorized)
+@if (!(bool)ViewBag.IsAuthorized)
 {
     <div class="alert alert-warning">
         <h5>DM Verification Required</h5>
         <p>Please enter your DM name to manage this quest:</p>
-        <form method="post" asp-page-handler="VerifyDm">
+        <form asp-action="VerifyDm" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
             <div class="input-group mb-3">
                 <input name="DmName" class="form-control" placeholder="Enter your DM name..." required />
                 <button type="submit" class="btn btn-primary">Verify</button>
@@ -24,13 +24,13 @@
 }
 else
 {
-    @if (Model.Quest.IsFinalized)
+    @if (Model.IsFinalized)
     {
         <div class="alert alert-info">
             <h5>Quest Finalized</h5>
             <p>This quest has been finalized with the following details:</p>
-            <p><strong>Date:</strong> @Model.Quest.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
-            <p><strong>Selected Players:</strong> @string.Join(", ", Model.Quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</p>
+            <p><strong>Date:</strong> @Model.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+            <p><strong>Selected Players:</strong> @string.Join(", ", Model.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</p>
         </div>
     }
     else
@@ -42,14 +42,15 @@ else
                         <h5>Date Selection & Player Management</h5>
                     </div>
                     <div class="card-body">
-                        <form method="post" asp-page-handler="FinalizeQuest">
+                        <form asp-action="Finalize" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
                             <h6>Proposed Dates & Voting Results:</h6>
-                            @foreach (var date in Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)))
+                            @foreach (var date in Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)))
                             {
                                 var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
                                 var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
                                 var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
-                                var isRecommended = date == Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
+                                var isRecommended = date == Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
 
                                 <div class="date-option @(isRecommended ? "border-success" : "")">
                                     <div class="form-check">
@@ -104,7 +105,7 @@ else
                             <p class="text-muted">Select up to 6 players for this quest. Players are listed in signup order.</p>
                             
                             @{
-                                var recommendedDate = Model.Quest.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
+                                var recommendedDate = Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
                                 var availablePlayers = recommendedDate.PlayerVotes
                                     .Where(v => v.Vote == VoteType.Yes)
                                     .Select(v => v.PlayerSignup)
@@ -113,9 +114,9 @@ else
                             }
 
                             <div id="player-selection">
-                                @for (int i = 0; i < Model.Quest.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
+                                @for (int i = 0; i < Model.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
                                 {
-                                    var player = Model.Quest.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
+                                    var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
                                     var isInTop6 = i < 6 && availablePlayers.Contains(player);
                                     
                                     <div class="form-check">
@@ -153,15 +154,15 @@ else
                         <h5>Quest Summary</h5>
                     </div>
                     <div class="card-body">
-                        <p><strong>Total Signups:</strong> @Model.Quest.PlayerSignups.Count</p>
+                        <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
                         <p><strong>Target Players:</strong> 6</p>
-                        <p><strong>Created:</strong> @Model.Quest.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
                         
                         <hr>
                         
                         <h6>Quick Stats:</h6>
                         @{
-                            var mostPopularDate = Model.Quest.ProposedDates
+                            var mostPopularDate = Model.ProposedDates
                                 .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
                                 .First();
                             var yesCount = mostPopularDate.PlayerVotes.Count(v => v.Vote == VoteType.Yes);

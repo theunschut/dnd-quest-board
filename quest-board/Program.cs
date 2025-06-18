@@ -5,7 +5,7 @@ using QuestBoard.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews();
 
 // Add session support
 builder.Services.AddSession(options =>
@@ -40,7 +40,9 @@ app.UseSession();
 
 app.UseAuthorization();
 
-app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Ensure database is created
 using (var scope = app.Services.CreateScope())

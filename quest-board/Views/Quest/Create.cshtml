@@ -1,5 +1,4 @@
-@page
-@model CreateQuestModel
+@model QuestBoard.Models.Quest
 @{
     ViewData["Title"] = "Create Quest";
 }
@@ -9,43 +8,43 @@
 <div class="row">
     <div class="col-md-8">
         <div asp-validation-summary="All" class="text-danger"></div>
-        <form method="post">
+        <form asp-action="Create" method="post">
             <div class="mb-3">
-                <label asp-for="Quest.Title" class="form-label">Quest Title</label>
-                <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
-                <span asp-validation-for="Quest.Title" class="text-danger"></span>
+                <label asp-for="Title" class="form-label">Quest Title</label>
+                <input asp-for="Title" class="form-control" placeholder="Enter the quest title..." />
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Quest.Description" class="form-label">Description</label>
-                <textarea asp-for="Quest.Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
-                <span asp-validation-for="Quest.Description" class="text-danger"></span>
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Quest.Difficulty" class="form-label">Difficulty</label>
-                <select asp-for="Quest.Difficulty" class="form-select">
+                <label asp-for="Difficulty" class="form-label">Difficulty</label>
+                <select asp-for="Difficulty" class="form-select">
                     <option value="0">Easy</option>
                     <option value="1">Medium</option>
                     <option value="2">Hard</option>
                     <option value="3">Deadly</option>
                 </select>
-                <span asp-validation-for="Quest.Difficulty" class="text-danger"></span>
+                <span asp-validation-for="Difficulty" class="text-danger"></span>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="Quest.DmName" class="form-label">DM Name</label>
-                        <input asp-for="Quest.DmName" class="form-control" placeholder="Your name..." />
-                        <span asp-validation-for="Quest.DmName" class="text-danger"></span>
+                        <label asp-for="DmName" class="form-label">DM Name</label>
+                        <input asp-for="DmName" class="form-control" placeholder="Your name..." />
+                        <span asp-validation-for="DmName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="Quest.DmEmail" class="form-label">DM Email (Optional)</label>
-                        <input asp-for="Quest.DmEmail" type="email" class="form-control" placeholder="your.email@example.com" />
-                        <span asp-validation-for="Quest.DmEmail" class="text-danger"></span>
+                        <label asp-for="DmEmail" class="form-label">DM Email (Optional)</label>
+                        <input asp-for="DmEmail" type="email" class="form-control" placeholder="your.email@example.com" />
+                        <span asp-validation-for="DmEmail" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -67,7 +66,7 @@
 
             <div class="mb-3">
                 <button type="submit" class="btn btn-primary">Create Quest</button>
-                <a href="/" class="btn btn-secondary">Cancel</a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
@@ -126,9 +125,9 @@
                 }
                 
                 // Check required fields
-                const title = document.querySelector('input[name="Quest.Title"]').value;
-                const description = document.querySelector('textarea[name="Quest.Description"]').value;
-                const dmName = document.querySelector('input[name="Quest.DmName"]').value;
+                const title = document.querySelector('input[name="Title"]').value;
+                const description = document.querySelector('textarea[name="Description"]').value;
+                const dmName = document.querySelector('input[name="DmName"]').value;
                 
                 if (!title || !description || !dmName) {
                     e.preventDefault();

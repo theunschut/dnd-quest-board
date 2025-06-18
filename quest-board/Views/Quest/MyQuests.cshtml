@@ -1,30 +1,29 @@
-@page
-@model MyQuestsModel
+@model IEnumerable<QuestBoard.Models.Quest>
 @{
     ViewData["Title"] = "My Quests";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>My Quests</h1>
-    <a href="/CreateQuest" class="btn btn-primary">Create New Quest</a>
+    <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create New Quest</a>
 </div>
 
 <div class="alert alert-info">
     <h5>DM Verification</h5>
     <p>Enter your DM name to view and manage your quests:</p>
-    <form method="post">
+    <form asp-action="MyQuests" method="post">
         <div class="input-group mb-3">
             <input name="DmName" class="form-control" placeholder="Enter your DM name..." 
-                   value="@Model.DmName" required />
+                   value="@ViewBag.DmName" required />
             <button type="submit" class="btn btn-primary">Find My Quests</button>
         </div>
     </form>
 </div>
 
-@if (Model.Quests.Any())
+@if (Model.Any())
 {
     <div class="row">
-        @foreach (var quest in Model.Quests)
+        @foreach (var quest in Model)
         {
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
@@ -60,10 +59,10 @@
                         }
                     </div>
                     <div class="card-footer">
-                        <a href="/Quest/@quest.Id" class="btn btn-outline-primary btn-sm me-2">View</a>
+                        <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm me-2">View</a>
                         @if (!quest.IsFinalized)
                         {
-                            <a href="/ManageQuest/@quest.Id" class="btn btn-outline-success btn-sm">Manage</a>
+                            <a href="@Url.Action("Manage", "Quest", new { id = quest.Id })" class="btn btn-outline-success btn-sm">Manage</a>
                         }
                     </div>
                 </div>
@@ -71,11 +70,11 @@
         }
     </div>
 }
-else if (!string.IsNullOrEmpty(Model.DmName))
+else if (!string.IsNullOrEmpty(ViewBag.DmName as string))
 {
     <div class="text-center py-5">
         <h3 class="text-muted">No quests found</h3>
         <p class="text-muted">You haven't created any quests yet.</p>
-        <a href="/CreateQuest" class="btn btn-primary">Create Your First Quest</a>
+        <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create Your First Quest</a>
     </div>
 }
