@@ -70,27 +70,27 @@ else
                                             <div class="col-md-4">
                                                 <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
                                                 <ul class="list-unstyled small">
-                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.PlayerName</li>
                                                     }
                                                 </ul>
                                             </div>
                                             <div class="col-md-4">
                                                 <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
                                                 <ul class="list-unstyled small">
-                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.PlayerName</li>
                                                     }
                                                 </ul>
                                             </div>
                                             <div class="col-md-4">
                                                 <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
                                                 <ul class="list-unstyled small">
-                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup.SignupTime))
+                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.PlayerName</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -109,7 +109,7 @@ else
                                 var availablePlayers = recommendedDate.PlayerVotes
                                     .Where(v => v.Vote == VoteType.Yes)
                                     .Select(v => v.PlayerSignup)
-                                    .OrderBy(ps => ps.SignupTime)
+                                    .OrderBy(ps => ps?.SignupTime)
                                     .ToList();
                             }
 

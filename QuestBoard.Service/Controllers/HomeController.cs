@@ -1,20 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Repository.Interfaces;
+using QuestBoard.Repository;
 
 namespace QuestBoard.Service.Controllers;
 
-public class HomeController : Controller
+public class HomeController(IQuestRepository repository) : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public HomeController(IUnitOfWork unitOfWork)
-    {
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<IActionResult> Index()
     {
-        var quests = await _unitOfWork.Quests.GetQuestsWithSignupsAsync();
+        var quests = await repository.GetQuestsWithSignupsAsync();
+
         return View(quests);
     }
 }

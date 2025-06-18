@@ -1,6 +1,8 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @model IEnumerable<Quest>
 @{
     ViewData["Title"] = "My Quests";
+    var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,7 +15,7 @@
     <p>Enter your DM name to view and manage your quests:</p>
     <form asp-action="MyQuests" method="post">
         <div class="input-group mb-3">
-            <input name="DmName" class="form-control" placeholder="Enter your DM name..." 
+            <input name="DmName" class="form-control" placeholder="Enter your DM name..."
                    value="@ViewBag.DmName" required />
             <button type="submit" class="btn btn-primary">Find My Quests</button>
         </div>
@@ -38,12 +40,12 @@
                     <div class="card-body">
                         <h5 class="card-title">@quest.Title</h5>
                         <p class="card-text">@quest.Description</p>
-                        
-                        @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
+
+                        @if (quest.IsFinalized)
                         {
                             <p class="card-text">
                                 <strong>Date:</strong><br>
-                                <small>@quest.FinalizedDate.Value.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                                <small>@quest.FinalizedDate?.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
                             </p>
                             <p class="card-text">
                                 <strong>Players:</strong><br>
@@ -62,8 +64,9 @@
                         <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm me-2">View</a>
                         @if (!quest.IsFinalized)
                         {
-                            <a href="@Url.Action("Manage", "Quest", new { id = quest.Id })" class="btn btn-outline-success btn-sm">Manage</a>
+                            <a href="@Url.Action("Manage", "Quest", new { id = quest.Id })" class="btn btn-outline-success btn-sm me-2">Manage</a>
                         }
+                        <a href="#" class="btn btn-outline-danger btn-sm" onclick="deleteQuest(@quest.Id)">Delete</a>
                     </div>
                 </div>
             </div>
@@ -78,3 +81,22 @@ else if (!string.IsNullOrEmpty(ViewBag.DmName as string))
         <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create Your First Quest</a>
     </div>
 }
+
+<script>
+    function deleteQuest(id) {
+        if (confirm("Are you sure?")) {
+            fetch(`/Quest/Delete/${id}`, {
+                method: "DELETE",
+                headers: {
+                    'RequestVerificationToken': '@tokens.RequestToken'
+                }
+            }).then(res => {
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    alert("Delete failed.");
+                }
+            });
+        }
+    }
+</script>

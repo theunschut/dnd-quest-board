@@ -2,68 +2,68 @@
 @{
     ViewData["Title"] = "Quest Board";
 }
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>D&D Quest Board</h1>
-    <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create New Quest</a>
-</div>
-
-@if (!Model.Any())
-{
-    <div class="text-center py-5">
-        <h3 class="text-muted">No quests available</h3>
-        <p class="text-muted">Be the first DM to create a quest!</p>
-        <a href="@Url.Action("Create", "Quest")" class="btn btn-primary">Create Quest</a>
-    </div>
-}
-else
-{
-    <div class="row">
-        @foreach (var quest in Model)
-        {
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
-                            @quest.Difficulty
-                        </span>
+<div class="row">
+    @foreach (var quest in Model)
+    {
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
+                        @quest.Difficulty
+                    </span>
+                    <small class="text-muted">
+                        @(quest.IsFinalized ? "Finalized" : "Open")
+                    </small>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@quest.Title</h5>
+                    <p class="card-text">@quest.Description</p>
+                    <p class="card-text">
                         <small class="text-muted">
-                            @(quest.IsFinalized ? "Finalized" : "Open")
+                            DM: @quest.DmName
                         </small>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">@quest.Title</h5>
-                        <p class="card-text">@quest.Description</p>
+                    </p>
+                    @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
+                    {
                         <p class="card-text">
-                            <small class="text-muted">
-                                DM: @quest.DmName
-                            </small>
+                            <strong>Quest Date:</strong><br>
+                            @quest.FinalizedDate.Value.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
                         </p>
-                        @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
-                        {
-                            <p class="card-text">
-                                <strong>Quest Date:</strong><br>
-                                @quest.FinalizedDate.Value.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
-                            </p>
-                            <p class="card-text">
-                                <strong>Selected Players:</strong><br>
-                                @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))
-                            </p>
-                        }
-                        else
-                        {
-                            <p class="card-text">
-                                <strong>Players signed up:</strong> @quest.PlayerSignups.Count()
-                            </p>
-                        }
-                    </div>
-                    <div class="card-footer">
-                        <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm">
-                            @(quest.IsFinalized ? "View Details" : "Sign Up")
-                        </a>
-                    </div>
+                        <p class="card-text">
+                            <strong>Selected Players:</strong><br>
+                            @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="card-text">
+                            <strong>Players signed up:</strong> @quest.PlayerSignups.Count()
+                        </p>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-primary btn-sm">
+                        @(quest.IsFinalized ? "View Details" : "Sign Up")
+                    </a>
                 </div>
             </div>
-        }
-    </div>
-}
+        </div>
+    }
+</div>
+
+
+<style>
+    body {
+        background-image: url('/images/Notice Board-blank2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .quest-card {
+        background-image: url('/images/Blanks/Poster4.png');
+        background-size: auto;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+</style>

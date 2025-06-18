@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Repository.Interfaces;
-using QuestBoard.Models;
+using QuestBoard.Domain.Models;
+using QuestBoard.Repository;
 using QuestBoard.Service.Services;
+using QuestBoard.Service.ViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService) : Controller
+public class QuestController(IQuestRepository repository, IEmailService emailService) : Controller
 {
     public IActionResult Create()
     {
@@ -34,21 +35,20 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
                 CreatedAt = DateTime.UtcNow
             };
 
-            await unitOfWork.Quests.AddAsync(quest);
-            await unitOfWork.SaveChangesAsync();
-
             // Add proposed dates from ViewModel
-            foreach (var date in viewModel.ProposedDates)
+            var dates = viewModel.ProposedDates.Select(date =>
             {
-                var proposedDate = new ProposedDate
+                return new ProposedDate
                 {
                     QuestId = quest.Id,
+                    Quest = quest,
                     Date = date
                 };
-                await unitOfWork.ProposedDates.AddAsync(proposedDate);
-            }
+            }).ToList();
 
-            await unitOfWork.SaveChangesAsync();
+            quest.ProposedDates = dates;
+
+            await repository.AddAsync(quest);
 
             return RedirectToAction("Index", "Home");
         }
@@ -59,9 +59,26 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
         }
     }
 
+    [HttpDelete]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var quest = await repository.GetQuestWithDetailsAsync(id);
+
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        await repository.RemoveAsync(quest);
+
+        return Ok();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
+        var quest = await repository.GetQuestWithDetailsAsync(id);
 
         if (quest == null)
         {
@@ -76,119 +93,56 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
         // Get DM name for management access
         ViewBag.DmNameForManagement = HttpContext.Session.GetString($"DmName_{id}");
 
-        return View(quest);
+        var signup = new PlayerSignup
+        {
+            Quest = quest,
+            QuestId = quest.Id,
+            DateVotes = quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id }).ToList(),
+        };
+
+        return View(signup);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SignUp(int id)
+    public async Task<IActionResult> Details(int questId, PlayerSignup signup)
     {
-        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
+        var quest = await repository.GetQuestWithDetailsAsync(questId);
 
         if (quest == null || quest.IsFinalized)
         {
             return NotFound();
         }
 
-        var playerName = Request.Form["PlayerName"].ToString().Trim();
-        var playerEmail = Request.Form["PlayerEmail"].ToString().Trim();
+        signup.PlayerName = signup.PlayerName.Trim();
+        signup.PlayerEmail = signup.PlayerEmail?.Trim();
 
-        if (string.IsNullOrEmpty(playerName))
+        if (string.IsNullOrEmpty(signup.PlayerName))
         {
             ModelState.AddModelError("", "Player name is required.");
-            return await Details(id);
+            return await Details(questId);
         }
 
         // Check if player already signed up
-        if (quest.PlayerSignups.Any(ps => ps.PlayerName.Equals(playerName, StringComparison.OrdinalIgnoreCase)))
+        if (quest.PlayerSignups.Any(ps => ps.PlayerName.Equals(signup.PlayerName, StringComparison.OrdinalIgnoreCase)))
         {
             ModelState.AddModelError("", "A player with this name has already signed up.");
-            return await Details(id);
+            return await Details(questId);
         }
 
-        // Create player signup
-        var playerSignup = new PlayerSignup
-        {
-            QuestId = quest.Id,
-            PlayerName = playerName,
-            PlayerEmail = string.IsNullOrEmpty(playerEmail) ? null : playerEmail,
-            SignupTime = DateTime.UtcNow
-        };
-
-        await unitOfWork.PlayerSignups.AddAsync(playerSignup);
-        await unitOfWork.SaveChangesAsync();
-
-        // Create date votes
-        foreach (var proposedDate in quest.ProposedDates)
-        {
-            var voteValue = Request.Form[$"DateVote_{proposedDate.Id}"].ToString();
-            if (int.TryParse(voteValue, out var vote))
-            {
-                var playerDateVote = new PlayerDateVote
-                {
-                    PlayerSignupId = playerSignup.Id,
-                    ProposedDateId = proposedDate.Id,
-                    Vote = (VoteType)vote
-                };
-
-                await unitOfWork.PlayerDateVotes.AddAsync(playerDateVote);
-            }
-        }
-
-        await unitOfWork.SaveChangesAsync();
+        await repository.AddAsync(signup);
 
         // Store player name in session for future reference
-        HttpContext.Session.SetString($"PlayerName_{id}", playerName);
+        HttpContext.Session.SetString($"PlayerName_{questId}", signup.PlayerName);
 
-        return RedirectToAction("Details", new { id });
-    }
-
-    public async Task<IActionResult> Manage(int id)
-    {
-        var quest = await unitOfWork.Quests.GetQuestWithManageDetailsAsync(id);
-
-        if (quest == null)
-        {
-            return NotFound();
-        }
-
-        // Check if DM is authorized
-        var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) &&
-                      sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase);
-
-        return View(quest);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> VerifyDm(int id)
-    {
-        var quest = await unitOfWork.Quests.GetByIdAsync(id);
-        if (quest == null)
-        {
-            return NotFound();
-        }
-
-        var dmName = Request.Form["DmName"].ToString().Trim();
-
-        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError("", "DM name does not match.");
-            return await Manage(id);
-        }
-
-        // Store DM name in session
-        HttpContext.Session.SetString($"DmName_{id}", dmName);
-
-        return RedirectToAction("Manage", new { id });
+        return RedirectToAction("Details", new { questId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Finalize(int id)
     {
-        var quest = await unitOfWork.Quests.GetQuestWithDetailsAsync(id);
+        var quest = await repository.GetQuestWithDetailsAsync(id);
 
         if (quest == null || quest.IsFinalized)
         {
@@ -240,8 +194,8 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
             playerSignup.IsSelected = selectedPlayerIds.Contains(playerSignup.Id);
         }
 
-        unitOfWork.Quests.Update(quest);
-        await unitOfWork.SaveChangesAsync();
+        await repository.UpdateAsync(quest);
+        //await repository.SaveChangesAsync();
 
         // Send email notifications to selected players
         var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.PlayerEmail));
@@ -260,6 +214,25 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
         return RedirectToAction("Details", new { id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Manage(int id)
+    {
+        var quest = await repository.GetQuestWithManageDetailsAsync(id);
+
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        // Check if DM is authorized
+        var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
+        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) &&
+                      sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase);
+
+        return View(quest);
+    }
+
+    [HttpGet]
     public IActionResult MyQuests()
     {
         return View(new List<Quest>());
@@ -275,9 +248,33 @@ public class QuestController(IUnitOfWork unitOfWork, IEmailService emailService)
             return View(new List<Quest>());
         }
 
-        var quests = await unitOfWork.Quests.GetQuestsByDmNameAsync(dmName);
+        var quests = await repository.GetQuestsByDmNameAsync(dmName);
 
         ViewBag.DmName = dmName;
         return View(quests);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyDm(int id)
+    {
+        var quest = await repository.GetByIdAsync(id);
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        var dmName = Request.Form["DmName"].ToString().Trim();
+
+        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError("", "DM name does not match.");
+            return await Manage(id);
+        }
+
+        // Store DM name in session
+        HttpContext.Session.SetString($"DmName_{id}", dmName);
+
+        return RedirectToAction("Manage", new { id });
     }
 }

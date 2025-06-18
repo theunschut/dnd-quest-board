@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using QuestBoard.Data;
-using QuestBoard.Repository.Implementations;
-using QuestBoard.Repository.Interfaces;
 using QuestBoard.Service.Services;
+using QuestBoard.Repository.Extensions;
+using QuestBoard.Repository.Automapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,19 +15,17 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Add Entity Framework
-builder.Services.AddDbContext<QuestBoardContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Add repositories
+builder.Services.AddRepositoryServices(builder.Configuration);
 
 // Add email service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-// Add repositories
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IQuestRepository, QuestRepository>();
-builder.Services.AddScoped<IProposedDateRepository, ProposedDateRepository>();
-builder.Services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
-builder.Services.AddScoped<IPlayerDateVoteRepository, PlayerDateVoteRepository>();
+// Add automapper
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<EntityProfile>();
+});
 
 var app = builder.Build();
 
@@ -53,11 +49,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Ensure database is created
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
-    context.Database.EnsureCreated();
-}
+app.Services.ConfigureDatabase();
 
 app.Run();

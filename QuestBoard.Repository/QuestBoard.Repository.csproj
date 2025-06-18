@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QuestBoard.Models\QuestBoard.Models.csproj" />
-    <ProjectReference Include="..\QuestBoard.Data\QuestBoard.Data.csproj" />
+    <ProjectReference Include="..\QuestBoard.Domain\QuestBoard.Domain.csproj" />
   </ItemGroup>
 
 </Project>
