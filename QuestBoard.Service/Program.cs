@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Data;
-using QuestBoard.Services;
+using QuestBoard.Service.Data;
+using QuestBoard.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

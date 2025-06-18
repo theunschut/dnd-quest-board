@@ -1,24 +1,15 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace QuestBoard.Services;
+namespace QuestBoard.Service.Services;
 
-public class EmailService : IEmailService
+public class EmailService(IConfiguration configuration, ILogger<EmailService> logger) : IEmailService
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<EmailService> _logger;
-
-    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
-    {
-        _configuration = configuration;
-        _logger = logger;
-    }
-
     public async Task SendQuestFinalizedEmailAsync(string toEmail, string playerName, string questTitle, string dmName, DateTime questDate)
     {
         try
         {
-            var smtpSettings = _configuration.GetSection("EmailSettings");
+            var smtpSettings = configuration.GetSection("EmailSettings");
             var smtpServer = smtpSettings["SmtpServer"];
             var smtpPort = int.Parse(smtpSettings["SmtpPort"] ?? "587");
             var smtpUsername = smtpSettings["SmtpUsername"];
@@ -28,7 +19,7 @@ public class EmailService : IEmailService
 
             if (string.IsNullOrEmpty(smtpUsername) || string.IsNullOrEmpty(smtpPassword) || string.IsNullOrEmpty(fromEmail))
             {
-                _logger.LogWarning("Email settings not configured. Skipping email notification.");
+                logger.LogWarning("Email settings not configured. Skipping email notification.");
                 return;
             }
 
@@ -62,11 +53,11 @@ See you at the table!
             mailMessage.To.Add(toEmail);
 
             await client.SendMailAsync(mailMessage);
-            _logger.LogInformation("Quest finalized email sent to {Email} for quest {QuestTitle}", toEmail, questTitle);
+            logger.LogInformation("Quest finalized email sent to {Email} for quest {QuestTitle}", toEmail, questTitle);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send quest finalized email to {Email} for quest {QuestTitle}", toEmail, questTitle);
+            logger.LogError(ex, "Failed to send quest finalized email to {Email} for quest {QuestTitle}", toEmail, questTitle);
         }
     }
 }

@@ -1,22 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Data;
-using QuestBoard.Models;
-using QuestBoard.Services;
+using QuestBoard.Service.Data;
+using QuestBoard.Service.Models;
+using QuestBoard.Service.Services;
 
-namespace QuestBoard.Controllers;
+namespace QuestBoard.Service.Controllers;
 
-public class QuestController : Controller
+public class QuestController(QuestBoardContext context, IEmailService emailService) : Controller
 {
-    private readonly QuestBoardContext _context;
-    private readonly IEmailService _emailService;
-
-    public QuestController(QuestBoardContext context, IEmailService emailService)
-    {
-        _context = context;
-        _emailService = emailService;
-    }
-
     public IActionResult Create()
     {
         return View(new CreateQuestViewModel());
@@ -44,8 +35,8 @@ public class QuestController : Controller
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Quests.Add(quest);
-            await _context.SaveChangesAsync();
+            context.Quests.Add(quest);
+            await context.SaveChangesAsync();
 
             // Add proposed dates from ViewModel
             foreach (var date in viewModel.ProposedDates)
@@ -55,10 +46,10 @@ public class QuestController : Controller
                     QuestId = quest.Id,
                     Date = date
                 };
-                _context.ProposedDates.Add(proposedDate);
+                context.ProposedDates.Add(proposedDate);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
         }
@@ -71,7 +62,7 @@ public class QuestController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        var quest = await _context.Quests
+        var quest = await context.Quests
             .Include(q => q.ProposedDates)
                 .ThenInclude(pd => pd.PlayerVotes)
             .Include(q => q.PlayerSignups)
@@ -84,7 +75,7 @@ public class QuestController : Controller
 
         // Check if current user is signed up
         var playerName = HttpContext.Session.GetString($"PlayerName_{id}");
-        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) && 
+        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) &&
                           quest.PlayerSignups.Any(ps => ps.PlayerName == playerName);
 
         // Get DM name for management access
@@ -97,7 +88,7 @@ public class QuestController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SignUp(int id)
     {
-        var quest = await _context.Quests
+        var quest = await context.Quests
             .Include(q => q.ProposedDates)
             .Include(q => q.PlayerSignups)
             .FirstOrDefaultAsync(q => q.Id == id);
@@ -132,8 +123,8 @@ public class QuestController : Controller
             SignupTime = DateTime.UtcNow
         };
 
-        _context.PlayerSignups.Add(playerSignup);
-        await _context.SaveChangesAsync();
+        context.PlayerSignups.Add(playerSignup);
+        await context.SaveChangesAsync();
 
         // Create date votes
         foreach (var proposedDate in quest.ProposedDates)
@@ -148,21 +139,21 @@ public class QuestController : Controller
                     Vote = (VoteType)vote
                 };
 
-                _context.PlayerDateVotes.Add(playerDateVote);
+                context.PlayerDateVotes.Add(playerDateVote);
             }
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Store player name in session for future reference
         HttpContext.Session.SetString($"PlayerName_{id}", playerName);
 
-        return RedirectToAction("Details", new { id = id });
+        return RedirectToAction("Details", new { id });
     }
 
     public async Task<IActionResult> Manage(int id)
     {
-        var quest = await _context.Quests
+        var quest = await context.Quests
             .Include(q => q.ProposedDates)
                 .ThenInclude(pd => pd.PlayerVotes)
                     .ThenInclude(pv => pv.PlayerSignup)
@@ -176,7 +167,7 @@ public class QuestController : Controller
 
         // Check if DM is authorized
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) && 
+        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) &&
                       sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase);
 
         return View(quest);
@@ -186,14 +177,14 @@ public class QuestController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyDm(int id)
     {
-        var quest = await _context.Quests.FindAsync(id);
+        var quest = await context.Quests.FindAsync(id);
         if (quest == null)
         {
             return NotFound();
         }
 
         var dmName = Request.Form["DmName"].ToString().Trim();
-        
+
         if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
         {
             ModelState.AddModelError("", "DM name does not match.");
@@ -203,14 +194,14 @@ public class QuestController : Controller
         // Store DM name in session
         HttpContext.Session.SetString($"DmName_{id}", dmName);
 
-        return RedirectToAction("Manage", new { id = id });
+        return RedirectToAction("Manage", new { id });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Finalize(int id)
     {
-        var quest = await _context.Quests
+        var quest = await context.Quests
             .Include(q => q.ProposedDates)
             .Include(q => q.PlayerSignups)
             .FirstOrDefaultAsync(q => q.Id == id);
@@ -222,7 +213,7 @@ public class QuestController : Controller
 
         // Verify DM authorization
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        if (string.IsNullOrEmpty(sessionDmName) || 
+        if (string.IsNullOrEmpty(sessionDmName) ||
             !sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
         {
             return Unauthorized();
@@ -234,9 +225,9 @@ public class QuestController : Controller
             ModelState.AddModelError("", "Please select a date.");
             return await Manage(id);
         }
-        
+
         var selectedDate = quest.ProposedDates.FirstOrDefault(pd => pd.Id == selectedDateId);
-        
+
         if (selectedDate == null)
         {
             ModelState.AddModelError("", "Please select a date.");
@@ -246,7 +237,7 @@ public class QuestController : Controller
         // Get selected players
         var selectedPlayerIds = Request.Form["SelectedPlayerIds"]
             .Where(idStr => !string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out _))
-            .Select(idStr => int.Parse(idStr))
+            .Select(int.Parse)
             .ToList();
 
         if (selectedPlayerIds.Count > 6)
@@ -265,14 +256,14 @@ public class QuestController : Controller
             playerSignup.IsSelected = selectedPlayerIds.Contains(playerSignup.Id);
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // Send email notifications to selected players
         var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.PlayerEmail));
-        
+
         foreach (var player in selectedPlayers)
         {
-            await _emailService.SendQuestFinalizedEmailAsync(
+            await emailService.SendQuestFinalizedEmailAsync(
                 player.PlayerEmail!,
                 player.PlayerName,
                 quest.Title,
@@ -281,7 +272,7 @@ public class QuestController : Controller
             );
         }
 
-        return RedirectToAction("Details", new { id = id });
+        return RedirectToAction("Details", new { id });
     }
 
     public IActionResult MyQuests()
@@ -299,7 +290,7 @@ public class QuestController : Controller
             return View(new List<Quest>());
         }
 
-        var quests = await _context.Quests
+        var quests = await context.Quests
             .Include(q => q.PlayerSignups)
             .Where(q => q.DmName.Equals(dmName, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(q => q.CreatedAt)

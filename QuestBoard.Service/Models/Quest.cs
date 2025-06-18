@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Models;
+namespace QuestBoard.Service.Models;
 
 public class Quest
 {
@@ -32,12 +32,4 @@ public class Quest
 
     public virtual ICollection<ProposedDate> ProposedDates { get; set; } = new List<ProposedDate>();
     public virtual ICollection<PlayerSignup> PlayerSignups { get; set; } = new List<PlayerSignup>();
-}
-
-public enum Difficulty
-{
-    Easy,
-    Medium,
-    Hard,
-    Deadly
 }

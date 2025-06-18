@@ -14,13 +14,13 @@ This is a D&D Quest Board web application built with ASP.NET Core 8 MVC that all
 dotnet build
 
 # Run the application
-dotnet run --project quest-board
+dotnet run --project QuestBoard.Service
 
 # Restore packages for solution
 dotnet restore
 ```
 
-### From quest-board Directory
+### From QuestBoard.Service Directory
 ```bash
 # Run the application
 dotnet run

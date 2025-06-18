@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Models;
+namespace QuestBoard.Service.Models;
 
 public class PlayerDateVote
 {
@@ -17,11 +17,4 @@ public class PlayerDateVote
 
     public virtual PlayerSignup PlayerSignup { get; set; } = null!;
     public virtual ProposedDate ProposedDate { get; set; } = null!;
-}
-
-public enum VoteType
-{
-    No,
-    Maybe,
-    Yes
 }

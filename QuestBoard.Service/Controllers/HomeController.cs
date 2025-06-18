@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Data;
-using QuestBoard.Models;
+using QuestBoard.Service.Data;
 
-namespace QuestBoard.Controllers;
+namespace QuestBoard.Service.Controllers;
 
 public class HomeController : Controller
 {

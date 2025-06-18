@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using QuestBoard.Models;
+using QuestBoard.Service.Models;
 
-namespace QuestBoard.Data;
+namespace QuestBoard.Service.Data;
 
-public class QuestBoardContext : DbContext
+public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : DbContext(options)
 {
-    public QuestBoardContext(DbContextOptions<QuestBoardContext> options) : base(options)
-    {
-    }
-
     public DbSet<Quest> Quests { get; set; }
     public DbSet<ProposedDate> ProposedDates { get; set; }
     public DbSet<PlayerSignup> PlayerSignups { get; set; }

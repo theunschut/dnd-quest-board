@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Models;
+namespace QuestBoard.Service.Models;
 
 public class CreateQuestViewModel
 {

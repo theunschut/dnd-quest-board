@@ -13,7 +13,9 @@
       "Bash(rm:*)",
       "Bash(cp:*)",
       "Bash(dotnet clean:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(sudo mv:*)",
+      "Bash(git mv:*)"
     ],
     "deny": []
   }
