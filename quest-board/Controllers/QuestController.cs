@@ -19,63 +19,36 @@ public class QuestController : Controller
 
     public IActionResult Create()
     {
-        return View(new Quest());
+        return View(new CreateQuestViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Quest quest)
+    public async Task<IActionResult> Create(CreateQuestViewModel viewModel)
     {
         try
         {
-            // Get proposed dates from form
-            var proposedDates = new List<DateTime>();
-            
-            for (int i = 0; i < 10; i++)
-            {
-                var dateKey = $"ProposedDates[{i}]";
-                if (Request.Form.ContainsKey(dateKey))
-                {
-                    var dateString = Request.Form[dateKey].ToString();
-                    
-                    if (!string.IsNullOrEmpty(dateString) && DateTime.TryParse(dateString, out var date))
-                    {
-                        proposedDates.Add(date);
-                    }
-                }
-            }
-
-            if (!proposedDates.Any())
-            {
-                ModelState.AddModelError("", "At least one proposed date is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(quest.Title))
-            {
-                ModelState.AddModelError("Title", "Title is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(quest.Description))
-            {
-                ModelState.AddModelError("Description", "Description is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(quest.DmName))
-            {
-                ModelState.AddModelError("DmName", "DM Name is required.");
-            }
-
             if (!ModelState.IsValid)
             {
-                return View(quest);
+                return View(viewModel);
             }
 
-            quest.CreatedAt = DateTime.UtcNow;
+            // Create Quest entity from ViewModel
+            var quest = new Quest
+            {
+                Title = viewModel.Title,
+                Description = viewModel.Description,
+                Difficulty = viewModel.Difficulty,
+                DmName = viewModel.DmName,
+                DmEmail = viewModel.DmEmail,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Quests.Add(quest);
             await _context.SaveChangesAsync();
 
-            // Add proposed dates
-            foreach (var date in proposedDates)
+            // Add proposed dates from ViewModel
+            foreach (var date in viewModel.ProposedDates)
             {
                 var proposedDate = new ProposedDate
                 {
@@ -92,7 +65,7 @@ public class QuestController : Controller
         catch (Exception ex)
         {
             ModelState.AddModelError("", $"An error occurred: {ex.Message}");
-            return View(quest);
+            return View(viewModel);
         }
     }
 

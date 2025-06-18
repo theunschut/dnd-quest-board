@@ -12,7 +12,8 @@
       "Bash(timeout:*)",
       "Bash(rm:*)",
       "Bash(cp:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet build:*)"
     ],
     "deny": []
   }
