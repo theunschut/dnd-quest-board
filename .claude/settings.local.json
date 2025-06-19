@@ -19,7 +19,8 @@
       "Bash(dotnet add package:*)",
       "Bash(dotnet add reference:*)",
       "Bash(dotnet remove:*)",
-      "Bash(dotnet run:*)"
+      "Bash(dotnet run:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
