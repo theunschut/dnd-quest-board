@@ -7,13 +7,16 @@ using QuestBoard.Service.ViewModels;
 namespace QuestBoard.Service.Controllers;
 
 public class QuestController(
-    IQuestService questService,
+    IDungeonMasterService dungeonMasterService,
+    IEmailService emailService,
     IPlayerSignupService playerSignupService,
-    IEmailService emailService) : Controller
+    IQuestService questService)
+    : Controller
 {
-    public IActionResult Create()
+    public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        return View(new CreateQuestViewModel());
+        var dms = await dungeonMasterService.GetAllAsync(token);
+        return View(new CreateQuestViewModel { DungeonMasters = dms });
     }
 
     [HttpPost]
@@ -28,17 +31,18 @@ public class QuestController(
             }
 
             // Create Quest entity from ViewModel
+            var questViewModel = viewModel.Quest;
             var quest = new Quest
             {
-                Title = viewModel.Title,
-                Description = viewModel.Description,
-                Difficulty = viewModel.Difficulty,
-                DungeonMaster = viewModel.DungeonMaster,
+                Title = questViewModel.Title,
+                Description = questViewModel.Description,
+                Difficulty = questViewModel.Difficulty,
+                DungeonMaster = questViewModel.DungeonMaster,
                 CreatedAt = DateTime.UtcNow
             };
 
             // Add proposed dates from ViewModel
-            var dates = viewModel.ProposedDates.Select(date =>
+            var dates = questViewModel.ProposedDates.Select(date =>
             {
                 return new ProposedDate
                 {

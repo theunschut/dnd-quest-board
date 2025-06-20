@@ -10,29 +10,39 @@
         <div asp-validation-summary="All" class="text-danger"></div>
         <form asp-action="Create" method="post">
             <div class="mb-3">
-                <label asp-for="Title" class="form-label">Quest Title</label>
-                <input asp-for="Title" class="form-control" placeholder="Enter the quest title..." />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                <label asp-for="Quest.Title" class="form-label">Quest Title</label>
+                <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
+                <span asp-validation-for="Quest.Title" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Description" class="form-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="Quest.Description" class="form-label">Description</label>
+                <textarea asp-for="Quest.Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
+                <span asp-validation-for="Quest.Description" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Difficulty" class="form-label">Difficulty</label>
-                <select asp-for="Difficulty" class="form-select">
+                <label asp-for="Quest.Difficulty" class="form-label">Difficulty</label>
+                <select asp-for="Quest.Difficulty" class="form-select">
                     <option value="0">Easy</option>
                     <option value="1">Medium</option>
                     <option value="2">Hard</option>
                     <option value="3">Deadly</option>
                 </select>
-                <span asp-validation-for="Difficulty" class="text-danger"></span>
+                <span asp-validation-for="Quest.Difficulty" class="text-danger"></span>
             </div>
 
-            <div class="row">
+            <div class="mb-3">
+                <label asp-for="Quest.DungeonMaster" class="form-label">Dungeon Master</label>
+                <select asp-for="Quest.DungeonMaster" class="form-select">
+                    @for (int i = 0; i < Model.DungeonMasters.Count; i++)
+                    {
+                        <option value="@Model.DungeonMasters[i]">@Model.DungeonMasters[i].Name</option>
+                    }
+                </select>
+            </div>
+
+            @* <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="DungeonMaster.Name" class="form-label">DM Name</label>
@@ -47,23 +57,23 @@
                         <span asp-validation-for="DungeonMaster.Email" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
             <div class="mb-3">
                 <label class="form-label">Proposed Dates & Times</label>
                 <div id="proposed-dates">
-                    @for (int i = 0; i < Model.ProposedDates.Count; i++)
+                    @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
                     {
                         <div class="mb-3 proposed-date-item">
                             <label class="form-label">Proposed Date @(i + 1)</label>
                             <div class="input-group">
-                                <input asp-for="ProposedDates[i]" type="datetime-local" class="form-control" required />
+                                <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required />
                                 @if (i > 0)
                                 {
                                     <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">Remove</button>
                                 }
                             </div>
-                            <span asp-validation-for="ProposedDates[i]" class="text-danger"></span>
+                            <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
                         </div>
                     }
                 </div>
@@ -71,7 +81,7 @@
                     Add Another Date Option
                 </button>
                 <div class="form-text">Provide multiple date/time options for players to vote on. At least one date is required.</div>
-                <span asp-validation-for="ProposedDates" class="text-danger"></span>
+                <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
@@ -101,7 +111,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        let dateIndex = @Model.ProposedDates.Count;
+        let dateIndex = @Model.Quest.ProposedDates.Count
         
         function addProposedDate() {
             const container = document.getElementById('proposed-dates');

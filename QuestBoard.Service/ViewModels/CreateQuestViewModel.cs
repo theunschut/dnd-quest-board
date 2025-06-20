@@ -1,25 +1,10 @@
-using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Service.ViewModels;
 
 public class CreateQuestViewModel
 {
-    [Required]
-    [StringLength(200)]
-    public string Title { get; set; } = string.Empty;
+    public QuestViewModel Quest { get; set; } = new();
 
-    [Required]
-    public string Description { get; set; } = string.Empty;
-
-    [Required]
-    public Difficulty Difficulty { get; set; }
-
-    [Required]
-    public DungeonMaster DungeonMaster { get; set; } = new();
-
-    [Required]
-    [MinLength(1, ErrorMessage = "At least one proposed date is required.")]
-    public List<DateTime> ProposedDates { get; set; } = [DateTime.Now.AddDays(1)];
+    public IList<DungeonMaster> DungeonMasters { get; set; } = [];
 }

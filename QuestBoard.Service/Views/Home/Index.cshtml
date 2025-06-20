@@ -1,4 +1,4 @@
-@model QuestBoardViewModel
+@model IEnumerable<Quest>
 @{
     ViewData["Title"] = "Quest Board";
     var posterImages = new string[] { "Poster1.png", "Poster2.png", "Poster3.png", "Poster4.png", "Poster5.png", "Poster6.png" };
@@ -17,7 +17,7 @@
     };
 }
 <div class="quest-board-container">
-    @foreach (var quest in Model.Quests)
+    @foreach (var quest in Model)
     {
         var posterIndex = Math.Abs(quest.Id.GetHashCode()) % posterImages.Length;
         var posterImage = posterImages[posterIndex];
