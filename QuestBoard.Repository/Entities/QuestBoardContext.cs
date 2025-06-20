@@ -12,6 +12,12 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Db
     {
         // Quest relationships
         modelBuilder.Entity<QuestEntity>()
+            .HasOne(q => q.DungeonMaster)
+            .WithMany(dm => dm.Quests)
+            .HasForeignKey(q => q.DungeonMasterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<QuestEntity>()
             .HasMany(q => q.ProposedDates)
             .WithOne(pd => pd.Quest)
             .HasForeignKey(pd => pd.QuestId)
@@ -21,6 +27,13 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Db
             .HasMany(q => q.PlayerSignups)
             .WithOne(ps => ps.Quest)
             .HasForeignKey(ps => ps.QuestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // DungeonMaster relationships
+        modelBuilder.Entity<DungeonMasterEntity>()
+            .HasMany(dm => dm.Quests)
+            .WithOne(q => q.DungeonMaster)
+            .HasForeignKey(q => q.DungeonMasterId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // PlayerSignup relationships

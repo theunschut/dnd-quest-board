@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
 
-public class PlayerDateVote
+public class PlayerDateVote : IModel
 {
     public int Id { get; set; }
 

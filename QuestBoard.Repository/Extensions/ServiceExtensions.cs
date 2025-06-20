@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QuestBoard.Repository.Entities;
+using QuestBoard.Repository.Interfaces;
 
 namespace QuestBoard.Repository.Extensions;
 
@@ -13,6 +14,8 @@ public static class ServiceExtensions
         services.AddDbContext<QuestBoardContext>(options =>
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
+        services.AddScoped<IDungeonMasterRepositorry, DungeonMasterRepository>();
+        services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
         services.AddScoped<IQuestRepository, QuestRepository>();
 
         return services;

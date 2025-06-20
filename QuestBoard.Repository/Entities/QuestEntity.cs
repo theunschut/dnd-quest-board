@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QuestBoard.Repository.Entities;
 
 [Table("Quests")]
-public class QuestEntity
+public class QuestEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,19 +20,16 @@ public class QuestEntity
     [Required]
     public int Difficulty { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string DmName { get; set; } = string.Empty;
-
-    [EmailAddress]
-    [StringLength(200)]
-    public string? DmEmail { get; set; }
+    public int DungeonMasterId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? FinalizedDate { get; set; }
 
     public bool IsFinalized { get; set; }
+
+    [ForeignKey(nameof(DungeonMasterId))]
+    public virtual DungeonMasterEntity DungeonMaster { get; set; } = null!;
 
     public virtual ICollection<ProposedDateEntity> ProposedDates { get; set; } = [];
 

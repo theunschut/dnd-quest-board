@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QuestBoard.Repository.Entities;
 
 [Table("PlayerDateVotes")]
-public class PlayerDateVoteEntity
+public class PlayerDateVoteEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

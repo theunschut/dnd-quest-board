@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
 
-public class ProposedDate
+public class ProposedDate : IModel
 {
     public int Id { get; set; }
 

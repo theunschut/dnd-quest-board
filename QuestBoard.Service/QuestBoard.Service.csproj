@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QuestBoard.Domain\QuestBoard.Domain.csproj" />
-    <ProjectReference Include="..\QuestBoard.Repository\QuestBoard.Repository.csproj" />
   </ItemGroup>
 
 </Project>

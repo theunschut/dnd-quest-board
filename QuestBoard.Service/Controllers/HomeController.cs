@@ -1,14 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Repository;
+using QuestBoard.Domain.Interfaces;
+using QuestBoard.Service.ViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class HomeController(IQuestRepository repository) : Controller
+public class HomeController(IQuestService questService, IDungeonMasterService dungeonMasterService) : Controller
 {
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken token = default)
     {
-        var quests = await repository.GetQuestsWithSignupsAsync();
+        var dms = await dungeonMasterService.GetAllAsync(token);
+        var quests = await questService.GetQuestsWithSignupsAsync(token);
 
-        return View(quests);
+        var viewModel = new QuestBoardViewModel
+        {
+            DungeonMasters = dms,
+            Quests = quests
+        };
+
+        return View(viewModel);
     }
 }

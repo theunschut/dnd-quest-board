@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
 
-public class PlayerSignup
+public class PlayerSignup : IModel
 {
     public int Id { get; set; }
 

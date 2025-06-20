@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
 
-public class Quest
+public class Quest : IModel
 {
     public int Id { get; set; }
 
@@ -18,12 +18,7 @@ public class Quest
     public Difficulty Difficulty { get; set; }
 
     [Required]
-    [StringLength(100)]
-    public string DmName { get; set; } = string.Empty;
-
-    [EmailAddress]
-    [StringLength(200)]
-    public string? DmEmail { get; set; }
+    public DungeonMaster DungeonMaster { get; set; } = new();
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

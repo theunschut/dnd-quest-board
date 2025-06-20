@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QuestBoard.Repository.Entities;
 
 [Table("ProposedDates")]
-public class ProposedDateEntity
+public class ProposedDateEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

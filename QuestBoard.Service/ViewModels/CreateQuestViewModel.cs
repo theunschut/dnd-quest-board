@@ -1,4 +1,5 @@
 using QuestBoard.Domain.Enums;
+using QuestBoard.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Service.ViewModels;
@@ -16,14 +17,9 @@ public class CreateQuestViewModel
     public Difficulty Difficulty { get; set; }
 
     [Required]
-    [StringLength(100)]
-    public string DmName { get; set; } = string.Empty;
-
-    [EmailAddress]
-    [StringLength(200)]
-    public string? DmEmail { get; set; }
+    public DungeonMaster DungeonMaster { get; set; } = new();
 
     [Required]
     [MinLength(1, ErrorMessage = "At least one proposed date is required.")]
-    public List<DateTime> ProposedDates { get; set; } = new List<DateTime> { DateTime.Now.AddDays(1) };
+    public List<DateTime> ProposedDates { get; set; } = [DateTime.Now.AddDays(1)];
 }

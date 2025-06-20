@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QuestBoard.Repository.Entities;
 
 [Table("PlayerSignups")]
-public class PlayerSignupEntity
+public class PlayerSignupEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

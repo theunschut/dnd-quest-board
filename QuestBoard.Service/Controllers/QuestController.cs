@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Repository;
 using QuestBoard.Service.Services;
 using QuestBoard.Service.ViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class QuestController(IQuestRepository repository, IEmailService emailService) : Controller
+public class QuestController(
+    IQuestService questService,
+    IPlayerSignupService playerSignupService,
+    IEmailService emailService) : Controller
 {
     public IActionResult Create()
     {
@@ -15,7 +18,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateQuestViewModel viewModel)
+    public async Task<IActionResult> Create(CreateQuestViewModel viewModel, CancellationToken token = default)
     {
         try
         {
@@ -30,8 +33,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
                 Title = viewModel.Title,
                 Description = viewModel.Description,
                 Difficulty = viewModel.Difficulty,
-                DmName = viewModel.DmName,
-                DmEmail = viewModel.DmEmail,
+                DungeonMaster = viewModel.DungeonMaster,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -48,7 +50,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
             quest.ProposedDates = dates;
 
-            await repository.AddAsync(quest);
+            await questService.AddAsync(quest, token);
 
             return RedirectToAction("Index", "Home");
         }
@@ -63,14 +65,14 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var quest = await repository.GetQuestWithDetailsAsync(id);
+        var quest = await questService.GetQuestWithDetailsAsync(id);
 
         if (quest == null)
         {
             return NotFound();
         }
 
-        await repository.RemoveAsync(quest);
+        await questService.RemoveAsync(quest);
 
         return Ok();
     }
@@ -78,7 +80,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var quest = await repository.GetQuestWithDetailsAsync(id);
+        var quest = await questService.GetQuestWithDetailsAsync(id);
 
         if (quest == null)
         {
@@ -87,8 +89,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
         // Check if current user is signed up
         var playerName = HttpContext.Session.GetString($"PlayerName_{id}");
-        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) &&
-                          quest.PlayerSignups.Any(ps => ps.PlayerName == playerName);
+        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) && quest.PlayerSignups.Any(ps => ps.PlayerName == playerName);
 
         // Get DM name for management access
         ViewBag.DmNameForManagement = HttpContext.Session.GetString($"DmName_{id}");
@@ -107,7 +108,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Details(int questId, PlayerSignup signup)
     {
-        var quest = await repository.GetQuestWithDetailsAsync(questId);
+        var quest = await questService.GetQuestWithDetailsAsync(questId);
 
         if (quest == null || quest.IsFinalized)
         {
@@ -130,7 +131,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
             return await Details(questId);
         }
 
-        await repository.AddAsync(signup);
+        await playerSignupService.AddAsync(signup);
 
         // Store player name in session for future reference
         HttpContext.Session.SetString($"PlayerName_{questId}", signup.PlayerName);
@@ -142,7 +143,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Finalize(int id)
     {
-        var quest = await repository.GetQuestWithDetailsAsync(id);
+        var quest = await questService.GetQuestWithDetailsAsync(id);
 
         if (quest == null || quest.IsFinalized)
         {
@@ -151,8 +152,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
         // Verify DM authorization
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        if (string.IsNullOrEmpty(sessionDmName) ||
-            !sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(sessionDmName) || !sessionDmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase))
         {
             return Unauthorized();
         }
@@ -194,7 +194,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
             playerSignup.IsSelected = selectedPlayerIds.Contains(playerSignup.Id);
         }
 
-        await repository.UpdateAsync(quest);
+        await questService.UpdateAsync(quest);
         //await repository.SaveChangesAsync();
 
         // Send email notifications to selected players
@@ -206,7 +206,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
                 player.PlayerEmail!,
                 player.PlayerName,
                 quest.Title,
-                quest.DmName,
+                quest.DungeonMaster.Name,
                 quest.FinalizedDate.Value
             );
         }
@@ -217,7 +217,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [HttpGet]
     public async Task<IActionResult> Manage(int id)
     {
-        var quest = await repository.GetQuestWithManageDetailsAsync(id);
+        var quest = await questService.GetQuestWithManageDetailsAsync(id);
 
         if (quest == null)
         {
@@ -226,8 +226,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
         // Check if DM is authorized
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) &&
-                      sessionDmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase);
+        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) && sessionDmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase);
 
         return View(quest);
     }
@@ -248,7 +247,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
             return View(new List<Quest>());
         }
 
-        var quests = await repository.GetQuestsByDmNameAsync(dmName);
+        var quests = await questService.GetQuestsByDmNameAsync(dmName);
 
         ViewBag.DmName = dmName;
         return View(quests);
@@ -258,7 +257,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyDm(int id)
     {
-        var quest = await repository.GetByIdAsync(id);
+        var quest = await questService.GetByIdAsync(id);
         if (quest == null)
         {
             return NotFound();
@@ -266,7 +265,7 @@ public class QuestController(IQuestRepository repository, IEmailService emailSer
 
         var dmName = Request.Form["DmName"].ToString().Trim();
 
-        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DmName, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase))
         {
             ModelState.AddModelError("", "DM name does not match.");
             return await Manage(id);

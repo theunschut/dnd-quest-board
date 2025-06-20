@@ -17,7 +17,7 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-6">
-                        <strong>DM:</strong> @Model.Quest?.DmName
+                        <strong>DM:</strong> @Model.Quest?.DungeonMaster.Name
                     </div>
                     <div class="col-sm-6">
                         <strong>Status:</strong>
@@ -161,7 +161,7 @@
             </div>
         </div>
 
-        @if (Model.Quest?.DmName == ViewBag.DmNameForManagement)
+        @if (Model.Quest?.DungeonMaster.Name == ViewBag.DmNameForManagement)
         {
             <div class="card mt-3">
                 <div class="card-header">
