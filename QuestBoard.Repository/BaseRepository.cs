@@ -16,6 +16,11 @@ internal abstract class BaseRepository<T>(QuestBoardContext dbContext) : IBaseRe
         await DbContext.SaveChangesAsync(token);
     }
 
+    public virtual async Task<bool> ExistsAsync(int id, CancellationToken token = default)
+    {
+        return await DbSet.AnyAsync(dm => dm.Id == id, cancellationToken: token);
+    }
+
     public virtual async Task<IList<T>> GetAllAsync(CancellationToken token)
     {
         return await DbSet.ToListAsync(cancellationToken: token);

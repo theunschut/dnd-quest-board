@@ -17,5 +17,7 @@ public class DungeonMasterEntity : IEntity
     [StringLength(200)]
     public string? Email { get; set; }
 
+    public string Password { get; set; } = string.Empty;
+
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];
 }

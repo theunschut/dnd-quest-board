@@ -4,6 +4,8 @@ public interface IBaseRepository<T>
 {
     Task AddAsync(T entity, CancellationToken token = default);
 
+    Task<bool> ExistsAsync(int id, CancellationToken token = default);
+
     Task<IList<T>> GetAllAsync(CancellationToken token = default);
 
     Task<T?> GetByIdAsync(int id, CancellationToken token = default);

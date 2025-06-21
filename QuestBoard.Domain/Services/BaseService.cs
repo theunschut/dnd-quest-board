@@ -10,25 +10,30 @@ internal abstract class BaseService<TModel, TEntity>(IBaseRepository<TEntity> re
 {
     protected IMapper Mapper => mapper;
 
-    public async Task AddAsync(TModel model, CancellationToken token = default)
+    public virtual async Task AddAsync(TModel model, CancellationToken token = default)
     {
         var entity = mapper.Map<TEntity>(model);
         await repository.AddAsync(entity, token);
     }
 
-    public async Task<IList<TModel>> GetAllAsync(CancellationToken token = default)
+    public virtual async Task<bool> ExistsAsync(int id, CancellationToken token = default)
+    {
+        return await repository.ExistsAsync(id, token);
+    }
+
+    public virtual async Task<IList<TModel>> GetAllAsync(CancellationToken token = default)
     {
         var entities = await repository.GetAllAsync(token);
         return mapper.Map<IList<TModel>>(entities);
     }
 
-    public async Task<TModel?> GetByIdAsync(int id, CancellationToken token = default)
+    public virtual async Task<TModel?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var entity = await repository.GetByIdAsync(id, token);
         return mapper.Map<TModel>(entity);
     }
 
-    public async Task RemoveAsync(TModel model, CancellationToken token = default)
+    public virtual async Task RemoveAsync(TModel model, CancellationToken token = default)
     {
         var entity = await repository.GetByIdAsync(model.Id, token);
         if (entity == null) return;

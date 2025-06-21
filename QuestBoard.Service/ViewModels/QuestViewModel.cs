@@ -1,5 +1,4 @@
 ﻿using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Service.ViewModels;
@@ -17,7 +16,7 @@ public class QuestViewModel
     public Difficulty Difficulty { get; set; }
 
     [Required]
-    public DungeonMaster DungeonMaster { get; set; } = new();
+    public int DungeonMasterId { get; set; }
 
     [Required]
     [MinLength(1, ErrorMessage = "At least one proposed date is required.")]

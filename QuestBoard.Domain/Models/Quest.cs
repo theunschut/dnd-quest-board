@@ -14,11 +14,11 @@ public class Quest : IModel
     [Required]
     public string Description { get; set; } = string.Empty;
 
-    [Required]
     public Difficulty Difficulty { get; set; }
 
-    [Required]
-    public DungeonMaster DungeonMaster { get; set; } = new();
+    public int DungeonMasterId { get; set; }
+
+    public DungeonMaster? DungeonMaster { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

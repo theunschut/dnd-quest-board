@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Domain.Models;
+namespace QuestBoard.Service.ViewModels;
 
-public class DungeonMaster : IModel
+public class CreateDungeonMasterViewModel
 {
-    public int Id { get; set; }
-
     [Required]
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
@@ -17,6 +15,4 @@ public class DungeonMaster : IModel
     [Required]
     [StringLength(100)]
     public string Password { get; set; } = string.Empty;
-
-    public IList<Quest> Quests { get; set; } = [];
 }

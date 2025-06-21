@@ -2,6 +2,7 @@
 using QuestBoard.Domain.Automapper;
 using QuestBoard.Domain.Extensions;
 using QuestBoard.Repository.Extensions;
+using QuestBoard.Service.Automapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +20,12 @@ builder.Services.AddSession(options =>
 // Add repositories
 builder.Services
     .AddRepositoryServices(builder.Configuration)
-    .AddDomainServices();
+    .AddDomainServices(builder.Configuration);
 
 // Add automapper
 builder.Services.AddAutoMapper(config =>
 {
+    config.AddProfile<ViewModelProfile>();
     config.AddProfile<EntityProfile>();
 });
 

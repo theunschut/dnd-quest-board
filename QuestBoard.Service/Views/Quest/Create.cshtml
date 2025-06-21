@@ -33,31 +33,16 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="Quest.DungeonMaster" class="form-label">Dungeon Master</label>
-                <select asp-for="Quest.DungeonMaster" class="form-select">
+                <label for="Quest.DungeonMasterId" class="form-label">Dungeon Master</label>
+                <select name="Quest.DungeonMasterId" class="form-select">
+                    <option value="">Select a Dungeon Master</option>
                     @for (int i = 0; i < Model.DungeonMasters.Count; i++)
                     {
-                        <option value="@Model.DungeonMasters[i]">@Model.DungeonMasters[i].Name</option>
+                        <option value="@Model.DungeonMasters[i].Id">@Model.DungeonMasters[i].Name</option>
                     }
                 </select>
+                <span asp-validation-for="Quest.DungeonMasterId" class="text-danger"></span>
             </div>
-
-            @* <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="DungeonMaster.Name" class="form-label">DM Name</label>
-                        <input asp-for="DungeonMaster.Name" class="form-control" placeholder="Your name..." />
-                        <span asp-validation-for="DungeonMaster.Name" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="DungeonMaster.Email" class="form-label">DM Email (Optional)</label>
-                        <input asp-for="DungeonMaster.Email" type="email" class="form-control" placeholder="your.email@example.com" />
-                        <span asp-validation-for="DungeonMaster.Email" class="text-danger"></span>
-                    </div>
-                </div>
-            </div> *@
 
             <div class="mb-3">
                 <label class="form-label">Proposed Dates & Times</label>

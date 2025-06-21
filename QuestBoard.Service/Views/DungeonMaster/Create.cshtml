@@ -1,4 +1,4 @@
-@model DungeonMaster
+@model CreateDungeonMasterViewModel
 
 <div class="card bg-dark text-light border-warning">
     <div class="card-header bg-warning text-dark">
@@ -11,21 +11,31 @@
         <form asp-controller="DungeonMaster" asp-action="Create" method="post">
             <div class="mb-3">
                 <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
-                <input asp-for="Name" class="form-control border-warning" 
-                       style="background-color: #343a40; color: #ffffff;"
-                       placeholder="Enter your name">
+                <input asp-for="Name" class="form-control border-warning" placeholder="Enter your name">
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control border-warning" 
-                       style="background-color: #343a40; color: #ffffff;"
-                       placeholder="your.email@example.com">
+                <input asp-for="Email" class="form-control border-warning" placeholder="your.email@example.com">
                 <span asp-validation-for="Email" class="text-danger"></span>
                 <div class="form-text text-muted">
                     Optional - for quest notifications
                 </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
+                <input asp-for="Password" type="password" class="form-control border-warning" placeholder="Enter a secure password">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            
+            <div class="mb-3">
+                <label for="ConfirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <input id="ConfirmPassword" name="ConfirmPassword" type="password" class="form-control border-warning" 
+                       style="background-color: #343a40; color: #ffffff;"
+                       placeholder="Confirm your password">
+                <span id="confirm-password-error" class="text-danger"></span>
             </div>
             
             <button type="submit" class="btn btn-warning w-100">
@@ -35,3 +45,33 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordField = document.getElementById('Password');
+        const confirmPasswordField = document.getElementById('ConfirmPassword');
+        const errorSpan = document.getElementById('confirm-password-error');
+        const form = document.querySelector('form');
+
+        function validatePasswords() {
+            if (confirmPasswordField.value && passwordField.value !== confirmPasswordField.value) {
+                errorSpan.textContent = 'Passwords do not match';
+                confirmPasswordField.classList.add('is-invalid');
+                return false;
+            } else {
+                errorSpan.textContent = '';
+                confirmPasswordField.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        confirmPasswordField.addEventListener('input', validatePasswords);
+        passwordField.addEventListener('input', validatePasswords);
+
+        form.addEventListener('submit', function(e) {
+            if (!validatePasswords()) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>

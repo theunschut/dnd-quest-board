@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
@@ -5,16 +6,12 @@ using QuestBoard.Service.ViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class QuestController(
-    IDungeonMasterService dungeonMasterService,
-    IEmailService emailService,
-    IPlayerSignupService playerSignupService,
-    IQuestService questService)
-    : Controller
+public class QuestController(IDungeonMasterService dmService,IEmailService emailService,IMapper mapper, IPlayerSignupService playerSignupService, IQuestService questService) : Controller
 {
+    [HttpGet]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        var dms = await dungeonMasterService.GetAllAsync(token);
+        var dms = await dmService.GetAllAsync(token);
         return View(new CreateQuestViewModel { DungeonMasters = dms });
     }
 
@@ -27,29 +24,20 @@ public class QuestController(
             return View(viewModel);
         }
 
-        // Create Quest entity from ViewModel
-        var questViewModel = viewModel.Quest;
-        var quest = new Quest
+        if (!(await dmService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
         {
-            Title = questViewModel.Title,
-            Description = questViewModel.Description,
-            Difficulty = questViewModel.Difficulty,
-            DungeonMaster = questViewModel.DungeonMaster,
-            CreatedAt = DateTime.UtcNow
-        };
+            return NotFound();
+        }
 
-        // Add proposed dates from ViewModel
-        var dates = questViewModel.ProposedDates.Select(date =>
+        // Create Quest entity from ViewModel using AutoMapper
+        var quest = mapper.Map<Quest>(viewModel.Quest);
+
+        // Set Quest reference for all ProposedDates
+        foreach (var proposedDate in quest.ProposedDates)
         {
-            return new ProposedDate
-            {
-                QuestId = quest.Id,
-                Quest = quest,
-                Date = date
-            };
-        }).ToList();
-
-        quest.ProposedDates = dates;
+            proposedDate.Quest = quest;
+            proposedDate.QuestId = quest.Id;
+        }
 
         await questService.AddAsync(quest, token);
 
@@ -147,7 +135,7 @@ public class QuestController(
 
         // Verify DM authorization
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        if (string.IsNullOrEmpty(sessionDmName) || !sessionDmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(sessionDmName) || !sessionDmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
         {
             return Unauthorized();
         }
@@ -221,7 +209,7 @@ public class QuestController(
 
         // Check if DM is authorized
         var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) && sessionDmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase);
+        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) && sessionDmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
 
         return View(quest);
     }
@@ -260,7 +248,7 @@ public class QuestController(
 
         var dmName = Request.Form["DmName"].ToString().Trim();
 
-        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DungeonMaster.Name, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
         {
             ModelState.AddModelError("", "DM name does not match.");
             return await Manage(id);
