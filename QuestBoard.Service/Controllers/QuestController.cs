@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.Services;
 using QuestBoard.Service.ViewModels;
 
 namespace QuestBoard.Service.Controllers;
@@ -23,46 +22,38 @@ public class QuestController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateQuestViewModel viewModel, CancellationToken token = default)
     {
-        try
+        if (!ModelState.IsValid)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(viewModel);
-            }
-
-            // Create Quest entity from ViewModel
-            var questViewModel = viewModel.Quest;
-            var quest = new Quest
-            {
-                Title = questViewModel.Title,
-                Description = questViewModel.Description,
-                Difficulty = questViewModel.Difficulty,
-                DungeonMaster = questViewModel.DungeonMaster,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            // Add proposed dates from ViewModel
-            var dates = questViewModel.ProposedDates.Select(date =>
-            {
-                return new ProposedDate
-                {
-                    QuestId = quest.Id,
-                    Quest = quest,
-                    Date = date
-                };
-            }).ToList();
-
-            quest.ProposedDates = dates;
-
-            await questService.AddAsync(quest, token);
-
-            return RedirectToAction("Index", "Home");
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("", $"An error occurred: {ex.Message}");
             return View(viewModel);
         }
+
+        // Create Quest entity from ViewModel
+        var questViewModel = viewModel.Quest;
+        var quest = new Quest
+        {
+            Title = questViewModel.Title,
+            Description = questViewModel.Description,
+            Difficulty = questViewModel.Difficulty,
+            DungeonMaster = questViewModel.DungeonMaster,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Add proposed dates from ViewModel
+        var dates = questViewModel.ProposedDates.Select(date =>
+        {
+            return new ProposedDate
+            {
+                QuestId = quest.Id,
+                Quest = quest,
+                Date = date
+            };
+        }).ToList();
+
+        quest.ProposedDates = dates;
+
+        await questService.AddAsync(quest, token);
+
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpDelete]
@@ -102,7 +93,7 @@ public class QuestController(
         {
             Quest = quest,
             QuestId = quest.Id,
-            DateVotes = quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id }).ToList(),
+            DateVotes = [.. quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id })],
         };
 
         return View(signup);

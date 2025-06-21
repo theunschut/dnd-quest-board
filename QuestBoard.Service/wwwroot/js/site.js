@@ -1,14 +1,18 @@
 // Add additional proposed date input
 function addProposedDate() {
     const container = document.getElementById('proposed-dates');
+    if (!container) return;
+    
     const index = container.children.length;
     
     const div = document.createElement('div');
-    div.className = 'mb-3';
+    div.className = 'mb-3 proposed-date-item';
     div.innerHTML = `
         <label class="form-label">Proposed Date ${index + 1}</label>
-        <input type="datetime-local" name="ProposedDates[${index}]" class="form-control" required>
-        <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removeProposedDate(this)">Remove</button>
+        <div class="input-group">
+            <input type="datetime-local" name="ProposedDates[${index}]" class="form-control" required>
+            <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">Remove</button>
+        </div>
     `;
     
     container.appendChild(div);
@@ -17,19 +21,18 @@ function addProposedDate() {
 // Remove proposed date input
 function removeProposedDate(button) {
     const container = document.getElementById('proposed-dates');
-    if (container.children.length > 1) {
-        button.closest('.mb-3').remove();
-        
-        // Reindex remaining inputs
-        const inputs = container.querySelectorAll('input[type="datetime-local"]');
-        inputs.forEach((input, index) => {
-            input.name = `ProposedDates[${index}]`;
-            const label = input.previousElementSibling;
-            if (label && label.tagName === 'LABEL') {
-                label.textContent = `Proposed Date ${index + 1}`;
-            }
-        });
-    }
+    if (!container || container.children.length <= 1) return;
+    
+    button.closest('.proposed-date-item').remove();
+    
+    // Reindex remaining inputs
+    const dateItems = container.querySelectorAll('.proposed-date-item');
+    dateItems.forEach((item, index) => {
+        const label = item.querySelector('label');
+        const input = item.querySelector('input[type="datetime-local"]');
+        if (label) label.textContent = `Proposed Date ${index + 1}`;
+        if (input) input.name = `ProposedDates[${index}]`;
+    });
 }
 
 // Auto-refresh quest pages every 30 seconds (excluding Details and Create pages)

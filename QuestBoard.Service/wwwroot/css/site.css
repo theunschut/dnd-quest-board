@@ -1,4 +1,4 @@
-
+/* Quest Card Styles */
 .quest-card {
     transition: transform 0.2s;
 }
@@ -15,6 +15,7 @@
     border-left: 4px solid #6c757d;
 }
 
+/* Date and Vote Styles */
 .date-option {
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
@@ -34,6 +35,23 @@
 .player-list {
     max-height: 200px;
     overflow-y: auto;
+}
+
+/* Form Input Fixes */
+.form-control:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-control.bg-dark {
+    background-color: #343a40 !important;
+    color: #ffffff !important;
+    border-color: #ffc107;
+}
+
+.form-control.bg-dark:focus {
+    background-color: #343a40 !important;
+    color: #ffffff !important;
 }
 
 /* Fantasy Quest Board Styles */

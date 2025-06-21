@@ -4,10 +4,12 @@ A web application for managing D&D campaign quests with multiple DMs and players
 
 ## Features
 
+- **DM Registration**: Dungeon Masters can register in the guild directory
 - **Quest Creation**: DMs can create quests with multiple proposed dates
 - **Player Signup**: Players can sign up and vote on available dates (Yes/No/Maybe)
 - **Quest Management**: DMs can review votes and finalize quest details
 - **Email Notifications**: Automatic email notifications when quests are finalized
+- **DM Directory**: Browse and contact registered Dungeon Masters
 - **Responsive Design**: Bootstrap 5-based UI with D&D themed styling
 - **Real-time Updates**: Auto-refresh on quest detail pages every 30 seconds
 
@@ -79,15 +81,17 @@ The application uses SQLite with Entity Framework Core. The database file (`ques
 
 ## Usage
 
-1. **Create Quest**: DMs enter their name and quest details with multiple date options
-2. **Player Signup**: Players can view quests and sign up with date preferences (Yes/No/Maybe)
-3. **Manage Quest**: DMs can review signups and voting, then finalize the quest
-4. **My Quests**: DMs can manage all their created quests from a personal dashboard
-5. **Email Notifications**: Selected players receive automatic email notifications
+1. **DM Registration**: Visit the Dungeon Masters page to register as a new DM
+2. **Create Quest**: Select a registered DM and create quest details with multiple date options
+3. **Player Signup**: Players can view quests and sign up with date preferences (Yes/No/Maybe)
+4. **Manage Quest**: DMs can review signups and voting, then finalize the quest
+5. **My Quests**: DMs can manage all their created quests from a personal dashboard
+6. **Email Notifications**: Selected players receive automatic email notifications
 
 ## Key Pages
 
 - `/` - Main quest board displaying all available quests
+- `/DungeonMaster` - Browse registered Dungeon Masters and register as new DM
 - `/Quest/Create` - DM quest creation with multiple date options
 - `/Quest/Details/{id}` - Quest details and player signup with date voting
 - `/Quest/Manage/{id}` - DM interface for finalizing quests and selecting players

@@ -66,6 +66,7 @@ The application follows a clean architecture pattern with three main layers:
 
 ### Core Domain Models (QuestBoard.Domain)
 - `Quest`: Main quest entity with title, description, difficulty, DM info
+- `DungeonMaster`: DM registration with name and optional email
 - `ProposedDate`: Date options for each quest
 - `PlayerSignup`: Player registration for quests
 - `PlayerDateVote`: Player votes on proposed dates (Yes/No/Maybe)
@@ -75,6 +76,8 @@ The application follows a clean architecture pattern with three main layers:
 ### Repository Layer (QuestBoard.Repository)
 - `IQuestRepository`: Interface defining quest data operations
 - `QuestRepository`: Implementation with Entity Framework Core
+- `IDungeonMasterRepository`: Interface for DM management operations
+- `DungeonMasterRepository`: Implementation for DM CRUD operations
 - `QuestBoardContext`: Database context with entity configurations
 - Entity classes with database-specific configurations
 - AutoMapper profiles for entity-to-domain model mapping
@@ -82,13 +85,15 @@ The application follows a clean architecture pattern with three main layers:
 ### Service Layer (QuestBoard.Service)
 - `HomeController`: Handles main quest board display
 - `QuestController`: Manages quest CRUD operations and player interactions
+- `DungeonMasterController`: Handles DM registration and directory
 - `IEmailService` & `EmailService`: Gmail SMTP email notifications
 - View models for form binding and data transfer
 - Razor views with Bootstrap 5 styling
 
 ### Key Pages & Functionality
 - `/` - Main quest board displaying all available quests
-- `/Quest/Create` - DM quest creation with multiple date options
+- `/DungeonMaster` - Browse registered Dungeon Masters with registration form sidebar
+- `/Quest/Create` - DM quest creation with DM selection and multiple date options
 - `/Quest/Details/{id}` - Quest details and player signup with date voting
 - `/Quest/Manage/{id}` - DM interface for finalizing quests and selecting players
 - `/Quest/MyQuests` - DM's personal quest management dashboard
@@ -131,8 +136,12 @@ The application follows a clean architecture pattern with three main layers:
 - Auto-refresh on quest detail pages every 30 seconds
 - Color-coded difficulty system (Easy=green, Medium=yellow, Hard=red, Deadly=purple)
 - D&D themed styling with quest poster imagery
+- DM registration form with validation and themed styling
+- Responsive table layout for DM directory
 
 ### Business Logic
+- DM registration system with name and optional email
+- Quest creation now requires selecting from registered DMs
 - First-come-first-served player selection with 6-player maximum
 - Automatic date recommendation based on most "Yes" votes
 - Session-based DM authentication for quest management
