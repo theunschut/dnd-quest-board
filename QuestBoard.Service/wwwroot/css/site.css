@@ -343,16 +343,32 @@ p, li, span, small {
     pointer-events: none;
 }
 
-.dice-icon {
-    width: 55px;
-    height: 55px;
+.difficulty-icon {
+    font-size: 55px;
     filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.7));
     transition: all 0.3s ease;
 }
 
-.dice-icon:hover {
+.difficulty-icon:hover {
     transform: scale(1.15) rotate(10deg);
     filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.8));
+}
+
+/* Difficulty-specific colors */
+.difficulty-easy {
+    color: #32CD32; /* Lime Green */
+}
+
+.difficulty-medium {
+    color: #FFD700; /* Gold */
+}
+
+.difficulty-hard {
+    color: #FF6347; /* Tomato Red */
+}
+
+.difficulty-deadly {
+    color: #8B008B; /* Dark Magenta */
 }
 
 
@@ -474,9 +490,8 @@ p, li, span, small {
     }
     
     /* Responsive dice icon sizing */
-    .dice-icon {
-        width: 45px;
-        height: 45px;
+    .difficulty-icon {
+        font-size: 45px;
     }
     
     .difficulty-dice {
@@ -506,9 +521,8 @@ p, li, span, small {
     }
     
     /* Smaller dice icons on mobile */
-    .dice-icon {
-        width: 40px;
-        height: 40px;
+    .difficulty-icon {
+        font-size: 40px;
     }
     
     .difficulty-dice {
