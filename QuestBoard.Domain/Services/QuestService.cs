@@ -4,7 +4,7 @@ using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Entities;
 using QuestBoard.Repository.Interfaces;
 
-namespace QuestBoard.Domain;
+namespace QuestBoard.Domain.Services;
 
 internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseService<Quest, QuestEntity>(repository, mapper), IQuestService
 {

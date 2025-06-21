@@ -1,4 +1,4 @@
-namespace QuestBoard.Service.Services;
+namespace QuestBoard.Domain.Interfaces;
 
 public interface IEmailService
 {

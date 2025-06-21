@@ -3,7 +3,7 @@ using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Interfaces;
 
-namespace QuestBoard.Domain;
+namespace QuestBoard.Domain.Services;
 
 internal abstract class BaseService<TModel, TEntity>(IBaseRepository<TEntity> repository, IMapper mapper) : IBaseService<TModel>
     where TModel : class, IModel

@@ -1,7 +1,10 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QuestBoard.Domain.Interfaces;
 using System.Net;
 using System.Net.Mail;
 
-namespace QuestBoard.Service.Services;
+namespace QuestBoard.Domain.Services;
 
 public class EmailService(IConfiguration configuration, ILogger<EmailService> logger) : IEmailService
 {

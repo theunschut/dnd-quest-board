@@ -1,7 +1,7 @@
-using QuestBoard.Service.Services;
-using QuestBoard.Repository.Extensions;
+
 using QuestBoard.Domain.Automapper;
 using QuestBoard.Domain.Extensions;
+using QuestBoard.Repository.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +20,6 @@ builder.Services.AddSession(options =>
 builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices();
-
-// Add email service
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add automapper
 builder.Services.AddAutoMapper(config =>

@@ -1,19 +1,42 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Models;
-using QuestBoard.Repository.Interfaces;
+using QuestBoard.Domain.Interfaces;
+using QuestBoard.Service.Filters;
+using QuestBoard.Service.Models.DungeonMaster;
 
 namespace QuestBoard.Service.Controllers
 {
-    public class DungeonMasterController(IDungeonMasterRepositorry repositorry, IMapper mapper) : Controller
+    public class DungeonMasterController(IDungeonMasterService service, IMapper mapper) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Index(CancellationToken token = default)
+        public async Task<IActionResult> Index([Bind()] DungeonMasterFilter filter, bool async = false, string orderBy = "Name", int? maxRows = null, int? page = null, bool filterChanged = false, bool clearFilter = false, CancellationToken token = default)
         {
-            var dmEntities = await repositorry.GetAllAsync(token);
-            var dms = mapper.Map<List<DungeonMaster>>(dmEntities);
+            filter = await HttpContext.EvaluateFilter(filter, orderBy, maxRows, page, async, filterChanged, clearFilter);
 
-            return View(dms);
+            var dms = await service.GetAllAsync(token);
+
+            var model = new DungeonMasterIndexModel()
+            {
+                Async = async,
+                Rows = mapper.Map<List<DungeonMasterListModel>>(dms).ToList(),
+                OrderBy = filter.SortOrder,
+                Filter = filter
+            };
+
+            if (!async)
+            {
+                return View(model);
+            }
+            else
+            {
+                return PartialView(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details()
+        {
+            return View();
         }
     }
 }

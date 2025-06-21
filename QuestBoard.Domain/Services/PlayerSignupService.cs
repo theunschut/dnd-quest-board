@@ -4,7 +4,7 @@ using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Entities;
 using QuestBoard.Repository.Interfaces;
 
-namespace QuestBoard.Domain
+namespace QuestBoard.Domain.Services
 {
     internal class PlayerSignupService(IPlayerSignupRepository repository, IMapper mapper) : BaseService<PlayerSignup, PlayerSignupEntity>(repository, mapper), IPlayerSignupService
     {

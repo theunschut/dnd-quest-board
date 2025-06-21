@@ -4,7 +4,7 @@ using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Entities;
 using QuestBoard.Repository.Interfaces;
 
-namespace QuestBoard.Domain;
+namespace QuestBoard.Domain.Services;
 
 internal class DungeonMasterService(IDungeonMasterRepositorry repository, IMapper mapper) : BaseService<DungeonMaster, DungeonMasterEntity>(repository, mapper), IDungeonMasterService
 {
