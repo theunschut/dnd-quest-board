@@ -1,7 +1,7 @@
 ﻿using QuestBoard.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.ViewModels;
+namespace QuestBoard.Service.ViewModels.QuestViewModels;
 
 public class QuestViewModel
 {

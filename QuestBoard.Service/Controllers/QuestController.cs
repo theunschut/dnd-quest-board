@@ -2,7 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels;
+using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
@@ -240,7 +240,7 @@ public class QuestController(IDungeonMasterService dmService,IEmailService email
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyDm(int id)
     {
-        var quest = await questService.GetByIdAsync(id);
+        var quest = await questService.GetQuestWithManageDetailsAsync(id);
         if (quest == null)
         {
             return NotFound();

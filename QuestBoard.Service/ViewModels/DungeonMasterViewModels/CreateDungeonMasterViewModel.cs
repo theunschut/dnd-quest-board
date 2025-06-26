@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.ViewModels;
+namespace QuestBoard.Service.ViewModels.DungeonMasterViewModels;
 
 public class CreateDungeonMasterViewModel
 {

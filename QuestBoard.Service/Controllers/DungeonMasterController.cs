@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels;
+using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
 
 namespace QuestBoard.Service.Controllers
 {

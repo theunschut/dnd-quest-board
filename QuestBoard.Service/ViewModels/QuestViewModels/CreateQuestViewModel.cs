@@ -1,6 +1,6 @@
 using QuestBoard.Domain.Models;
 
-namespace QuestBoard.Service.ViewModels;
+namespace QuestBoard.Service.ViewModels.QuestViewModels;
 
 public class CreateQuestViewModel
 {

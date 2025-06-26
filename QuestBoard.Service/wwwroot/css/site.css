@@ -742,3 +742,185 @@ p, li, span, small {
 .modern-card .table-hover > tbody > tr:hover > td {
     background-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+/* Calendar Styling */
+.calendar-grid {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(244, 228, 188, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.calendar-day-header {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #F4E4BC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    border-right: 1px solid rgba(244, 228, 188, 0.2);
+}
+
+.calendar-day-header:last-child {
+    border-right: none;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    min-height: 120px;
+    padding: 8px;
+    border-right: 1px solid rgba(244, 228, 188, 0.2);
+    border-bottom: 1px solid rgba(244, 228, 188, 0.2);
+    position: relative;
+    background-color: transparent;
+}
+
+.calendar-day:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-day.empty {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day.today {
+    background-color: rgba(52, 152, 219, 0.1);
+    border: 2px solid rgba(52, 152, 219, 0.5);
+}
+
+.day-number {
+    font-weight: 600;
+    font-size: 14px;
+    color: #F4E4BC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    margin-bottom: 4px;
+}
+
+.quest-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quest-event {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 11px;
+    line-height: 1.2;
+    position: relative;
+    overflow: hidden;
+    border-left: 3px solid;
+}
+
+.quest-event.proposed {
+    border-left-color: #ffc107;
+}
+
+.quest-event.finalized {
+    border-left-color: #28a745;
+}
+
+.quest-link {
+    text-decoration: none;
+    color: #1a1a1a;
+    display: block;
+}
+
+.quest-link:hover {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.quest-event:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.quest-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.quest-time {
+    font-size: 10px;
+    color: #666;
+    margin-top: 1px;
+}
+
+.finalized-icon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    color: #28a745;
+    font-size: 10px;
+}
+
+.more-events {
+    font-size: 10px;
+    color: #F4E4BC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    text-align: center;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-item {
+    width: 20px;
+    height: 12px;
+    border-radius: 2px;
+    border-left: 3px solid;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.legend-item.proposed {
+    border-left-color: #ffc107;
+}
+
+.legend-item.finalized {
+    border-left-color: #28a745;
+}
+
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 80px;
+        padding: 4px;
+    }
+    
+    .calendar-day-header {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .quest-event {
+        font-size: 10px;
+        padding: 2px 4px;
+    }
+    
+    .quest-title {
+        font-size: 9px;
+    }
+    
+    .quest-time {
+        font-size: 8px;
+    }
+}

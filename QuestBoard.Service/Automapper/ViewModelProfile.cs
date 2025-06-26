@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels;
+using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
+using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Automapper;
 
