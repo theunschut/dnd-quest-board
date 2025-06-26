@@ -1,23 +1,23 @@
 @model CreateDungeonMasterViewModel
 
-<div class="card bg-dark text-light border-warning">
-    <div class="card-header bg-warning text-dark">
+<div class="card modern-card">
+    <div class="card-header modern-card-header">
         <h4 class="mb-0">
             <i class="fas fa-user-plus me-2"></i>
             Join the Guild
         </h4>
     </div>
-    <div class="card-body">
+    <div class="card-body modern-card-body">
         <form asp-controller="DungeonMaster" asp-action="Create" method="post">
             <div class="mb-3">
                 <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
-                <input asp-for="Name" class="form-control border-warning" placeholder="Enter your name">
+                <input asp-for="Name" class="form-control" placeholder="Enter your name">
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control border-warning" placeholder="your.email@example.com">
+                <input asp-for="Email" class="form-control" placeholder="your.email@example.com">
                 <span asp-validation-for="Email" class="text-danger"></span>
                 <div class="form-text text-muted">
                     Optional - for quest notifications
@@ -26,14 +26,13 @@
             
             <div class="mb-3">
                 <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
-                <input asp-for="Password" type="password" class="form-control border-warning" placeholder="Enter a secure password">
+                <input asp-for="Password" type="password" class="form-control" placeholder="Enter a secure password">
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             
             <div class="mb-3">
                 <label for="ConfirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                <input id="ConfirmPassword" name="ConfirmPassword" type="password" class="form-control border-warning" 
-                       style="background-color: #343a40; color: #ffffff;"
+                <input id="ConfirmPassword" name="ConfirmPassword" type="password" class="form-control" 
                        placeholder="Confirm your password">
                 <span id="confirm-password-error" class="text-danger"></span>
             </div>

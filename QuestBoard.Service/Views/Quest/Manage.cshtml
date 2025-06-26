@@ -37,11 +37,11 @@ else
     {
         <div class="row">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
+                <div class="card modern-card">
+                    <div class="card-header modern-card-header">
                         <h5>Date Selection & Player Management</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <form asp-action="Finalize" method="post">
                             <input type="hidden" name="id" value="@Model.Id" />
                             <h6>Proposed Dates & Voting Results:</h6>
@@ -149,11 +149,11 @@ else
             </div>
 
             <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
+                <div class="card modern-card">
+                    <div class="card-header modern-card-header">
                         <h5>Quest Summary</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
                         <p><strong>Target Players:</strong> 6</p>
                         <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
@@ -174,11 +174,11 @@ else
                     </div>
                 </div>
 
-                <div class="card mt-3">
-                    <div class="card-header">
+                <div class="card modern-card mt-3">
+                    <div class="card-header modern-card-header">
                         <h5>DM Tips</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <ul class="list-unstyled small">
                             <li>✓ Review voting results before selecting date</li>
                             <li>✓ Consider player availability and signup order</li>

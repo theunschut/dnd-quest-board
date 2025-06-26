@@ -21,7 +21,8 @@
       "Bash(dotnet remove:*)",
       "Bash(dotnet run:*)",
       "Bash(grep:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "WebFetch(domain:dnd-session-planner.pages.dev)"
     ],
     "deny": []
   }

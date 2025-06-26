@@ -9,18 +9,18 @@
     <h1>My Quests</h1>
 </div>
 
-<div class="card bg-dark text-light border-warning mb-4">
-    <div class="card-header bg-warning text-dark">
+<div class="card modern-card mb-4">
+    <div class="card-header modern-card-header">
         <h5 class="mb-0">
             <i class="fas fa-key me-2"></i>
             DM Verification
         </h5>
     </div>
-    <div class="card-body">
+    <div class="card-body modern-card-body">
         <p class="text-muted">Enter your DM name to view and manage your quests:</p>
         <form asp-action="MyQuests" method="post">
             <div class="input-group mb-3">
-                <input name="DmName" class="form-control border-warning" placeholder="Enter your DM name..."
+                <input name="DmName" class="form-control" placeholder="Enter your DM name..."
                        value="@ViewBag.DmName" required />
                 <button type="submit" class="btn btn-warning">
                     <i class="fas fa-search me-2"></i>Find My Quests
@@ -36,8 +36,8 @@
         @foreach (var quest in Model)
         {
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card bg-dark text-light border-warning quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
-                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <div class="card modern-card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
+                    <div class="card-header modern-card-header d-flex justify-content-between align-items-center">
                         <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
                             @quest.Difficulty
                         </span>
@@ -52,7 +52,7 @@
                             }
                         </small>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <h5 class="card-title text-warning">@quest.Title</h5>
                         <p class="card-text">@quest.Description</p>
 
@@ -75,7 +75,7 @@
                             </p>
                         }
                     </div>
-                    <div class="card-footer bg-dark border-warning">
+                    <div class="card-footer modern-card-footer">
                         <a href="@Url.Action("Details", "Quest", new { id = quest.Id })" class="btn btn-outline-warning btn-sm me-2">
                             <i class="fas fa-eye me-1"></i>View
                         </a>
@@ -96,8 +96,8 @@
 }
 else if (!string.IsNullOrEmpty(ViewBag.DmName as string))
 {
-    <div class="card bg-dark text-light border-warning">
-        <div class="card-body text-center py-5">
+    <div class="card modern-card">
+        <div class="card-body modern-card-body text-center py-5">
             <i class="fas fa-dragon fa-3x text-warning mb-3"></i>
             <h3 class="text-warning">No quests found</h3>
             <p class="text-muted">You haven't created any quests yet.</p>

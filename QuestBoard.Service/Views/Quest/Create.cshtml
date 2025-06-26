@@ -5,31 +5,31 @@
 
 <div class="row">
     <div class="col-lg-8 col-md-7">
-        <div class="card bg-dark text-light border-warning">
-            <div class="card-header bg-warning text-dark">
+        <div class="card modern-card">
+            <div class="card-header modern-card-header">
                 <h2 class="mb-0">
                     <i class="fas fa-scroll me-2"></i>
                     Create New Quest
                 </h2>
             </div>
-            <div class="card-body">
+            <div class="card-body modern-card-body">
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
                 <form asp-action="Create" method="post">
                     <div class="mb-3">
                         <label asp-for="Quest.Title" class="form-label">Quest Title <span class="text-danger">*</span></label>
-                        <input asp-for="Quest.Title" class="form-control border-warning" placeholder="Enter the quest title..." />
+                        <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
                         <span asp-validation-for="Quest.Title" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Quest.Description" class="form-label">Description <span class="text-danger">*</span></label>
-                        <textarea asp-for="Quest.Description" class="form-control border-warning" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
+                        <textarea asp-for="Quest.Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
                         <span asp-validation-for="Quest.Description" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Quest.Difficulty" class="form-label">Difficulty <span class="text-danger">*</span></label>
-                        <select asp-for="Quest.Difficulty" class="form-select border-warning">
+                        <select asp-for="Quest.Difficulty" class="form-select">
                             <option value="0">Easy</option>
                             <option value="1">Medium</option>
                             <option value="2">Hard</option>
@@ -40,7 +40,7 @@
 
                     <div class="mb-3">
                         <label for="Quest.DungeonMasterId" class="form-label">Dungeon Master <span class="text-danger">*</span></label>
-                        <select name="Quest.DungeonMasterId" class="form-select border-warning">
+                        <select name="Quest.DungeonMasterId" class="form-select">
                             <option value="">Select a Dungeon Master</option>
                             @for (int i = 0; i < Model.DungeonMasters.Count; i++)
                             {
@@ -58,7 +58,7 @@
                                 <div class="mb-3 proposed-date-item">
                                     <label class="form-label">Proposed Date @(i + 1)</label>
                                     <div class="input-group">
-                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control border-warning" required />
+                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required />
                                         @if (i > 0)
                                         {
                                             <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">
@@ -91,14 +91,14 @@
     </div>
     
     <div class="col-lg-4 col-md-5">
-        <div class="card bg-dark text-light border-warning">
-            <div class="card-header bg-warning text-dark">
+        <div class="card modern-card">
+            <div class="card-header modern-card-header">
                 <h4 class="mb-0">
                     <i class="fas fa-lightbulb me-2"></i>
                     Quest Creation Tips
                 </h4>
             </div>
-            <div class="card-body">
+            <div class="card-body modern-card-body">
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
