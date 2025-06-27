@@ -2,7 +2,7 @@
 
 namespace QuestBoard.Domain.Models;
 
-public class DungeonMaster : IModel
+public abstract class User : IModel
 {
     public int Id { get; set; }
 
@@ -18,5 +18,9 @@ public class DungeonMaster : IModel
     [StringLength(100)]
     public string Password { get; set; } = string.Empty;
 
+    public bool IsDungeonMaster { get; set; }
+
     public IList<Quest> Quests { get; set; } = [];
+
+    public IList<PlayerSignup> Signups { get; set; } = [];
 }

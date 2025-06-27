@@ -2,7 +2,7 @@
 
 namespace QuestBoard.Domain.Interfaces;
 
-public interface IDungeonMasterService : IBaseService<DungeonMaster>
+public interface IUserService : IBaseService<User>
 {
     Task<bool> ExistsAsync(string name);
 }

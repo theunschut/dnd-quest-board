@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models;
+using QuestBoard.Domain.Models.Users;
 using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
 
 namespace QuestBoard.Service.Controllers
 {
-    public class DungeonMasterController(IDungeonMasterService service, IMapper mapper) : Controller
+    public class DungeonMasterController(IUserService service, IMapper mapper) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken token = default)

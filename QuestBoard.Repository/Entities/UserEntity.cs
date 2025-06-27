@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuestBoard.Repository.Entities;
 
-public class DungeonMasterEntity : IEntity
+public class UserEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -19,5 +19,9 @@ public class DungeonMasterEntity : IEntity
 
     public string Password { get; set; } = string.Empty;
 
+    public bool IsDungeonMaster { get; set; }
+
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];
+
+    public ICollection<PlayerSignupEntity> Signups { get; set; } = [];
 }

@@ -2,7 +2,7 @@
 
 namespace QuestBoard.Repository.Interfaces;
 
-public interface IDungeonMasterRepositorry : IBaseRepository<DungeonMasterEntity>
+public interface IUserRepository : IBaseRepository<UserEntity>
 {
     Task<bool> ExistsAsync(string name);
 }

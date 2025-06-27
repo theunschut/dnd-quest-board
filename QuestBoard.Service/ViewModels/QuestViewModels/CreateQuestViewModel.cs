@@ -1,4 +1,4 @@
-using QuestBoard.Domain.Models;
+using QuestBoard.Domain.Models.Users;
 
 namespace QuestBoard.Service.ViewModels.QuestViewModels;
 

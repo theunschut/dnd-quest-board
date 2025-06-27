@@ -6,7 +6,13 @@ using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class QuestController(IDungeonMasterService dmService,IEmailService emailService,IMapper mapper, IPlayerSignupService playerSignupService, IQuestService questService) : Controller
+public class QuestController(
+    IUserService dmService,
+    IEmailService emailService,
+    IMapper mapper,
+    IPlayerSignupService playerSignupService,
+    IQuestService questService
+    ) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Create(CancellationToken token = default)
@@ -80,7 +86,6 @@ public class QuestController(IDungeonMasterService dmService,IEmailService email
         var signup = new PlayerSignup
         {
             Quest = quest,
-            QuestId = quest.Id,
             DateVotes = [.. quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id })],
         };
 

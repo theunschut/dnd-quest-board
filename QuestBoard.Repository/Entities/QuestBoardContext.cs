@@ -30,8 +30,8 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Db
             .OnDelete(DeleteBehavior.Cascade);
 
         // DungeonMaster relationships
-        modelBuilder.Entity<DungeonMasterEntity>()
-            .HasMany(dm => dm.Quests)
+        modelBuilder.Entity<UserEntity>()
+            .HasMany(u => u.Quests)
             .WithOne(q => q.DungeonMaster)
             .HasForeignKey(q => q.DungeonMasterId)
             .OnDelete(DeleteBehavior.Cascade);

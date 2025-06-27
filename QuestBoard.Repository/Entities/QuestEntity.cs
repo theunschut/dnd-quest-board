@@ -29,7 +29,7 @@ public class QuestEntity : IEntity
     public bool IsFinalized { get; set; }
 
     [ForeignKey(nameof(DungeonMasterId))]
-    public virtual DungeonMasterEntity DungeonMaster { get; set; } = null!;
+    public virtual UserEntity DungeonMaster { get; set; } = null!;
 
     public virtual ICollection<ProposedDateEntity> ProposedDates { get; set; } = [];
 

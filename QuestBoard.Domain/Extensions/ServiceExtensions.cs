@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QuestBoard.Domain.Configuration;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Services;
+using QuestBoard.Domain.Services.Users;
 
 namespace QuestBoard.Domain.Extensions;
 
@@ -10,8 +11,9 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IDungeonMasterService, DungeonMasterService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IPlayerService, PlayerService>();
         services.AddScoped<IPlayerSignupService, PlayerSignupService>();
         services.AddScoped<IQuestService, QuestService>();
 

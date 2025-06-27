@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace QuestBoard.Domain.Services;
+namespace QuestBoard.Domain.Services.Users;
 
 internal class PasswordHashingService : IPasswordHashingService
 {

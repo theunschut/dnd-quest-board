@@ -14,7 +14,7 @@ public static class ServiceExtensions
         services.AddDbContext<QuestBoardContext>(options =>
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddScoped<IDungeonMasterRepositorry, DungeonMasterRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
         services.AddScoped<IQuestRepository, QuestRepository>();
 

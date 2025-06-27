@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Models;
+using QuestBoard.Domain.Models.Users;
 using QuestBoard.Repository.Entities;
 
 namespace QuestBoard.Domain.Automapper;

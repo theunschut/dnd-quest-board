@@ -10,20 +10,19 @@ public class PlayerSignupEntity : IEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
-    public int QuestId { get; set; }
+    [ForeignKey(nameof(QuestId))]
+    public bool IsSelected { get; set; }
 
     [Required]
-    [StringLength(100)]
-    public string PlayerName { get; set; } = string.Empty;
-
-    [EmailAddress]
-    [StringLength(200)]
-    public string? PlayerEmail { get; set; }
+    public int PlayerId { get; set; }
 
     public DateTime SignupTime { get; set; } = DateTime.UtcNow;
 
-    public bool IsSelected { get; set; }
+    [Required]
+    public int QuestId { get; set; }
+
+    [ForeignKey(nameof(PlayerId))]
+    public UserEntity Player { get; set; } = null!;
 
     [ForeignKey(nameof(QuestId))]
     public virtual QuestEntity Quest { get; set; } = null!;
