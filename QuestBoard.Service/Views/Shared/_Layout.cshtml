@@ -19,15 +19,22 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Quest" asp-action="Create">Create Quest</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Quest" asp-action="MyQuests">My Quests</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="DungeonMaster" asp-action="Index">Dungeon Masters</a>
-                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @* DM-only navigation items *@
+                            @if ((await AuthorizationService.AuthorizeAsync(User, "DungeonMasterOnly")).Succeeded)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Quest" asp-action="Create">Create Quest</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Quest" asp-action="MyQuests">My Quests</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="DungeonMaster" asp-action="Index">Dungeon Masters</a>
+                                </li>
+                            }
+                        }
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
@@ -15,6 +16,7 @@ public class QuestController(
     ) : Controller
 {
     [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
         var dms = await dmService.GetAllAsync(token);
@@ -23,6 +25,7 @@ public class QuestController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CreateQuestViewModel viewModel, CancellationToken token = default)
     {
         if (!ModelState.IsValid)
@@ -204,6 +207,7 @@ public class QuestController(
     }
 
     [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Manage(int id)
     {
         var quest = await questService.GetQuestWithManageDetailsAsync(id);
@@ -221,6 +225,7 @@ public class QuestController(
     }
 
     [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public IActionResult MyQuests()
     {
         return View(new List<Quest>());
@@ -228,6 +233,7 @@ public class QuestController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> MyQuests(string dmName)
     {
         if (string.IsNullOrEmpty(dmName))

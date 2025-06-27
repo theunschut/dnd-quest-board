@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
@@ -6,6 +7,7 @@ using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
 
 namespace QuestBoard.Service.Controllers
 {
+    [Authorize(Policy = "DungeonMasterOnly")]
     public class DungeonMasterController(IUserService service, IMapper mapper) : Controller
     {
         [HttpGet]

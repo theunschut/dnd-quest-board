@@ -5,6 +5,8 @@
 @using QuestBoard.Service.ViewModels.CalendarViewModels
 @using QuestBoard.Service.ViewModels.DungeonMasterViewModels
 @using QuestBoard.Service.ViewModels.QuestViewModels
+@using Microsoft.AspNetCore.Authorization
 
 @namespace QuestBoard.Service.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IAuthorizationService AuthorizationService

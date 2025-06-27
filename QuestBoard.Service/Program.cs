@@ -1,10 +1,12 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using QuestBoard.Domain.Automapper;
 using QuestBoard.Domain.Extensions;
 using QuestBoard.Repository.Entities;
 using QuestBoard.Repository.Extensions;
 using QuestBoard.Service.Automapper;
+using QuestBoard.Service.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,14 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 })
 .AddEntityFrameworkStores<QuestBoardContext>()
 .AddDefaultTokenProviders();
+
+// Add Authorization policies
+builder.Services.AddScoped<IAuthorizationHandler, DungeonMasterHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DungeonMasterOnly", policy =>
+        policy.Requirements.Add(new DungeonMasterRequirement()));
+});
 
 // Add session support
 builder.Services.AddSession(options =>
