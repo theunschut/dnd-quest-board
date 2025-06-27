@@ -800,13 +800,15 @@ p, li, span, small {
     border: 1px solid rgba(244, 228, 188, 0.3);
     border-radius: 8px;
     overflow: hidden;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 250px);
+    min-height: 600px;
 }
 
 .calendar-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     background-color: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
 }
 
 .calendar-day-header {
@@ -825,8 +827,9 @@ p, li, span, small {
 .calendar-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(6, minmax(80px, 1fr));
     flex: 1;
+    min-height: 0;
 }
 
 .calendar-day {
@@ -863,18 +866,23 @@ p, li, span, small {
 .quest-events {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .quest-event {
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    padding: 4px 6px;
-    font-size: 11px;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 9px;
     line-height: 1.2;
     position: relative;
     overflow: hidden;
     border-left: 3px solid;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 16px;
+    display: flex;
+    align-items: center;
 }
 
 .quest-event.proposed {
@@ -889,6 +897,10 @@ p, li, span, small {
     text-decoration: none;
     color: #1a1a1a;
     display: block;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .quest-link:hover {
@@ -898,8 +910,14 @@ p, li, span, small {
 
 .quest-event:hover {
     background-color: rgba(255, 255, 255, 1);
-    transform: scale(1.02);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    height: auto;
+    min-height: 40px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 11px;
 }
 
 .quest-title {
@@ -911,25 +929,29 @@ p, li, span, small {
 
 .calendar-quest-title {
     font-weight: 500;
-    font-size: 10px;
+    font-size: inherit;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex: 1;
 }
 
 .calendar-quest-dm {
-    font-size: 9px;
+    font-size: 8px;
     color: #888;
     font-style: italic;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: none;
+    margin-top: 2px;
 }
 
 .quest-time {
-    font-size: 10px;
+    font-size: 8px;
     color: #666;
     margin-top: 1px;
+    display: none;
 }
 
 .finalized-icon {
@@ -937,7 +959,36 @@ p, li, span, small {
     top: 2px;
     right: 2px;
     color: #28a745;
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+/* Show full details on hover */
+.quest-event:hover .quest-link {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.quest-event:hover .calendar-quest-title {
+    white-space: normal;
+    text-overflow: unset;
+    overflow: visible;
+    font-size: 11px;
+}
+
+.quest-event:hover .calendar-quest-dm {
+    display: block;
+    font-size: 9px;
+}
+
+.quest-event:hover .quest-time {
+    display: block;
+    font-size: 9px;
+}
+
+.quest-event:hover .finalized-icon {
     font-size: 10px;
+    opacity: 1;
 }
 
 .more-events {
@@ -986,7 +1037,12 @@ p, li, span, small {
 
 @media (max-width: 768px) {
     .calendar-grid {
-        height: calc(100vh - 150px);
+        height: calc(100vh - 180px);
+        min-height: 500px;
+    }
+    
+    .calendar-body {
+        grid-template-rows: repeat(6, minmax(70px, 1fr));
     }
     
     .calendar-day {
@@ -999,23 +1055,78 @@ p, li, span, small {
     }
     
     .quest-event {
-        font-size: 10px;
-        padding: 2px 4px;
+        font-size: 8px;
+        padding: 1px 3px;
+        height: 14px;
+    }
+    
+    .quest-event:hover {
+        font-size: 9px;
+        min-height: 35px;
+        padding: 4px 6px;
     }
     
     .quest-title {
-        font-size: 9px;
+        font-size: 8px;
     }
     
     .calendar-quest-title {
+        font-size: inherit;
+    }
+    
+    .quest-event:hover .calendar-quest-title {
         font-size: 9px;
     }
     
-    .calendar-quest-dm {
+    .quest-event:hover .calendar-quest-dm {
+        font-size: 7px;
+    }
+    
+    .quest-event:hover .quest-time {
+        font-size: 7px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-grid {
+        height: calc(100vh - 160px);
+        min-height: 400px;
+    }
+    
+    .calendar-body {
+        grid-template-rows: repeat(6, minmax(60px, 1fr));
+    }
+    
+    .calendar-day {
+        padding: 2px;
+    }
+    
+    .calendar-day-header {
+        padding: 6px 2px;
+        font-size: 11px;
+    }
+    
+    .quest-event {
+        font-size: 7px;
+        height: 12px;
+        padding: 1px 2px;
+    }
+    
+    .quest-event:hover {
+        font-size: 8px;
+        min-height: 30px;
+        padding: 3px 4px;
+    }
+    
+    .quest-event:hover .calendar-quest-title {
         font-size: 8px;
     }
     
-    .quest-time {
-        font-size: 8px;
+    .quest-event:hover .calendar-quest-dm {
+        font-size: 6px;
+    }
+    
+    .quest-event:hover .quest-time {
+        font-size: 6px;
     }
 }
