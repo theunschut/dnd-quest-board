@@ -1,10 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Repository.Entities;
 using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Controllers;
@@ -14,15 +12,14 @@ public class QuestController(
     IEmailService emailService,
     IMapper mapper,
     IPlayerSignupService playerSignupService,
-    IQuestService questService,
-    UserManager<UserEntity> userManager
+    IQuestService questService
     ) : Controller
 {
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        var dms = await userService.GetAllAsync(token);
+        var dms = await userService.GetAllDungeonMasters(token);
         return View(new CreateQuestViewModel { DungeonMasters = dms });
     }
 
@@ -86,7 +83,7 @@ public class QuestController(
         User? currentUser = null;
         if (User.Identity?.IsAuthenticated == true)
         {
-            var userEntity = await userManager.GetUserAsync(User);
+            var userEntity = await userService.GetUserAsync(User);
             if (userEntity != null)
             {
                 currentUser = await userService.GetByIdAsync(userEntity.Id);
@@ -122,7 +119,7 @@ public class QuestController(
         }
 
         // Get current authenticated user
-        var userEntity = await userManager.GetUserAsync(User);
+        var userEntity = await userService.GetUserAsync(User);
         if (userEntity == null)
         {
             return Challenge();
@@ -162,7 +159,7 @@ public class QuestController(
             return NotFound();
         }
 
-        var currentUser = await userManager.GetUserAsync(User);
+        var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null)
         {
             return Challenge();
@@ -242,7 +239,7 @@ public class QuestController(
             return NotFound();
         }
 
-        var currentUser = await userManager.GetUserAsync(User);
+        var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null)
         {
             return Challenge();
@@ -258,7 +255,7 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> MyQuests()
     {
-        var currentUser = await userManager.GetUserAsync(User);
+        var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null)
         {
             return Challenge();
@@ -267,5 +264,4 @@ public class QuestController(
         var quests = await questService.GetQuestsByDmNameAsync(currentUser.Name);
         return View(quests);
     }
-
 }

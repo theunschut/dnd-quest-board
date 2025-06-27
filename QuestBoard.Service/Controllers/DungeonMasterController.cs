@@ -13,8 +13,13 @@ namespace QuestBoard.Service.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken token = default)
         {
-            var dms = await service.GetAllAsync(token);
-            return View(dms);
+            var viewModel = new DungeonMasterIndexViewModel
+            {
+                DungeonMasters = await service.GetAllDungeonMasters(),
+                Players = await service.GetAllPlayers()
+            };
+            
+            return View(viewModel);
         }
 
         [HttpDelete]
