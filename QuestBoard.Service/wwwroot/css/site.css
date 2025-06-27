@@ -750,6 +750,7 @@ p, li, span, small {
     border: 1px solid rgba(244, 228, 188, 0.3);
     border-radius: 8px;
     overflow: hidden;
+    height: calc(100vh - 200px);
 }
 
 .calendar-header {
@@ -774,15 +775,18 @@ p, li, span, small {
 .calendar-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    flex: 1;
 }
 
 .calendar-day {
-    min-height: 120px;
     padding: 8px;
     border-right: 1px solid rgba(244, 228, 188, 0.2);
     border-bottom: 1px solid rgba(244, 228, 188, 0.2);
     position: relative;
     background-color: transparent;
+    display: flex;
+    flex-direction: column;
 }
 
 .calendar-day:nth-child(7n) {
@@ -855,6 +859,23 @@ p, li, span, small {
     text-overflow: ellipsis;
 }
 
+.calendar-quest-title {
+    font-weight: 500;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-quest-dm {
+    font-size: 9px;
+    color: #888;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .quest-time {
     font-size: 10px;
     color: #666;
@@ -900,9 +921,25 @@ p, li, span, small {
     border-left-color: #28a745;
 }
 
+.legend-card {
+    height: fit-content;
+}
+
+.legend-card .card-body {
+    padding: 0.75rem !important;
+}
+
+.legend-card small {
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
 @media (max-width: 768px) {
+    .calendar-grid {
+        height: calc(100vh - 150px);
+    }
+    
     .calendar-day {
-        min-height: 80px;
         padding: 4px;
     }
     
@@ -918,6 +955,14 @@ p, li, span, small {
     
     .quest-title {
         font-size: 9px;
+    }
+    
+    .calendar-quest-title {
+        font-size: 9px;
+    }
+    
+    .calendar-quest-dm {
+        font-size: 8px;
     }
     
     .quest-time {

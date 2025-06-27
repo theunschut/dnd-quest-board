@@ -6,6 +6,8 @@ public interface IQuestService : IBaseService<Quest>
 {
     Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default);
 
+    Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default);
+
     Task<IList<Quest>> GetQuestsWithSignupsAsync(CancellationToken token = default);
 
     Task<Quest?> GetQuestWithDetailsAsync(int id, CancellationToken token = default);

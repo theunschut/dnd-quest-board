@@ -15,7 +15,7 @@ public class CalendarController(IQuestService questService) : Controller
         var selectedMonth = month ?? currentDate.Month;
 
         // Get all quests with their proposed dates
-        var allQuests = await questService.GetQuestsWithSignupsAsync(token);
+        var allQuests = await questService.GetQuestsWithDetailsAsync(token);
 
         // Create calendar model
         var calendarModel = new CalendarViewModel

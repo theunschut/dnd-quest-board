@@ -10,7 +10,7 @@ function addProposedDate() {
     div.innerHTML = `
         <label class="form-label">Proposed Date ${index + 1}</label>
         <div class="input-group">
-            <input type="datetime-local" name="ProposedDates[${index}]" class="form-control" required>
+            <input type="datetime-local" name="Quest.ProposedDates[${index}]" class="form-control" required>
             <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">Remove</button>
         </div>
     `;
@@ -31,7 +31,7 @@ function removeProposedDate(button) {
         const label = item.querySelector('label');
         const input = item.querySelector('input[type="datetime-local"]');
         if (label) label.textContent = `Proposed Date ${index + 1}`;
-        if (input) input.name = `ProposedDates[${index}]`;
+        if (input) input.name = `Quest.ProposedDates[${index}]`;
     });
 }
 

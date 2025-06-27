@@ -14,6 +14,12 @@ internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseS
         return Mapper.Map<IList<Quest>>(questEntities);
     }
 
+    public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
+    {
+        var questEntities = await repository.GetQuestsWithDetailsAsync(token);
+        return Mapper.Map<IList<Quest>>(questEntities);
+    }
+
     public async Task<IList<Quest>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
         var questEntities = await repository.GetQuestsWithSignupsAsync(token);

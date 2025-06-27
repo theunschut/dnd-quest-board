@@ -22,7 +22,8 @@ public class CalendarViewModel
         var days = new List<CalendarDay>();
 
         // Add empty days for the start of the month
-        var firstDayOfWeek = (int)FirstDayOfWeek;
+        // Adjust for Monday-first week: Sunday becomes 6, Monday becomes 0
+        var firstDayOfWeek = ((int)FirstDayOfWeek + 6) % 7;
         for (int i = 0; i < firstDayOfWeek; i++)
         {
             days.Add(new CalendarDay { IsEmpty = true });
@@ -40,6 +41,16 @@ public class CalendarViewModel
                 Day = day,
                 QuestsOnDay = questsOnDay
             });
+        }
+
+        // Add empty days at the end to complete the week
+        var lastDayOfMonth = new DateTime(Year, Month, DaysInMonth);
+        var lastDayOfWeek = ((int)lastDayOfMonth.DayOfWeek + 6) % 7; // Adjust for Monday-first week
+        var emptyDaysAtEnd = (6 - lastDayOfWeek) % 7;
+        
+        for (int i = 0; i < emptyDaysAtEnd; i++)
+        {
+            days.Add(new CalendarDay { IsEmpty = true });
         }
 
         return days;

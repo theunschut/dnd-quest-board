@@ -16,6 +16,16 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
             .ToListAsync(cancellationToken: token);
     }
 
+    public async Task<IList<QuestEntity>> GetQuestsWithDetailsAsync(CancellationToken token = default)
+    {
+        return await DbContext.Quests
+            .Include(q => q.ProposedDates)
+                .ThenInclude(pd => pd.PlayerVotes)
+            .Include(q => q.PlayerSignups)
+            .Include(q => q.DungeonMaster)
+            .ToListAsync(cancellationToken: token);
+    }
+
     public async Task<IList<QuestEntity>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
         return await DbContext.Quests
