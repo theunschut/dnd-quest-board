@@ -51,84 +51,79 @@
                         }
                     </div>
                 }
-                else
+                else if (!User.Identity.IsAuthenticated)
                 {
-                    @if (!(bool)ViewBag.IsPlayerSignedUp)
-                    {
-                        <div class="card modern-card mb-4">
-                            <div class="card-header modern-card-header">
-                                <h5>Sign Up for This Quest</h5>
+                    <div class="alert alert-warning">
+                        <h5>Sign In Required</h5>
+                        <p>You must <a href="@Url.Action("Login", "Account")" class="alert-link">sign in</a> to sign up for quests.</p>
+                        <p>Don't have an account? <a href="@Url.Action("Register", "Account")" class="alert-link">Register here</a>.</p>
+                    </div>
+                }
+                else if (!(bool)ViewBag.IsPlayerSignedUp)
+                {
+                    <div class="card modern-card mb-4">
+                        <div class="card-header modern-card-header">
+                            <h5>Sign Up for This Quest</h5>
+                        </div>
+                        <div class="card-body modern-card-body">
+                            <div class="alert alert-info">
+                                <strong>Signing up as:</strong> @Model.Player?.Name (@Model.Player?.Email)
                             </div>
-                            <div class="card-body modern-card-body">
-                                <form asp-action="Details" method="post">
-                                    <input type="hidden" name="Id" value="0" />
-                                    <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Your Name</label>
-                                                <input name="Player.Name" class="form-control" required placeholder="Enter your name..." />
+                            
+                            <form asp-action="Details" method="post">
+                                <input type="hidden" name="Id" value="0" />
+                                <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
+
+                                <h6>Vote on Proposed Dates:</h6>
+                                @for (var i = 0; i < Model.DateVotes.Count; i++)
+                                {
+                                    var vote = Model.DateVotes[i];
+                                    <div class="date-option">
+                                        <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
+                                        <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>@vote.ProposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                            <div class="vote-summary">
+                                                @{
+                                                    var votes = vote.ProposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
+                                                    var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
+                                                    var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
+                                                    var noCount = votes.GetValueOrDefault(VoteType.No, 0);
+                                                }
+                                                <span class="text-success">✓ @yesCount</span>
+                                                <span class="text-warning">? @maybeCount</span>
+                                                <span class="text-danger">✗ @noCount</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Email (Optional)</label>
-                                                <input name="Player.Email" type="email" class="form-control" placeholder="your.email@example.com" />
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="2" id="yes_[@i]" required>
+                                                <label class="form-check-label text-success" for="yes_[@i]">Yes</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="1" id="maybe_[@i]">
+                                                <label class="form-check-label text-warning" for="maybe_[@i]">Maybe</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="0" id="no_[@i]">
+                                                <label class="form-check-label text-danger" for="no_[@i]">No</label>
                                             </div>
                                         </div>
                                     </div>
+                                }
 
-                                    <h6>Vote on Proposed Dates:</h6>
-                                    @for (var i = 0; i < Model.DateVotes.Count; i++)
-                                    {
-                                        var vote = Model.DateVotes[i];
-                                        <div class="date-option">
-                                            <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
-                                            <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
-
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <strong>@vote.ProposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
-                                                <div class="vote-summary">
-                                                    @{
-                                                        var votes = vote.ProposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
-                                                        var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
-                                                        var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
-                                                        var noCount = votes.GetValueOrDefault(VoteType.No, 0);
-                                                    }
-                                                    <span class="text-success">✓ @yesCount</span>
-                                                    <span class="text-warning">? @maybeCount</span>
-                                                    <span class="text-danger">✗ @noCount</span>
-                                                </div>
-                                            </div>
-                                            <div class="mt-2">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="2" id="yes_[@i]" required>
-                                                    <label class="form-check-label text-success" for="yes_[@i]">Yes</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="1" id="maybe_[@i]">
-                                                    <label class="form-check-label text-warning" for="maybe_[@i]">Maybe</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="0" id="no_[@i]">
-                                                    <label class="form-check-label text-danger" for="no_[@i]">No</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-
-                                    <button type="submit" class="btn btn-primary">Sign Up & Submit Votes</button>
-                                </form>
-                            </div>
+                                <button type="submit" class="btn btn-primary">Sign Up & Submit Votes</button>
+                            </form>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-success">
-                            <h5>You're signed up!</h5>
-                            <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
-                        </div>
-                    }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success">
+                        <h5>You're signed up!</h5>
+                        <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
+                    </div>
                 }
             </div>
         </div>

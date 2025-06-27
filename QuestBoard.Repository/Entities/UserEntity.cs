@@ -9,9 +9,6 @@ public class UserEntity : IdentityUser<int>, IEntity
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    // Email and Password are inherited from IdentityUser
-    // Id is inherited from IdentityUser<int>
-
     public bool IsDungeonMaster { get; set; }
 
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];

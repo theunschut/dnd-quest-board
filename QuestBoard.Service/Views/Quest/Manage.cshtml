@@ -10,16 +10,10 @@
 
 @if (!(bool)ViewBag.IsAuthorized)
 {
-    <div class="alert alert-warning">
-        <h5>DM Verification Required</h5>
-        <p>Please enter your DM name to manage this quest:</p>
-        <form asp-action="VerifyDm" method="post">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <div class="input-group mb-3">
-                <input name="DmName" class="form-control" placeholder="Enter your DM name..." required />
-                <button type="submit" class="btn btn-primary">Verify</button>
-            </div>
-        </form>
+    <div class="alert alert-danger">
+        <h5>Access Denied</h5>
+        <p>You are not authorized to manage this quest. Only the quest's Dungeon Master can access this page.</p>
+        <a href="@Url.Action("Details", "Quest", new { id = Model.Id })" class="btn btn-outline-secondary">Back to Quest Details</a>
     </div>
 }
 else

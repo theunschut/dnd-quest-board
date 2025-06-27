@@ -7,27 +7,7 @@
 
 <div class="mb-4">
     <h1>My Quests</h1>
-</div>
-
-<div class="card modern-card mb-4">
-    <div class="card-header modern-card-header">
-        <h5 class="mb-0">
-            <i class="fas fa-key me-2"></i>
-            DM Verification
-        </h5>
-    </div>
-    <div class="card-body modern-card-body">
-        <p class="text-muted">Enter your DM name to view and manage your quests:</p>
-        <form asp-action="MyQuests" method="post">
-            <div class="input-group mb-3">
-                <input name="DmName" class="form-control" placeholder="Enter your DM name..."
-                       value="@ViewBag.DmName" required />
-                <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-search me-2"></i>Find My Quests
-                </button>
-            </div>
-        </form>
-    </div>
+    <p class="text-muted">Manage your created quests and view their status.</p>
 </div>
 
 @if (Model.Any())
@@ -94,7 +74,7 @@
         }
     </div>
 }
-else if (!string.IsNullOrEmpty(ViewBag.DmName as string))
+else
 {
     <div class="card modern-card">
         <div class="card-body modern-card-body text-center py-5">

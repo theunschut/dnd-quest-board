@@ -1,25 +1,28 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
+using QuestBoard.Repository.Entities;
 using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
 public class QuestController(
-    IUserService dmService,
+    IUserService userService,
     IEmailService emailService,
     IMapper mapper,
     IPlayerSignupService playerSignupService,
-    IQuestService questService
+    IQuestService questService,
+    UserManager<UserEntity> userManager
     ) : Controller
 {
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        var dms = await dmService.GetAllAsync(token);
+        var dms = await userService.GetAllAsync(token);
         return View(new CreateQuestViewModel { DungeonMasters = dms });
     }
 
@@ -33,7 +36,7 @@ public class QuestController(
             return View(viewModel);
         }
 
-        if (!(await dmService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
+        if (!(await userService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
         {
             return NotFound();
         }
@@ -79,17 +82,27 @@ public class QuestController(
             return NotFound();
         }
 
-        // Check if current user is signed up
-        var playerName = HttpContext.Session.GetString($"PlayerName_{id}");
-        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) && quest.PlayerSignups.Any(ps => ps.Player.Name == playerName);
+        // Get current user if authenticated
+        User? currentUser = null;
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userEntity = await userManager.GetUserAsync(User);
+            if (userEntity != null)
+            {
+                currentUser = await userService.GetByIdAsync(userEntity.Id);
+            }
+        }
 
-        // Get DM name for management access
-        ViewBag.DmNameForManagement = HttpContext.Session.GetString($"DmName_{id}");
+        // Check if current user is signed up
+        ViewBag.IsPlayerSignedUp = currentUser != null && quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id);
+
+        // Check if current user is the DM
+        ViewBag.DmNameForManagement = currentUser?.Name == quest.DungeonMaster?.Name ? currentUser?.Name : null;
 
         var signup = new PlayerSignup
         {
             Quest = quest,
-            Player = new User { Name = playerName ?? "", Email = "" },
+            Player = currentUser ?? new User { Name = "", Email = "" },
             DateVotes = [.. quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id })],
         };
 
@@ -98,6 +111,7 @@ public class QuestController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize]
     public async Task<IActionResult> Details(int questId, PlayerSignup signup)
     {
         var quest = await questService.GetQuestWithDetailsAsync(questId);
@@ -107,32 +121,38 @@ public class QuestController(
             return NotFound();
         }
 
-        signup.Player.Name = signup.Player.Name.Trim();
-        signup.Player.Email = signup.Player.Email?.Trim();
-
-        if (string.IsNullOrEmpty(signup.Player.Name))
+        // Get current authenticated user
+        var userEntity = await userManager.GetUserAsync(User);
+        if (userEntity == null)
         {
-            ModelState.AddModelError("", "Player name is required.");
+            return Challenge();
+        }
+
+        var currentUser = await userService.GetByIdAsync(userEntity.Id);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if user already signed up
+        if (quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id))
+        {
+            ModelState.AddModelError("", "You have already signed up for this quest.");
             return await Details(questId);
         }
 
-        // Check if player already signed up
-        if (quest.PlayerSignups.Any(ps => ps.Player.Name.Equals(signup.Player.Name, StringComparison.OrdinalIgnoreCase)))
-        {
-            ModelState.AddModelError("", "A player with this name has already signed up.");
-            return await Details(questId);
-        }
+        // Use the authenticated user instead of form input
+        signup.Player = currentUser;
+        signup.Quest = quest;
 
         await playerSignupService.AddAsync(signup);
 
-        // Store player name in session for future reference
-        HttpContext.Session.SetString($"PlayerName_{questId}", signup.Player.Name);
-
-        return RedirectToAction("Details", new { questId });
+        return RedirectToAction("Details", new { id = questId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Finalize(int id)
     {
         var quest = await questService.GetQuestWithDetailsAsync(id);
@@ -142,11 +162,16 @@ public class QuestController(
             return NotFound();
         }
 
-        // Verify DM authorization
-        var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        if (string.IsNullOrEmpty(sessionDmName) || !sessionDmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        var currentUser = await userManager.GetUserAsync(User);
+        if (currentUser == null)
         {
-            return Unauthorized();
+            return Challenge();
+        }
+
+        // Verify DM authorization
+        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
         }
 
         // Get selected date
@@ -217,58 +242,30 @@ public class QuestController(
             return NotFound();
         }
 
-        // Check if DM is authorized
-        var sessionDmName = HttpContext.Session.GetString($"DmName_{id}");
-        ViewBag.IsAuthorized = !string.IsNullOrEmpty(sessionDmName) && sessionDmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var currentUser = await userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is the quest's DM
+        ViewBag.IsAuthorized = currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
 
         return View(quest);
     }
 
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
-    public IActionResult MyQuests()
+    public async Task<IActionResult> MyQuests()
     {
-        return View(new List<Quest>());
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Policy = "DungeonMasterOnly")]
-    public async Task<IActionResult> MyQuests(string dmName)
-    {
-        if (string.IsNullOrEmpty(dmName))
+        var currentUser = await userManager.GetUserAsync(User);
+        if (currentUser == null)
         {
-            ModelState.AddModelError("", "Please enter your DM name.");
-            return View(new List<Quest>());
+            return Challenge();
         }
 
-        var quests = await questService.GetQuestsByDmNameAsync(dmName);
-
-        ViewBag.DmName = dmName;
+        var quests = await questService.GetQuestsByDmNameAsync(currentUser.Name);
         return View(quests);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> VerifyDm(int id)
-    {
-        var quest = await questService.GetQuestWithManageDetailsAsync(id);
-        if (quest == null)
-        {
-            return NotFound();
-        }
-
-        var dmName = Request.Form["DmName"].ToString().Trim();
-
-        if (string.IsNullOrEmpty(dmName) || !dmName.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError("", "DM name does not match.");
-            return await Manage(id);
-        }
-
-        // Store DM name in session
-        HttpContext.Session.SetString($"DmName_{id}", dmName);
-
-        return RedirectToAction("Manage", new { id });
-    }
 }
