@@ -64,7 +64,7 @@
                             </p>
                             <p class="card-text">
                                 <strong class="text-warning">Players:</strong><br>
-                                <small class="text-muted">@string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</small>
+                                <small class="text-muted">@string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))</small>
                             </p>
                         }
                         else

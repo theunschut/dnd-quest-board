@@ -1,4 +1,4 @@
-using QuestBoard.Domain.Models.Users;
+using QuestBoard.Domain.Models;
 
 namespace QuestBoard.Service.ViewModels.QuestViewModels;
 
@@ -6,5 +6,5 @@ public class CreateQuestViewModel
 {
     public QuestViewModel Quest { get; set; } = new();
 
-    public IList<DungeonMaster> DungeonMasters { get; set; } = [];
+    public IList<User> DungeonMasters { get; set; } = [];
 }

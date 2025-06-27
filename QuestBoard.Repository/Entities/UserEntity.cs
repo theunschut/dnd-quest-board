@@ -1,23 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Repository.Entities;
 
-public class UserEntity : IEntity
+public class UserEntity : IdentityUser<int>, IEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
     [Required]
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    [EmailAddress]
-    [StringLength(200)]
-    public string? Email { get; set; }
-
-    public string Password { get; set; } = string.Empty;
+    // Email and Password are inherited from IdentityUser
+    // Id is inherited from IdentityUser<int>
 
     public bool IsDungeonMaster { get; set; }
 

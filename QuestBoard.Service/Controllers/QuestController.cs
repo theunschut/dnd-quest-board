@@ -78,7 +78,7 @@ public class QuestController(
 
         // Check if current user is signed up
         var playerName = HttpContext.Session.GetString($"PlayerName_{id}");
-        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) && quest.PlayerSignups.Any(ps => ps.PlayerName == playerName);
+        ViewBag.IsPlayerSignedUp = !string.IsNullOrEmpty(playerName) && quest.PlayerSignups.Any(ps => ps.Player.Name == playerName);
 
         // Get DM name for management access
         ViewBag.DmNameForManagement = HttpContext.Session.GetString($"DmName_{id}");
@@ -86,6 +86,7 @@ public class QuestController(
         var signup = new PlayerSignup
         {
             Quest = quest,
+            Player = new User { Name = playerName ?? "", Email = "" },
             DateVotes = [.. quest.ProposedDates.Select(x => new PlayerDateVote { ProposedDate = x, ProposedDateId = x.Id })],
         };
 
@@ -103,17 +104,17 @@ public class QuestController(
             return NotFound();
         }
 
-        signup.PlayerName = signup.PlayerName.Trim();
-        signup.PlayerEmail = signup.PlayerEmail?.Trim();
+        signup.Player.Name = signup.Player.Name.Trim();
+        signup.Player.Email = signup.Player.Email?.Trim();
 
-        if (string.IsNullOrEmpty(signup.PlayerName))
+        if (string.IsNullOrEmpty(signup.Player.Name))
         {
             ModelState.AddModelError("", "Player name is required.");
             return await Details(questId);
         }
 
         // Check if player already signed up
-        if (quest.PlayerSignups.Any(ps => ps.PlayerName.Equals(signup.PlayerName, StringComparison.OrdinalIgnoreCase)))
+        if (quest.PlayerSignups.Any(ps => ps.Player.Name.Equals(signup.Player.Name, StringComparison.OrdinalIgnoreCase)))
         {
             ModelState.AddModelError("", "A player with this name has already signed up.");
             return await Details(questId);
@@ -122,7 +123,7 @@ public class QuestController(
         await playerSignupService.AddAsync(signup);
 
         // Store player name in session for future reference
-        HttpContext.Session.SetString($"PlayerName_{questId}", signup.PlayerName);
+        HttpContext.Session.SetString($"PlayerName_{questId}", signup.Player.Name);
 
         return RedirectToAction("Details", new { questId });
     }
@@ -186,13 +187,13 @@ public class QuestController(
         //await repository.SaveChangesAsync();
 
         // Send email notifications to selected players
-        var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.PlayerEmail));
+        var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.Player.Email));
 
         foreach (var player in selectedPlayers)
         {
             await emailService.SendQuestFinalizedEmailAsync(
-                player.PlayerEmail!,
-                player.PlayerName,
+                player.Player.Email!,
+                player.Player.Name,
                 quest.Title,
                 quest.DungeonMaster.Name,
                 quest.FinalizedDate.Value

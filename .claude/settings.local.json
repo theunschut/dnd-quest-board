@@ -22,7 +22,8 @@
       "Bash(dotnet run:*)",
       "Bash(grep:*)",
       "Bash(rg:*)",
-      "WebFetch(domain:dnd-session-planner.pages.dev)"
+      "WebFetch(domain:dnd-session-planner.pages.dev)",
+      "Bash(dotnet restore:*)"
     ],
     "deny": []
   }

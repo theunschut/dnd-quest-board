@@ -1,5 +1,5 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@model IEnumerable<DungeonMaster>
+@model IEnumerable<QuestBoard.Domain.Models.User>
 @{
     ViewData["Title"] = "Dungeon Masters";
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);

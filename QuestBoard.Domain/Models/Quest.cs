@@ -1,5 +1,4 @@
 using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
@@ -19,7 +18,7 @@ public class Quest : IModel
 
     public int DungeonMasterId { get; set; }
 
-    public DungeonMaster? DungeonMaster { get; set; }
+    public User? DungeonMaster { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

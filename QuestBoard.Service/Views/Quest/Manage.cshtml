@@ -30,7 +30,7 @@ else
             <h5>Quest Finalized</h5>
             <p>This quest has been finalized with the following details:</p>
             <p><strong>Date:</strong> @Model.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
-            <p><strong>Selected Players:</strong> @string.Join(", ", Model.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))</p>
+            <p><strong>Selected Players:</strong> @string.Join(", ", Model.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))</p>
         </div>
     }
     else
@@ -72,7 +72,7 @@ else
                                                 <ul class="list-unstyled small">
                                                     @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup?.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.Player.Name</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -81,7 +81,7 @@ else
                                                 <ul class="list-unstyled small">
                                                     @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup?.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.Player.Name</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -90,7 +90,7 @@ else
                                                 <ul class="list-unstyled small">
                                                     @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
                                                     {
-                                                        <li>@vote.PlayerSignup?.PlayerName</li>
+                                                        <li>@vote.PlayerSignup?.Player.Name</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -124,7 +124,7 @@ else
                                                value="@player.Id" id="player_@player.Id" 
                                                @(isInTop6 ? "checked" : "") />
                                         <label class="form-check-label" for="player_@player.Id">
-                                            @player.PlayerName
+                                            @player.Player.Name
                                             <small class="text-muted">
                                                 (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
                                                 @if (availablePlayers.Contains(player))

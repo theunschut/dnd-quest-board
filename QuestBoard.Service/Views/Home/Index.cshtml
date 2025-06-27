@@ -84,7 +84,7 @@
                         </div>
                         <div class="quest-players">
                             <strong>Selected Adventurers:</strong><br>
-                            @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.PlayerName))
+                            @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))
                         </div>
                     }
                     else

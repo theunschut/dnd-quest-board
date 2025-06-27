@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card modern-card">
+            <div class="card-header modern-card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-cog me-2"></i>
+                    @ViewData["Title"]
+                </h2>
+            </div>
+            <div class="card-body modern-card-body">
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Name:</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext">@User.Identity?.Name</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Email:</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext">@User.Identity?.Name</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Account Type:</label>
+                    <div class="col-sm-9">
+                        <p class="form-control-plaintext">
+                            <i class="fas fa-crown text-warning me-2"></i>
+                            Dungeon Master & Player
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="text-muted">Profile editing features coming soon!</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-warning">
+                        <i class="fas fa-home me-2"></i>
+                        Back to Quest Board
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

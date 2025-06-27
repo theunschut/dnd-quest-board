@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models.Users;
+using QuestBoard.Domain.Models;
 using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
 
 namespace QuestBoard.Service.Controllers
@@ -46,7 +46,7 @@ namespace QuestBoard.Service.Controllers
                 return RedirectToAction("Index", "DungeonMaster");
             }
 
-            await service.AddAsync(mapper.Map<DungeonMaster>(model), token);
+            await service.AddAsync(mapper.Map<User>(model), token);
 
             return RedirectToAction("Index", "DungeonMaster");
         }

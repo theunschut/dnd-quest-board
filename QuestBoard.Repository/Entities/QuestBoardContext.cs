@@ -1,15 +1,21 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace QuestBoard.Repository.Entities;
 
-public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : DbContext(options)
+public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : IdentityDbContext<UserEntity, IdentityRole<int>, int>(options)
 {
     public DbSet<QuestEntity> Quests { get; set; }
 
     public DbSet<PlayerSignupEntity> PlayerSignups { get; set; }
 
+    public DbSet<UserEntity> UserEntities { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Quest relationships
         modelBuilder.Entity<QuestEntity>()
             .HasOne(q => q.DungeonMaster)
@@ -55,6 +61,5 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Db
             .HasIndex(pdv => new { pdv.PlayerSignupId, pdv.ProposedDateId })
             .IsUnique();
 
-        base.OnModelCreating(modelBuilder);
     }
 }

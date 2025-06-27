@@ -1,4 +1,3 @@
-using QuestBoard.Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
 
 namespace QuestBoard.Domain.Models;
@@ -7,7 +6,7 @@ public class PlayerSignup : IModel
 {
     public int Id { get; set; }
 
-    public required Player Player { get; set; }
+    public required User Player { get; set; }
 
     public DateTime SignupTime { get; set; } = DateTime.UtcNow;
 

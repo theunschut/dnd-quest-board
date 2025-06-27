@@ -2,7 +2,7 @@
 
 namespace QuestBoard.Domain.Models;
 
-public abstract class User : IModel
+public class User : IModel
 {
     public int Id { get; set; }
 
