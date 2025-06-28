@@ -23,10 +23,10 @@ public static class ServiceExtensions
 
     public static IServiceProvider ConfigureDatabase(this IServiceProvider services)
     {
-        // Ensure database is created
+        // Apply any pending migrations automatically
         using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
 
         return services;
     }

@@ -33,6 +33,9 @@ dotnet restore
 
 # Update database (if adding migrations)
 dotnet ef database update
+
+# Create Entity Framework migrations (run from Service project)
+dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
 ```
 
 ### Docker Development (from root directory)
@@ -209,3 +212,48 @@ The application follows a clean architecture pattern with three main layers:
 - Dependency injection throughout all layers for loose coupling
 - Entity Framework Core with code-first approach and migrations
 - Clean separation of concerns across three distinct projects
+
+## Entity Framework Guidelines
+
+### Package Management
+- **IMPORTANT**: Entity Framework packages should ONLY be added to the Repository project
+- Never add EF packages (like Microsoft.EntityFrameworkCore.Design) to the Service project
+- The Repository project contains all EF-related dependencies and database context
+
+### Migration Commands
+```bash
+# Install EF tools globally (if not already installed)
+dotnet tool install --global dotnet-ef
+
+# Create a new migration (run from Service project directory)
+cd QuestBoard.Service
+dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
+
+# Apply migrations to database
+dotnet ef database update --project ../QuestBoard.Repository
+
+# Remove the last migration (if needed)
+dotnet ef migrations remove --project ../QuestBoard.Repository
+```
+
+### Automatic Migration Application
+- The application automatically applies pending migrations on startup
+- This is handled in `ServiceExtensions.ConfigureDatabase()` using `context.Database.Migrate()`
+- No manual database update commands needed - just run the application after creating migrations
+- This ensures the database schema is always up to date in development environments
+
+### Migration Troubleshooting
+If you encounter "table already exists" errors when switching from EnsureCreated to migrations:
+
+1. **For development**: Delete the `quests.db` file and restart the application
+2. **For clean migration setup**: 
+   ```bash
+   # Remove current migrations
+   dotnet ef migrations remove --project ../QuestBoard.Repository
+   
+   # Create initial migration (from current schema)
+   dotnet ef migrations add InitialCreate --project ../QuestBoard.Repository
+   
+   # Delete database and restart app to apply migrations cleanly
+   ```
+3. The `ConfigureDatabase()` method includes fallback handling for existing databases

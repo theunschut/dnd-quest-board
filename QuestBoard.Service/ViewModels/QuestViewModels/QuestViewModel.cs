@@ -18,6 +18,8 @@ public class QuestViewModel
     [Required]
     public int DungeonMasterId { get; set; }
 
+    public int TotalPlayerCount { get; set; } = 6;
+
     [Required]
     [MinLength(1, ErrorMessage = "At least one proposed date is required.")]
     public IList<DateTime> ProposedDates { get; set; } = [DateTime.Now.AddDays(1)];

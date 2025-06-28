@@ -26,6 +26,8 @@ public class Quest : IModel
 
     public bool IsFinalized { get; set; }
 
+    public int TotalPlayerCount { get; set; }
+
     public IList<ProposedDate> ProposedDates { get; set; } = [];
 
     public IList<PlayerSignup> PlayerSignups { get; set; } = [];

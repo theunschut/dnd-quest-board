@@ -28,6 +28,8 @@ public class QuestEntity : IEntity
 
     public bool IsFinalized { get; set; }
 
+    public int TotalPlayerCount { get; set; }
+
     [ForeignKey(nameof(DungeonMasterId))]
     public virtual UserEntity DungeonMaster { get; set; } = null!;
 

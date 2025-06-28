@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="Quest.DungeonMasterId" class="form-label">Dungeon Master <span class="text-danger">*</span></label>
+                        <label asp-for="Quest.DungeonMasterId" class="form-label">Dungeon Master <span class="text-danger">*</span></label>
                         <select name="Quest.DungeonMasterId" class="form-select">
                             <option value="">Select a Dungeon Master</option>
                             @for (int i = 0; i < Model.DungeonMasters.Count; i++)
@@ -48,6 +48,12 @@
                             }
                         </select>
                         <span asp-validation-for="Quest.DungeonMasterId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Quest.TotalPlayerCount" class="form-label">Total Player Count <span class="text-danger">*</span></label>
+                        <input asp-for="Quest.TotalPlayerCount" inputmode="numeric" class="form-control" rows="4" />
+                        <span asp-validation-for="Quest.TotalPlayerCount" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
