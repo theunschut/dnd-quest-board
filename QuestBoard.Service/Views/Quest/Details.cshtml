@@ -1,4 +1,5 @@
 @model PlayerSignup
+
 @{
     ViewData["Title"] = Model.Quest?.Title;
 }
@@ -50,6 +51,39 @@
                             </ul>
                         }
                     </div>
+
+                    var selectedPlayersCount = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count() ?? 0;
+                    var maxPlayers = 6;
+                    var hasSpace = selectedPlayersCount < maxPlayers;
+                    var currentUserSignedUp = (bool)ViewBag.IsPlayerSignedUp;
+                    var userCanJoin = User.Identity?.IsAuthenticated == true && !currentUserSignedUp && hasSpace;
+
+                    @if (userCanJoin)
+                    {
+                        <div class="card modern-card mb-4">
+                            <div class="card-header modern-card-header">
+                                <h5>Join This Quest</h5>
+                            </div>
+                            <div class="card-body modern-card-body">
+                                <div class="alert alert-success">
+                                    <h6>Space Available!</h6>
+                                    <p>This quest has space for additional players (@selectedPlayersCount/@maxPlayers slots filled).</p>
+                                    <p><strong>Quest Date:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <strong>Joining as:</strong> @Model.Player?.Name (@Model.Player?.Email)
+                                </div>
+
+                                <form asp-action="JoinFinalizedQuest" method="post">
+                                    <input type="hidden" name="questId" value="@Model.Quest?.Id" />
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus-circle me-2"></i>Join Quest
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
                 }
                 else if (!(User.Identity?.IsAuthenticated == true))
                 {
@@ -69,7 +103,7 @@
                             <div class="alert alert-info">
                                 <strong>Signing up as:</strong> @Model.Player?.Name (@Model.Player?.Email)
                             </div>
-                            
+
                             <form asp-action="Details" method="post">
                                 <input type="hidden" name="Id" value="0" />
                                 <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
@@ -135,8 +169,16 @@
                 <h5>Quest Summary</h5>
             </div>
             <div class="card-body modern-card-body">
-                <p><strong>Players Signed Up:</strong> @Model.Quest?.PlayerSignups.Count</p>
-                <p><strong>Target Players:</strong> 6</p>
+                @if (Model.Quest?.IsFinalized == true)
+                {
+                    <p><strong>Selected Players:</strong> @Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count()/6</p>
+                    <p><strong>Total Signups:</strong> @Model.Quest?.PlayerSignups.Count</p>
+                }
+                else
+                {
+                    <p><strong>Players Signed Up:</strong> @Model.Quest?.PlayerSignups.Count</p>
+                    <p><strong>Target Players:</strong> 6</p>
+                }
                 <p><strong>Created:</strong> @Model.Quest?.CreatedAt.ToString("MMM dd, yyyy")</p>
 
                 @if (Model.Quest?.PlayerSignups.Any() == true)

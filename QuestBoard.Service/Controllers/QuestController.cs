@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Service.ViewModels.QuestViewModels;
@@ -119,24 +120,77 @@ public class QuestController(
             return NotFound();
 
         // Get current authenticated user
-        var userEntity = await userService.GetUserAsync(User);
-        if (userEntity == null)
-            return Challenge();
-
-        var currentUser = await userService.GetByIdAsync(userEntity.Id);
-        if (currentUser == null)
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
             return Challenge();
 
         // Check if user already signed up
-        if (quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id))
+        if (quest.PlayerSignups.Any(ps => ps.Player.Id == user.Id))
         {
             ModelState.AddModelError("", "You have already signed up for this quest.");
             return await Details(questId);
         }
 
         // Use the authenticated user instead of form input
-        signup.Player = currentUser;
+        signup.Player = user;
         signup.Quest = quest;
+
+        await playerSignupService.AddAsync(signup);
+
+        return RedirectToAction("Details", new { id = questId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> JoinFinalizedQuest(int questId)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(questId);
+        if (quest == null || !quest.IsFinalized || quest.FinalizedDate == null)
+            return NotFound();
+
+        // Get current authenticated user
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        // Check if user already signed up
+        if (quest.PlayerSignups.Any(ps => ps.Player.Id == user.Id))
+        {
+            ModelState.AddModelError("", "You have already signed up for this quest.");
+            return RedirectToAction("Details", new { id = questId });
+        }
+
+        // Check if quest has space (max 6 selected players)
+        var selectedPlayersCount = quest.PlayerSignups.Where(ps => ps.IsSelected).Count();
+        if (selectedPlayersCount >= 6)
+        {
+            ModelState.AddModelError("", "This quest is full (6/6 players).");
+            return RedirectToAction("Details", new { id = questId });
+        }
+
+        // Find the finalized date's corresponding proposed date for vote creation
+        var finalizedProposedDate = quest.ProposedDates
+            .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
+
+        if (finalizedProposedDate == null)
+        {
+            ModelState.AddModelError("", "Could not find the finalized date information.");
+            return RedirectToAction("Details", new { id = questId });
+        }
+
+        // Create signup with automatic "Yes" vote for the finalized date
+        var signup = new PlayerSignup
+        {
+            Player = user,
+            Quest = quest,
+            IsSelected = true, // Automatically select since quest is finalized and has space
+            DateVotes = [new PlayerDateVote 
+            { 
+                ProposedDateId = finalizedProposedDate.Id,
+                Vote = VoteType.Yes
+            }]
+        };
 
         await playerSignupService.AddAsync(signup);
 
