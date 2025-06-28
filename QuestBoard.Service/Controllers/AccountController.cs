@@ -1,23 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Repository.Entities;
+using QuestBoard.Domain.Interfaces;
 using QuestBoard.Service.ViewModels.AccountViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
-public class AccountController : Controller
+public class AccountController(IUserService userService) : Controller
 {
-    private readonly UserManager<UserEntity> _userManager;
-    private readonly SignInManager<UserEntity> _signInManager;
-
-    public AccountController(
-        UserManager<UserEntity> userManager,
-        SignInManager<UserEntity> signInManager)
-    {
-        _userManager = userManager;
-        _signInManager = signInManager;
-    }
 
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
@@ -34,7 +23,7 @@ public class AccountController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var result = await userService.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
             
             if (result.Succeeded)
             {
@@ -62,19 +51,10 @@ public class AccountController : Controller
         
         if (ModelState.IsValid)
         {
-            var user = new UserEntity 
-            { 
-                UserName = model.Email,
-                Email = model.Email,
-                Name = model.Name,
-                IsDungeonMaster = model.IsDungeonMaster
-            };
-            
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await userService.CreateAsync(model.Email, model.Name, model.Password, model.IsDungeonMaster);
             
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToLocal(returnUrl);
             }
             
@@ -91,7 +71,7 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await userService.SignOutAsync();
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 

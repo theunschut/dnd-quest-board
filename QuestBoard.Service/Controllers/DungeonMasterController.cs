@@ -15,8 +15,8 @@ namespace QuestBoard.Service.Controllers
         {
             var viewModel = new DungeonMasterIndexViewModel
             {
-                DungeonMasters = await service.GetAllDungeonMasters(),
-                Players = await service.GetAllPlayers()
+                DungeonMasters = await service.GetAllDungeonMastersAsync(token),
+                Players = await service.GetAllPlayersAsync(token)
             };
             
             return View(viewModel);

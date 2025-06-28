@@ -1,18 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using QuestBoard.Repository.Entities;
+using QuestBoard.Domain.Interfaces;
 
 namespace QuestBoard.Service.Authorization;
 
-public class DungeonMasterHandler : AuthorizationHandler<DungeonMasterRequirement>
+public class DungeonMasterHandler(IUserService userService) : AuthorizationHandler<DungeonMasterRequirement>
 {
-    private readonly UserManager<UserEntity> _userManager;
-
-    public DungeonMasterHandler(UserManager<UserEntity> userManager)
-    {
-        _userManager = userManager;
-    }
-
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         DungeonMasterRequirement requirement)
@@ -23,7 +15,7 @@ public class DungeonMasterHandler : AuthorizationHandler<DungeonMasterRequiremen
             return;
         }
 
-        var user = await _userManager.GetUserAsync(context.User);
+        var user = await userService.GetUserAsync(context.User);
         if (user?.IsDungeonMaster == true)
         {
             context.Succeed(requirement);

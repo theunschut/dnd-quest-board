@@ -19,7 +19,7 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        var dms = await userService.GetAllDungeonMasters(token);
+        var dms = await userService.GetAllDungeonMastersAsync(token);
         return View(new CreateQuestViewModel { DungeonMasters = dms });
     }
 
