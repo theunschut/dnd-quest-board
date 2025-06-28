@@ -159,6 +159,49 @@ function cleanDateTimeValue(input) {
     input.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+// Make date blocks clickable for radio selection
+function makeDataOptionsClickable() {
+    // Handle Details page custom radio buttons
+    const dateOptions = document.querySelectorAll('.date-option');
+    dateOptions.forEach(dateOption => {
+        dateOption.addEventListener('click', function(e) {
+            // Prevent double-clicking on actual radio buttons/labels
+            if (e.target.matches('input[type="radio"], .custom-radio-label, .custom-radio-label *')) {
+                return;
+            }
+            
+            // Find the first radio button in this date option
+            const radioButtons = this.querySelectorAll('input[type="radio"]');
+            if (radioButtons.length > 0) {
+                // For custom radio groups, select the "Yes" option (value="2")
+                const yesRadio = this.querySelector('input[type="radio"][value="2"]');
+                if (yesRadio) {
+                    yesRadio.checked = true;
+                    yesRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        });
+    });
+    
+    // Handle Manage page radio buttons
+    const manageDateOptions = document.querySelectorAll('.manage-date-option');
+    manageDateOptions.forEach(dateOption => {
+        dateOption.addEventListener('click', function(e) {
+            // Prevent double-clicking on actual radio buttons/labels
+            if (e.target.matches('input[type="radio"], .form-check-label')) {
+                return;
+            }
+            
+            // Find the radio button in this date option
+            const radioButton = this.querySelector('input[type="radio"]');
+            if (radioButton) {
+                radioButton.checked = true;
+                radioButton.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    });
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     startAutoRefresh();
@@ -180,4 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize masonry layout after a short delay
     setTimeout(layoutMasonry, 100);
+    
+    // Make date options clickable
+    makeDataOptionsClickable();
 });

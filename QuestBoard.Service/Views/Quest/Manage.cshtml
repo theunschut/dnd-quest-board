@@ -88,7 +88,7 @@ else
                                 var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
                                 var isRecommended = date == Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
 
-                                <div class="date-option @(isRecommended ? "border-success" : "")">
+                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="SelectedDateId" value="@date.Id"
                                                id="date_@date.Id" @(isRecommended ? "checked" : "") />
