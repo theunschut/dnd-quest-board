@@ -18,24 +18,66 @@
 }
 else
 {
-    @if (Model.IsFinalized)
-    {
-        <div class="alert alert-info">
-            <h5>Quest Finalized</h5>
-            <p>This quest has been finalized with the following details:</p>
-            <p><strong>Date:</strong> @Model.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
-            <p><strong>Selected Players:</strong> @string.Join(", ", Model.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))</p>
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card modern-card">
-                    <div class="card-header modern-card-header">
-                        <h5>Date Selection & Player Management</h5>
-                    </div>
-                    <div class="card-body modern-card-body">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card modern-card">
+                <div class="card-header modern-card-header">
+                    <h5>Date Selection & Player Management</h5>
+                </div>
+                <div class="card-body modern-card-body">
+                    @if (Model.IsFinalized)
+                    {
+                        <h6>Selected Date:</h6>
+                        
+                        var finalizedDate = Model.ProposedDates.FirstOrDefault(pd => pd.Date.Date == Model.FinalizedDate?.Date);
+                        if (finalizedDate != null)
+                        {
+                            var yesVotes = finalizedDate.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
+                            var maybeVotes = finalizedDate.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
+                            var noVotes = finalizedDate.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
+                        
+                            <div class="date-option border-success">
+                                <div class="mb-2">
+                                    <strong>@finalizedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                    <span class="badge bg-success ms-2">Finalized</span>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
+                                            <ul class="list-unstyled small">
+                                                @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                {
+                                                    <li>@vote.PlayerSignup?.Player.Name</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
+                                            <ul class="list-unstyled small">
+                                                @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                {
+                                                    <li>@vote.PlayerSignup?.Player.Name</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
+                                            <ul class="list-unstyled small">
+                                                @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                {
+                                                    <li>@vote.PlayerSignup?.Player.Name</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
                         <form asp-action="Finalize" method="post">
                             <input type="hidden" name="id" value="@Model.Id" />
                             <h6>Proposed Dates & Voting Results:</h6>
@@ -48,7 +90,7 @@ else
 
                                 <div class="date-option @(isRecommended ? "border-success" : "")">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="SelectedDateId" value="@date.Id" 
+                                        <input class="form-check-input" type="radio" name="SelectedDateId" value="@date.Id"
                                                id="date_@date.Id" @(isRecommended ? "checked" : "") />
                                         <label class="form-check-label" for="date_@date.Id">
                                             <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
@@ -58,7 +100,7 @@ else
                                             }
                                         </label>
                                     </div>
-                                    
+
                                     <div class="mt-2">
                                         <div class="row">
                                             <div class="col-md-4">
@@ -97,14 +139,14 @@ else
 
                             <h6>Player Selection:</h6>
                             <p class="text-muted">Select up to 6 players for this quest. Players are listed in signup order.</p>
-                            
+
                             @{
                                 var recommendedDate = Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
                                 var availablePlayers = recommendedDate.PlayerVotes
-                                    .Where(v => v.Vote == VoteType.Yes)
-                                    .Select(v => v.PlayerSignup)
-                                    .OrderBy(ps => ps?.SignupTime)
-                                    .ToList();
+                                .Where(v => v.Vote == VoteType.Yes)
+                                .Select(v => v.PlayerSignup)
+                                .OrderBy(ps => ps?.SignupTime)
+                                .ToList();
                             }
 
                             <div id="player-selection">
@@ -112,10 +154,10 @@ else
                                 {
                                     var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
                                     var isInTop6 = i < 6 && availablePlayers.Contains(player);
-                                    
+
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedPlayerIds" 
-                                               value="@player.Id" id="player_@player.Id" 
+                                        <input class="form-check-input" type="checkbox" name="SelectedPlayerIds"
+                                               value="@player.Id" id="player_@player.Id"
                                                @(isInTop6 ? "checked" : "") />
                                         <label class="form-check-label" for="player_@player.Id">
                                             @player.Player.Name
@@ -138,50 +180,95 @@ else
                                 <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">Refresh Data</button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
+                    }
 
-            <div class="col-md-4">
-                <div class="card modern-card">
-                    <div class="card-header modern-card-header">
-                        <h5>Quest Summary</h5>
-                    </div>
-                    <div class="card-body modern-card-body">
-                        <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
-                        <p><strong>Target Players:</strong> 6</p>
-                        <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
-                        
+                    @if (Model.IsFinalized)
+                    {
                         <hr>
+                        <h6>Selected Players:</h6>
                         
-                        <h6>Quick Stats:</h6>
-                        @{
-                            var mostPopularDate = Model.ProposedDates
-                                .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
-                                .First();
-                            var yesCount = mostPopularDate.PlayerVotes.Count(v => v.Vote == VoteType.Yes);
+                        var selectedPlayers = Model.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList();
+                        
+                        @if (selectedPlayers.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var player in selectedPlayers)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        @player.Player.Name
+                                        <small class="text-muted">Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt")</small>
+                                    </li>
+                                }
+                            </ul>
                         }
-                        <p><strong>Best Date:</strong><br>
-                           <small>@mostPopularDate.Date.ToString("MMM dd, h:mm tt")</small><br>
-                           <small class="text-success">@yesCount players available</small>
-                        </p>
-                    </div>
-                </div>
+                        else
+                        {
+                            <p class="text-muted">No players selected for this quest.</p>
+                        }
 
-                <div class="card modern-card mt-3">
-                    <div class="card-header modern-card-header">
-                        <h5>DM Tips</h5>
-                    </div>
-                    <div class="card-body modern-card-body">
-                        <ul class="list-unstyled small">
-                            <li>✓ Review voting results before selecting date</li>
-                            <li>✓ Consider player availability and signup order</li>
-                            <li>✓ Players will be notified via email when finalized</li>
-                            <li>✓ Once finalized, the quest cannot be changed</li>
-                        </ul>
-                    </div>
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <form asp-action="Open" method="post" style="display: inline;">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to open this quest? This will reopen it for changes and reset player selections.');">Open Quest</button>
+                            </form>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">Refresh Data</button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-    }
+
+        <div class="col-md-4">
+            <div class="card modern-card">
+                <div class="card-header modern-card-header">
+                    <h5>Quest Summary</h5>
+                </div>
+                <div class="card-body modern-card-body">
+                    <p><strong>DM:</strong> @Model.DungeonMaster?.Name</p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge @(Model.IsFinalized == true ? "bg-secondary" : "bg-success")">
+                            @(Model.IsFinalized == true ? "Finalized" : "Open for Signups")
+                        </span>
+                    </p>
+                    <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
+                    <p><strong>Target Players:</strong> 6</p>
+                    <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+
+                    <hr>
+
+                    <h6>Quick Stats:</h6>
+                    @{
+                        var mostPopularDate = Model.ProposedDates
+                        .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
+                        .First();
+                        var yesCount = mostPopularDate.PlayerVotes.Count(v => v.Vote == VoteType.Yes);
+                    }
+                    <p>
+                        <strong>Best Date:</strong>
+                        <small>@mostPopularDate.Date.ToString("MMM dd, h:mm tt")</small>
+                    </p>
+                    <p>
+                        <small class="text-success">@yesCount players available</small>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card modern-card mt-3">
+                <div class="card-header modern-card-header">
+                    <h5>DM Tips</h5>
+                </div>
+                <div class="card-body modern-card-body">
+                    <ul class="list-unstyled small">
+                        <li>✓ Review voting results before selecting date</li>
+                        <li>✓ Consider player availability and signup order</li>
+                        <li>✓ Players will be notified via email when finalized</li>
+                        <li>✓ Once finalized, the quest cannot be changed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 }

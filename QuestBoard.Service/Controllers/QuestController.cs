@@ -304,6 +304,45 @@ public class QuestController(
         return RedirectToAction("Details", new { id });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> Open(int id)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(id);
+
+        if (quest == null || !quest.IsFinalized)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Verify DM authorization
+        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
+        // Update quest to open it back up
+        quest.IsFinalized = false;
+        quest.FinalizedDate = null;
+
+        // Reset all player selections
+        foreach (var playerSignup in quest.PlayerSignups)
+        {
+            playerSignup.IsSelected = false;
+        }
+
+        await questService.UpdateAsync(quest);
+
+        return RedirectToAction("Manage", new { id });
+    }
+
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Manage(int id)
