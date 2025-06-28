@@ -163,9 +163,9 @@ public class QuestController(
 
         // Check if quest has space (max 6 selected players)
         var selectedPlayersCount = quest.PlayerSignups.Where(ps => ps.IsSelected).Count();
-        if (selectedPlayersCount >= 6)
+        if (selectedPlayersCount >= quest.TotalPlayerCount)
         {
-            ModelState.AddModelError("", "This quest is full (6/6 players).");
+            ModelState.AddModelError("", $"This quest is full ({selectedPlayersCount}/{quest.TotalPlayerCount} players).");
             return RedirectToAction("Details", new { id = questId });
         }
 
@@ -269,9 +269,9 @@ public class QuestController(
             .Select(int.Parse)
             .ToList();
 
-        if (selectedPlayerIds.Count > 6)
+        if (selectedPlayerIds.Count > quest.TotalPlayerCount)
         {
-            ModelState.AddModelError("", "Cannot select more than 6 players.");
+            ModelState.AddModelError("", $"Cannot select more than {quest.TotalPlayerCount} players.");
             return await Manage(id);
         }
 

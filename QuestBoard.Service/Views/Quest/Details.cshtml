@@ -20,8 +20,7 @@
 
                 @if (Model.Quest?.IsFinalized == true)
                 {var selectedPlayersCount = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count() ?? 0;
-                    var maxPlayers = 6;
-                    var hasSpace = selectedPlayersCount < maxPlayers;
+                    var hasSpace = selectedPlayersCount < Model.Quest?.TotalPlayerCount;
                     var currentUserSignedUp = (bool)ViewBag.IsPlayerSignedUp;
                     var userCanJoin = User.Identity?.IsAuthenticated == true && !currentUserSignedUp && hasSpace;
 
@@ -75,7 +74,7 @@
                             <div class="card-body modern-card-body">
                                 <div class="alert alert-success">
                                     <h6>Space Available!</h6>
-                                    <p>This quest has space for additional players (@selectedPlayersCount/@maxPlayers slots filled).</p>
+                                    <p>This quest has space for additional players (@selectedPlayersCount/@Model.Quest.TotalPlayerCount slots filled).</p>
                                     <p><strong>Quest Date:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
                                 </div>
 
