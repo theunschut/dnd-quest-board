@@ -62,16 +62,40 @@ public class CalendarViewModel
 
         foreach (var quest in Quests)
         {
-            foreach (var proposedDate in quest.ProposedDates)
+            if (quest.IsFinalized)
             {
-                if (proposedDate.Date.Date == date.Date)
+                // For finalized quests, only show on the finalized date
+                if (quest.FinalizedDate?.Date == date.Date)
                 {
-                    questsOnDay.Add(new QuestOnDay
+                    // Find the corresponding proposed date that was chosen
+                    var chosenProposedDate = quest.ProposedDates
+                        .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
+                    
+                    if (chosenProposedDate != null)
                     {
-                        Quest = quest,
-                        ProposedDate = proposedDate,
-                        IsFinalized = quest.IsFinalized && quest.FinalizedDate?.Date == date.Date
-                    });
+                        questsOnDay.Add(new QuestOnDay
+                        {
+                            Quest = quest,
+                            ProposedDate = chosenProposedDate,
+                            IsFinalized = true
+                        });
+                    }
+                }
+            }
+            else
+            {
+                // For non-finalized quests, show all proposed dates
+                foreach (var proposedDate in quest.ProposedDates)
+                {
+                    if (proposedDate.Date.Date == date.Date)
+                    {
+                        questsOnDay.Add(new QuestOnDay
+                        {
+                            Quest = quest,
+                            ProposedDate = proposedDate,
+                            IsFinalized = false
+                        });
+                    }
                 }
             }
         }

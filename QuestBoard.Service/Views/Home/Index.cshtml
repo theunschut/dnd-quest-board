@@ -83,8 +83,7 @@
                             @quest.FinalizedDate.Value.ToString("MMM dd, yyyy 'at' h:mm tt")
                         </div>
                         <div class="quest-players">
-                            <strong>Selected Adventurers:</strong><br>
-                            @string.Join(", ", quest.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))
+                            <strong>Selected Adventurers:</strong> @quest.PlayerSignups.Where(ps => ps.IsSelected).Count()
                         </div>
                     }
                     else
