@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a D&D Quest Board web application built with ASP.NET Core 8 MVC following a clean architecture pattern. The application allows DMs to create quests and players to sign up and vote on proposed dates. It handles quest management, player coordination, and email notifications through a layered architecture with domain, repository, and service layers.
+This is a comprehensive D&D Quest Board web application built with ASP.NET Core 8 MVC following a clean architecture pattern. The application provides a complete solution for D&D campaign management including user authentication, quest creation, calendar scheduling, player coordination, and email notifications. It features a layered architecture with domain, repository, and service layers following SOLID principles and dependency injection patterns.
 
 ## Development Commands
 
@@ -65,38 +65,83 @@ The application follows a clean architecture pattern with three main layers:
 - **Deployment**: Docker containerization
 
 ### Core Domain Models (QuestBoard.Domain)
-- `Quest`: Main quest entity with title, description, difficulty, DM info
-- `DungeonMaster`: DM registration with name and optional email
-- `ProposedDate`: Date options for each quest
-- `PlayerSignup`: Player registration for quests
+- `Quest`: Main quest entity with title, description, difficulty, DM info, and scheduling
+- `User`: User account management with authentication and profile information
+- `ProposedDate`: Date options for each quest with voting capabilities
+- `PlayerSignup`: Player registration for quests with user association
 - `PlayerDateVote`: Player votes on proposed dates (Yes/No/Maybe)
 - `Difficulty`: Enum for quest difficulty levels (Easy, Medium, Hard, Deadly)
 - `VoteType`: Enum for player vote types (Yes, No, Maybe)
 
+### Domain Services (QuestBoard.Domain/Services)
+- `QuestService`: Business logic for quest management and coordination
+- `UserService`: User account management and authentication logic
+- `PlayerSignupService`: Player registration and quest participation logic
+- `EmailService`: Email notification service with Gmail SMTP integration
+- `BaseService`: Abstract base class providing common service functionality
+
+### Domain Configuration
+- `SecurityConfiguration`: Centralized security settings and authentication configuration
+- `ServiceExtensions`: Dependency injection configuration for domain services
+
 ### Repository Layer (QuestBoard.Repository)
 - `IQuestRepository`: Interface defining quest data operations
 - `QuestRepository`: Implementation with Entity Framework Core
-- `IDungeonMasterRepository`: Interface for DM management operations
-- `DungeonMasterRepository`: Implementation for DM CRUD operations
+- `IUserRepository`: Interface for user account data operations
+- `UserRepository`: Implementation for user CRUD operations
+- `IPlayerSignupRepository`: Interface for player signup data operations
+- `PlayerSignupRepository`: Implementation for signup management
+- `BaseRepository<T>`: Generic base repository providing common CRUD operations
 - `QuestBoardContext`: Database context with entity configurations
-- Entity classes with database-specific configurations
+- Entity classes with database-specific configurations and relationships
 - AutoMapper profiles for entity-to-domain model mapping
+- `ServiceExtensions`: Repository dependency injection configuration
 
 ### Service Layer (QuestBoard.Service)
-- `HomeController`: Handles main quest board display
+#### Controllers
+- `HomeController`: Handles main quest board display and dashboard
 - `QuestController`: Manages quest CRUD operations and player interactions
-- `DungeonMasterController`: Handles DM registration and directory
-- `IEmailService` & `EmailService`: Gmail SMTP email notifications
-- View models for form binding and data transfer
-- Razor views with Bootstrap 5 styling
+- `DungeonMasterController`: Handles DM registration and directory management
+- `AccountController`: User authentication, registration, and profile management
+- `CalendarController`: Calendar view and quest scheduling functionality
+
+#### Authorization & Security
+- `DungeonMasterRequirement`: Custom authorization requirement for DM operations
+- `DungeonMasterHandler`: Authorization handler implementing DM access control
+- Session-based authentication with role-based access control
+
+#### View Models & Data Transfer
+- `QuestViewModels`: CreateQuestViewModel, QuestViewModel for quest operations
+- `AccountViewModels`: LoginViewModel, RegisterViewModel for authentication
+- `DungeonMasterViewModels`: CreateDungeonMasterViewModel, DungeonMasterIndexViewModel
+- `CalendarViewModels`: CalendarViewModel, CalendarDay, QuestOnDay for scheduling
+- `ViewModelProfile`: AutoMapper configuration for view model mapping
+
+#### Views & UI
+- Razor views with Bootstrap 5 styling and D&D theming
+- Responsive design with mobile-first approach
+- JavaScript enhancements for dynamic form interactions
 
 ### Key Pages & Functionality
+#### Public & Authentication
 - `/` - Main quest board displaying all available quests
-- `/DungeonMaster` - Browse registered Dungeon Masters with registration form sidebar
-- `/Quest/Create` - DM quest creation with DM selection and multiple date options
+- `/Account/Login` - User authentication with session management
+- `/Account/Register` - New user registration with validation
+- `/Account/Profile` - User profile management and settings
+
+#### DM Management
+- `/DungeonMaster` - Browse registered Dungeon Masters with registration form
+- `/DungeonMaster/Create` - DM registration with validation
+
+#### Quest Operations
+- `/Quest/Create` - DM quest creation with date options and difficulty selection
 - `/Quest/Details/{id}` - Quest details and player signup with date voting
 - `/Quest/Manage/{id}` - DM interface for finalizing quests and selecting players
 - `/Quest/MyQuests` - DM's personal quest management dashboard
+
+#### Calendar & Scheduling
+- `/Calendar` - Monthly calendar view displaying all scheduled quests
+- Calendar navigation with quest scheduling visualization
 
 ### Database Context
 - Uses `QuestBoardContext` with Entity Framework Core
@@ -111,9 +156,12 @@ The application follows a clean architecture pattern with three main layers:
 - Dependency injection for service registration
 
 ### Security & Session Management
-- Simple session-based authentication for DM verification
-- No complex user management - relies on DM name matching
-- Session storage for player signup tracking
+- Comprehensive user authentication system with ASP.NET Core Identity-like features
+- Session-based authentication with secure cookie management
+- Custom authorization handlers for Dungeon Master role verification
+- Role-based access control protecting DM-only operations
+- Secure password handling and user profile management
+- Session storage for maintaining user state across requests
 
 ## Configuration
 
@@ -140,16 +188,24 @@ The application follows a clean architecture pattern with three main layers:
 - Responsive table layout for DM directory
 
 ### Business Logic
+- Complete user account system with registration and authentication
 - DM registration system with name and optional email
-- Quest creation now requires selecting from registered DMs
-- First-come-first-served player selection with 6-player maximum
+- Quest creation with DM selection and multiple proposed dates
+- First-come-first-served player selection with configurable maximum
+- Comprehensive date voting system with Yes/No/Maybe options
 - Automatic date recommendation based on most "Yes" votes
-- Session-based DM authentication for quest management
+- Role-based authorization for DM operations
+- Calendar integration for quest scheduling and visualization
 - Email notifications sent only to selected players when quest is finalized
+- Session management for maintaining user state and preferences
 
 ### Architecture Patterns
-- Repository pattern with dependency injection
-- AutoMapper for clean separation between entities and domain models
-- MVC pattern with view models for form binding
-- Service layer pattern for business logic (EmailService)
-- Clean separation of concerns across three projects
+- Clean Architecture with domain-driven design principles
+- Repository pattern with generic base implementation and dependency injection
+- AutoMapper for clean separation between entities, domain models, and view models
+- MVC pattern with strongly-typed view models for form binding and data transfer
+- Service layer pattern for business logic (QuestService, UserService, EmailService)
+- Custom authorization patterns with handlers and requirements
+- Dependency injection throughout all layers for loose coupling
+- Entity Framework Core with code-first approach and migrations
+- Clean separation of concerns across three distinct projects

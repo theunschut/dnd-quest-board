@@ -51,7 +51,7 @@
                         }
                     </div>
                 }
-                else if (!User.Identity.IsAuthenticated)
+                else if (!(User.Identity?.IsAuthenticated == true))
                 {
                     <div class="alert alert-warning">
                         <h5>Sign In Required</h5>

@@ -1,17 +1,31 @@
 # D&D Quest Board
 
-A web application for managing D&D campaign quests with multiple DMs and players. Built with ASP.NET Core 8 MVC architecture following repository pattern with domain, repository, and service layers.
+A comprehensive web application for managing D&D campaign quests with multiple DMs and players. Built with ASP.NET Core 8 MVC architecture following clean architecture principles with domain, repository, and service layers.
 
 ## Features
 
+### Core Quest Management
 - **DM Registration**: Dungeon Masters can register in the guild directory
-- **Quest Creation**: DMs can create quests with multiple proposed dates
+- **Quest Creation**: DMs can create quests with multiple proposed dates and difficulty levels
 - **Player Signup**: Players can sign up and vote on available dates (Yes/No/Maybe)
 - **Quest Management**: DMs can review votes and finalize quest details
 - **Email Notifications**: Automatic email notifications when quests are finalized
+
+### User Management & Authentication
+- **User Accounts**: Full user registration and authentication system
+- **Session Management**: Secure session-based authentication for DMs
+- **Authorization**: Role-based access control with Dungeon Master requirements
+
+### Calendar & Scheduling
+- **Calendar View**: Monthly calendar displaying all scheduled quests
+- **Date Management**: Comprehensive date voting and scheduling system
+- **Quest Timeline**: Visual representation of upcoming adventures
+
+### User Experience
 - **DM Directory**: Browse and contact registered Dungeon Masters
 - **Responsive Design**: Bootstrap 5-based UI with D&D themed styling
 - **Real-time Updates**: Auto-refresh on quest detail pages every 30 seconds
+- **Quest Difficulty System**: Color-coded difficulty badges (Easy, Medium, Hard, Deadly)
 
 ## Quick Start
 
@@ -50,9 +64,28 @@ dotnet run --project QuestBoard.Service
 
 The application follows a clean architecture pattern with three main projects:
 
-- **QuestBoard.Domain**: Core business models and enums
-- **QuestBoard.Repository**: Data access layer with Entity Framework Core
-- **QuestBoard.Service**: MVC web application with controllers, views, and services
+- **QuestBoard.Domain**: Core business models, enums, services, and domain logic
+- **QuestBoard.Repository**: Data access layer with Entity Framework Core, repositories, and entity configurations
+- **QuestBoard.Service**: MVC web application with controllers, views, services, authorization, and view models
+
+### Key Components
+
+#### Domain Layer
+- **Models**: Quest, User, PlayerSignup, ProposedDate, PlayerDateVote
+- **Services**: QuestService, UserService, PlayerSignupService, EmailService
+- **Configuration**: SecurityConfiguration for application security settings
+- **Enums**: Difficulty levels (Easy, Medium, Hard, Deadly), VoteType (Yes, No, Maybe)
+
+#### Repository Layer
+- **Entities**: Database entity classes with EF Core configurations
+- **Repositories**: Data access implementations with dependency injection
+- **Context**: QuestBoardContext with SQLite database configuration
+
+#### Service Layer
+- **Controllers**: Home, Quest, DungeonMaster, Account, Calendar
+- **Authorization**: Custom Dungeon Master authorization handlers and requirements
+- **ViewModels**: Strongly-typed models for form binding and data transfer
+- **Views**: Razor templates with Bootstrap 5 and D&D theming
 
 ## Configuration
 
@@ -90,12 +123,21 @@ The application uses SQLite with Entity Framework Core. The database file (`ques
 
 ## Key Pages
 
+### Public Pages
 - `/` - Main quest board displaying all available quests
+- `/Account/Login` - User authentication
+- `/Account/Register` - New user registration
 - `/DungeonMaster` - Browse registered Dungeon Masters and register as new DM
+
+### Quest Management
 - `/Quest/Create` - DM quest creation with multiple date options
 - `/Quest/Details/{id}` - Quest details and player signup with date voting
 - `/Quest/Manage/{id}` - DM interface for finalizing quests and selecting players
 - `/Quest/MyQuests` - DM's personal quest management dashboard
+
+### Calendar & Organization
+- `/Calendar` - Monthly calendar view of all scheduled quests
+- `/Account/Profile` - User profile management
 
 ## Docker Deployment
 

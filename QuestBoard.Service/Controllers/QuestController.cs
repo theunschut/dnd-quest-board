@@ -109,27 +109,23 @@ public class QuestController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Details(int questId, PlayerSignup signup)
+    public async Task<IActionResult> Details(PlayerSignup signup)
     {
-        var quest = await questService.GetQuestWithDetailsAsync(questId);
+        if (signup.Quest?.Id == null || signup.Quest.Id == 0) return NotFound();
+        var questId = signup.Quest.Id;
 
+        var quest = await questService.GetQuestWithDetailsAsync(questId);
         if (quest == null || quest.IsFinalized)
-        {
             return NotFound();
-        }
 
         // Get current authenticated user
         var userEntity = await userService.GetUserAsync(User);
         if (userEntity == null)
-        {
             return Challenge();
-        }
 
         var currentUser = await userService.GetByIdAsync(userEntity.Id);
         if (currentUser == null)
-        {
             return Challenge();
-        }
 
         // Check if user already signed up
         if (quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id))
@@ -209,7 +205,6 @@ public class QuestController(
         }
 
         await questService.UpdateAsync(quest);
-        //await repository.SaveChangesAsync();
 
         // Send email notifications to selected players
         var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.Player.Email));

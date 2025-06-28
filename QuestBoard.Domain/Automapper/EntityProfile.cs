@@ -34,7 +34,12 @@ public class EntityProfile : Profile
 
         // PlayerSignup mapping
         CreateMap<PlayerSignup, PlayerSignupEntity>()
-            .ReverseMap();
+            .ForMember(dest => dest.Quest, opt => opt.Ignore())
+            .ForMember(dest => dest.QuestId, opt => opt.MapFrom(src => src.Quest.Id))
+            .ForMember(dest => dest.Player, opt => opt.Ignore())
+            .ForMember(dest => dest.PlayerId, opt => opt.MapFrom(src => src.Player.Id));
+
+        CreateMap<PlayerSignupEntity, PlayerSignup>();
 
         // ProposedDate mapping
         CreateMap<ProposedDate, ProposedDateEntity>()

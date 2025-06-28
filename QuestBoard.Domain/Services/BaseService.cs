@@ -41,5 +41,14 @@ internal abstract class BaseService<TModel, TEntity>(IBaseRepository<TEntity> re
         await repository.RemoveAsync(entity, token);
     }
 
-    public abstract Task UpdateAsync(TModel model, CancellationToken token = default);
+    public Task SaveChangesAsync(CancellationToken token = default) => repository.SaveChangesAsync(token);
+
+    public virtual async Task UpdateAsync(TModel model, CancellationToken token = default)
+    {
+        var entity = await repository.GetByIdAsync(model.Id, token);
+        if (entity == null) return;
+
+        mapper.Map(model, entity);
+        await repository.UpdateAsync(entity, token);
+    }
 }

@@ -8,9 +8,5 @@ namespace QuestBoard.Domain.Services
 {
     internal class PlayerSignupService(IPlayerSignupRepository repository, IMapper mapper) : BaseService<PlayerSignup, PlayerSignupEntity>(repository, mapper), IPlayerSignupService
     {
-        public override Task UpdateAsync(PlayerSignup model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

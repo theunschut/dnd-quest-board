@@ -55,10 +55,4 @@ internal class UserService(UserManager<UserEntity> userManager, SignInManager<Us
     public Task<SignInResult> PasswordSignInAsync(string email, string password, bool rememberMe, bool lockoutOnFailure) => signInManager.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure);
 
     public Task SignOutAsync() => signInManager.SignOutAsync();
-    
-
-    public override Task UpdateAsync(User model, CancellationToken token = default)
-    {
-        throw new NotImplementedException();
-    }
 }

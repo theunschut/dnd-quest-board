@@ -46,8 +46,12 @@ internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseS
         return Mapper.Map<Quest>(entity);
     }
 
-    public override Task UpdateAsync(Quest model, CancellationToken token = default)
+    public override async Task UpdateAsync(Quest model, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        var entity = await repository.GetQuestWithManageDetailsAsync(model.Id, token);
+        if (entity == null) return;
+
+        Mapper.Map(model, entity);
+        await repository.SaveChangesAsync(token);
     }
 }

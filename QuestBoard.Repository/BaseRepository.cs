@@ -37,6 +37,8 @@ internal abstract class BaseRepository<T>(QuestBoardContext dbContext) : IBaseRe
         await DbContext.SaveChangesAsync(token);
     }
 
+    public Task SaveChangesAsync(CancellationToken token = default) => DbContext.SaveChangesAsync(token);
+
     public virtual async Task UpdateAsync(T entity, CancellationToken token = default)
     {
         DbSet.Update(entity);

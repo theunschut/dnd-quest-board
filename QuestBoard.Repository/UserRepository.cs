@@ -13,11 +13,11 @@ internal class UserRepository(QuestBoardContext context) : BaseRepository<UserEn
 
     public async Task<IList<UserEntity>> GetAllDungeonMasters(CancellationToken token = default)
     {
-        return await DbSet.Where(u => u.IsDungeonMaster).ToListAsync();
+        return await DbSet.Where(u => u.IsDungeonMaster).ToListAsync(cancellationToken: token);
     }
 
     public async Task<IList<UserEntity>> GetAllPlayers(CancellationToken token = default)
     {
-        return await DbSet.Where(u => !u.IsDungeonMaster).ToListAsync();
+        return await DbSet.Where(u => !u.IsDungeonMaster).ToListAsync(cancellationToken: token);
     }
 }
