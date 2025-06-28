@@ -10,7 +10,7 @@
     <div class="col-md-8">
         <div class="card modern-card">
             <div class="card-header modern-card-header d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">@Model.Quest?.Title</h1>
+                <h1 class="mb-0">@ViewData["Title"]</h1>
                 <span class="badge difficulty-@Model.Quest?.Difficulty.ToString().ToLower() fs-6">
                     @Model.Quest?.Difficulty
                 </span>
@@ -72,14 +72,14 @@
                                 <h5>Join This Quest</h5>
                             </div>
                             <div class="card-body modern-card-body">
+                                <div class="alert alert-info">
+                                    <strong>Joining as:</strong> @Model.Player?.Name (@Model.Player?.Email)
+                                </div>
+
                                 <div class="alert alert-success">
                                     <h6>Space Available!</h6>
                                     <p>This quest has space for additional players (@selectedPlayersCount/@Model.Quest?.TotalPlayerCount slots filled).</p>
                                     <p><strong>Quest Date:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
-                                </div>
-
-                                <div class="alert alert-info">
-                                    <strong>Joining as:</strong> @Model.Player?.Name (@Model.Player?.Email)
                                 </div>
 
                                 <form asp-action="JoinFinalizedQuest" method="post">
@@ -138,17 +138,24 @@
                                             </div>
                                         </div>
                                         <div class="mt-2">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="2" id="yes_[@i]" required>
-                                                <label class="form-check-label text-success" for="yes_[@i]">Yes</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="1" id="maybe_[@i]">
-                                                <label class="form-check-label text-warning" for="maybe_[@i]">Maybe</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="DateVotes[@i].Vote" value="0" id="no_[@i]">
-                                                <label class="form-check-label text-danger" for="no_[@i]">No</label>
+                                            <div class="custom-radio-group">
+                                                <input type="radio" name="DateVotes[@i].Vote" value="2" id="yes_[@i]" required style="display: none;">
+                                                <label class="custom-radio-label" for="yes_[@i]" data-vote="yes">
+                                                    <i class="fas fa-square-check"></i>
+                                                    <span>Yes</span>
+                                                </label>
+                                                
+                                                <input type="radio" name="DateVotes[@i].Vote" value="1" id="maybe_[@i]" style="display: none;">
+                                                <label class="custom-radio-label" for="maybe_[@i]" data-vote="maybe">
+                                                    <i class="fas fa-square-minus"></i>
+                                                    <span>Maybe</span>
+                                                </label>
+                                                
+                                                <input type="radio" name="DateVotes[@i].Vote" value="0" id="no_[@i]" style="display: none;">
+                                                <label class="custom-radio-label" for="no_[@i]" data-vote="no">
+                                                    <i class="fas fa-square-xmark"></i>
+                                                    <span>No</span>
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
@@ -170,14 +177,9 @@
                 @* Revoke button section - shown for any signed up user *@
                 @if (User.Identity?.IsAuthenticated == true && (bool)ViewBag.IsPlayerSignedUp)
                 {
-                    <div class="card modern-card mt-3">
-                        <div class="card-body modern-card-body text-center">
-                            <button type="button" class="btn btn-danger" onclick="revokeSignup(@ViewContext.RouteData.Values["id"])">
-                                <i class="fas fa-times me-2"></i>Revoke My Signup
-                            </button>
-                            <p class="text-muted small mt-2 mb-0">You can revoke your signup at any time</p>
-                        </div>
-                    </div>
+                    <button type="button" class="btn btn-danger" onclick="revokeSignup(@ViewContext.RouteData.Values["id"])">
+                        <i class="fas fa-times me-2"></i>Revoke My Signup
+                    </button>
                 }
             </div>
         </div>
@@ -261,16 +263,5 @@
                 alert("An error occurred while revoking signup.");
             });
         }
-    }
-
-    // Auto-refresh functionality for quest details
-    @if (Model.Quest?.IsFinalized != true)
-    {
-                <text>
-                setInterval(function() {
-                    // Only auto-refresh if quest is not finalized
-                    location.reload();
-                }, 30000); // Refresh every 30 seconds
-                </text>
     }
 </script>

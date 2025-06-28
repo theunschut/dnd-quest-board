@@ -1130,3 +1130,103 @@ p, li, span, small {
         font-size: 6px;
     }
 }
+
+/* Custom FontAwesome Radio Button Styling */
+.custom-radio-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.custom-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    color: #F4E4BC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: 500;
+}
+
+.custom-radio-label:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Hover state colors for better visibility */
+.custom-radio-label[data-vote="yes"]:hover i {
+    color: #28a745 !important; /* Green on hover */
+}
+
+.custom-radio-label[data-vote="maybe"]:hover i {
+    color: #ffc107 !important; /* Yellow on hover */
+}
+
+.custom-radio-label[data-vote="no"]:hover i {
+    color: #dc3545 !important; /* Red on hover */
+}
+
+.custom-radio-label i {
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+    color: #6c757d; /* Gray for unselected */
+}
+
+/* Unselected state */
+.custom-radio-label[data-vote="yes"] i {
+    color: #6c757d;
+}
+
+.custom-radio-label[data-vote="maybe"] i {
+    color: #6c757d;
+}
+
+.custom-radio-label[data-vote="no"] i {
+    color: #6c757d;
+}
+
+/* Selected state colors */
+input[type="radio"]:checked + .custom-radio-label[data-vote="yes"] i {
+    color: #28a745; /* Green for Yes */
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="maybe"] i {
+    color: #ffc107; /* Yellow for Maybe */
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="no"] i {
+    color: #dc3545; /* Red for No */
+}
+
+/* Selected state styling */
+input[type="radio"]:checked + .custom-radio-label {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="yes"] {
+    border-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="maybe"] {
+    border-color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="no"] {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Focus state */
+input[type="radio"]:focus + .custom-radio-label {
+    outline: 2px solid rgba(255, 193, 7, 0.5);
+    outline-offset: 2px;
+}
