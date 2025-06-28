@@ -35,7 +35,7 @@
         
         <div class="fantasy-quest-card" 
              style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage'); height: @(cardHeight)px;"
-             onclick="window.location.href='@Url.Action("Details", "Quest", new { id = quest.Id })'">
+             onclick="window.location.href='@(ViewBag.CurrentUserName != null && ViewBag.CurrentUserName == quest.DungeonMaster?.Name ? Url.Action("Manage", "Quest", new { id = quest.Id }) : Url.Action("Details", "Quest", new { id = quest.Id }))'">
             
             <!-- Wax Seal -->
             <div class="wax-seal" style="top: @(sealTop)%; left: @(sealLeft)%;">
