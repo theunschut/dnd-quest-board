@@ -197,6 +197,33 @@ public class QuestController(
         return RedirectToAction("Details", new { id = questId });
     }
 
+    [HttpDelete]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> RevokeSignup(int id)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(id);
+        if (quest == null)
+            return NotFound();
+
+        // Get current authenticated user
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        // Find the user's signup for this quest
+        var playerSignup = quest.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == user.Id);
+        if (playerSignup == null)
+        {
+            return BadRequest("You are not signed up for this quest.");
+        }
+
+        // Remove the player signup (allow revoking at any time)
+        await playerSignupService.RemoveAsync(playerSignup);
+
+        return Ok();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Policy = "DungeonMasterOnly")]

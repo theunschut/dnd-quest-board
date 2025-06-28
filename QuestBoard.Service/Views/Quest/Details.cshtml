@@ -1,7 +1,9 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @model PlayerSignup
 
 @{
     ViewData["Title"] = Model.Quest?.Title;
+    var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
 
 <div class="row">
@@ -16,20 +18,32 @@
             <div class="card-body modern-card-body">
                 <p class="lead">@Model.Quest?.Description</p>
 
-                <div class="row mb-3">
-                    <div class="col-sm-6">
-                        <strong>DM:</strong> @Model.Quest?.DungeonMaster?.Name
-                    </div>
-                    <div class="col-sm-6">
-                        <strong>Status:</strong>
-                        <span class="badge @(Model.Quest?.IsFinalized == true ? "bg-secondary" : "bg-success")">
-                            @(Model.Quest?.IsFinalized == true ? "Finalized" : "Open for Signups")
-                        </span>
-                    </div>
-                </div>
-
                 @if (Model.Quest?.IsFinalized == true)
-                {
+                {var selectedPlayersCount = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count() ?? 0;
+                    var maxPlayers = 6;
+                    var hasSpace = selectedPlayersCount < maxPlayers;
+                    var currentUserSignedUp = (bool)ViewBag.IsPlayerSignedUp;
+                    var userCanJoin = User.Identity?.IsAuthenticated == true && !currentUserSignedUp && hasSpace;
+
+                    @if (currentUserSignedUp)
+                    {
+                        var currentUser = Model.Player;
+                        var userSignup = Model.Quest?.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == currentUser?.Id);
+
+                        <div class="alert alert-success">
+                            <h5>You're signed up!</h5>
+                            @if (userSignup?.IsSelected == true)
+                            {
+                                <p><strong>You are selected for this quest!</strong></p>
+                                <p><strong>Date:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
+                            }
+                            else
+                            {
+                                <p>You are on the waitlist for this quest.</p>
+                            }
+                        </div>
+                    }
+
                     <div class="alert alert-info">
                         <h5>Quest Finalized!</h5>
                         <p><strong>Date & Time:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
@@ -52,13 +66,7 @@
                         }
                     </div>
 
-                    var selectedPlayersCount = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count() ?? 0;
-                    var maxPlayers = 6;
-                    var hasSpace = selectedPlayersCount < maxPlayers;
-                    var currentUserSignedUp = (bool)ViewBag.IsPlayerSignedUp;
-                    var userCanJoin = User.Identity?.IsAuthenticated == true && !currentUserSignedUp && hasSpace;
-
-                    @if (userCanJoin)
+                    if (userCanJoin)
                     {
                         <div class="card modern-card mb-4">
                             <div class="card-header modern-card-header">
@@ -159,6 +167,19 @@
                         <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
                     </div>
                 }
+
+                @* Revoke button section - shown for any signed up user *@
+                @if (User.Identity?.IsAuthenticated == true && (bool)ViewBag.IsPlayerSignedUp)
+                {
+                    <div class="card modern-card mt-3">
+                        <div class="card-body modern-card-body text-center">
+                            <button type="button" class="btn btn-danger" onclick="revokeSignup(@ViewContext.RouteData.Values["id"])">
+                                <i class="fas fa-times me-2"></i>Revoke My Signup
+                            </button>
+                            <p class="text-muted small mt-2 mb-0">You can revoke your signup at any time</p>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -169,6 +190,12 @@
                 <h5>Quest Summary</h5>
             </div>
             <div class="card-body modern-card-body">
+                <p><strong>DM:</strong> @Model.Quest?.DungeonMaster?.Name</p>
+                <p><strong>Status:</strong>
+                    <span class="badge @(Model.Quest?.IsFinalized == true ? "bg-secondary" : "bg-success")">
+                        @(Model.Quest?.IsFinalized == true ? "Finalized" : "Open for Signups")
+                    </span>
+                </p>
                 @if (Model.Quest?.IsFinalized == true)
                 {
                     <p><strong>Selected Players:</strong> @Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count()/6</p>
@@ -214,3 +241,37 @@
     </div>
 </div>
 
+<script>
+    function revokeSignup(questId) {
+        if (confirm("Are you sure you want to revoke your signup for this quest? This action cannot be undone.")) {
+            const formData = new FormData();
+            formData.append('__RequestVerificationToken', '@tokens.RequestToken');
+            
+            fetch(`/Quest/RevokeSignup/${questId}`, {
+                method: "DELETE",
+                body: formData
+            }).then(res => {
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    res.text().then(text => {
+                        alert(`Failed to revoke signup: ${text}`);
+                    });
+                }
+            }).catch(err => {
+                alert("An error occurred while revoking signup.");
+            });
+        }
+    }
+
+    // Auto-refresh functionality for quest details
+    @if (Model.Quest?.IsFinalized != true)
+    {
+                <text>
+                setInterval(function() {
+                    // Only auto-refresh if quest is not finalized
+                    location.reload();
+                }, 30000); // Refresh every 30 seconds
+                </text>
+    }
+</script>
