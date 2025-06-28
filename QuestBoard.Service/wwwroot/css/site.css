@@ -827,7 +827,7 @@ p, li, span, small {
 .calendar-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, minmax(80px, 1fr));
+    grid-auto-rows: minmax(80px, 1fr);
     flex: 1;
     min-height: 0;
 }
@@ -1042,7 +1042,7 @@ p, li, span, small {
     }
     
     .calendar-body {
-        grid-template-rows: repeat(6, minmax(70px, 1fr));
+        grid-auto-rows: minmax(70px, 1fr);
     }
     
     .calendar-day {
@@ -1094,7 +1094,7 @@ p, li, span, small {
     }
     
     .calendar-body {
-        grid-template-rows: repeat(6, minmax(60px, 1fr));
+        grid-auto-rows: minmax(60px, 1fr);
     }
     
     .calendar-day {
