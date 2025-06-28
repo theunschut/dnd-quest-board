@@ -64,7 +64,7 @@
                                 <div class="mb-3 proposed-date-item">
                                     <label class="form-label">Proposed Date @(i + 1)</label>
                                     <div class="input-group">
-                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required />
+                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
                                         @if (i > 0)
                                         {
                                             <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">

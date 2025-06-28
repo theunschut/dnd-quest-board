@@ -22,5 +22,5 @@ public class QuestViewModel
 
     [Required]
     [MinLength(1, ErrorMessage = "At least one proposed date is required.")]
-    public IList<DateTime> ProposedDates { get; set; } = [DateTime.Now.AddDays(1)];
+    public IList<DateTime> ProposedDates { get; set; } = [DateTime.Today.AddDays(1).AddHours(18)];
 }

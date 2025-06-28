@@ -10,12 +10,16 @@ function addProposedDate() {
     div.innerHTML = `
         <label class="form-label">Proposed Date ${index + 1}</label>
         <div class="input-group">
-            <input type="datetime-local" name="Quest.ProposedDates[${index}]" class="form-control" required>
+            <input type="datetime-local" name="Quest.ProposedDates[${index}]" class="form-control" required step="60">
             <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">Remove</button>
         </div>
     `;
     
     container.appendChild(div);
+    
+    // Set default time to 18:00 for new input
+    const newInput = div.querySelector('input[type="datetime-local"]');
+    setDefaultDateTime(newInput);
 }
 
 // Remove proposed date input
@@ -115,9 +119,61 @@ function handleResize() {
     }, 250);
 }
 
+// Set default date and time to 18:00 for datetime-local inputs
+function setDefaultDateTime(input) {
+    if (!input || input.value) return; // Don't override existing values
+    
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(18, 0, 0, 0); // Set to 18:00:00
+    
+    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const hours = String(tomorrow.getHours()).padStart(2, '0');
+    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+    
+    input.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Clean up datetime value to remove seconds and milliseconds
+function cleanDateTimeValue(input) {
+    if (!input || !input.value) return;
+    
+    // Parse the current value and remove seconds/milliseconds
+    const date = new Date(input.value);
+    if (isNaN(date.getTime())) return;
+    
+    // Set seconds and milliseconds to 0
+    date.setSeconds(0, 0);
+    
+    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    input.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     startAutoRefresh();
+    
+    // Handle datetime-local inputs
+    const datetimeInputs = document.querySelectorAll('input[type="datetime-local"]');
+    datetimeInputs.forEach(input => {
+        // For edit pages, clean existing values to remove seconds/milliseconds
+        if (input.value) {
+            cleanDateTimeValue(input);
+        } else {
+            // For create pages, set default time
+            setDefaultDateTime(input);
+        }
+    });
     
     // Add resize listener for masonry layout
     window.addEventListener('resize', handleResize);
