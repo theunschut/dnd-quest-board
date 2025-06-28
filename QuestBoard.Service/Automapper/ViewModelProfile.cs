@@ -21,5 +21,9 @@ public class ViewModelProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.QuestId, opt => opt.Ignore())
             .ForMember(dest => dest.Quest, opt => opt.Ignore());
+
+        CreateMap<Quest, QuestViewModel>()
+            .ForMember(dest => dest.ProposedDates, opt => opt.MapFrom(src => src.ProposedDates.Select(pd => pd.Date).ToList()))
+            .ForMember(dest => dest.DungeonMasterId, opt => opt.MapFrom(src => src.DungeonMaster != null ? src.DungeonMaster.Id : 0));
     }
 }

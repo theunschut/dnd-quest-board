@@ -54,6 +54,117 @@ public class QuestController(
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> Edit(int id, CancellationToken token = default)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(id, token);
+        
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is the quest's DM
+        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
+        // Don't allow editing of finalized quests
+        if (quest.IsFinalized)
+        {
+            return BadRequest("Cannot edit a finalized quest. Open the quest first to make changes.");
+        }
+
+        var dms = await userService.GetAllDungeonMastersAsync(token);
+        var questViewModel = mapper.Map<QuestViewModel>(quest);
+        
+        return View(new EditQuestViewModel 
+        { 
+            Id = quest.Id,
+            Quest = questViewModel, 
+            DungeonMasters = dms 
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> Edit(int id, EditQuestViewModel viewModel, CancellationToken token = default)
+    {
+        if (id != viewModel.Id)
+        {
+            return BadRequest();
+        }
+
+        var existingQuest = await questService.GetQuestWithDetailsAsync(id, token);
+        
+        if (existingQuest == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is the quest's DM
+        if (!currentUser.Name.Equals(existingQuest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
+        // Don't allow editing of finalized quests
+        if (existingQuest.IsFinalized)
+        {
+            return BadRequest("Cannot edit a finalized quest. Open the quest first to make changes.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var dms = await userService.GetAllDungeonMastersAsync(token);
+            viewModel.DungeonMasters = dms;
+            return View(viewModel);
+        }
+
+        if (!(await userService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
+        {
+            return NotFound();
+        }
+
+        // Update quest properties
+        existingQuest.Title = viewModel.Quest.Title;
+        existingQuest.Description = viewModel.Quest.Description;
+        existingQuest.Difficulty = viewModel.Quest.Difficulty;
+        existingQuest.DungeonMasterId = viewModel.Quest.DungeonMasterId;
+        existingQuest.TotalPlayerCount = viewModel.Quest.TotalPlayerCount;
+
+        // Remove existing proposed dates and add new ones
+        existingQuest.ProposedDates.Clear();
+        foreach (var proposedDate in viewModel.Quest.ProposedDates)
+        {
+            existingQuest.ProposedDates.Add(new ProposedDate
+            {
+                Date = proposedDate,
+                Quest = existingQuest,
+                QuestId = existingQuest.Id
+            });
+        }
+
+        await questService.UpdateAsync(existingQuest, token);
+
+        return RedirectToAction("Manage", new { id = existingQuest.Id });
+    }
+
     [HttpDelete]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

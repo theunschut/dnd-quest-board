@@ -176,7 +176,12 @@ else
                             <hr>
 
                             <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-success">Finalize Quest</button>
+                                <div>
+                                    <button type="submit" class="btn btn-success">Finalize Quest</button>
+                                    <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-outline-primary ms-2">
+                                        <i class="fas fa-edit me-1"></i>Edit Quest
+                                    </a>
+                                </div>
                                 <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">Refresh Data</button>
                             </div>
                         </form>

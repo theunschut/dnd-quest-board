@@ -1,6 +1,6 @@
-@model CreateQuestViewModel
+@model EditQuestViewModel
 @{
-    ViewData["Title"] = "Create Quest";
+    ViewData["Title"] = $"Edit Quest: {Model.Quest.Title}";
 }
 
 <div class="row">
@@ -8,13 +8,15 @@
         <div class="card modern-card">
             <div class="card-header modern-card-header">
                 <h2 class="mb-0">
-                    <i class="fas fa-scroll me-2"></i>
-                    Create New Quest
+                    <i class="fas fa-edit me-2"></i>
+                    Edit Quest: @Model.Quest.Title
                 </h2>
             </div>
             <div class="card-body modern-card-body">
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
-                <form asp-action="Create" method="post">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    
                     <div class="mb-3">
                         <label asp-for="Quest.Title" class="form-label">Quest Title <span class="text-danger">*</span></label>
                         <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
@@ -85,9 +87,9 @@
 
                     <div class="mb-3">
                         <button type="submit" class="btn btn-warning me-2">
-                            <i class="fas fa-plus me-2"></i>Create Quest
+                            <i class="fas fa-save me-2"></i>Update Quest
                         </button>
-                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                        <a href="@Url.Action("Manage", "Quest", new { id = Model.Id })" class="btn btn-secondary">
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
                     </div>
@@ -100,31 +102,60 @@
         <div class="card modern-card">
             <div class="card-header modern-card-header">
                 <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Important Notes
+                </h4>
+            </div>
+            <div class="card-body modern-card-body">
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> Editing this quest will reset all current player votes on proposed dates. Players will be notified and can vote again on the updated dates.
+                </div>
+                
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-warning me-2"></i>
+                        Only non-finalized quests can be edited
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-warning me-2"></i>
+                        Player signups will remain intact
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-warning me-2"></i>
+                        Date votes will be reset
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-warning me-2"></i>
+                        Players will need to vote again
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card modern-card mt-3">
+            <div class="card-header modern-card-header">
+                <h4 class="mb-0">
                     <i class="fas fa-lightbulb me-2"></i>
-                    Quest Creation Tips
+                    Quest Editing Tips
                 </h4>
             </div>
             <div class="card-body modern-card-body">
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Provide a clear, engaging title
+                        Communicate changes to players
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Include difficulty expectations
+                        Consider existing signups
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Offer multiple date options
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-check text-warning me-2"></i>
-                        Set realistic player limits
+                        Update dates if needed
                     </li>
                     <li>
                         <i class="fas fa-check text-warning me-2"></i>
-                        Include any special requirements
+                        Review player capacity
                     </li>
                 </ul>
             </div>
