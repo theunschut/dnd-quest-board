@@ -1,3 +1,4 @@
+@model ProfileViewModel
 @{
     ViewData["Title"] = "Profile";
 }
@@ -15,29 +16,38 @@
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Name:</label>
                     <div class="col-sm-9">
-                        <p class="form-control-plaintext">@User.Identity?.Name</p>
+                        <p class="form-control-plaintext">@Model.User?.Name</p>
                     </div>
                 </div>
-                
+
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Email:</label>
                     <div class="col-sm-9">
-                        <p class="form-control-plaintext">@User.Identity?.Name</p>
+                        <p class="form-control-plaintext">@Model.User?.Name</p>
                     </div>
                 </div>
-                
+
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Account Type:</label>
                     <div class="col-sm-9">
-                        <p class="form-control-plaintext">
-                            <i class="fas fa-crown text-warning me-2"></i>
-                            Dungeon Master & Player
-                        </p>
+                        @if (Model.User?.IsDungeonMaster == true)
+                        {
+                            <p class="form-control-plaintext">
+                                <i class="fas fa-crown text-warning me-2"></i>
+                                Dungeon Master & Player
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="form-control-plaintext">
+                                Player
+                            </p>
+                        }
                     </div>
                 </div>
-                
+
                 <hr>
-                
+
                 <div class="text-center">
                     <p class="text-muted">Profile editing features coming soon!</p>
                     <a asp-controller="Home" asp-action="Index" class="btn btn-warning">

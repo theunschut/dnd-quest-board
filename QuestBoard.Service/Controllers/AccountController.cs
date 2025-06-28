@@ -7,7 +7,6 @@ namespace QuestBoard.Service.Controllers;
 
 public class AccountController(IUserService userService) : Controller
 {
-
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
@@ -24,12 +23,12 @@ public class AccountController(IUserService userService) : Controller
         if (ModelState.IsValid)
         {
             var result = await userService.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-            
+
             if (result.Succeeded)
             {
                 return RedirectToLocal(returnUrl);
             }
-            
+
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
         }
 
@@ -48,16 +47,16 @@ public class AccountController(IUserService userService) : Controller
     public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
-        
+
         if (ModelState.IsValid)
         {
             var result = await userService.CreateAsync(model.Email, model.Name, model.Password, model.IsDungeonMaster);
-            
+
             if (result.Succeeded)
             {
                 return RedirectToLocal(returnUrl);
             }
-            
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -77,9 +76,15 @@ public class AccountController(IUserService userService) : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult Profile()
+    public async Task<IActionResult> Profile()
     {
-        return View();
+        var user = await userService.GetUserAsync(User);
+        var model = new ProfileViewModel
+        {
+            User = user
+        };
+
+        return View(model);
     }
 
     private IActionResult RedirectToLocal(string? returnUrl)
