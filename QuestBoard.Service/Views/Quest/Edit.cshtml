@@ -69,7 +69,7 @@
                                         <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required />
                                         @if (i > 0)
                                         {
-                                            <button type="button" class="btn btn-outline-danger" onclick="removeProposedDate(this)">
+                                            <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
                                                 <i class="fas fa-trash me-1"></i>Remove
                                             </button>
                                         }
@@ -78,7 +78,7 @@
                                 </div>
                             }
                         </div>
-                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="addProposedDate()">
+                        <button type="button" class="btn btn-warning btn-sm" onclick="addProposedDate()">
                             <i class="fas fa-plus me-1"></i>Add Another Date Option
                         </button>
                         <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>

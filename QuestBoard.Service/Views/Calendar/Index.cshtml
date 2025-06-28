@@ -13,12 +13,12 @@
                 </h2>
                 <div class="calendar-navigation">
                     <a href="@Url.Action("Index", new { year = Model.FirstDayOfMonth.AddMonths(-1).Year, month = Model.FirstDayOfMonth.AddMonths(-1).Month })" 
-                       class="btn btn-outline-primary btn-sm me-2">
+                       class="btn btn-primary btn-sm me-2">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <span class="fw-bold">@Model.MonthName</span>
                     <a href="@Url.Action("Index", new { year = Model.FirstDayOfMonth.AddMonths(1).Year, month = Model.FirstDayOfMonth.AddMonths(1).Month })" 
-                       class="btn btn-outline-primary btn-sm ms-2">
+                       class="btn btn-primary btn-sm ms-2">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </div>
