@@ -44,9 +44,11 @@
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            var currentUser = await UserService.GetUserAsync(User);
+                            
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user me-1"></i>@User.Identity.Name
+                                    <i class="fas fa-user me-1"></i>@currentUser.Name
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">

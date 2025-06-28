@@ -6,7 +6,9 @@
 @using QuestBoard.Service.ViewModels.DungeonMasterViewModels
 @using QuestBoard.Service.ViewModels.QuestViewModels
 @using Microsoft.AspNetCore.Authorization
+@using QuestBoard.Domain.Interfaces
 
 @namespace QuestBoard.Service.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IAuthorizationService AuthorizationService
+@inject IUserService UserService
