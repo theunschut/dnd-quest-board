@@ -1,7 +1,7 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@model QuestBoard.Service.ViewModels.DungeonMasterViewModels.DungeonMasterIndexViewModel
+@model QuestBoard.Service.ViewModels.GuildMembersViewModels.GuildMembersIndexViewModel
 @{
-    ViewData["Title"] = "Dungeon Masters";
+    ViewData["Title"] = "Guild Members";
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
 
@@ -9,7 +9,7 @@
     <div class="card-header modern-card-header">
         <h2 class="mb-0">
             <i class="fas fa-crown me-2"></i>
-            Dungeon Masters Guild
+            Dungeon Masters
         </h2>
     </div>
     <div class="card-body modern-card-body">
@@ -120,7 +120,7 @@
 <script>
     function deleteUser(id) {
         if (confirm("Are you sure you want to delete this user?")) {
-            fetch(`/DungeonMaster/Delete/${id}`, {
+            fetch(`/GuildMembers/Delete/${id}`, {
                 method: "DELETE",
                 headers: {
                     'RequestVerificationToken': '@tokens.RequestToken'

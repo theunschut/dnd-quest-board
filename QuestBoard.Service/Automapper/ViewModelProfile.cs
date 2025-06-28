@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
+using QuestBoard.Service.ViewModels.GuildMembersViewModels;
 using QuestBoard.Service.ViewModels.QuestViewModels;
 
 namespace QuestBoard.Service.Automapper;
@@ -9,8 +9,6 @@ public class ViewModelProfile : Profile
 {
     public ViewModelProfile()
     {
-        CreateMap<CreateDungeonMasterViewModel, User>();
-
         CreateMap<QuestViewModel, Quest>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.ProposedDates, opt => opt.MapFrom(src => src.ProposedDates))

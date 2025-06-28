@@ -3,17 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels.DungeonMasterViewModels;
+using QuestBoard.Service.ViewModels.GuildMembersViewModels;
 
 namespace QuestBoard.Service.Controllers
 {
     [Authorize(Policy = "DungeonMasterOnly")]
-    public class DungeonMasterController(IUserService service, IMapper mapper) : Controller
+    public class GuildMembersController(IUserService service) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken token = default)
         {
-            var viewModel = new DungeonMasterIndexViewModel
+            var viewModel = new GuildMembersIndexViewModel
             {
                 DungeonMasters = await service.GetAllDungeonMastersAsync(token),
                 Players = await service.GetAllPlayersAsync(token)
@@ -42,20 +42,6 @@ namespace QuestBoard.Service.Controllers
         public async Task<IActionResult> Details()
         {
             return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateDungeonMasterViewModel model, CancellationToken token = default)
-        {
-            if (!ModelState.IsValid)
-            {
-                return RedirectToAction("Index", "DungeonMaster");
-            }
-
-            await service.AddAsync(mapper.Map<User>(model), token);
-
-            return RedirectToAction("Index", "DungeonMaster");
         }
     }
 }

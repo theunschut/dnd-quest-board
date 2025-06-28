@@ -74,7 +74,7 @@
                             <div class="card-body modern-card-body">
                                 <div class="alert alert-success">
                                     <h6>Space Available!</h6>
-                                    <p>This quest has space for additional players (@selectedPlayersCount/@Model.Quest.TotalPlayerCount slots filled).</p>
+                                    <p>This quest has space for additional players (@selectedPlayersCount/@Model.Quest?.TotalPlayerCount slots filled).</p>
                                     <p><strong>Quest Date:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
                                 </div>
 
