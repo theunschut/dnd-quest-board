@@ -2,17 +2,14 @@ version: '3.8'
 
 services:
   questboard:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/theunschut/quest-board:latest
     ports:
       - "8080:8080"
-    volumes:
-      # Mount only the data directory for SQLite database persistence
-      - questboard_data:/app/data
+    depends_on:
+      - sqlserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/quests.db
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=QuestBoard;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;
       - EmailSettings__SmtpServer=smtp.gmail.com
       - EmailSettings__SmtpPort=587
       - EmailSettings__SmtpUsername=${SMTP_USERNAME}
@@ -27,6 +24,23 @@ services:
       retries: 3
       start_period: 40s
 
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
 volumes:
-  questboard_data:
+  sqlserver_data:
     driver: local
