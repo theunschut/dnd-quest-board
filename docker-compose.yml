@@ -8,7 +8,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - .:/app/data
+      # Mount only the data directory for SQLite database persistence
+      - questboard_data:/app/data
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/quests.db
@@ -19,3 +20,13 @@ services:
       - EmailSettings__FromEmail=${FROM_EMAIL}
       - EmailSettings__FromName=D&D Quest Board
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  questboard_data:
+    driver: local
