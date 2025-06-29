@@ -1,3 +1,5 @@
+[![.NET CI](https://github.com/theunschut/quest-board/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/theunschut/quest-board/actions/workflows/dotnet.yml) [![Docker](https://github.com/theunschut/quest-board/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/theunschut/quest-board/actions/workflows/docker-publish.yml)
+
 # D&D Quest Board
 
 A comprehensive web application for managing D&D campaign quests with multiple DMs and players. Built with ASP.NET Core 8 MVC architecture following clean architecture principles with domain, repository, and service layers.
