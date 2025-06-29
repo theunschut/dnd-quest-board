@@ -13,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add health checks
+builder.Services.AddHealthChecks();
+
 // Add Identity using existing QuestBoardContext
 builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 {
@@ -78,6 +81,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHealthChecks("/health");
 
 app.Services.ConfigureDatabase();
 

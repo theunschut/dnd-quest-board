@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a comprehensive D&D Quest Board web application built with ASP.NET Core 8 MVC following a clean architecture pattern. The application provides a complete solution for D&D campaign management including user authentication, quest creation, calendar scheduling, player coordination, and email notifications. It features a layered architecture with domain, repository, and service layers following SOLID principles and dependency injection patterns.
 
+## Development Environment
+
+**Important**: This project is developed in a WSL Ubuntu environment, but SQL Server runs on the Windows host machine. When running the application locally, it connects to SQL Server on the Windows host.
+
 ## Development Commands
 
 ### From Root Directory (using solution)
@@ -38,9 +42,13 @@ dotnet ef database update
 dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
 ```
 
+### Connection String Notes
+- **Development**: Uses `localhost` to connect to SQL Server running on Windows host from WSL
+- **Docker**: Uses `sqlserver` service name for container-to-container communication
+
 ### Docker Development (from root directory)
 ```bash
-# Build and run with Docker Compose
+# Build and run with Docker Compose (includes SQL Server)
 docker-compose up -d
 
 # View logs
@@ -61,7 +69,7 @@ The application follows a clean architecture pattern with three main layers:
 
 ### Technology Stack
 - **Backend**: ASP.NET Core 8 MVC with Repository Pattern
-- **Database**: SQLite with Entity Framework Core
+- **Database**: Microsoft SQL Server with Entity Framework Core
 - **Frontend**: Bootstrap 5 + vanilla JavaScript with D&D theming
 - **Email**: .NET SMTP with Gmail integration
 - **Mapping**: AutoMapper for entity-to-model mapping
@@ -148,8 +156,7 @@ The application follows a clean architecture pattern with three main layers:
 
 ### Database Context
 - Uses `QuestBoardContext` with Entity Framework Core
-- SQLite database stored as `quests.db` in the root directory
-- Automatic database creation on application startup
+- Microsoft SQL Server database with automatic migration on startup
 - Entity configurations handle relationships and constraints
 
 ### Email Service
@@ -169,12 +176,13 @@ The application follows a clean architecture pattern with three main layers:
 ## Configuration
 
 ### Required Settings (appsettings.json)
-- `ConnectionStrings:DefaultConnection` - SQLite database path
+- `ConnectionStrings:DefaultConnection` - SQL Server connection string
 - `EmailSettings:SmtpUsername` - Gmail account for sending emails
 - `EmailSettings:SmtpPassword` - Gmail app-specific password
 - `EmailSettings:FromEmail` - From email address
 
 ### Environment Variables (Docker)
+- `SA_PASSWORD` - SQL Server SA password for Docker container
 - `SMTP_USERNAME`, `SMTP_PASSWORD`, `FROM_EMAIL` for email configuration
 - Can be set in `.env` file for Docker Compose
 - Overrides appsettings.json values when present

@@ -30,9 +30,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Create directory for SQLite database with proper permissions
-RUN mkdir -p /app/data && chmod 755 /app/data
-
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
