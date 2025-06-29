@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a comprehensive D&D Quest Board web application built with ASP.NET Core 8 MVC following a clean architecture pattern. The application provides a complete solution for D&D campaign management including user authentication, quest creation, calendar scheduling, player coordination, and email notifications. It features a layered architecture with domain, repository, and service layers following SOLID principles and dependency injection patterns.
 
+## Development Environment
+
+**Important**: This project is developed in a WSL Ubuntu environment, but SQL Server runs on the Windows host machine. When running the application locally, it connects to SQL Server on the Windows host.
+
 ## Development Commands
 
 ### From Root Directory (using solution)
@@ -37,6 +41,10 @@ dotnet ef database update
 # Create Entity Framework migrations (run from Service project)
 dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
 ```
+
+### Connection String Notes
+- **Development**: Uses `localhost` to connect to SQL Server running on Windows host from WSL
+- **Docker**: Uses `sqlserver` service name for container-to-container communication
 
 ### Docker Development (from root directory)
 ```bash

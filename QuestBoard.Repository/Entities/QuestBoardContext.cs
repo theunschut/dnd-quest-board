@@ -16,50 +16,48 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
     {
         base.OnModelCreating(modelBuilder);
 
-        // Quest relationships
+        // Configure all foreign key relationships to use NO ACTION (Restrict) to avoid cascade cycles
+        // This is the safest approach for SQL Server
+        
         modelBuilder.Entity<QuestEntity>()
             .HasOne(q => q.DungeonMaster)
             .WithMany(dm => dm.Quests)
             .HasForeignKey(q => q.DungeonMasterId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<QuestEntity>()
             .HasMany(q => q.ProposedDates)
             .WithOne(pd => pd.Quest)
             .HasForeignKey(pd => pd.QuestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<QuestEntity>()
             .HasMany(q => q.PlayerSignups)
             .WithOne(ps => ps.Quest)
             .HasForeignKey(ps => ps.QuestId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // DungeonMaster relationships
-        modelBuilder.Entity<UserEntity>()
-            .HasMany(u => u.Quests)
-            .WithOne(q => q.DungeonMaster)
-            .HasForeignKey(q => q.DungeonMasterId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PlayerSignupEntity>()
+            .HasOne(ps => ps.Player)
+            .WithMany()
+            .HasForeignKey(ps => ps.PlayerId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // PlayerSignup relationships
         modelBuilder.Entity<PlayerSignupEntity>()
             .HasMany(ps => ps.DateVotes)
             .WithOne(pdv => pdv.PlayerSignup)
             .HasForeignKey(pdv => pdv.PlayerSignupId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // ProposedDate relationships
         modelBuilder.Entity<ProposedDateEntity>()
             .HasMany(pd => pd.PlayerVotes)
             .WithOne(pdv => pdv.ProposedDate)
             .HasForeignKey(pdv => pdv.ProposedDateId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Ensure unique vote per player per date
         modelBuilder.Entity<PlayerDateVoteEntity>()
             .HasIndex(pdv => new { pdv.PlayerSignupId, pdv.ProposedDateId })
             .IsUnique();
-
     }
 }
