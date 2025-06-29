@@ -12,7 +12,7 @@ public static class ServiceExtensions
     {
         // Add Entity Framework
         services.AddDbContext<QuestBoardContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
