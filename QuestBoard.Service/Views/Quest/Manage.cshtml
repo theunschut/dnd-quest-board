@@ -89,9 +89,13 @@ else
                                 var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
                                 var isRecommended = date == Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
 
-                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")">
+                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
+                                     data-date-id="@date.Id"
+                                     data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                     data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                     data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="SelectedDateId" value="@date.Id"
+                                        <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
                                                id="date_@date.Id" @(isRecommended ? "checked" : "") />
                                         <label class="form-check-label" for="date_@date.Id">
                                             <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
@@ -156,18 +160,20 @@ else
                                     var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
                                     var isInTop6 = i < 6 && availablePlayers.Contains(player);
 
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="SelectedPlayerIds"
+                                    <div class="form-check player-item" data-player-id="@player.Id">
+                                        <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
                                                value="@player.Id" id="player_@player.Id"
                                                @(isInTop6 ? "checked" : "") />
                                         <label class="form-check-label" for="player_@player.Id">
                                             @player.Player.Name
                                             <small class="text-muted">
                                                 (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
-                                                @if (availablePlayers.Contains(player))
-                                                {
-                                                    <span class="text-success">- Available for recommended date</span>
-                                                }
+                                                <span class="availability-status">
+                                                    @if (availablePlayers.Contains(player))
+                                                    {
+                                                        <span class="text-success">- Available for recommended date</span>
+                                                    }
+                                                </span>
                                             </small>
                                         </label>
                                     </div>
@@ -299,4 +305,55 @@ else
             });
         }
     }
+
+    function updatePlayerAvailability() {
+        const selectedDateOption = document.querySelector('.date-selector:checked');
+        if (!selectedDateOption) return;
+
+        const dateContainer = selectedDateOption.closest('.date-option');
+        const yesVotes = dateContainer.dataset.yesVotes ? dateContainer.dataset.yesVotes.split(',').filter(id => id) : [];
+        const maybeVotes = dateContainer.dataset.maybeVotes ? dateContainer.dataset.maybeVotes.split(',').filter(id => id) : [];
+        const noVotes = dateContainer.dataset.noVotes ? dateContainer.dataset.noVotes.split(',').filter(id => id) : [];
+
+        // Update each player item
+        document.querySelectorAll('.player-item').forEach(playerItem => {
+            const playerId = playerItem.dataset.playerId;
+            const checkbox = playerItem.querySelector('.player-checkbox');
+            const statusSpan = playerItem.querySelector('.availability-status');
+            
+            // Determine availability status
+            let status = '';
+            let shouldBeChecked = false;
+            
+            if (yesVotes.includes(playerId)) {
+                status = '<span class="text-success">- Available (Yes)</span>';
+                shouldBeChecked = true;
+            } else if (maybeVotes.includes(playerId)) {
+                status = '<span class="text-warning">- Maybe available</span>';
+                shouldBeChecked = true; // Consider "maybe" as selected per requirements
+            } else if (noVotes.includes(playerId)) {
+                status = '<span class="text-danger">- Not available (No)</span>';
+                shouldBeChecked = false;
+            } else {
+                status = '<span class="text-muted">- No vote</span>';
+                shouldBeChecked = false;
+            }
+            
+            // Update the status display
+            statusSpan.innerHTML = status;
+            
+            // Update checkbox based on availability
+            checkbox.checked = shouldBeChecked;
+        });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePlayerAvailability();
+        
+        // Add event listeners to date radio buttons
+        document.querySelectorAll('.date-selector').forEach(radio => {
+            radio.addEventListener('change', updatePlayerAvailability);
+        });
+    });
 </script>
