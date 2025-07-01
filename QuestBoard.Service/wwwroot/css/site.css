@@ -453,6 +453,26 @@ p, li, span, small {
     text-shadow: 2px 2px 4px rgba(255,255,255,0.95),
                  -1px -1px 2px rgba(255,255,255,0.95),
                  1px 1px 6px rgba(0,0,0,0.7);
+    max-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #8B4513 rgba(255, 255, 255, 0.3);
+}
+
+/* Custom scrollbar styling for fantasy quest cards */
+.quest-description::-webkit-scrollbar {
+    width: 6px;
+}
+
+.quest-description::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.quest-description::-webkit-scrollbar-thumb {
+    background: #8B4513;
+    border-radius: 3px;
 }
 
 .quest-dm, .quest-date, .quest-players, .quest-signups {
@@ -791,6 +811,29 @@ p, li, span, small {
 
 .modern-card .table-hover > tbody > tr:hover > td {
     background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Scrollable quest details for modern cards */
+.modern-card .card-text {
+    max-height: 125px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(244, 228, 188, 0.7) rgba(255, 255, 255, 0.1);
+}
+
+.modern-card .card-text::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modern-card .card-text::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.modern-card .card-text::-webkit-scrollbar-thumb {
+    background: rgba(244, 228, 188, 0.7);
+    border-radius: 3px;
 }
 
 /* Calendar Styling */
