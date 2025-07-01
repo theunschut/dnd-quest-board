@@ -7,7 +7,7 @@ using QuestBoard.Repository.Interfaces;
 
 namespace QuestBoard.Domain.Services;
 
-internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseService<Quest, QuestEntity>(repository, mapper), IQuestService
+internal class QuestService(IQuestRepository repository, IPlayerSignupRepository playerSignupRepository, IMapper mapper) : BaseService<Quest, QuestEntity>(repository, mapper), IQuestService
 {
     public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
     {
@@ -61,16 +61,16 @@ internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseS
         var entity = await repository.GetQuestWithManageDetailsAsync(model.Id, token);
         if (entity == null) return;
 
-        // Manual cleanup for PlayerSignups and their DateVotes (since Quest->PlayerSignup is NoAction)
-        // Clear DateVotes from PlayerSignups first
-        foreach (var playerSignup in entity.PlayerSignups)
+        // Manual cleanup required since Quest->PlayerSignup is NoAction to avoid cascade cycles
+        // Remove PlayerSignups first (DateVotes will cascade delete from PlayerSignups)
+        var playerSignupsToRemove = entity.PlayerSignups.ToList();
+        foreach (var playerSignup in playerSignupsToRemove)
         {
-            playerSignup.DateVotes.Clear();
+            // DateVotes will cascade delete when PlayerSignup is removed
+            await playerSignupRepository.RemoveAsync(playerSignup, token);
         }
-        
-        // Clear PlayerSignups (ProposedDates will be cascade deleted automatically)
-        entity.PlayerSignups.Clear();
 
+        // ProposedDates will cascade delete automatically when Quest is removed
         await repository.RemoveAsync(entity, token);
     }
 
