@@ -54,4 +54,22 @@ internal class QuestService(IQuestRepository repository, IMapper mapper) : BaseS
         Mapper.Map(model, entity);
         await repository.SaveChangesAsync(token);
     }
+
+    public override async Task RemoveAsync(Quest model, CancellationToken token = default)
+    {
+        var entity = await repository.GetQuestWithManageDetailsAsync(model.Id, token);
+        if (entity == null) return;
+
+        // Manual cleanup for PlayerSignups and their DateVotes (since Quest->PlayerSignup is NoAction)
+        // Clear DateVotes from PlayerSignups first
+        foreach (var playerSignup in entity.PlayerSignups)
+        {
+            playerSignup.DateVotes.Clear();
+        }
+        
+        // Clear PlayerSignups (ProposedDates will be cascade deleted automatically)
+        entity.PlayerSignups.Clear();
+
+        await repository.RemoveAsync(entity, token);
+    }
 }
