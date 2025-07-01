@@ -14,13 +14,17 @@
         @foreach (var quest in Model)
         {
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card modern-card quest-card @(quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
+                <div class="card modern-card quest-card @(quest.IsFinalized && quest.FinalizedDate.HasValue && quest.FinalizedDate.Value < DateTime.UtcNow.AddDays(-1) ? "quest-status-done" : quest.IsFinalized ? "quest-status-finalized" : "quest-status-open")">
                     <div class="card-header modern-card-header d-flex justify-content-between align-items-center">
                         <span class="badge difficulty-@quest.Difficulty.ToString().ToLower()">
                             @quest.Difficulty
                         </span>
                         <small class="fw-bold">
-                            @if (quest.IsFinalized)
+                            @if (quest.IsFinalized && quest.FinalizedDate.HasValue && quest.FinalizedDate.Value < DateTime.UtcNow.AddDays(-1))
+                            {
+                                <text><i class="fas fa-flag-checkered me-1"></i>Done</text>
+                            }
+                            else if (quest.IsFinalized)
                             {
                                 <text><i class="fas fa-check-circle me-1"></i>Finalized</text>
                             }

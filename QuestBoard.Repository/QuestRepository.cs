@@ -32,10 +32,13 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
 
     public async Task<IList<QuestEntity>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
+        var oneDayAgo = DateTime.UtcNow.AddDays(-1);
+        
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
             .Include(q => q.DungeonMaster)
+            .Where(q => !q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo))
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);
     }

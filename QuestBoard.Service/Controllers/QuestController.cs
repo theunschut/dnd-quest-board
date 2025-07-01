@@ -33,13 +33,13 @@ public class QuestController(
             return Forbid();
         }
 
-        return View(new CreateQuestViewModel());
+        return View(new QuestViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Policy = "DungeonMasterOnly")]
-    public async Task<IActionResult> Create(CreateQuestViewModel viewModel, CancellationToken token = default)
+    public async Task<IActionResult> Create(QuestViewModel viewModel, CancellationToken token = default)
     {
         // Get current user and verify they are a DM
         var currentUser = await userService.GetUserAsync(User);
@@ -55,7 +55,7 @@ public class QuestController(
         }
 
         // Automatically set the current user as the DM
-        viewModel.Quest.DungeonMasterId = currentUser.Id;
+        viewModel.DungeonMasterId = currentUser.Id;
 
         if (!ModelState.IsValid)
         {
@@ -63,7 +63,7 @@ public class QuestController(
         }
 
         // Create Quest entity from ViewModel using AutoMapper
-        var quest = mapper.Map<Quest>(viewModel.Quest);
+        var quest = mapper.Map<Quest>(viewModel);
 
         // Set Quest reference for all ProposedDates
         foreach (var proposedDate in quest.ProposedDates)

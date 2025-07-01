@@ -15,6 +15,10 @@
     border-left: 4px solid #6c757d;
 }
 
+.quest-status-done {
+    border-left: 4px solid #343a40;
+}
+
 /* Date and Vote Styles */
 .date-option {
     border: 1px solid #dee2e6;
