@@ -47,13 +47,13 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasMany(ps => ps.DateVotes)
             .WithOne(pdv => pdv.PlayerSignup)
             .HasForeignKey(pdv => pdv.PlayerSignupId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ProposedDateEntity>()
             .HasMany(pd => pd.PlayerVotes)
             .WithOne(pdv => pdv.ProposedDate)
             .HasForeignKey(pdv => pdv.ProposedDateId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Ensure unique vote per player per date
         modelBuilder.Entity<PlayerDateVoteEntity>()
