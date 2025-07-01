@@ -39,11 +39,12 @@ function removeProposedDate(button) {
     });
 }
 
-// Auto-refresh quest pages every 30 seconds (excluding Details and Create pages)
+// Auto-refresh quest pages every 30 seconds (excluding Details, Create, and Manage pages)
 function startAutoRefresh() {
     if (window.location.pathname.includes('/Quest/') && 
         !window.location.pathname.includes('/Quest/Details') && 
-        !window.location.pathname.includes('/Quest/Create')) {
+        !window.location.pathname.includes('/Quest/Create') &&
+        !window.location.pathname.includes('/Quest/Manage')) {
         setInterval(() => {
             window.location.reload();
         }, 30000);
