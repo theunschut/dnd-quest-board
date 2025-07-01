@@ -29,7 +29,7 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasMany(q => q.ProposedDates)
             .WithOne(pd => pd.Quest)
             .HasForeignKey(pd => pd.QuestId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<QuestEntity>()
             .HasMany(q => q.PlayerSignups)
