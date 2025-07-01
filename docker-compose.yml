@@ -1,19 +1,22 @@
 services:
   questboard:
     image: ghcr.io/theunschut/quest-board:latest
+    container_name: dnd-questboard
+    networks:
+      - net-dnd
     ports:
-      - "8080:8080"
+      - "7080:8080"
     depends_on:
       - sqlserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=QuestBoard;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;
-      - EmailSettings__SmtpServer=smtp.gmail.com
-      - EmailSettings__SmtpPort=587
-      - EmailSettings__SmtpUsername=${SMTP_USERNAME}
-      - EmailSettings__SmtpPassword=${SMTP_PASSWORD}
-      - EmailSettings__FromEmail=${FROM_EMAIL}
-      - EmailSettings__FromName=D&D Quest Board
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=QuestBoard;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true;
+      #- EmailSettings__SmtpServer=smtp.gmail.com
+      #- EmailSettings__SmtpPort=587
+      #- EmailSettings__SmtpUsername=${SMTP_USERNAME}
+      #- EmailSettings__SmtpPassword=${SMTP_PASSWORD}
+      #- EmailSettings__FromEmail=${FROM_EMAIL}
+      #- EmailSettings__FromName=D&D Quest Board
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -24,21 +27,29 @@ services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: dnd-db
+    networks:
+      - net-dnd
     ports:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     volumes:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
-    healthcheck:
-      test: ["/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+    #healthcheck:
+    #  test: ["/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD }", "-Q", "SELECT 1"]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 5
+    #  start_period: 30s
 
 volumes:
   sqlserver_data:
     driver: local
+
+networks:
+  net-dnd:
+    external:
+      name: net-dnd
