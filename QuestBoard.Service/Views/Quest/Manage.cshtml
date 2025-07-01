@@ -1,6 +1,7 @@
 @model Quest
 @{
     ViewData["Title"] = $"Manage Quest: {Model.Title}";
+    var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -181,6 +182,9 @@ else
                                     <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary ms-2">
                                         <i class="fas fa-edit me-1"></i>Edit Quest
                                     </a>
+                                    <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </a>
                                 </div>
                                 <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
                             </div>
@@ -277,3 +281,22 @@ else
         </div>
     </div>
 }
+
+<script>
+    function deleteQuest(id) {
+        if (confirm("Are you sure?")) {
+            fetch(`/Quest/Delete/${id}`, {
+                method: "DELETE",
+                headers: {
+                    'RequestVerificationToken': '@tokens.RequestToken'
+                }
+            }).then(res => {
+                if (res.ok) {
+                    window.location.href = window.location.origin;
+                } else {
+                    alert("Delete failed.");
+                }
+            });
+        }
+    }
+</script>
