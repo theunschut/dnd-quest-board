@@ -58,32 +58,55 @@
                         <span asp-validation-for="Quest.TotalPlayerCount" class="text-danger"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
-                        <div id="proposed-dates">
-                            @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
-                            {
-                                <div class="mb-3 proposed-date-item">
-                                    <label class="form-label">Proposed Date @(i + 1)</label>
-                                    <div class="input-group">
-                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
-                                        @if (i > 0)
-                                        {
-                                            <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
-                                                <i class="fas fa-trash me-1"></i>Remove
-                                            </button>
-                                        }
+                    @if (Model.CanEditProposedDates)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
+                            <div id="proposed-dates">
+                                @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
+                                {
+                                    <div class="mb-3 proposed-date-item">
+                                        <label class="form-label">Proposed Date @(i + 1)</label>
+                                        <div class="input-group">
+                                            <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
+                                            @if (i > 0)
+                                            {
+                                                <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
+                                                    <i class="fas fa-trash me-1"></i>Remove
+                                                </button>
+                                            }
+                                        </div>
+                                        <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
                                     </div>
-                                    <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
-                                </div>
-                            }
+                                }
+                            </div>
+                            <button type="button" class="btn btn-warning btn-sm" onclick="addProposedDate()">
+                                <i class="fas fa-plus me-1"></i>Add Another Date Option
+                            </button>
+                            <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>
+                            <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
                         </div>
-                        <button type="button" class="btn btn-warning btn-sm" onclick="addProposedDate()">
-                            <i class="fas fa-plus me-1"></i>Add Another Date Option
-                        </button>
-                        <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>
-                        <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Proposed Dates & Times</label>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Cannot edit proposed dates:</strong> Players have already signed up for this quest.
+                            </div>
+                            <div class="list-group">
+                                @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
+                                {
+                                    <div class="list-group-item">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        @Model.Quest.ProposedDates[i].ToString("MMMM dd, yyyy 'at' h:mm tt")
+                                        <input type="hidden" asp-for="Quest.ProposedDates[i]" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
 
                     <div class="mb-3">
                         <button type="submit" class="btn btn-warning me-2">
@@ -99,39 +122,6 @@
     </div>
     
     <div class="col-lg-4 col-md-5">
-        <div class="card modern-card">
-            <div class="card-header modern-card-header">
-                <h4 class="mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Important Notes
-                </h4>
-            </div>
-            <div class="card-body modern-card-body">
-                <div class="alert alert-warning">
-                    <strong>Note:</strong> Editing this quest will reset all current player votes on proposed dates. Players will be notified and can vote again on the updated dates.
-                </div>
-                
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <i class="fas fa-check text-warning me-2"></i>
-                        Only non-finalized quests can be edited
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-check text-warning me-2"></i>
-                        Player signups will remain intact
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-check text-warning me-2"></i>
-                        Date votes will be reset
-                    </li>
-                    <li>
-                        <i class="fas fa-check text-warning me-2"></i>
-                        Players will need to vote again
-                    </li>
-                </ul>
-            </div>
-        </div>
-
         <div class="card modern-card mt-3">
             <div class="card-header modern-card-header">
                 <h4 class="mb-0">
