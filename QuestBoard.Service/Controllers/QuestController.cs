@@ -86,11 +86,15 @@ public class QuestController(
         var dms = await userService.GetAllDungeonMastersAsync(token);
         var questViewModel = mapper.Map<QuestViewModel>(quest);
         
+        // Check if there are any player signups - if so, don't allow editing proposed dates
+        var canEditProposedDates = !quest.PlayerSignups.Any();
+        
         return View(new EditQuestViewModel 
         { 
             Id = quest.Id,
             Quest = questViewModel, 
-            DungeonMasters = dms 
+            DungeonMasters = dms,
+            CanEditProposedDates = canEditProposedDates
         });
     }
 
@@ -129,6 +133,10 @@ public class QuestController(
             return BadRequest("Cannot edit a finalized quest. Open the quest first to make changes.");
         }
 
+        // Check if there are any player signups - if so, don't allow editing proposed dates
+        var canEditProposedDates = !existingQuest.PlayerSignups.Any();
+        viewModel.CanEditProposedDates = canEditProposedDates;
+
         if (!ModelState.IsValid)
         {
             var dms = await userService.GetAllDungeonMastersAsync(token);
@@ -141,29 +149,20 @@ public class QuestController(
             return NotFound();
         }
 
-        // Update quest properties
-        existingQuest.Title = viewModel.Quest.Title;
-        existingQuest.Description = viewModel.Quest.Description;
-        existingQuest.Difficulty = viewModel.Quest.Difficulty;
-        existingQuest.DungeonMasterId = viewModel.Quest.DungeonMasterId;
-        existingQuest.TotalPlayerCount = viewModel.Quest.TotalPlayerCount;
+        // Use the specialized service method to update quest properties
+        await questService.UpdateQuestPropertiesAsync(
+            id,
+            viewModel.Quest.Title,
+            viewModel.Quest.Description,
+            viewModel.Quest.Difficulty,
+            viewModel.Quest.DungeonMasterId,
+            viewModel.Quest.TotalPlayerCount,
+            canEditProposedDates,
+            canEditProposedDates ? viewModel.Quest.ProposedDates : null,
+            token
+        );
 
-        // Remove existing proposed dates and add new ones
-        // With cascade delete configured, PlayerDateVotes will be automatically deleted
-        existingQuest.ProposedDates.Clear();
-        foreach (var proposedDate in viewModel.Quest.ProposedDates)
-        {
-            existingQuest.ProposedDates.Add(new ProposedDate
-            {
-                Date = proposedDate,
-                Quest = existingQuest,
-                QuestId = existingQuest.Id
-            });
-        }
-
-        await questService.UpdateAsync(existingQuest, token);
-
-        return RedirectToAction("Manage", new { id = existingQuest.Id });
+        return RedirectToAction("Manage", new { id });
     }
 
     [HttpDelete]
@@ -387,20 +386,11 @@ public class QuestController(
             return await Manage(id);
         }
 
-        // Update quest
-        quest.IsFinalized = true;
-        quest.FinalizedDate = selectedDate.Date;
-
-        // Update player selections
-        foreach (var playerSignup in quest.PlayerSignups)
-        {
-            playerSignup.IsSelected = selectedPlayerIds.Contains(playerSignup.Id);
-        }
-
-        await questService.UpdateAsync(quest);
+        // Finalize the quest using the specialized service method
+        await questService.FinalizeQuestAsync(id, selectedDate.Date, selectedPlayerIds);
 
         // Send email notifications to selected players
-        var selectedPlayers = quest.PlayerSignups.Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.Player.Email));
+        var selectedPlayers = quest.PlayerSignups.Where(ps => selectedPlayerIds.Contains(ps.Id) && !string.IsNullOrEmpty(ps.Player.Email));
 
         foreach (var player in selectedPlayers)
         {
@@ -409,7 +399,7 @@ public class QuestController(
                 player.Player.Name,
                 quest.Title,
                 quest.DungeonMaster.Name,
-                quest.FinalizedDate.Value
+                selectedDate.Date
             );
         }
 
@@ -440,17 +430,8 @@ public class QuestController(
             return Forbid();
         }
 
-        // Update quest to open it back up
-        quest.IsFinalized = false;
-        quest.FinalizedDate = null;
-
-        // Reset all player selections
-        foreach (var playerSignup in quest.PlayerSignups)
-        {
-            playerSignup.IsSelected = false;
-        }
-
-        await questService.UpdateAsync(quest);
+        // Open the quest using the specialized service method
+        await questService.OpenQuestAsync(id);
 
         return RedirectToAction("Manage", new { id });
     }

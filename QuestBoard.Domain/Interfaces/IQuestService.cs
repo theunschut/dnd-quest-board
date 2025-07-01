@@ -1,4 +1,5 @@
-﻿using QuestBoard.Domain.Models;
+﻿using QuestBoard.Domain.Enums;
+using QuestBoard.Domain.Models;
 
 namespace QuestBoard.Domain.Interfaces;
 
@@ -13,4 +14,10 @@ public interface IQuestService : IBaseService<Quest>
     Task<Quest?> GetQuestWithDetailsAsync(int id, CancellationToken token = default);
 
     Task<Quest?> GetQuestWithManageDetailsAsync(int id, CancellationToken token = default);
+    
+    Task UpdateQuestPropertiesAsync(int questId, string title, string description, Difficulty difficulty, int dungeonMasterId, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default);
+    
+    Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default);
+    
+    Task OpenQuestAsync(int questId, CancellationToken token = default);
 }
