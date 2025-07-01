@@ -20,8 +20,20 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        var dms = await userService.GetAllDungeonMastersAsync(token);
-        return View(new CreateQuestViewModel { DungeonMasters = dms });
+        // Get current user and verify they are a DM
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is a registered DM
+        if (!currentUser.IsDungeonMaster)
+        {
+            return Forbid();
+        }
+
+        return View(new CreateQuestViewModel());
     }
 
     [HttpPost]
@@ -29,14 +41,25 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CreateQuestViewModel viewModel, CancellationToken token = default)
     {
+        // Get current user and verify they are a DM
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is a registered DM
+        if (!currentUser.IsDungeonMaster)
+        {
+            return Forbid();
+        }
+
+        // Automatically set the current user as the DM
+        viewModel.Quest.DungeonMasterId = currentUser.Id;
+
         if (!ModelState.IsValid)
         {
             return View(viewModel);
-        }
-
-        if (!(await userService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
-        {
-            return NotFound();
         }
 
         // Create Quest entity from ViewModel using AutoMapper
