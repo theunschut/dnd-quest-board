@@ -1,4 +1,4 @@
-@model CreateQuestViewModel
+@model QuestViewModel
 @{
     ViewData["Title"] = "Create Quest";
 }
@@ -16,44 +16,44 @@
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
                 <form asp-action="Create" method="post">
                     <div class="mb-3">
-                        <label asp-for="Quest.Title" class="form-label">Quest Title <span class="text-danger">*</span></label>
-                        <input asp-for="Quest.Title" class="form-control" placeholder="Enter the quest title..." />
-                        <span asp-validation-for="Quest.Title" class="text-danger"></span>
+                        <label asp-for="Title" class="form-label">Quest Title <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter the quest title..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Quest.Description" class="form-label">Description <span class="text-danger">*</span></label>
-                        <textarea asp-for="Quest.Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
-                        <span asp-validation-for="Quest.Description" class="text-danger"></span>
+                        <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the quest, what players can expect, any special requirements..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Quest.Difficulty" class="form-label">Difficulty <span class="text-danger">*</span></label>
-                        <select asp-for="Quest.Difficulty" class="form-select">
+                        <label asp-for="Difficulty" class="form-label">Difficulty <span class="text-danger">*</span></label>
+                        <select asp-for="Difficulty" class="form-select">
                             <option value="0">Easy</option>
                             <option value="1">Medium</option>
                             <option value="2">Hard</option>
                             <option value="3">Deadly</option>
                         </select>
-                        <span asp-validation-for="Quest.Difficulty" class="text-danger"></span>
+                        <span asp-validation-for="Difficulty" class="text-danger"></span>
                     </div>
 
 
                     <div class="mb-3">
-                        <label asp-for="Quest.TotalPlayerCount" class="form-label">Total Player Count <span class="text-danger">*</span></label>
-                        <input asp-for="Quest.TotalPlayerCount" inputmode="numeric" class="form-control" />
-                        <span asp-validation-for="Quest.TotalPlayerCount" class="text-danger"></span>
+                        <label asp-for="TotalPlayerCount" class="form-label">Total Player Count <span class="text-danger">*</span></label>
+                        <input asp-for="TotalPlayerCount" inputmode="numeric" class="form-control" />
+                        <span asp-validation-for="TotalPlayerCount" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
                         <div id="proposed-dates">
-                            @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
+                            @for (int i = 0; i < Model.ProposedDates.Count; i++)
                             {
                                 <div class="mb-3 proposed-date-item">
                                     <label class="form-label">Proposed Date @(i + 1)</label>
                                     <div class="input-group">
-                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
+                                        <input asp-for="ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
                                         @if (i > 0)
                                         {
                                             <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
@@ -61,7 +61,7 @@
                                             </button>
                                         }
                                     </div>
-                                    <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
+                                    <span asp-validation-for="ProposedDates[i]" class="text-danger"></span>
                                 </div>
                             }
                         </div>
@@ -69,7 +69,7 @@
                             <i class="fas fa-plus me-1"></i>Add Another Date Option
                         </button>
                         <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>
-                        <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
+                        <span asp-validation-for="ProposedDates" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
