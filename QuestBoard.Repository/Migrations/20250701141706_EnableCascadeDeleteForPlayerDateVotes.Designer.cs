@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestBoard.Repository.Entities;
 
@@ -11,9 +12,11 @@ using QuestBoard.Repository.Entities;
 namespace QuestBoard.Repository.Migrations
 {
     [DbContext(typeof(QuestBoardContext))]
-    partial class QuestBoardContextModelSnapshot : ModelSnapshot
+    [Migration("20250701141706_EnableCascadeDeleteForPlayerDateVotes")]
+    partial class EnableCascadeDeleteForPlayerDateVotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -453,7 +456,7 @@ namespace QuestBoard.Repository.Migrations
                     b.HasOne("QuestBoard.Repository.Entities.QuestEntity", "Quest")
                         .WithMany("ProposedDates")
                         .HasForeignKey("QuestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Quest");

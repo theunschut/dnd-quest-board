@@ -149,6 +149,7 @@ public class QuestController(
         existingQuest.TotalPlayerCount = viewModel.Quest.TotalPlayerCount;
 
         // Remove existing proposed dates and add new ones
+        // With cascade delete configured, PlayerDateVotes will be automatically deleted
         existingQuest.ProposedDates.Clear();
         foreach (var proposedDate in viewModel.Quest.ProposedDates)
         {
