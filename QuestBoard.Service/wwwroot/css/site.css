@@ -1023,13 +1023,6 @@ p, li, span, small {
     font-size: 11px;
 }
 
-.quest-title {
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .calendar-quest-title {
     font-weight: 500;
     font-size: inherit;
