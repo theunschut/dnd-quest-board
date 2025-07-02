@@ -474,16 +474,27 @@ p, li, span, small {
 }
 
 .quest-title {
-    font-family: 'Cinzel', serif;
-    font-size: 1.6rem;
-    font-weight: bold;
-    margin-top: 0.5rem;
-    margin-bottom: 0.75rem;
-    color: #1a0f08;
+    font-family: 'Cinzel', serif !important;
+    font-size: 1.6rem !important;
+    font-weight: bold !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
+    color: #1a0f08 !important;
     text-shadow: 3px 3px 6px rgba(255,255,255,0.95), 
                  -1px -1px 3px rgba(255,255,255,0.95),
-                 2px 2px 8px rgba(0,0,0,0.8);
-    line-height: 1.2;
+                 2px 2px 8px rgba(0,0,0,0.8) !important;
+    line-height: 1.2 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    max-height: 3.84rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-height: 1.92rem !important;
+    width: 100% !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
 }
 
 .quest-description {
