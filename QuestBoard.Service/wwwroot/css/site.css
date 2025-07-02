@@ -109,6 +109,16 @@
 }
 
 /* Fantasy Quest Board Styles */
+:root {
+    /* Main card width - change this single value to resize all cards */
+    --card-width: 350px;
+    
+    /* Calculated responsive widths (automatically scaled) */
+    --card-width-tablet: calc(var(--card-width) * 0.89); /* 375px from 420px */
+    --card-width-mobile: calc(var(--card-width) * 0.79); /* 330px from 420px */
+    --card-width-small: calc(var(--card-width) * 0.71);  /* 300px from 420px */
+}
+
 body {
     background-image: url('/images/Notice Board-blank2.jpg');
     background-size: cover;
@@ -127,6 +137,20 @@ body {
 /* Only override max-width for the main content container, not navbar */
 .container.mt-4 {
     max-width: none !important;
+}
+
+/* Full width for home page quest board */
+body:has(.quest-board-container) .container.mt-3 {
+    max-width: none !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.home-page .container.mt-3 {
+    max-width: none !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
 }
 
 /* Remove any default form backgrounds */
@@ -352,8 +376,8 @@ p, li, span, small {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    width: 280px;
-    height: 392px;
+    width: var(--card-width);
+    /* Height will be set dynamically by JavaScript based on image proportions */
     margin-bottom: 1rem;
     cursor: pointer;
     transition: transform 0.3s ease, filter 0.3s ease;
@@ -530,12 +554,13 @@ p, li, span, small {
     .quest-board-container {
         column-count: 1;
         padding: 0.5rem;
-        max-width: 250px;
+        max-width: var(--card-width-tablet);
         margin: 0 auto;
     }
     
     .fantasy-quest-card {
-        width: 250px;
+        width: var(--card-width-tablet);
+        /* Height calculated dynamically */
     }
 }
 
@@ -543,13 +568,13 @@ p, li, span, small {
     .quest-board-container {
         column-count: 1;
         padding: 0.5rem;
-        max-width: 220px;
+        max-width: var(--card-width-mobile);
         margin: 0 auto;
     }
     
     .fantasy-quest-card {
-        width: 220px;
-        height: 308px;
+        width: var(--card-width-mobile);
+        /* Height calculated dynamically */
     }
 }
     
@@ -574,10 +599,10 @@ p, li, span, small {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 320px) {
     .fantasy-quest-card {
-        width: 200px;
-        height: 280px;
+        width: var(--card-width-small);
+        /* Height calculated dynamically */
     }
     
     .quest-title {
