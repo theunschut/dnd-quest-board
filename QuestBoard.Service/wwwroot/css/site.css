@@ -462,7 +462,7 @@ p, li, span, small {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     margin: 0.5rem 0;
     min-height: 0; /* Allow flex item to shrink */
 }
@@ -512,9 +512,9 @@ p, li, span, small {
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #8B4513 rgba(255, 255, 255, 0.3);
-    /* Center content vertically if short */
+    /* Align content to top */
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     text-align: center;
 }
