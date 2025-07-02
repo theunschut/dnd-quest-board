@@ -2,10 +2,17 @@
 @{
     ViewData["Title"] = "Quest Board";
     ViewData["BodyClass"] = "home-page";
-    var posterImages = new string[] { "Poster1.png", "Poster4.png", "Poster5.png", "Poster6.png" };
+    var posterImages = new string[]
+    {
+        "Poster1.png",
+        // "Poster3.png",
+        // "Poster4.png",
+        // "Poster5.png",
+        "Poster6.png"
+    };
     var waxSeals = new string[] { "Crown Seal.png", "Eagle Seal.png", "Flower Seal.png", "Sigil Seal.png" };
     var random = new Random();
-    
+
     // Image dimensions for calculating proportional heights (width, height)
     var imageDimensions = new Dictionary<string, (int width, int height)>
     {
@@ -16,34 +23,58 @@
         { "Poster5.png", (600, 675) },
         { "Poster6.png", (600, 800) }
     };
+
+    // Function to select poster based on content extremes only
+    string SelectPosterByContent(Quest quest, string[] availablePosters)
+    {
+        var title = quest.Title ?? "";
+        var description = quest.Description ?? "";
+        var totalCharacters = title.Length + description.Length;
+
+        switch (totalCharacters)
+        {
+            case <= 130:
+                return "Poster4.png"; // Very short content
+            case <= 250:
+                return "Poster5.png"; // Short content
+            case >= 500:
+                return "Poster3.png"; // Very long content
+            default:
+            {
+                // For everything else, use random selection as before
+                var posterIndex = Math.Abs(quest.Id.GetHashCode()) % availablePosters.Length;
+                return availablePosters[posterIndex];
+            }
+        }
+    }
 }
 <div class="quest-board-container">
     @foreach (var quest in Model)
     {
-        var posterIndex = Math.Abs(quest.Id.GetHashCode()) % posterImages.Length;
-        var posterImage = posterImages[posterIndex];
+        // Select poster based on content extremes, otherwise random
+        var posterImage = SelectPosterByContent(quest, posterImages);
         var sealIndex = Math.Abs(quest.Id.GetHashCode()) % waxSeals.Length;
         var waxSeal = waxSeals[sealIndex];
-        
+
         // Calculate proportional height based on image dimensions
         var dimensions = imageDimensions[posterImage];
-        
+
         // Generate truly random position for wax seal (changes on each refresh)
         var sealTop = 25 + (random.Next(0, 40)); // 25-65% from top (well within poster)
         var sealLeft = 25 + (random.Next(0, 50)); // 25-75% from left (well within poster)
-        
-        <div class="fantasy-quest-card" 
+
+        <div class="fantasy-quest-card"
              style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage');"
-             data-image-width="@dimensions.width" 
+             data-image-width="@dimensions.width"
              data-image-height="@dimensions.height"
              onclick="window.location.href='@(ViewBag.CurrentUserName != null && ViewBag.CurrentUserName == quest.DungeonMaster?.Name ? Url.Action("Manage", "Quest", new { id = quest.Id }) : Url.Action("Details", "Quest", new { id = quest.Id }))'">
-            
+
             <!-- Wax Seal -->
             <div class="wax-seal" style="top: @(sealTop)%; left: @(sealLeft)%;">
-                <img src="/images/Wax Seals/@waxSeal" alt="@(quest.IsFinalized ? "Finalized" : "Open") Quest" 
+                <img src="/images/Wax Seals/@waxSeal" alt="@(quest.IsFinalized ? "Finalized" : "Open") Quest"
                      class="seal-image @(quest.IsFinalized ? "finalized-seal" : "open-seal")" />
             </div>
-            
+
             <!-- Difficulty Icons -->
             <div class="difficulty-dice">
                 @if (quest.Difficulty == Difficulty.Easy)
@@ -67,24 +98,24 @@
                     <i class="fas fa-skull-crossbones difficulty-icon difficulty-deadly" title="Deadly Quest"></i>
                 }
             </div>
-            
+
             <div class="quest-content">
                 <!-- Title at top -->
                 <div class="quest-top">
                     <h3 class="quest-title">@quest.Title</h3>
                 </div>
-                
+
                 <!-- Description fills middle space -->
                 <div class="quest-middle">
                     <div class="quest-description">@quest.Description</div>
                 </div>
-                
+
                 <!-- Info at bottom -->
                 <div class="quest-bottom">
                     <div class="quest-dm">
                         <strong>DM:</strong> @quest.DungeonMaster?.Name
                     </div>
-                    
+
                     @if (quest.IsFinalized && quest.FinalizedDate.HasValue)
                     {
                         <div class="quest-date">
