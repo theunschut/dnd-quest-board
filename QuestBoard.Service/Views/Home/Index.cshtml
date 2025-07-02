@@ -59,9 +59,9 @@
         // Calculate proportional height based on image dimensions
         var dimensions = imageDimensions[posterImage];
 
-        // Generate truly random position for wax seal (changes on each refresh)
-        var sealTop = 25 + (random.Next(0, 40)); // 25-65% from top (well within poster)
-        var sealLeft = 25 + (random.Next(0, 50)); // 25-75% from left (well within poster)
+        // Position wax seal to the left of the title, within poster borders
+        var sealTop = 18; // Position near the title area
+        var sealLeft = 20; // More to the right, within poster borders
 
         <div class="fantasy-quest-card"
              style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage');"
