@@ -53,7 +53,25 @@ function startAutoRefresh() {
 
 // Calculate optimal number of columns based on container width
 function calculateColumns(containerWidth, cardWidth, gap) {
-    return Math.floor((containerWidth + gap) / (cardWidth + gap));
+    const minColumns = 1; // Always show at least 1 column
+    const maxColumns = Math.floor((containerWidth + gap) / (cardWidth + gap));
+    return Math.max(minColumns, maxColumns);
+}
+
+// Calculate and set card heights based on image proportions
+function setCardHeights() {
+    const cards = document.querySelectorAll('.fantasy-quest-card');
+    
+    cards.forEach(card => {
+        const imageWidth = parseInt(card.dataset.imageWidth);
+        const imageHeight = parseInt(card.dataset.imageHeight);
+        const cardWidth = card.offsetWidth;
+        
+        if (imageWidth && imageHeight && cardWidth) {
+            const proportionalHeight = Math.round(cardWidth * (imageHeight / imageWidth));
+            card.style.height = `${proportionalHeight}px`;
+        }
+    });
 }
 
 // JavaScript masonry layout
@@ -64,14 +82,39 @@ function layoutMasonry() {
     const cards = Array.from(container.children);
     if (cards.length === 0) return;
     
+    // Reset cards to get natural dimensions
+    cards.forEach(card => {
+        card.style.position = '';
+        card.style.left = '';
+        card.style.top = '';
+        card.style.width = '';
+    });
+    
+    // Set card heights based on image proportions
+    setCardHeights();
+    
+    // Force a reflow to get updated dimensions
+    container.offsetHeight;
+    
     const containerWidth = container.offsetWidth;
-    const cardWidth = 280;
+    
+    // Get card width from CSS custom property (handles responsive breakpoints automatically)
+    const computedStyle = getComputedStyle(document.documentElement);
+    const cardWidthFromCSS = parseInt(computedStyle.getPropertyValue('--card-width').trim());
+    
+    // Get actual rendered card width (in case CSS media queries changed it)
+    const firstCard = cards[0];
+    const cardWidth = firstCard ? firstCard.offsetWidth : cardWidthFromCSS || 420;
+    
     const gap = 16; // 1rem
     const padding = 16; // 1rem container padding
     
     // Calculate available width inside padding
     const availableWidth = containerWidth - (padding * 2);
     const columnCount = calculateColumns(availableWidth, cardWidth, gap);
+    
+    // Don't proceed if we can't fit any columns
+    if (columnCount <= 0) return;
     
     // Reset container to block layout
     container.style.display = 'block';
@@ -81,11 +124,9 @@ function layoutMasonry() {
     // Initialize column heights
     const columnHeights = new Array(columnCount).fill(0);
     
-    // Center the columns within the available space with additional margin
+    // Center the columns within the available space
     const totalColumnsWidth = (columnCount * cardWidth) + ((columnCount - 1) * gap);
-    const extraMargin = 40; // Additional margin on both sides
-    const availableForCentering = availableWidth - (extraMargin * 2);
-    const leftOffset = extraMargin + Math.max(0, (availableForCentering - totalColumnsWidth) / 2);
+    const leftOffset = Math.max(0, (availableWidth - totalColumnsWidth) / 2) + padding;
     
     // Position each card
     cards.forEach((card, index) => {
@@ -117,7 +158,7 @@ function handleResize() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         layoutMasonry();
-    }, 250);
+    }, 100); // Reduced delay for more responsive resizing
 }
 
 // Set default date and time to 18:00 for datetime-local inputs
@@ -222,8 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add resize listener for masonry layout
     window.addEventListener('resize', handleResize);
     
+    // Also listen for orientation changes on mobile
+    window.addEventListener('orientationchange', () => {
+        setTimeout(layoutMasonry, 200);
+    });
+    
     // Initialize masonry layout after a short delay
     setTimeout(layoutMasonry, 100);
+    
+    // Re-layout when images load (in case background images affect sizing)
+    window.addEventListener('load', () => {
+        setTimeout(layoutMasonry, 100);
+    });
     
     // Make date options clickable
     makeDataOptionsClickable();
