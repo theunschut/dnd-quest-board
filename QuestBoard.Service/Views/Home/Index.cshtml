@@ -69,10 +69,18 @@
             </div>
             
             <div class="quest-content">
-                <div class="quest-body">
+                <!-- Title at top -->
+                <div class="quest-top">
                     <h3 class="quest-title">@quest.Title</h3>
-                    <p class="quest-description">@quest.Description</p>
-                    
+                </div>
+                
+                <!-- Description fills middle space -->
+                <div class="quest-middle">
+                    <div class="quest-description">@quest.Description</div>
+                </div>
+                
+                <!-- Info at bottom -->
+                <div class="quest-bottom">
                     <div class="quest-dm">
                         <strong>DM:</strong> @quest.DungeonMaster?.Name
                     </div>

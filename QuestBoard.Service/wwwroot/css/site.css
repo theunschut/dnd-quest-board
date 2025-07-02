@@ -393,16 +393,17 @@ p, li, span, small {
 
 .quest-content {
     position: absolute;
-    top: 8%;
+    top: 10%;
     left: 12%;
     right: 12%;
-    bottom: 15%;
+    bottom: 12%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     padding: 1rem;
     color: #2c1810;
     text-align: center;
+    /* Dynamic height-based layout */
+    justify-content: space-between;
 }
 
 .quest-header {
@@ -450,18 +451,31 @@ p, li, span, small {
 }
 
 
-.quest-body {
+.quest-top {
+    /* Title section at top */
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+.quest-middle {
+    /* Description section - fills remaining space */
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    text-align: center;
+    justify-content: center;
     margin: 0.5rem 0;
+    min-height: 0; /* Allow flex item to shrink */
+}
+
+.quest-bottom {
+    /* Info section at bottom */
+    flex-shrink: 0;
+    margin-top: 1rem;
 }
 
 .quest-title {
     font-family: 'Cinzel', serif;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: bold;
     margin-bottom: 0.75rem;
     color: #1a0f08;
@@ -474,18 +488,23 @@ p, li, span, small {
 .quest-description {
     font-size: 0.9rem;
     line-height: 1.4;
-    margin-bottom: 0.75rem;
     color: #1a0f08;
     font-style: italic;
     font-weight: 600;
     text-shadow: 2px 2px 4px rgba(255,255,255,0.95),
                  -1px -1px 2px rgba(255,255,255,0.95),
                  1px 1px 6px rgba(0,0,0,0.7);
-    max-height: 100px;
+    /* Fill available space with scrolling if needed */
+    flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #8B4513 rgba(255, 255, 255, 0.3);
+    /* Center content vertically if short */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 /* Custom scrollbar styling for fantasy quest cards */
