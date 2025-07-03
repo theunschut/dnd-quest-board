@@ -493,6 +493,14 @@ public class QuestController(
         }
 
         var quests = await questService.GetQuestsByDmNameAsync(currentUser.Name);
-        return View(quests);
+
+        var view = new MyQuestsViewModel
+        {
+            Open = quests.Where(q => !q.IsFinalized),
+            Finalized = quests.Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date > DateTime.UtcNow.AddDays(-1).Date),
+            Done = quests.Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+        };
+
+        return View(view);
     }
 }
