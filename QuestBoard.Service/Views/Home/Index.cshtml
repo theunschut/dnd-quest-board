@@ -59,9 +59,9 @@
         // Calculate proportional height based on image dimensions
         var dimensions = imageDimensions[posterImage];
 
-        // Position wax seal to the left of the title, within poster borders
-        var sealTop = 18; // Position near the title area
-        var sealLeft = 20; // More to the right, within poster borders
+        // Position wax seal in the left bottom corner, well within poster borders
+        var sealBottom = 15; // Distance from bottom edge, inside poster area
+        var sealLeft = 15; // Distance from left edge, inside poster area
 
         <div class="fantasy-quest-card"
              style="background-image: url('/images/Blanks/Blanks w Shadow/@posterImage');"
@@ -70,7 +70,7 @@
              onclick="window.location.href='@(ViewBag.CurrentUserName != null && ViewBag.CurrentUserName == quest.DungeonMaster?.Name ? Url.Action("Manage", "Quest", new { id = quest.Id }) : Url.Action("Details", "Quest", new { id = quest.Id }))'">
 
             <!-- Wax Seal -->
-            <div class="wax-seal" style="top: @(sealTop)%; left: @(sealLeft)%;">
+            <div class="wax-seal" style="bottom: @(sealBottom)%; left: @(sealLeft)%;">
                 <img src="/images/Wax Seals/@waxSeal" alt="@(quest.IsFinalized ? "Finalized" : "Open") Quest"
                      class="seal-image @(quest.IsFinalized ? "finalized-seal" : "open-seal")" />
             </div>
