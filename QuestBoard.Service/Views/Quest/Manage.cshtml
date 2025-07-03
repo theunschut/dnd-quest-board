@@ -248,6 +248,23 @@ else
                             @(Model.IsFinalized == true ? "Finalized" : "Open for Signups")
                         </span>
                     </p>
+                    <p><strong>Building Access:</strong>
+                        @{
+                            var dmHasKey = Model.DungeonMaster?.HasKey == true;
+                            var playersHaveKey = Model.PlayerSignups?.Any(ps => ps.Player.HasKey == true) == true;
+                            var anyoneHasKey = dmHasKey || playersHaveKey;
+                        }
+                        <span class="badge @(anyoneHasKey ? "bg-success" : "bg-danger")">
+                            @if (anyoneHasKey)
+                            {
+                                <i class="fas fa-key me-1"></i>@:Available
+                            }
+                            else
+                            {
+                                <i class="fas fa-lock me-1"></i>@:No Key
+                            }
+                        </span>
+                    </p>
                     <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
                     <p><strong>Target Players:</strong> 6</p>
                     <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
