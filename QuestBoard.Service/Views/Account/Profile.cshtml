@@ -46,6 +46,26 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Building Access:</label>
+                    <div class="col-sm-9">
+                        @if (Model.User?.HasKey == true)
+                        {
+                            <p class="form-control-plaintext">
+                                <i class="fas fa-key text-success me-2"></i>
+                                Has Building Key
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="form-control-plaintext">
+                                <i class="fas fa-times text-muted me-2"></i>
+                                No Building Key
+                            </p>
+                        }
+                    </div>
+                </div>
+
                 <hr>
 
                 @if (TempData["SuccessMessage"] != null)

@@ -20,6 +20,8 @@ public class User : IModel
 
     public bool IsDungeonMaster { get; set; }
 
+    public bool HasKey { get; set; }
+
     public IList<Quest> Quests { get; set; } = [];
 
     public IList<PlayerSignup> Signups { get; set; } = [];

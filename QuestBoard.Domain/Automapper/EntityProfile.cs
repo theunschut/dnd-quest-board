@@ -19,17 +19,11 @@ public class EntityProfile : Profile
         // User mapping
         CreateMap<User, UserEntity>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.IsDungeonMaster, opt => opt.MapFrom(src => src.IsDungeonMaster))
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Password is handled by Identity
             .ForMember(dest => dest.SecurityStamp, opt => opt.Ignore())
             .ForMember(dest => dest.ConcurrencyStamp, opt => opt.Ignore());
 
         CreateMap<UserEntity, User>()
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.IsDungeonMaster, opt => opt.MapFrom(src => src.IsDungeonMaster))
             .ForMember(dest => dest.Password, opt => opt.Ignore()); // Don't map password back
 
         // PlayerSignup mapping

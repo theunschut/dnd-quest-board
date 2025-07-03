@@ -41,6 +41,17 @@
                         <span asp-validation-for="IsDungeonMaster" class="text-danger"></span>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="HasKey" class="form-check-input" type="checkbox" />
+                            <label asp-for="HasKey" class="form-check-label">
+                                <i class="fas fa-key text-success me-2"></i>
+                                I have a building key (can close the building)
+                            </label>
+                        </div>
+                        <span asp-validation-for="HasKey" class="text-danger"></span>
+                    </div>
+
                     <hr>
 
                     <div class="d-flex justify-content-between">

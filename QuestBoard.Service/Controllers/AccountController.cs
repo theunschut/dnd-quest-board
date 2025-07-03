@@ -97,7 +97,8 @@ public class AccountController(IUserService userService) : Controller
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            IsDungeonMaster = user.IsDungeonMaster
+            IsDungeonMaster = user.IsDungeonMaster,
+            HasKey = user.HasKey
         };
 
         return View(model);
@@ -115,6 +116,7 @@ public class AccountController(IUserService userService) : Controller
             user.Name = model.Name;
             user.Email = model.Email;
             user.IsDungeonMaster = model.IsDungeonMaster;
+            user.HasKey = model.HasKey;
 
             await userService.UpdateAsync(user);
 
