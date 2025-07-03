@@ -18,7 +18,7 @@ public class QuestEntity : IEntity
     public string Description { get; set; } = string.Empty;
 
     [Required]
-    public int Difficulty { get; set; }
+    public int ChallengeRating { get; set; } = 1;
 
     public int DungeonMasterId { get; set; }
 

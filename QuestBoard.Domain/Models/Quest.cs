@@ -14,7 +14,7 @@ public class Quest : IModel
     [Required]
     public string Description { get; set; } = string.Empty;
 
-    public Difficulty Difficulty { get; set; }
+    public int ChallengeRating { get; set; } = 1;
 
     public int DungeonMasterId { get; set; }
 

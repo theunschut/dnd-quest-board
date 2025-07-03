@@ -75,28 +75,12 @@
                      class="seal-image @(quest.IsFinalized ? "finalized-seal" : "open-seal")" />
             </div>
 
-            <!-- Difficulty Icons -->
-            <div class="difficulty-dice">
-                @if (quest.Difficulty == Difficulty.Easy)
-                {
-                    <!-- Easy - Beer mug (tavern quest/casual) -->
-                    <i class="fas fa-beer difficulty-icon difficulty-easy" title="Easy Quest"></i>
-                }
-                else if (quest.Difficulty == Difficulty.Medium)
-                {
-                    <!-- Medium - Shield (moderate protection needed) -->
-                    <i class="fas fa-shield-alt difficulty-icon difficulty-medium" title="Medium Quest"></i>
-                }
-                else if (quest.Difficulty == Difficulty.Hard)
-                {
-                    <!-- Hard - Fireball (dangerous magic/combat) -->
-                    <i class="fas fa-dragon difficulty-icon difficulty-hard" title="Hard Quest"></i>
-                }
-                else if (quest.Difficulty == Difficulty.Deadly)
-                {
-                    <!-- Deadly - Dragon (ultimate challenge) -->
-                    <i class="fas fa-skull-crossbones difficulty-icon difficulty-deadly" title="Deadly Quest"></i>
-                }
+            <!-- Challenge Rating -->
+            <div class="challenge-rating">
+                <span class="cr-badge">
+                    <i class="fas fa-dice-d20 cr-icon" title="Challenge Rating"></i>
+                    CR @quest.ChallengeRating
+                </span>
             </div>
 
             <div class="quest-content">

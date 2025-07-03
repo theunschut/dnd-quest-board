@@ -413,7 +413,7 @@ p, li, span, small {
     margin-bottom: 0.5rem;
 }
 
-.difficulty-dice {
+.challenge-rating {
     position: absolute;
     top: 5%;
     left: 8%;
@@ -422,32 +422,25 @@ p, li, span, small {
     pointer-events: none;
 }
 
-.difficulty-icon {
-    font-size: 55px;
-    filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.7));
-    transition: all 0.3s ease;
+.cr-badge {
+    background: linear-gradient(135deg, #8B4513, #A0522D) !important;
+    color: #FFD700 !important;
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    border: 2px solid #FFD700 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
 }
 
-.difficulty-icon:hover {
-    transform: scale(1.15) rotate(10deg);
-    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.8));
-}
-
-/* Difficulty-specific colors */
-.difficulty-easy {
-    color: #32CD32; /* Lime Green */
-}
-
-.difficulty-medium {
-    color: #FFD700; /* Gold */
-}
-
-.difficulty-hard {
-    color: #FF6347; /* Tomato Red */
-}
-
-.difficulty-deadly {
-    color: #8B008B; /* Dark Magenta */
+.cr-icon {
+    font-size: 1.2rem;
+    color: #FFD700;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.7));
 }
 
 

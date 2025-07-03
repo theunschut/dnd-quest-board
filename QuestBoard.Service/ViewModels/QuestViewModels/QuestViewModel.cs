@@ -13,7 +13,8 @@ public class QuestViewModel
     public string Description { get; set; } = string.Empty;
 
     [Required]
-    public Difficulty Difficulty { get; set; }
+    [Range(1, 20, ErrorMessage = "Challenge Rating must be between 1 and 20.")]
+    public int ChallengeRating { get; set; } = 1;
 
     [Required]
     public int DungeonMasterId { get; set; }

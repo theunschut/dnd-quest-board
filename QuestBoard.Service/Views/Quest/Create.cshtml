@@ -28,14 +28,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Difficulty" class="form-label">Difficulty <span class="text-danger">*</span></label>
-                        <select asp-for="Difficulty" class="form-select">
-                            <option value="0">Easy</option>
-                            <option value="1">Medium</option>
-                            <option value="2">Hard</option>
-                            <option value="3">Deadly</option>
-                        </select>
-                        <span asp-validation-for="Difficulty" class="text-danger"></span>
+                        <label asp-for="ChallengeRating" class="form-label">Challenge Rating <span class="text-danger">*</span></label>
+                        <input asp-for="ChallengeRating" type="number" class="form-control" min="1" max="20" step="1" placeholder="Enter level (e.g., 1, 5, 10, 15)" />
+                        <div class="form-text text-muted">Enter the recommended player level for this quest (1-20). This helps players understand if the quest is appropriate for their character level.</div>
+                        <span asp-validation-for="ChallengeRating" class="text-danger"></span>
                     </div>
 
 

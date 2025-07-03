@@ -11,10 +11,7 @@ public class EntityProfile : Profile
     {
         // Quest mapping
         CreateMap<Quest, QuestEntity>()
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => (int)src.Difficulty));
-
-        CreateMap<QuestEntity, Quest>()
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => (Difficulty)src.Difficulty));
+            .ReverseMap();
 
         // User mapping
         CreateMap<User, UserEntity>()
