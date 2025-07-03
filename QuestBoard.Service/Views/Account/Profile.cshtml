@@ -23,7 +23,7 @@
                 <div class="row mb-3">
                     <label class="col-sm-3 col-form-label">Email:</label>
                     <div class="col-sm-9">
-                        <p class="form-control-plaintext">@Model.User?.Name</p>
+                        <p class="form-control-plaintext">@Model.User?.Email</p>
                     </div>
                 </div>
 
@@ -46,13 +46,45 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Building Access:</label>
+                    <div class="col-sm-9">
+                        @if (Model.User?.HasKey == true)
+                        {
+                            <p class="form-control-plaintext">
+                                <i class="fas fa-key text-success me-2"></i>
+                                Has Building Key
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="form-control-plaintext">
+                                <i class="fas fa-times text-muted me-2"></i>
+                                No Building Key
+                            </p>
+                        }
+                    </div>
+                </div>
+
                 <hr>
 
-                <div class="text-center">
-                    <p class="text-muted">Profile editing features coming soon!</p>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between">
                     <a asp-controller="Home" asp-action="Index" class="btn btn-warning">
                         <i class="fas fa-home me-2"></i>
                         Back to Quest Board
+                    </a>
+                    <a asp-action="Edit" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Profile
                     </a>
                 </div>
             </div>

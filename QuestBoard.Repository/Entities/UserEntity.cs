@@ -11,6 +11,8 @@ public class UserEntity : IdentityUser<int>, IEntity
 
     public bool IsDungeonMaster { get; set; }
 
+    public bool HasKey { get; set; }
+
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];
 
     public ICollection<PlayerSignupEntity> Signups { get; set; } = [];

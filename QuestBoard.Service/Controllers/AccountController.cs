@@ -87,6 +87,46 @@ public class AccountController(IUserService userService) : Controller
         return View(model);
     }
 
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Edit()
+    {
+        var user = await userService.GetUserAsync(User);
+        var model = new EditProfileViewModel
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            IsDungeonMaster = user.IsDungeonMaster,
+            HasKey = user.HasKey
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> Edit(EditProfileViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await userService.GetUserAsync(User);
+            
+            user.Name = model.Name;
+            user.Email = model.Email;
+            user.IsDungeonMaster = model.IsDungeonMaster;
+            user.HasKey = model.HasKey;
+
+            await userService.UpdateAsync(user);
+
+            TempData["SuccessMessage"] = "Profile updated successfully!";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        return View(model);
+    }
+
     private IActionResult RedirectToLocal(string? returnUrl)
     {
         if (Url.IsLocalUrl(returnUrl))

@@ -197,6 +197,23 @@
                         @(Model.Quest?.IsFinalized == true ? "Finalized" : "Open for Signups")
                     </span>
                 </p>
+                <p><strong>Building Access:</strong>
+                    @{
+                        var dmHasKey = Model.Quest?.DungeonMaster?.HasKey == true;
+                        var playersHaveKey = Model.Quest?.PlayerSignups?.Any(ps => ps.Player.HasKey == true) == true;
+                        var anyoneHasKey = dmHasKey || playersHaveKey;
+                    }
+                    <span class="badge @(anyoneHasKey ? "bg-success" : "bg-danger")">
+                        @if (anyoneHasKey)
+                        {
+                            <i class="fas fa-key me-1"></i>@:Available
+                        }
+                        else
+                        {
+                            <i class="fas fa-lock me-1"></i>@:No Key
+                        }
+                    </span>
+                </p>
                 @if (Model.Quest?.IsFinalized == true)
                 {
                     <p><strong>Selected Players:</strong> @Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).Count()/6</p>
