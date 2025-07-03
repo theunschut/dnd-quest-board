@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestBoard.Repository.Entities;
 
@@ -11,9 +12,11 @@ using QuestBoard.Repository.Entities;
 namespace QuestBoard.Repository.Migrations
 {
     [DbContext(typeof(QuestBoardContext))]
-    partial class QuestBoardContextModelSnapshot : ModelSnapshot
+    [Migration("20250703212002_ReplaceDifficultyWithChallengeRating")]
+    partial class ReplaceDifficultyWithChallengeRating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -245,8 +248,8 @@ namespace QuestBoard.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChallengeRating")
-                        .HasColumnType("int");
+                    b.Property<decimal>("ChallengeRating")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");

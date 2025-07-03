@@ -74,7 +74,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         await repository.RemoveAsync(entity, token);
     }
 
-    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, Difficulty difficulty, int dungeonMasterId, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
+    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int dungeonMasterId, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
     {
         var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
         if (entity == null) return;
@@ -82,7 +82,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Update basic quest properties
         entity.Title = title;
         entity.Description = description;
-        entity.Difficulty = (int)difficulty;
+        entity.ChallengeRating = challengeRating;
         entity.DungeonMasterId = dungeonMasterId;
         entity.TotalPlayerCount = totalPlayerCount;
 

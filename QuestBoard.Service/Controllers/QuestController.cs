@@ -177,7 +177,7 @@ public class QuestController(
             id,
             viewModel.Quest.Title,
             viewModel.Quest.Description,
-            viewModel.Quest.Difficulty,
+            viewModel.Quest.ChallengeRating,
             viewModel.Quest.DungeonMasterId,
             viewModel.Quest.TotalPlayerCount,
             canEditProposedDates,
