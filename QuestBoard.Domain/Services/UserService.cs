@@ -10,7 +10,7 @@ namespace QuestBoard.Domain.Services;
 
 internal class UserService(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, RoleManager<IdentityRole<int>> roleManager, IUserRepository repository, IMapper mapper) : BaseService<User, UserEntity>(repository, mapper), IUserService
 {
-    public async Task<IdentityResult> CreateAsync(string email, string name, string password, bool isDungeonMaster)
+    public async Task<IdentityResult> CreateAsync(string email, string name, string password)
     {
         var user = new UserEntity
         {
@@ -22,9 +22,8 @@ internal class UserService(UserManager<UserEntity> userManager, SignInManager<Us
 
         if (result.Succeeded)
         {
-            // Assign role based on isDungeonMaster flag
-            var role = isDungeonMaster ? "DungeonMaster" : "Player";
-            await userManager.AddToRoleAsync(user, role);
+            // All new users start as Players by default
+            await userManager.AddToRoleAsync(user, "Player");
             
             await signInManager.SignInAsync(user, isPersistent: false);
         }

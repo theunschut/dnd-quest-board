@@ -50,7 +50,7 @@ public class AccountController(IUserService userService) : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await userService.CreateAsync(model.Email, model.Name, model.Password, model.IsDungeonMaster);
+            var result = await userService.CreateAsync(model.Email, model.Name, model.Password);
 
             if (result.Succeeded)
             {
@@ -126,34 +126,7 @@ public class AccountController(IUserService userService) : Controller
             user.Email = model.Email;
             user.HasKey = model.HasKey;
 
-            // Handle role changes
-            var currentIsDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
-            var currentIsAdmin = await userService.IsInRoleAsync(user, "Admin");
-            var currentIsDMOrAdmin = currentIsDungeonMaster || currentIsAdmin;
-            
-            if (model.IsDungeonMaster != currentIsDMOrAdmin)
-            {
-                if (model.IsDungeonMaster)
-                {
-                    // Only allow admins to change roles
-                    var isCurrentUserAdmin = await userService.IsInRoleAsync(User, "Admin");
-                    if (isCurrentUserAdmin)
-                    {
-                        await userService.RemoveFromRoleAsync(user, "Player");
-                        await userService.AddToRoleAsync(user, "DungeonMaster");
-                    }
-                }
-                else
-                {
-                    // Only allow admins to change roles
-                    var isCurrentUserAdmin = await userService.IsInRoleAsync(User, "Admin");
-                    if (isCurrentUserAdmin)
-                    {
-                        await userService.RemoveFromRoleAsync(user, "DungeonMaster");
-                        await userService.AddToRoleAsync(user, "Player");
-                    }
-                }
-            }
+            // Role changes are now handled only through Admin User Management
 
             await userService.UpdateAsync(user);
 

@@ -115,15 +115,11 @@ public class AdminController(IUserService userService) : Controller
             return RedirectToAction(nameof(Users));
         }
 
-        var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
-        var isAdmin = await userService.IsInRoleAsync(user, "Admin");
-        
         var model = new EditUserViewModel
         {
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            IsDungeonMaster = isDungeonMaster || isAdmin,
             HasKey = user.HasKey
         };
 
@@ -147,25 +143,7 @@ public class AdminController(IUserService userService) : Controller
             user.Email = model.Email;
             user.HasKey = model.HasKey;
 
-            // Handle role changes
-            var currentIsDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
-            var currentIsAdmin = await userService.IsInRoleAsync(user, "Admin");
-            var currentIsDMOrAdmin = currentIsDungeonMaster || currentIsAdmin;
-            
-            if (model.IsDungeonMaster != currentIsDMOrAdmin)
-            {
-                if (model.IsDungeonMaster)
-                {
-                    await userService.RemoveFromRoleAsync(user, "Player");
-                    await userService.AddToRoleAsync(user, "DungeonMaster");
-                }
-                else
-                {
-                    await userService.RemoveFromRoleAsync(user, "DungeonMaster");
-                    await userService.RemoveFromRoleAsync(user, "Admin");
-                    await userService.AddToRoleAsync(user, "Player");
-                }
-            }
+            // Role changes are handled through dedicated promotion/demotion buttons
 
             await userService.UpdateAsync(user);
 

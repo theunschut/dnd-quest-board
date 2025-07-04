@@ -6,7 +6,7 @@ namespace QuestBoard.Domain.Interfaces;
 
 public interface IUserService : IBaseService<User>
 {
-    Task<IdentityResult> CreateAsync(string email, string name, string password, bool isDungeonMaster);
+    Task<IdentityResult> CreateAsync(string email, string name, string password);
 
     Task<bool> ExistsAsync(string name);
 
