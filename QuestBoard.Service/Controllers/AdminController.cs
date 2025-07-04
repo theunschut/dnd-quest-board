@@ -43,7 +43,6 @@ public class AdminController(IUserService userService) : Controller
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
-            TempData["ErrorMessage"] = "User not found.";
             return RedirectToAction(nameof(Users));
         }
 
@@ -52,7 +51,6 @@ public class AdminController(IUserService userService) : Controller
         await userService.RemoveFromRoleAsync(user, "DungeonMaster");
         await userService.AddToRoleAsync(user, "Admin");
 
-        TempData["SuccessMessage"] = $"{user.Name} has been promoted to Administrator.";
         return RedirectToAction(nameof(Users));
     }
 
@@ -63,7 +61,6 @@ public class AdminController(IUserService userService) : Controller
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
-            TempData["ErrorMessage"] = "User not found.";
             return RedirectToAction(nameof(Users));
         }
 
@@ -71,7 +68,6 @@ public class AdminController(IUserService userService) : Controller
         await userService.RemoveFromRoleAsync(user, "Admin");
         await userService.AddToRoleAsync(user, "DungeonMaster");
 
-        TempData["SuccessMessage"] = $"{user.Name} has been demoted from Administrator to Dungeon Master.";
         return RedirectToAction(nameof(Users));
     }
 
