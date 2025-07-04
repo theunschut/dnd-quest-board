@@ -7,7 +7,7 @@ using QuestBoard.Service.ViewModels.GuildMembersViewModels;
 
 namespace QuestBoard.Service.Controllers
 {
-    [Authorize(Policy = "DungeonMasterOnly")]
+    [Authorize]
     public class GuildMembersController(IUserService service) : Controller
     {
         [HttpGet]
