@@ -9,8 +9,6 @@ public class UserEntity : IdentityUser<int>, IEntity
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    public bool IsDungeonMaster { get; set; }
-
     public bool HasKey { get; set; }
 
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];

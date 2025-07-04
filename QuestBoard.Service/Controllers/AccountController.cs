@@ -79,10 +79,16 @@ public class AccountController(IUserService userService) : Controller
     public async Task<IActionResult> Profile()
     {
         var user = await userService.GetUserAsync(User);
+        var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
+        var isAdmin = await userService.IsInRoleAsync(user, "Admin");
+        
         var model = new ProfileViewModel
         {
             User = user
         };
+
+        ViewData["IsDungeonMaster"] = isDungeonMaster;
+        ViewData["IsAdmin"] = isAdmin;
 
         return View(model);
     }
@@ -92,12 +98,15 @@ public class AccountController(IUserService userService) : Controller
     public async Task<IActionResult> Edit()
     {
         var user = await userService.GetUserAsync(User);
+        var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
+        var isAdmin = await userService.IsInRoleAsync(user, "Admin");
+        
         var model = new EditProfileViewModel
         {
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            IsDungeonMaster = user.IsDungeonMaster,
+            IsDungeonMaster = isDungeonMaster || isAdmin,
             HasKey = user.HasKey
         };
 
@@ -115,8 +124,36 @@ public class AccountController(IUserService userService) : Controller
             
             user.Name = model.Name;
             user.Email = model.Email;
-            user.IsDungeonMaster = model.IsDungeonMaster;
             user.HasKey = model.HasKey;
+
+            // Handle role changes
+            var currentIsDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
+            var currentIsAdmin = await userService.IsInRoleAsync(user, "Admin");
+            var currentIsDMOrAdmin = currentIsDungeonMaster || currentIsAdmin;
+            
+            if (model.IsDungeonMaster != currentIsDMOrAdmin)
+            {
+                if (model.IsDungeonMaster)
+                {
+                    // Only allow admins to change roles
+                    var isCurrentUserAdmin = await userService.IsInRoleAsync(User, "Admin");
+                    if (isCurrentUserAdmin)
+                    {
+                        await userService.RemoveFromRoleAsync(user, "Player");
+                        await userService.AddToRoleAsync(user, "DungeonMaster");
+                    }
+                }
+                else
+                {
+                    // Only allow admins to change roles
+                    var isCurrentUserAdmin = await userService.IsInRoleAsync(User, "Admin");
+                    if (isCurrentUserAdmin)
+                    {
+                        await userService.RemoveFromRoleAsync(user, "DungeonMaster");
+                        await userService.AddToRoleAsync(user, "Player");
+                    }
+                }
+            }
 
             await userService.UpdateAsync(user);
 

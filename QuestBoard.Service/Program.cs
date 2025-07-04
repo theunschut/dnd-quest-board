@@ -34,10 +34,13 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 
 // Add Authorization policies
 builder.Services.AddScoped<IAuthorizationHandler, DungeonMasterHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("DungeonMasterOnly", policy =>
         policy.Requirements.Add(new DungeonMasterRequirement()));
+    options.AddPolicy("AdminOnly", policy =>
+        policy.Requirements.Add(new AdminRequirement()));
 });
 
 // Add session support

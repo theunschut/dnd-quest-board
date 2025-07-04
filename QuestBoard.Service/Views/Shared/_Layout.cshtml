@@ -21,6 +21,16 @@
                     <ul class="navbar-nav me-auto">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @* Admin-only navigation items *@
+                            @if ((await AuthorizationService.AuthorizeAsync(User, "AdminOnly")).Succeeded)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger" asp-controller="Admin" asp-action="Users">
+                                        <i class="fas fa-users-cog me-1"></i>User Management
+                                    </a>
+                                </li>
+                            }
+                            
                             @* DM-only navigation items *@
                             @if ((await AuthorizationService.AuthorizeAsync(User, "DungeonMasterOnly")).Succeeded)
                             {

@@ -18,8 +18,6 @@ public class User : IModel
     [StringLength(100)]
     public string Password { get; set; } = string.Empty;
 
-    public bool IsDungeonMaster { get; set; }
-
     public bool HasKey { get; set; }
 
     public IList<Quest> Quests { get; set; } = [];

@@ -20,17 +20,11 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
-        // Get current user and verify they are a DM
+        // Get current user
         var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null)
         {
             return Challenge();
-        }
-
-        // Check if current user is a registered DM
-        if (!currentUser.IsDungeonMaster)
-        {
-            return Forbid();
         }
 
         return View(new QuestViewModel());
@@ -41,17 +35,11 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(QuestViewModel viewModel, CancellationToken token = default)
     {
-        // Get current user and verify they are a DM
+        // Get current user
         var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null)
         {
             return Challenge();
-        }
-
-        // Check if current user is a registered DM
-        if (!currentUser.IsDungeonMaster)
-        {
-            return Forbid();
         }
 
         // Automatically set the current user as the DM
