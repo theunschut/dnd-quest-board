@@ -399,6 +399,21 @@ p, li, span, small {
     transform: translateY(-1px) !important;
 }
 
+.btn-info {
+    background: linear-gradient(45deg, #17a2b8, #138496) !important;
+    border-color: #117a8b !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
+.btn-info:hover {
+    background: linear-gradient(45deg, #138496, #10707f) !important;
+    border-color: #117a8b !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+}
+
 .quest-board-container {
     padding: 1rem;
     margin: 0 auto;
