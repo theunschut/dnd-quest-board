@@ -6,7 +6,7 @@ namespace QuestBoard.Domain.Interfaces;
 
 public interface IUserService : IBaseService<User>
 {
-    Task<IdentityResult> CreateAsync(string email, string name, string password, bool isDungeonMaster);
+    Task<IdentityResult> CreateAsync(string email, string name, string password);
 
     Task<bool> ExistsAsync(string name);
 
@@ -19,4 +19,14 @@ public interface IUserService : IBaseService<User>
     Task<SignInResult> PasswordSignInAsync(string email, string password, bool rememberMe, bool lockoutOnFailure);
 
     Task SignOutAsync();
+
+    Task<bool> IsInRoleAsync(User user, string role);
+    
+    Task<bool> IsInRoleAsync(ClaimsPrincipal user, string role);
+    
+    Task<IList<string>> GetRolesAsync(User user);
+    
+    Task<IdentityResult> AddToRoleAsync(User user, string role);
+    
+    Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
 }

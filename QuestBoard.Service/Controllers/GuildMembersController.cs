@@ -7,7 +7,7 @@ using QuestBoard.Service.ViewModels.GuildMembersViewModels;
 
 namespace QuestBoard.Service.Controllers
 {
-    [Authorize(Policy = "DungeonMasterOnly")]
+    [Authorize]
     public class GuildMembersController(IUserService service) : Controller
     {
         [HttpGet]
@@ -22,26 +22,5 @@ namespace QuestBoard.Service.Controllers
             return View(viewModel);
         }
 
-        [HttpDelete]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var dm = await service.GetByIdAsync(id);
-
-            if (dm == null)
-            {
-                return NotFound();
-            }
-
-            await service.RemoveAsync(dm);
-
-            return Ok();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Details()
-        {
-            return View();
-        }
     }
 }

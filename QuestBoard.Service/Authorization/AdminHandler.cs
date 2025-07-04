@@ -3,11 +3,11 @@ using QuestBoard.Domain.Interfaces;
 
 namespace QuestBoard.Service.Authorization;
 
-public class DungeonMasterHandler(IUserService userService) : AuthorizationHandler<DungeonMasterRequirement>
+public class AdminHandler(IUserService userService) : AuthorizationHandler<AdminRequirement>
 {
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
-        DungeonMasterRequirement requirement)
+        AdminRequirement requirement)
     {
         if (!context.User.Identity?.IsAuthenticated == true)
         {
@@ -15,11 +15,9 @@ public class DungeonMasterHandler(IUserService userService) : AuthorizationHandl
             return;
         }
 
-        // Check if user is Admin (admins have all DM permissions) or DungeonMaster
         var isAdmin = await userService.IsInRoleAsync(context.User, "Admin");
-        var isDungeonMaster = await userService.IsInRoleAsync(context.User, "DungeonMaster");
         
-        if (isAdmin || isDungeonMaster)
+        if (isAdmin)
         {
             context.Succeed(requirement);
         }

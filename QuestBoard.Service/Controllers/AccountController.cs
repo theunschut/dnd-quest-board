@@ -50,7 +50,7 @@ public class AccountController(IUserService userService) : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await userService.CreateAsync(model.Email, model.Name, model.Password, model.IsDungeonMaster);
+            var result = await userService.CreateAsync(model.Email, model.Name, model.Password);
 
             if (result.Succeeded)
             {
@@ -79,10 +79,16 @@ public class AccountController(IUserService userService) : Controller
     public async Task<IActionResult> Profile()
     {
         var user = await userService.GetUserAsync(User);
+        var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
+        var isAdmin = await userService.IsInRoleAsync(user, "Admin");
+        
         var model = new ProfileViewModel
         {
             User = user
         };
+
+        ViewData["IsDungeonMaster"] = isDungeonMaster;
+        ViewData["IsAdmin"] = isAdmin;
 
         return View(model);
     }
@@ -92,12 +98,15 @@ public class AccountController(IUserService userService) : Controller
     public async Task<IActionResult> Edit()
     {
         var user = await userService.GetUserAsync(User);
+        var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
+        var isAdmin = await userService.IsInRoleAsync(user, "Admin");
+        
         var model = new EditProfileViewModel
         {
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            IsDungeonMaster = user.IsDungeonMaster,
+            IsDungeonMaster = isDungeonMaster || isAdmin,
             HasKey = user.HasKey
         };
 
@@ -115,8 +124,9 @@ public class AccountController(IUserService userService) : Controller
             
             user.Name = model.Name;
             user.Email = model.Email;
-            user.IsDungeonMaster = model.IsDungeonMaster;
             user.HasKey = model.HasKey;
+
+            // Role changes are now handled only through Admin User Management
 
             await userService.UpdateAsync(user);
 

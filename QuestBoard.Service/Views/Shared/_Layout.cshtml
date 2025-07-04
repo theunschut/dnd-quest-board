@@ -21,17 +21,26 @@
                     <ul class="navbar-nav me-auto">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @* Admin-only navigation items *@
+                            @if ((await AuthorizationService.AuthorizeAsync(User, "AdminOnly")).Succeeded)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger" asp-controller="Admin" asp-action="Users">
+                                        <i class="fas fa-users-cog me-1"></i>User Management
+                                    </a>
+                                </li>
+                            }
+                            
+                            @* Available to all authenticated users *@
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="GuildMembers" asp-action="Index">Guild Members</a>
+                            </li>
+                            
                             @* DM-only navigation items *@
                             @if ((await AuthorizationService.AuthorizeAsync(User, "DungeonMasterOnly")).Succeeded)
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Quest" asp-action="Create">Create Quest</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Quest" asp-action="MyQuests">My Quests</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="GuildMembers" asp-action="Index">Guild Members</a>
                                 </li>
                             }
                         }
@@ -54,6 +63,12 @@
                                     <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">
                                         <i class="fas fa-user-cog me-2"></i>Profile
                                     </a></li>
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, "DungeonMasterOnly")).Succeeded)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Quest" asp-action="MyQuests">
+                                            <i class="fas fa-scroll me-2"></i>My Quests
+                                        </a></li>
+                                    }
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
