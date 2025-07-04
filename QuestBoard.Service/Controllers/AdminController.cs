@@ -27,7 +27,13 @@ public class AdminController(IUserService userService) : Controller
             });
         }
 
-        return View(userViewModels);
+        // Sort by account type first (Admin, DM, Player), then alphabetically by name
+        var sortedUsers = userViewModels
+            .OrderBy(u => u.IsAdmin ? 0 : u.IsDungeonMaster ? 1 : 2)  // Admin=0, DM=1, Player=2
+            .ThenBy(u => u.User.Name)
+            .ToList();
+
+        return View(sortedUsers);
     }
 
     [HttpPost]
