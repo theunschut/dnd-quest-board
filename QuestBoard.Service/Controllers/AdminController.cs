@@ -78,14 +78,12 @@ public class AdminController(IUserService userService) : Controller
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
-            TempData["ErrorMessage"] = "User not found.";
             return RedirectToAction(nameof(Users));
         }
 
         await userService.RemoveFromRoleAsync(user, "Player");
         await userService.AddToRoleAsync(user, "DungeonMaster");
 
-        TempData["SuccessMessage"] = $"{user.Name} has been promoted to Dungeon Master.";
         return RedirectToAction(nameof(Users));
     }
 
@@ -96,14 +94,12 @@ public class AdminController(IUserService userService) : Controller
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
-            TempData["ErrorMessage"] = "User not found.";
             return RedirectToAction(nameof(Users));
         }
 
         await userService.RemoveFromRoleAsync(user, "DungeonMaster");
         await userService.AddToRoleAsync(user, "Player");
 
-        TempData["SuccessMessage"] = $"{user.Name} has been demoted to Player.";
         return RedirectToAction(nameof(Users));
     }
 
@@ -113,7 +109,6 @@ public class AdminController(IUserService userService) : Controller
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
-            TempData["ErrorMessage"] = "User not found.";
             return RedirectToAction(nameof(Users));
         }
 
@@ -137,7 +132,6 @@ public class AdminController(IUserService userService) : Controller
             var user = await userService.GetByIdAsync(model.Id);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
                 return RedirectToAction(nameof(Users));
             }
             
@@ -149,7 +143,6 @@ public class AdminController(IUserService userService) : Controller
 
             await userService.UpdateAsync(user);
 
-            TempData["SuccessMessage"] = $"{user.Name}'s profile has been updated successfully.";
             return RedirectToAction(nameof(Users));
         }
 

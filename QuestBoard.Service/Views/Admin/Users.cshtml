@@ -91,8 +91,7 @@
                             @* Admin can only be demoted to DM (one level down) *@
                             <form asp-action="DemoteFromAdmin" method="post" class="d-inline">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-warning" 
-                                        onclick="return confirm('Are you sure you want to demote this administrator to Dungeon Master?')">
+                                <button type="submit" class="btn btn-sm btn-warning">
                                     <i class="fas fa-arrow-down me-1"></i>
                                     Demote to DM
                                 </button>
@@ -103,16 +102,14 @@
                             @* DM can be promoted to Admin (one level up) or demoted to Player (one level down) *@
                             <form asp-action="PromoteToAdmin" method="post" class="d-inline me-2">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-danger" 
-                                        onclick="return confirm('Are you sure you want to promote this Dungeon Master to Administrator?')">
+                                <button type="submit" class="btn btn-sm btn-danger">
                                     <i class="fas fa-arrow-up me-1"></i>
                                     Promote to Admin
                                 </button>
                             </form>
                             <form asp-action="DemoteToPlayer" method="post" class="d-inline">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-primary" 
-                                        onclick="return confirm('Are you sure you want to demote this Dungeon Master to Player?')">
+                                <button type="submit" class="btn btn-sm btn-primary">
                                     <i class="fas fa-arrow-down me-1"></i>
                                     Demote to Player
                                 </button>
@@ -123,8 +120,7 @@
                             @* Player can only be promoted to DM (one level up) *@
                             <form asp-action="PromoteToDM" method="post" class="d-inline">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-warning" 
-                                        onclick="return confirm('Are you sure you want to promote this Player to Dungeon Master?')">
+                                <button type="submit" class="btn btn-sm btn-warning">
                                     <i class="fas fa-arrow-up me-1"></i>
                                     Promote to DM
                                 </button>
