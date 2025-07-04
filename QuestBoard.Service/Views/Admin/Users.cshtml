@@ -2,14 +2,8 @@
 @model IEnumerable<QuestBoard.Service.ViewModels.AdminViewModels.UserManagementViewModel>
 
 @{
-    ViewData["Title"] = "User Management";
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
-
-<div class="mb-4">
-    <h1>@ViewData["Title"]</h1>
-</div>
-
 
 <div class="card modern-card">
     <div class="card-header modern-card-header">

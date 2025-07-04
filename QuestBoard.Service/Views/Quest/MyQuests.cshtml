@@ -1,14 +1,8 @@
 @model MyQuestsViewModel
 @using QuestBoard.Service.ViewModels.QuestViewModels
 @{
-    ViewData["Title"] = "My Quests";
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
-
-<div class="mb-4">
-    <h1>@ViewData["Title"]</h1>
-</div>
-
 
 @await Html.PartialAsync("_QuestSection", new QuestSectionViewModel
 {
