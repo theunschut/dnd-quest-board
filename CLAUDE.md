@@ -265,3 +265,7 @@ If you encounter "table already exists" errors when switching from EnsureCreated
    # Delete database and restart app to apply migrations cleanly
    ```
 3. The `ConfigureDatabase()` method includes fallback handling for existing databases
+
+## UI/UX Design Guidelines
+
+- Always use filled in colored buttons instead of outline only

@@ -340,27 +340,63 @@ p, li, span, small {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #8B4513, #A0522D);
-    border-color: #654321;
-    color: white;
+    background: linear-gradient(45deg, #8B4513, #A0522D) !important;
+    border-color: #654321 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #A0522D, #CD853F);
-    border-color: #654321;
-    color: white;
+    background: linear-gradient(45deg, #A0522D, #CD853F) !important;
+    border-color: #654321 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #6c757d, #858a8e);
-    border-color: #545b62;
-    color: white;
+    background: linear-gradient(45deg, #6c757d, #858a8e) !important;
+    border-color: #545b62 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(45deg, #858a8e, #9ca2a8);
-    border-color: #545b62;
-    color: white;
+    background: linear-gradient(45deg, #858a8e, #9ca2a8) !important;
+    border-color: #545b62 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-warning {
+    background: linear-gradient(45deg, #f39c12, #e67e22) !important;
+    border-color: #d68910 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(45deg, #e67e22, #d35400) !important;
+    border-color: #d68910 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+    border-color: #bd2130 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #c0392b, #a93226) !important;
+    border-color: #bd2130 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
 }
 
 .quest-board-container {
@@ -814,16 +850,6 @@ p, li, span, small {
     transform: translateY(-1px);
 }
 
-.modern-card .btn-outline-primary {
-    background: rgba(52, 152, 219, 0.1) !important;
-    border: 1px solid #3498db !important;
-    color: #2980b9 !important;
-}
-
-.modern-card .btn-outline-primary:hover {
-    background: #3498db !important;
-    color: white !important;
-}
 
 .modern-card .btn-success {
     background: linear-gradient(135deg, #27ae60, #219a52) !important;
@@ -858,12 +884,52 @@ p, li, span, small {
                  1px 1px 6px rgba(0, 0, 0, 0.8) !important;
 }
 
+/* Enhanced table styling for better readability */
+.modern-card .table {
+    color: #1a0f08 !important;
+    margin-bottom: 0;
+}
+
+.modern-card .table th {
+    background-color: rgba(139, 69, 19, 0.8) !important;
+    color: #F4E4BC !important;
+    border-color: #8B4513 !important;
+    font-weight: bold !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9) !important;
+    padding: 12px 8px !important;
+}
+
+.modern-card .table td {
+    background-color: rgba(244, 228, 188, 0.85) !important;
+    color: #1a0f08 !important;
+    border-color: rgba(139, 69, 19, 0.3) !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.9) !important;
+    padding: 12px 8px !important;
+}
+
 .modern-card .table-striped > tbody > tr:nth-of-type(odd) > td {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(244, 228, 188, 0.7) !important;
 }
 
 .modern-card .table-hover > tbody > tr:hover > td {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 215, 0, 0.4) !important;
+    transition: background-color 0.2s ease !important;
+}
+
+/* Email link styling for tables */
+.modern-card .table .email-link {
+    color: #8B4513 !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.9) !important;
+    transition: color 0.2s ease !important;
+}
+
+.modern-card .table .email-link:hover {
+    color: #654321 !important;
+    text-decoration: underline !important;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Scrollable quest details for modern cards */
