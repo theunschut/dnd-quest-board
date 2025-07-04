@@ -159,4 +159,18 @@ public class AdminController(IUserService userService) : Controller
 
         return View(model);
     }
+
+    [HttpDelete]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await userService.GetByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        await userService.RemoveAsync(user);
+        return Ok();
+    }
 }
