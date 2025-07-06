@@ -186,7 +186,7 @@
                         <h5>You're signed up!</h5>
                         <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
                         
-                        @if (userVotes.Any())
+                        @if (Model.Quest?.ProposedDates?.Any() == true)
                         {
                             <hr>
                             <h6>Your Date Preferences:</h6>

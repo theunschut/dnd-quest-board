@@ -128,11 +128,11 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         foreach (var existingDate in existingDates)
         {
             var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
-                IsSameDate(existingDate.Date, nd));
+                IsSameDateTime(existingDate.Date, nd));
 
             if (matchingNewDate == default(DateTime))
             {
-                // This date was removed
+                // This date was removed or significantly changed
                 datesToRemove.Add(existingDate);
                 
                 // Track players affected by this removal
@@ -141,18 +141,13 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
                     affectedPlayerIds.AddRange(existingDate.PlayerVotes.Select(pv => pv.PlayerSignup?.PlayerId ?? 0).Where(id => id != 0));
                 }
             }
-            else if (!IsSameDateTime(existingDate.Date, matchingNewDate))
-            {
-                // Minor time change - update the existing date
-                existingDate.Date = matchingNewDate;
-            }
         }
 
         // Find dates that need to be added (new dates not in existing list)
         foreach (var newDate in newProposedDates)
         {
             var matchingExistingDate = existingDates.FirstOrDefault(ed => 
-                IsSameDate(ed.Date, newDate));
+                IsSameDateTime(ed.Date, newDate));
 
             if (matchingExistingDate == null)
             {
@@ -194,11 +189,11 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         foreach (var existingDate in existingDates)
         {
             var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
-                IsSameDate(existingDate.Date, nd));
+                IsSameDateTime(existingDate.Date, nd));
 
             if (matchingNewDate == default(DateTime))
             {
-                // This date was removed
+                // This date was removed or significantly changed
                 datesToRemove.Add(existingDate);
                 
                 // Track players affected by this removal
@@ -212,18 +207,13 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
                     affectedPlayers.AddRange(playersFromVotes);
                 }
             }
-            else if (!IsSameDateTime(existingDate.Date, matchingNewDate))
-            {
-                // Minor time change - update the existing date
-                existingDate.Date = matchingNewDate;
-            }
         }
 
         // Find dates that need to be added (new dates not in existing list)
         foreach (var newDate in newProposedDates)
         {
             var matchingExistingDate = existingDates.FirstOrDefault(ed => 
-                IsSameDate(ed.Date, newDate));
+                IsSameDateTime(ed.Date, newDate));
 
             if (matchingExistingDate == null)
             {
