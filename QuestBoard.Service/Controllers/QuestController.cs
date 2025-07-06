@@ -133,7 +133,7 @@ public class QuestController(
         }
 
         // Check if current user is the quest's DM
-        if (!currentUser.Name.Equals(existingQuest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(existingQuest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -155,10 +155,6 @@ public class QuestController(
             return View(viewModel);
         }
 
-        if (!(await userService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
-        {
-            return NotFound();
-        }
 
         // Use the specialized service method to update quest properties
         await questService.UpdateQuestPropertiesAsync(
@@ -166,7 +162,6 @@ public class QuestController(
             viewModel.Quest.Title,
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
-            viewModel.Quest.DungeonMasterId,
             viewModel.Quest.TotalPlayerCount,
             canEditProposedDates,
             canEditProposedDates ? viewModel.Quest.ProposedDates : null,
@@ -367,7 +362,7 @@ public class QuestController(
         }
 
         // Verify DM authorization
-        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -438,7 +433,7 @@ public class QuestController(
         }
 
         // Verify DM authorization
-        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
