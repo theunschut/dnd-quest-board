@@ -83,12 +83,11 @@ else
                     }
                     else
                     {
-                        <form asp-action="Finalize" method="post">
-                            <input type="hidden" name="id" value="@Model.Id" />
+                        <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
                             <h6>Proposed Dates & Voting Results:</h6>
                             @{
                                 var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
-                                var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) == Model.ProposedDates.Count;
+                                var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
                                 var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
                             }
                             @foreach (var date in orderedDates)
