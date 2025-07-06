@@ -13,8 +13,7 @@ public class PlayerDateVote : IModel
     [Required]
     public int ProposedDateId { get; set; }
 
-    [Required]
-    public VoteType Vote { get; set; }
+    public VoteType? Vote { get; set; }
 
     public PlayerSignup? PlayerSignup { get; set; }
     public ProposedDate? ProposedDate { get; set; }

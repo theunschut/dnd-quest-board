@@ -141,6 +141,11 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
                     affectedPlayerIds.AddRange(existingDate.PlayerVotes.Select(pv => pv.PlayerSignup?.PlayerId ?? 0).Where(id => id != 0));
                 }
             }
+            else
+            {
+                // Date remains unchanged, update the date value but preserve votes
+                existingDate.Date = matchingNewDate;
+            }
         }
 
         // Find dates that need to be added (new dates not in existing list)
@@ -206,6 +211,11 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
                     
                     affectedPlayers.AddRange(playersFromVotes);
                 }
+            }
+            else
+            {
+                // Date remains unchanged, update the date value but preserve votes
+                existingDate.Date = matchingNewDate;
             }
         }
 

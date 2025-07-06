@@ -125,7 +125,8 @@
                                         <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
 
                                         @{
-                                            var isNewDateForSignup = !vote.ProposedDate?.PlayerVotes.Any() ?? false;
+                                            // For initial signup, no dates should be "new" since user will vote on all
+                                            var isNewDateForSignup = false;
                                         }
                                         <div class="d-flex justify-content-between align-items-center @(isNewDateForSignup ? "border-start border-info border-3 ps-2" : "")">
                                             <strong>
@@ -137,7 +138,7 @@
                                             </strong>
                                             <div class="vote-summary">
                                                 @{
-                                                    var votes = vote.ProposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
+                                                    var votes = vote.ProposedDate?.PlayerVotes.Where(v => v.Vote.HasValue).GroupBy(v => v.Vote!.Value).ToDictionary(g => g.Key, g => g.Count()) ?? [];
                                                     var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
                                                     var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
                                                     var noCount = votes.GetValueOrDefault(VoteType.No, 0);
@@ -180,7 +181,7 @@
                 {
                     var currentUser = Model.Player;
                     var userSignup = Model.Quest?.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == currentUser?.Id);
-                    var userVotes = userSignup?.DateVotes?.ToDictionary(v => v.ProposedDateId, v => v.Vote) ?? new Dictionary<int, VoteType>();
+                    var userVotes = userSignup?.DateVotes?.ToDictionary(v => v.ProposedDateId, v => v.Vote) ?? new Dictionary<int, VoteType?>();
                     
                     <div class="alert alert-success">
                         <h5>You're signed up!</h5>
@@ -208,7 +209,9 @@
                                     _ => "text-muted"
                                 };
                                 
-                                var isNewDate = !proposedDate.PlayerVotes.Any();
+                                // Check if this date is new for the current user (no vote from this user)
+                                var currentUserId = Model.Player?.Id;
+                                var isNewDate = currentUserId.HasValue && !proposedDate.PlayerVotes.Any(v => v.PlayerSignup?.Player?.Id == currentUserId);
                                 <div class="d-flex justify-content-between align-items-center py-1 @(isNewDate ? "border-start border-info border-3 ps-2" : "")">
                                     <span>
                                         @proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
@@ -242,7 +245,9 @@
                                         <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@proposedDate?.Id" />
                                         
                                         @{
-                                            var isNewDateForUpdate = !proposedDate?.PlayerVotes.Any() ?? false;
+                                            // Check if this date is new for the current user (no vote from this user)
+                                            var currentUserId = Model.Player?.Id;
+                                            var isNewDateForUpdate = currentUserId.HasValue && !(proposedDate?.PlayerVotes.Any(v => v.PlayerSignup?.Player?.Id == currentUserId) ?? false);
                                         }
                                         <div class="d-flex justify-content-between align-items-center @(isNewDateForUpdate ? "border-start border-info border-3 ps-2" : "")">
                                             <strong>
@@ -254,7 +259,7 @@
                                             </strong>
                                             <div class="vote-summary">
                                                 @{
-                                                    var votes = proposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
+                                                    var votes = proposedDate?.PlayerVotes.Where(v => v.Vote.HasValue).GroupBy(v => v.Vote!.Value).ToDictionary(g => g.Key, g => g.Count()) ?? [];
                                                     var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
                                                     var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
                                                     var noCount = votes.GetValueOrDefault(VoteType.No, 0);
@@ -266,7 +271,7 @@
                                         </div>
                                         <div class="mt-2">
                                             <div class="custom-radio-group">
-                                                <input type="radio" name="DateVotes[@i].Vote" value="2" id="update_yes_[@i]" @(currentVote == VoteType.Yes ? "checked" : "") required style="display: none;">
+                                                <input type="radio" name="DateVotes[@i].Vote" value="2" id="update_yes_[@i]" @(currentVote == VoteType.Yes ? "checked" : "") style="display: none;">
                                                 <label class="custom-radio-label" for="update_yes_[@i]" data-vote="yes">
                                                     <i class="fas fa-square-check"></i>
                                                     <span>Yes</span>

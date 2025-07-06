@@ -16,8 +16,7 @@ public class PlayerDateVoteEntity : IEntity
     [Required]
     public int ProposedDateId { get; set; }
 
-    [Required]
-    public int Vote { get; set; }
+    public int? Vote { get; set; }
 
     [ForeignKey(nameof(PlayerSignupId))]
     public virtual PlayerSignupEntity PlayerSignup { get; set; } = null!;

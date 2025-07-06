@@ -38,9 +38,9 @@ public class EntityProfile : Profile
 
         // PlayerDateVote mapping
         CreateMap<PlayerDateVote, PlayerDateVoteEntity>()
-            .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => (int)src.Vote));
+            .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.Vote.HasValue ? (int)src.Vote.Value : (int?)null));
 
         CreateMap<PlayerDateVoteEntity, PlayerDateVote>()
-            .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => (VoteType)src.Vote));
+            .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.Vote.HasValue ? (VoteType)src.Vote.Value : (VoteType?)null));
     }
 }
