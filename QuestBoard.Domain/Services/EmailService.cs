@@ -63,4 +63,61 @@ See you at the table!
             logger.LogError(ex, "Failed to send quest finalized email to {Email} for quest {QuestTitle}", toEmail, questTitle);
         }
     }
+
+    public async Task SendQuestDateChangedEmailAsync(string toEmail, string playerName, string questTitle, string dmName)
+    {
+        try
+        {
+            var smtpSettings = configuration.GetSection("EmailSettings");
+            var smtpServer = smtpSettings["SmtpServer"];
+            var smtpPort = int.Parse(smtpSettings["SmtpPort"] ?? "587");
+            var smtpUsername = smtpSettings["SmtpUsername"];
+            var smtpPassword = smtpSettings["SmtpPassword"];
+            var fromEmail = smtpSettings["FromEmail"];
+            var fromName = smtpSettings["FromName"];
+
+            if (string.IsNullOrEmpty(smtpUsername) || string.IsNullOrEmpty(smtpPassword) || string.IsNullOrEmpty(fromEmail))
+            {
+                logger.LogWarning("Email settings not configured. Skipping email notification.");
+                return;
+            }
+
+            using var client = new SmtpClient(smtpServer, smtpPort);
+            client.EnableSsl = true;
+            client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(fromEmail, fromName),
+                Subject = $"Quest Dates Updated: {questTitle}",
+                Body = $@"
+Hello {playerName},
+
+The quest ""{questTitle}"" has had some proposed dates changed by the DM.
+
+Quest Details:
+- Title: {questTitle}
+- DM: {dmName}
+
+Some of your previously selected date preferences may have been removed. Please visit the quest page to review the new available dates and update your preferences if needed.
+
+You can view and update your signup at: [Quest Board URL]
+
+Thanks for your understanding!
+
+- D&D Quest Board
+",
+                IsBodyHtml = false
+            };
+
+            mailMessage.To.Add(toEmail);
+
+            await client.SendMailAsync(mailMessage);
+            logger.LogInformation("Quest date changed email sent to {Email} for quest {QuestTitle}", toEmail, questTitle);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send quest date changed email to {Email} for quest {QuestTitle}", toEmail, questTitle);
+        }
+    }
 }

@@ -124,8 +124,17 @@
                                         <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
                                         <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
 
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong>@vote.ProposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                        @{
+                                            var isNewDateForSignup = !vote.ProposedDate?.PlayerVotes.Any() ?? false;
+                                        }
+                                        <div class="d-flex justify-content-between align-items-center @(isNewDateForSignup ? "border-start border-info border-3 ps-2" : "")">
+                                            <strong>
+                                                @vote.ProposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
+                                                @if (isNewDateForSignup)
+                                                {
+                                                    <span class="badge bg-info text-dark ms-2">NEW</span>
+                                                }
+                                            </strong>
                                             <div class="vote-summary">
                                                 @{
                                                     var votes = vote.ProposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
@@ -199,8 +208,15 @@
                                     _ => "text-muted"
                                 };
                                 
-                                <div class="d-flex justify-content-between align-items-center py-1">
-                                    <span>@proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</span>
+                                var isNewDate = !proposedDate.PlayerVotes.Any();
+                                <div class="d-flex justify-content-between align-items-center py-1 @(isNewDate ? "border-start border-info border-3 ps-2" : "")">
+                                    <span>
+                                        @proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
+                                        @if (isNewDate)
+                                        {
+                                            <span class="badge bg-info text-dark ms-2">NEW</span>
+                                        }
+                                    </span>
                                     <span class="@voteClass fw-bold">@voteText</span>
                                 </div>
                             }
@@ -225,8 +241,17 @@
                                     <div class="date-option">
                                         <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@proposedDate?.Id" />
                                         
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong>@proposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                        @{
+                                            var isNewDateForUpdate = !proposedDate?.PlayerVotes.Any() ?? false;
+                                        }
+                                        <div class="d-flex justify-content-between align-items-center @(isNewDateForUpdate ? "border-start border-info border-3 ps-2" : "")">
+                                            <strong>
+                                                @proposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
+                                                @if (isNewDateForUpdate)
+                                                {
+                                                    <span class="badge bg-info text-dark ms-2">NEW</span>
+                                                }
+                                            </strong>
                                             <div class="vote-summary">
                                                 @{
                                                     var votes = proposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];

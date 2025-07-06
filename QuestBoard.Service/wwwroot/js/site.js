@@ -41,17 +41,6 @@ function removeProposedDate(button) {
     });
 }
 
-// Auto-refresh quest pages every 30 seconds (excluding Details, Create, and Manage pages)
-function startAutoRefresh() {
-    if (window.location.pathname.includes('/Quest/') && 
-        !window.location.pathname.includes('/Quest/Details') && 
-        !window.location.pathname.includes('/Quest/Create') &&
-        !window.location.pathname.includes('/Quest/Manage')) {
-        setInterval(() => {
-            window.location.reload();
-        }, 30000);
-    }
-}
 
 // Calculate optimal number of columns based on container width
 function calculateColumns(containerWidth, cardWidth, gap) {
@@ -248,8 +237,6 @@ function makeDataOptionsClickable() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    startAutoRefresh();
-    
     // Handle datetime-local inputs
     const datetimeInputs = document.querySelectorAll('input[type="datetime-local"]');
     datetimeInputs.forEach(input => {
