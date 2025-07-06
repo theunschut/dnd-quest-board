@@ -117,9 +117,12 @@
                                 <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
 
                                 <h6>Vote on Proposed Dates:</h6>
-                                @for (var i = 0; i < Model.DateVotes.Count; i++)
+                                @{
+                                    var sortedDateVotes = Model.DateVotes.OrderBy(dv => dv.ProposedDate?.Date).ToList();
+                                }
+                                @for (var i = 0; i < sortedDateVotes.Count; i++)
                                 {
-                                    var vote = Model.DateVotes[i];
+                                    var vote = sortedDateVotes[i];
                                     <div class="date-option">
                                         <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
                                         <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
@@ -191,7 +194,7 @@
                         {
                             <hr>
                             <h6>Your Date Preferences:</h6>
-                            @foreach (var proposedDate in Model.Quest?.ProposedDates ?? [])
+                            @foreach (var proposedDate in Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).ToList() ?? [])
                             {
                                 var userVote = userVotes.GetValueOrDefault(proposedDate.Id);
                                 var voteText = userVote switch
@@ -236,9 +239,12 @@
                                 <input type="hidden" name="questId" value="@Model.Quest?.Id" />
                                 
                                 <h6>Update Your Date Preferences:</h6>
-                                @for (var i = 0; i < (Model.Quest?.ProposedDates.Count ?? 0); i++)
+                                @{
+                                    var sortedProposedDates = Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).ToList() ?? [];
+                                }
+                                @for (var i = 0; i < sortedProposedDates.Count; i++)
                                 {
-                                    var proposedDate = Model.Quest?.ProposedDates.ElementAt(i);
+                                    var proposedDate = sortedProposedDates[i];
                                     var currentVote = userVotes.GetValueOrDefault(proposedDate?.Id ?? 0);
                                     
                                     <div class="date-option">
