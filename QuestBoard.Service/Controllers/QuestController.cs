@@ -97,15 +97,17 @@ public class QuestController(
         var dms = await userService.GetAllDungeonMastersAsync(token);
         var questViewModel = mapper.Map<QuestViewModel>(quest);
         
-        // Check if there are any player signups - if so, don't allow editing proposed dates
-        var canEditProposedDates = !quest.PlayerSignups.Any();
+        // Allow editing proposed dates even with signups (service will handle it intelligently)
+        var canEditProposedDates = true;
+        var hasExistingSignups = quest.PlayerSignups.Any();
         
         return View(new EditQuestViewModel 
         { 
             Id = quest.Id,
             Quest = questViewModel, 
             DungeonMasters = dms,
-            CanEditProposedDates = canEditProposedDates
+            CanEditProposedDates = canEditProposedDates,
+            HasExistingSignups = hasExistingSignups
         });
     }
 
@@ -144,9 +146,11 @@ public class QuestController(
             return BadRequest("Cannot edit a finalized quest. Open the quest first to make changes.");
         }
 
-        // Check if there are any player signups - if so, don't allow editing proposed dates
-        var canEditProposedDates = !existingQuest.PlayerSignups.Any();
+        // Allow editing proposed dates even with signups (service will handle it intelligently)
+        var canEditProposedDates = true;
+        var hasExistingSignups = existingQuest.PlayerSignups.Any();
         viewModel.CanEditProposedDates = canEditProposedDates;
+        viewModel.HasExistingSignups = hasExistingSignups;
 
         if (!ModelState.IsValid)
         {
@@ -156,17 +160,35 @@ public class QuestController(
         }
 
 
-        // Use the specialized service method to update quest properties
-        await questService.UpdateQuestPropertiesAsync(
+        // Use the specialized service method to update quest properties and get affected players
+        var affectedPlayers = await questService.UpdateQuestPropertiesWithNotificationsAsync(
             id,
             viewModel.Quest.Title,
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
             viewModel.Quest.TotalPlayerCount,
-            canEditProposedDates,
-            canEditProposedDates ? viewModel.Quest.ProposedDates : null,
+            true, // Always allow date updates - service will handle intelligently
+            viewModel.Quest.ProposedDates,
             token
         );
+
+        // Send email notifications to affected players
+        if (affectedPlayers.Any())
+        {
+            var quest = await questService.GetQuestWithDetailsAsync(id, token);
+            if (quest != null)
+            {
+                foreach (var player in affectedPlayers.Where(p => !string.IsNullOrEmpty(p.Email)))
+                {
+                    await emailService.SendQuestDateChangedEmailAsync(
+                        player.Email!,
+                        player.Name,
+                        quest.Title,
+                        quest.DungeonMaster?.Name ?? "Unknown DM"
+                    );
+                }
+            }
+        }
 
         return RedirectToAction("Manage", new { id });
     }

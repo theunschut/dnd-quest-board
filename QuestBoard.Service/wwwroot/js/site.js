@@ -5,12 +5,18 @@ function addProposedDate() {
     
     const index = container.children.length;
     
+    // Determine the correct field name prefix based on the form context
+    // Check if we're in the edit form (has Quest. prefix) or create form (direct ProposedDates)
+    const existingInput = container.querySelector('input[type="datetime-local"]');
+    const isEditForm = existingInput && existingInput.name.includes('Quest.ProposedDates');
+    const fieldPrefix = isEditForm ? 'Quest.ProposedDates' : 'ProposedDates';
+    
     const div = document.createElement('div');
     div.className = 'mb-3 proposed-date-item';
     div.innerHTML = `
         <label class="form-label">Proposed Date ${index + 1}</label>
         <div class="input-group">
-            <input type="datetime-local" name="ProposedDates[${index}]" class="form-control" required step="60">
+            <input type="datetime-local" name="${fieldPrefix}[${index}]" class="form-control" required step="60">
             <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
                 <i class="fas fa-trash me-1"></i>Remove
             </button>
@@ -31,27 +37,21 @@ function removeProposedDate(button) {
     
     button.closest('.proposed-date-item').remove();
     
+    // Determine the correct field name prefix based on the form context
+    const existingInput = container.querySelector('input[type="datetime-local"]');
+    const isEditForm = existingInput && existingInput.name.includes('Quest.ProposedDates');
+    const fieldPrefix = isEditForm ? 'Quest.ProposedDates' : 'ProposedDates';
+    
     // Reindex remaining inputs
     const dateItems = container.querySelectorAll('.proposed-date-item');
     dateItems.forEach((item, index) => {
         const label = item.querySelector('label');
         const input = item.querySelector('input[type="datetime-local"]');
         if (label) label.textContent = `Proposed Date ${index + 1}`;
-        if (input) input.name = `ProposedDates[${index}]`;
+        if (input) input.name = `${fieldPrefix}[${index}]`;
     });
 }
 
-// Auto-refresh quest pages every 30 seconds (excluding Details, Create, and Manage pages)
-function startAutoRefresh() {
-    if (window.location.pathname.includes('/Quest/') && 
-        !window.location.pathname.includes('/Quest/Details') && 
-        !window.location.pathname.includes('/Quest/Create') &&
-        !window.location.pathname.includes('/Quest/Manage')) {
-        setInterval(() => {
-            window.location.reload();
-        }, 30000);
-    }
-}
 
 // Calculate optimal number of columns based on container width
 function calculateColumns(containerWidth, cardWidth, gap) {
@@ -248,8 +248,6 @@ function makeDataOptionsClickable() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    startAutoRefresh();
-    
     // Handle datetime-local inputs
     const datetimeInputs = document.querySelectorAll('input[type="datetime-local"]');
     datetimeInputs.forEach(input => {

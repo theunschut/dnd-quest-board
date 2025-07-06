@@ -88,21 +88,181 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Only update proposed dates if explicitly requested
         if (updateProposedDates && proposedDates != null)
         {
-            // Remove existing proposed dates and add new ones
-            // With cascade delete configured, PlayerDateVotes will be automatically deleted
-            entity.ProposedDates.Clear();
-            foreach (var proposedDate in proposedDates)
-            {
-                entity.ProposedDates.Add(new ProposedDateEntity
-                {
-                    Date = proposedDate,
-                    Quest = entity,
-                    QuestId = entity.Id
-                });
-            }
+            await UpdateProposedDatesIntelligentlyAsync(entity, proposedDates, token);
         }
 
         await repository.SaveChangesAsync(token);
+    }
+
+    public async Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
+    {
+        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
+        if (entity == null) return [];
+
+        var affectedPlayers = new List<User>();
+
+        // Update basic quest properties
+        entity.Title = title;
+        entity.Description = description;
+        entity.ChallengeRating = challengeRating;
+        entity.TotalPlayerCount = totalPlayerCount;
+
+        // Only update proposed dates if explicitly requested
+        if (updateProposedDates && proposedDates != null)
+        {
+            affectedPlayers = await UpdateProposedDatesWithNotificationTrackingAsync(entity, proposedDates, token);
+        }
+
+        await repository.SaveChangesAsync(token);
+        return affectedPlayers;
+    }
+
+    private Task UpdateProposedDatesIntelligentlyAsync(QuestEntity entity, IList<DateTime> newProposedDates, CancellationToken token)
+    {
+        var existingDates = entity.ProposedDates.ToList();
+        var datesToRemove = new List<ProposedDateEntity>();
+        var datesToAdd = new List<DateTime>();
+        var affectedPlayerIds = new List<int>();
+
+        // Find dates that need to be removed (no longer in new list or significantly changed)
+        foreach (var existingDate in existingDates)
+        {
+            var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
+                IsSameDateTime(existingDate.Date, nd));
+
+            if (matchingNewDate == default(DateTime))
+            {
+                // This date was removed or significantly changed
+                datesToRemove.Add(existingDate);
+                
+                // Track players affected by this removal
+                if (existingDate.PlayerVotes?.Any() == true)
+                {
+                    affectedPlayerIds.AddRange(existingDate.PlayerVotes.Select(pv => pv.PlayerSignup?.PlayerId ?? 0).Where(id => id != 0));
+                }
+            }
+            else
+            {
+                // Date remains unchanged, update the date value but preserve votes
+                existingDate.Date = matchingNewDate;
+            }
+        }
+
+        // Find dates that need to be added (new dates not in existing list)
+        foreach (var newDate in newProposedDates)
+        {
+            var matchingExistingDate = existingDates.FirstOrDefault(ed => 
+                IsSameDateTime(ed.Date, newDate));
+
+            if (matchingExistingDate == null)
+            {
+                // This is a completely new date
+                datesToAdd.Add(newDate);
+            }
+        }
+
+        // Remove obsolete dates (this will cascade delete PlayerDateVotes)
+        foreach (var dateToRemove in datesToRemove)
+        {
+            entity.ProposedDates.Remove(dateToRemove);
+        }
+
+        // Add new dates
+        foreach (var dateToAdd in datesToAdd)
+        {
+            entity.ProposedDates.Add(new ProposedDateEntity
+            {
+                Date = dateToAdd,
+                Quest = entity,
+                QuestId = entity.Id
+            });
+        }
+
+        // Email notifications will be handled in the controller layer
+        // Return information about affected players if needed
+        return Task.CompletedTask;
+    }
+
+    private Task<List<User>> UpdateProposedDatesWithNotificationTrackingAsync(QuestEntity entity, IList<DateTime> newProposedDates, CancellationToken token)
+    {
+        var existingDates = entity.ProposedDates.ToList();
+        var datesToRemove = new List<ProposedDateEntity>();
+        var datesToAdd = new List<DateTime>();
+        var affectedPlayers = new List<User>();
+
+        // Find dates that need to be removed (no longer in new list or significantly changed)
+        foreach (var existingDate in existingDates)
+        {
+            var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
+                IsSameDateTime(existingDate.Date, nd));
+
+            if (matchingNewDate == default(DateTime))
+            {
+                // This date was removed or significantly changed
+                datesToRemove.Add(existingDate);
+                
+                // Track players affected by this removal
+                if (existingDate.PlayerVotes?.Any() == true)
+                {
+                    var playersFromVotes = existingDate.PlayerVotes
+                        .Where(pv => pv.PlayerSignup?.Player != null)
+                        .Select(pv => Mapper.Map<User>(pv.PlayerSignup!.Player))
+                        .ToList();
+                    
+                    affectedPlayers.AddRange(playersFromVotes);
+                }
+            }
+            else
+            {
+                // Date remains unchanged, update the date value but preserve votes
+                existingDate.Date = matchingNewDate;
+            }
+        }
+
+        // Find dates that need to be added (new dates not in existing list)
+        foreach (var newDate in newProposedDates)
+        {
+            var matchingExistingDate = existingDates.FirstOrDefault(ed => 
+                IsSameDateTime(ed.Date, newDate));
+
+            if (matchingExistingDate == null)
+            {
+                // This is a completely new date
+                datesToAdd.Add(newDate);
+            }
+        }
+
+        // Remove obsolete dates (this will cascade delete PlayerDateVotes)
+        foreach (var dateToRemove in datesToRemove)
+        {
+            entity.ProposedDates.Remove(dateToRemove);
+        }
+
+        // Add new dates
+        foreach (var dateToAdd in datesToAdd)
+        {
+            entity.ProposedDates.Add(new ProposedDateEntity
+            {
+                Date = dateToAdd,
+                Quest = entity,
+                QuestId = entity.Id
+            });
+        }
+
+        // Return unique affected players
+        return Task.FromResult(affectedPlayers.GroupBy(p => p.Id).Select(g => g.First()).ToList());
+    }
+
+    private static bool IsSameDate(DateTime date1, DateTime date2)
+    {
+        // Consider dates the same if they're on the same day
+        return date1.Date == date2.Date;
+    }
+
+    private static bool IsSameDateTime(DateTime date1, DateTime date2)
+    {
+        // Consider dates the same if they're within 30 minutes of each other
+        return Math.Abs((date1 - date2).TotalMinutes) <= 30;
     }
 
     public async Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default)

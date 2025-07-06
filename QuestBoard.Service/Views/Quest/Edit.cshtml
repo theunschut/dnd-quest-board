@@ -43,55 +43,40 @@
                         <span asp-validation-for="Quest.TotalPlayerCount" class="text-danger"></span>
                     </div>
 
-                    @if (Model.CanEditProposedDates)
-                    {
-                        <div class="mb-3">
-                            <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
-                            <div id="proposed-dates">
-                                @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
-                                {
-                                    <div class="mb-3 proposed-date-item">
-                                        <label class="form-label">Proposed Date @(i + 1)</label>
-                                        <div class="input-group">
-                                            <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
-                                            @if (i > 0)
-                                            {
-                                                <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
-                                                    <i class="fas fa-trash me-1"></i>Remove
-                                                </button>
-                                            }
-                                        </div>
-                                        <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
+                    <div class="mb-3">
+                        <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
+                        @if (Model.HasExistingSignups)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Note:</strong> Players have already signed up for this quest. 
+                                Removing or significantly changing dates will notify affected players via email and remove their votes for those dates.
+                            </div>
+                        }
+                        <div id="proposed-dates">
+                            @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
+                            {
+                                <div class="mb-3 proposed-date-item">
+                                    <label class="form-label">Proposed Date @(i + 1)</label>
+                                    <div class="input-group">
+                                        <input asp-for="Quest.ProposedDates[i]" type="datetime-local" class="form-control" required step="60" />
+                                        @if (i > 0)
+                                        {
+                                            <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
+                                                <i class="fas fa-trash me-1"></i>Remove
+                                            </button>
+                                        }
                                     </div>
-                                }
-                            </div>
-                            <button type="button" class="btn btn-warning btn-sm" onclick="addProposedDate()">
-                                <i class="fas fa-plus me-1"></i>Add Another Date Option
-                            </button>
-                            <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>
-                            <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
+                                    <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
+                                </div>
+                            }
                         </div>
-                    }
-                    else
-                    {
-                        <div class="mb-3">
-                            <label class="form-label">Proposed Dates & Times</label>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Cannot edit proposed dates:</strong> Players have already signed up for this quest.
-                            </div>
-                            <div class="list-group">
-                                @for (int i = 0; i < Model.Quest.ProposedDates.Count; i++)
-                                {
-                                    <div class="list-group-item">
-                                        <i class="fas fa-calendar-alt me-2"></i>
-                                        @Model.Quest.ProposedDates[i].ToString("MMMM dd, yyyy 'at' h:mm tt")
-                                        <input type="hidden" asp-for="Quest.ProposedDates[i]" />
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
+                        <button type="button" class="btn btn-warning btn-sm" onclick="addProposedDate()">
+                            <i class="fas fa-plus me-1"></i>Add Another Date Option
+                        </button>
+                        <div class="form-text text-muted">Provide multiple date/time options for players to vote on. At least one date is required.</div>
+                        <span asp-validation-for="Quest.ProposedDates" class="text-danger"></span>
+                    </div>
 
                     <div class="mb-3">
                         <button type="submit" class="btn btn-warning me-2">
@@ -118,19 +103,19 @@
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Communicate changes to players
+                        Changes to dates automatically notify affected players
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Consider existing signups
+                        Minor time adjustments preserve player votes
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Update dates if needed
+                        Removed dates clear associated player votes
                     </li>
                     <li>
                         <i class="fas fa-check text-warning me-2"></i>
-                        Review player capacity
+                        Players can re-vote on new dates after changes
                     </li>
                 </ul>
             </div>
