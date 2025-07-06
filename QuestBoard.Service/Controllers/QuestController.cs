@@ -316,6 +316,33 @@ public class QuestController(
         return RedirectToAction("Details", new { id = questId });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> UpdateSignup(int questId, List<PlayerDateVote> dateVotes)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(questId);
+        if (quest == null || quest.IsFinalized)
+            return NotFound();
+
+        // Get current authenticated user
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        // Find the user's signup for this quest
+        var playerSignup = quest.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == user.Id);
+        if (playerSignup == null)
+        {
+            return BadRequest("You are not signed up for this quest.");
+        }
+
+        // Update the player's date votes
+        await playerSignupService.UpdatePlayerDateVotesAsync(playerSignup.Id, dateVotes);
+
+        return RedirectToAction("Details", new { id = questId });
+    }
+
     [HttpDelete]
     [ValidateAntiForgeryToken]
     [Authorize]
