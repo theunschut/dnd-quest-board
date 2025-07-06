@@ -18,7 +18,7 @@ namespace QuestBoard.Domain.Services
             }
 
             // Map the new date votes to entities
-            var dateVoteEntities = mapper.Map<List<PlayerDateVoteEntity>>(dateVotes);
+            var dateVoteEntities = Mapper.Map<List<PlayerDateVoteEntity>>(dateVotes);
             
             // Set the player signup ID for all date votes
             foreach (var vote in dateVoteEntities)

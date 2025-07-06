@@ -149,6 +149,53 @@ public class AdminController(IUserService userService) : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ResetPassword(int userId)
+    {
+        var user = await userService.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return RedirectToAction(nameof(Users));
+        }
+
+        var model = new ResetPasswordViewModel
+        {
+            UserId = user.Id,
+            UserName = user.Name
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await userService.GetByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Users));
+            }
+
+            var result = await userService.ResetPasswordAsync(User, user, model.NewPassword);
+            
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"Password reset successfully for {user.Name}!";
+                return RedirectToAction(nameof(Users));
+            }
+            
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        return View(model);
+    }
+
     [HttpDelete]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteUser(int id)

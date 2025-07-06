@@ -268,4 +268,37 @@ If you encounter "table already exists" errors when switching from EnsureCreated
 
 ## UI/UX Design Guidelines
 
+### Modern Card Styling
+- **IMPORTANT**: All new views should use the modern card styling pattern for consistency
+- Use `modern-card` class for the main card container
+- Use `modern-card-header` class for card headers with consistent styling
+- Use `modern-card-body` class for card body content
+- Card headers should include an icon and title using this pattern:
+  ```html
+  <div class="card-header modern-card-header">
+      <h2 class="mb-0">
+          <i class="fas fa-icon-name text-color me-2"></i>
+          Page Title
+      </h2>
+  </div>
+  ```
+- Always include a horizontal rule (`<hr>`) before the button section
+- Use consistent button styling with icons:
+  ```html
+  <div class="d-flex justify-content-between">
+      <a href="..." class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-2"></i>
+          Cancel/Back
+      </a>
+      <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-2"></i>
+          Action Text
+      </button>
+  </div>
+  ```
+
+### Button Guidelines
 - Always use filled in colored buttons instead of outline only
+- Include FontAwesome icons with `me-2` spacing class
+- Use semantic colors (primary, secondary, success, danger, warning)
+- Maintain consistent button layout with `d-flex justify-content-between`
