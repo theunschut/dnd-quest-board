@@ -169,18 +169,127 @@
                 }
                 else
                 {
+                    var currentUser = Model.Player;
+                    var userSignup = Model.Quest?.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == currentUser?.Id);
+                    var userVotes = userSignup?.DateVotes?.ToDictionary(v => v.ProposedDateId, v => v.Vote) ?? new Dictionary<int, VoteType>();
+                    
                     <div class="alert alert-success">
                         <h5>You're signed up!</h5>
                         <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
+                        
+                        @if (userVotes.Any())
+                        {
+                            <hr>
+                            <h6>Your Date Preferences:</h6>
+                            @foreach (var proposedDate in Model.Quest?.ProposedDates ?? [])
+                            {
+                                var userVote = userVotes.GetValueOrDefault(proposedDate.Id);
+                                var voteText = userVote switch
+                                {
+                                    VoteType.Yes => "✓ Yes",
+                                    VoteType.Maybe => "? Maybe",
+                                    VoteType.No => "✗ No",
+                                    _ => "No vote"
+                                };
+                                var voteClass = userVote switch
+                                {
+                                    VoteType.Yes => "text-success",
+                                    VoteType.Maybe => "text-warning",
+                                    VoteType.No => "text-danger",
+                                    _ => "text-muted"
+                                };
+                                
+                                <div class="d-flex justify-content-between align-items-center py-1">
+                                    <span>@proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</span>
+                                    <span class="@voteClass fw-bold">@voteText</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                    
+                    @* Update signup form - hidden by default *@
+                    <div class="card modern-card mb-4" id="updateSignupForm" style="display: none;">
+                        <div class="card-header modern-card-header">
+                            <h5>Update Your Signup</h5>
+                        </div>
+                        <div class="card-body modern-card-body">
+                            <form asp-action="UpdateSignup" method="post">
+                                <input type="hidden" name="questId" value="@Model.Quest?.Id" />
+                                
+                                <h6>Update Your Date Preferences:</h6>
+                                @for (var i = 0; i < (Model.Quest?.ProposedDates.Count ?? 0); i++)
+                                {
+                                    var proposedDate = Model.Quest?.ProposedDates.ElementAt(i);
+                                    var currentVote = userVotes.GetValueOrDefault(proposedDate?.Id ?? 0);
+                                    
+                                    <div class="date-option">
+                                        <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@proposedDate?.Id" />
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>@proposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                            <div class="vote-summary">
+                                                @{
+                                                    var votes = proposedDate?.PlayerVotes.GroupBy(v => v.Vote).ToDictionary(g => g.Key, g => g.Count()) ?? [];
+                                                    var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
+                                                    var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
+                                                    var noCount = votes.GetValueOrDefault(VoteType.No, 0);
+                                                }
+                                                <span class="text-success">✓ @yesCount</span>
+                                                <span class="text-warning">? @maybeCount</span>
+                                                <span class="text-danger">✗ @noCount</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <div class="custom-radio-group">
+                                                <input type="radio" name="DateVotes[@i].Vote" value="2" id="update_yes_[@i]" @(currentVote == VoteType.Yes ? "checked" : "") required style="display: none;">
+                                                <label class="custom-radio-label" for="update_yes_[@i]" data-vote="yes">
+                                                    <i class="fas fa-square-check"></i>
+                                                    <span>Yes</span>
+                                                </label>
+                                                
+                                                <input type="radio" name="DateVotes[@i].Vote" value="1" id="update_maybe_[@i]" @(currentVote == VoteType.Maybe ? "checked" : "") style="display: none;">
+                                                <label class="custom-radio-label" for="update_maybe_[@i]" data-vote="maybe">
+                                                    <i class="fas fa-square-minus"></i>
+                                                    <span>Maybe</span>
+                                                </label>
+                                                
+                                                <input type="radio" name="DateVotes[@i].Vote" value="0" id="update_no_[@i]" @(currentVote == VoteType.No ? "checked" : "") style="display: none;">
+                                                <label class="custom-radio-label" for="update_no_[@i]" data-vote="no">
+                                                    <i class="fas fa-square-xmark"></i>
+                                                    <span>No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-check me-2"></i>Update Signup
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideUpdateForm()">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 }
 
-                @* Revoke button section - shown for any signed up user *@
+                @* Revoke and Update button section - shown for any signed up user *@
                 @if (User.Identity?.IsAuthenticated == true && (bool)ViewBag.IsPlayerSignedUp)
                 {
-                    <button type="button" class="btn btn-danger" onclick="revokeSignup(@ViewContext.RouteData.Values["id"])">
-                        <i class="fas fa-times me-2"></i>Revoke My Signup
-                    </button>
+                    <div class="d-flex gap-2">
+                        @if (Model.Quest?.IsFinalized != true)
+                        {
+                            <button type="button" class="btn btn-primary" onclick="showUpdateForm()">
+                                <i class="fas fa-edit me-2"></i>Update Signup
+                            </button>
+                        }
+                        <button type="button" class="btn btn-danger" onclick="revokeSignup(@ViewContext.RouteData.Values["id"])">
+                            <i class="fas fa-times me-2"></i>Revoke My Signup
+                        </button>
+                    </div>
                 }
             </div>
         </div>
@@ -281,5 +390,15 @@
                 alert("An error occurred while revoking signup.");
             });
         }
+    }
+    
+    function showUpdateForm() {
+        document.getElementById('updateSignupForm').style.display = 'block';
+        document.querySelector('[onclick="showUpdateForm()"]').style.display = 'none';
+    }
+    
+    function hideUpdateForm() {
+        document.getElementById('updateSignupForm').style.display = 'none';
+        document.querySelector('[onclick="showUpdateForm()"]').style.display = 'inline-block';
     }
 </script>
