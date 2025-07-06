@@ -137,6 +137,37 @@ public class AccountController(IUserService userService) : Controller
         return View(model);
     }
 
+    [HttpGet]
+    [Authorize]
+    public IActionResult ChangePassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await userService.ChangePasswordAsync(User, model.CurrentPassword, model.NewPassword);
+            
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Password changed successfully!";
+                return RedirectToAction(nameof(Profile));
+            }
+            
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        return View(model);
+    }
+
     private IActionResult RedirectToLocal(string? returnUrl)
     {
         if (Url.IsLocalUrl(returnUrl))

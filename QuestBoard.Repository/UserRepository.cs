@@ -14,9 +14,9 @@ internal class UserRepository(QuestBoardContext context) : BaseRepository<UserEn
     public async Task<IList<UserEntity>> GetAllDungeonMasters(CancellationToken token = default)
     {
         return await DbSet
-            .Where(u => context.UserRoles
-                .Any(ur => ur.UserId == u.Id && 
-                          context.Roles.Any(r => r.Id == ur.RoleId && 
+            .Where(u => DbContext.UserRoles
+                .Any(ur => ur.UserId == u.Id &&
+                          DbContext.Roles.Any(r => r.Id == ur.RoleId && 
                                                 (r.Name == "DungeonMaster" || r.Name == "Admin"))))
             .ToListAsync(cancellationToken: token);
     }
@@ -24,9 +24,9 @@ internal class UserRepository(QuestBoardContext context) : BaseRepository<UserEn
     public async Task<IList<UserEntity>> GetAllPlayers(CancellationToken token = default)
     {
         return await DbSet
-            .Where(u => context.UserRoles
-                .Any(ur => ur.UserId == u.Id && 
-                          context.Roles.Any(r => r.Id == ur.RoleId && r.Name == "Player")))
+            .Where(u => DbContext.UserRoles
+                .Any(ur => ur.UserId == u.Id &&
+                          DbContext.Roles.Any(r => r.Id == ur.RoleId && r.Name == "Player")))
             .ToListAsync(cancellationToken: token);
     }
 }
