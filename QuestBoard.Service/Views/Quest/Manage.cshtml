@@ -86,12 +86,17 @@ else
                         <form asp-action="Finalize" method="post">
                             <input type="hidden" name="id" value="@Model.Id" />
                             <h6>Proposed Dates & Voting Results:</h6>
-                            @foreach (var date in Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)))
+                            @{
+                                var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
+                                var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) == Model.ProposedDates.Count;
+                                var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
+                            }
+                            @foreach (var date in orderedDates)
                             {
                                 var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
                                 var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
                                 var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
-                                var isRecommended = date == Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
+                                var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
 
                                 <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
                                      data-date-id="@date.Id"
@@ -150,8 +155,10 @@ else
                             <p class="text-muted">Select up to 6 players for this quest. Players are listed in signup order.</p>
 
                             @{
-                                var recommendedDate = Model.ProposedDates.OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes)).First();
-                                var availablePlayers = recommendedDate.PlayerVotes
+                                var dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
+                                    orderedDates.First() : 
+                                    orderedDates.First(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
+                                var availablePlayers = dateForPlayerSelection.PlayerVotes
                                 .Where(v => v.Vote == VoteType.Yes)
                                 .Select(v => v.PlayerSignup)
                                 .OrderBy(ps => ps?.SignupTime)
