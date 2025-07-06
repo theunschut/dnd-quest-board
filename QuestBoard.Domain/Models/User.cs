@@ -23,4 +23,19 @@ public class User : IModel
     public IList<Quest> Quests { get; set; } = [];
 
     public IList<PlayerSignup> Signups { get; set; } = [];
+
+    public override bool Equals(object? obj)
+    {
+        return obj is User user&&
+               Id==user.Id&&
+               Name==user.Name&&
+               Email==user.Email&&
+               Password==user.Password&&
+               HasKey==user.HasKey;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name, Email, Password, HasKey);
+    }
 }
