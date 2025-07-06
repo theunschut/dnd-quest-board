@@ -83,7 +83,7 @@ public class QuestController(
         }
 
         // Check if current user is the quest's DM
-        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -133,7 +133,7 @@ public class QuestController(
         }
 
         // Check if current user is the quest's DM
-        if (!currentUser.Name.Equals(existingQuest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(existingQuest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -155,10 +155,6 @@ public class QuestController(
             return View(viewModel);
         }
 
-        if (!(await userService.ExistsAsync(viewModel.Quest.DungeonMasterId, token)))
-        {
-            return NotFound();
-        }
 
         // Use the specialized service method to update quest properties
         await questService.UpdateQuestPropertiesAsync(
@@ -166,7 +162,6 @@ public class QuestController(
             viewModel.Quest.Title,
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
-            viewModel.Quest.DungeonMasterId,
             viewModel.Quest.TotalPlayerCount,
             canEditProposedDates,
             canEditProposedDates ? viewModel.Quest.ProposedDates : null,
@@ -216,8 +211,10 @@ public class QuestController(
         // Check if current user is signed up
         ViewBag.IsPlayerSignedUp = currentUser != null && quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id);
 
-        // Check if current user is the DM
-        ViewBag.DmNameForManagement = currentUser?.Name == quest.DungeonMaster?.Name ? currentUser?.Name : null;
+        // Check if current user can manage this quest (DM or admin)
+        var isQuestDm = currentUser?.Name == quest.DungeonMaster?.Name;
+        var isAdmin = currentUser != null && await userService.IsInRoleAsync(User, "Admin");
+        ViewBag.CanManage = isQuestDm || isAdmin;
 
         var signup = new PlayerSignup
         {
@@ -365,7 +362,7 @@ public class QuestController(
         }
 
         // Verify DM authorization
-        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -436,7 +433,7 @@ public class QuestController(
         }
 
         // Verify DM authorization
-        if (!currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase))
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
         {
             return Forbid();
         }
@@ -464,8 +461,10 @@ public class QuestController(
             return Challenge();
         }
 
-        // Check if current user is the quest's DM
-        ViewBag.IsAuthorized = currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        // Check if current user is the quest's DM or an admin
+        var isQuestDm = currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+        ViewBag.IsAuthorized = isQuestDm || isAdmin;
 
         return View(quest);
     }

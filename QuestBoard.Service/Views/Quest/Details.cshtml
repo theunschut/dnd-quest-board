@@ -244,7 +244,7 @@
             </div>
         </div>
 
-        @if (Model.Quest?.DungeonMaster?.Name == ViewBag.DmNameForManagement)
+        @if ((bool)ViewBag.CanManage)
         {
             <div class="card modern-card mt-3">
                 <div class="card-header modern-card-header">
