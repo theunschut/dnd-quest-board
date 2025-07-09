@@ -339,8 +339,33 @@
             <div class="card-body modern-card-body">
                 <p><strong>DM:</strong> @Model.Quest?.DungeonMaster?.Name</p>
                 <p><strong>Status:</strong>
-                    <span class="badge @(Model.Quest?.IsFinalized == true ? "bg-secondary" : "bg-success")">
-                        @(Model.Quest?.IsFinalized == true ? "Finalized" : "Open for Signups")
+                    @{
+                        string statusBadge;
+                        string statusIcon;
+                        string statusText;
+                        
+                        if (Model.Quest?.IsFinalized == true && Model.Quest?.FinalizedDate.HasValue == true && Model.Quest?.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+                        {
+                            statusBadge = "bg-dark";
+                            statusIcon = "fas fa-flag-checkered";
+                            statusText = "Done";
+                        }
+                        else if (Model.Quest?.IsFinalized == true)
+                        {
+                            statusBadge = "bg-primary";
+                            statusIcon = "fas fa-check-circle";
+                            statusText = "Finalized";
+                        }
+                        else
+                        {
+                            statusBadge = "bg-success";
+                            statusIcon = "fas fa-clock";
+                            statusText = "Open for Signups";
+                        }
+                    }
+                    <span class="badge @statusBadge">
+                        <i class="@statusIcon me-1"></i>
+                        @statusText
                     </span>
                 </p>
                 <p><strong>Building Access:</strong>

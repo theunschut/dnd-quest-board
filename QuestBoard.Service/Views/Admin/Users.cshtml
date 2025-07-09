@@ -66,24 +66,36 @@
                             </span>
                         }
                     </td>
-                    <td>
-                        @* Delete User button - always available *@
-                        <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteUser(@userModel.User.Id)">
-                            <i class="fas fa-trash"></i>
-                            Delete
-                        </button>
+                    <td class="text-end">
+                        @* Role management buttons - promote first *@
+                        @if (userModel.IsDungeonMaster)
+                        {
+                            @* DM can be promoted to Admin (one level up) *@
+                            <form asp-action="PromoteToAdmin" method="post" class="d-inline me-2">
+                                <input type="hidden" name="userId" value="@userModel.User.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-arrow-up me-1"></i>
+                                    Promote to Admin
+                                </button>
+                            </form>
+                        }
+                        else if (userModel.IsPlayer)
+                        {
+                            @* Player can only be promoted to DM (one level up) *@
+                            <form asp-action="PromoteToDM" method="post" class="d-inline me-2">
+                                <input type="hidden" name="userId" value="@userModel.User.Id" />
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-arrow-up me-1"></i>
+                                    Promote to DM
+                                </button>
+                            </form>
+                        }
                         
-                        @* Edit User button - always available *@
-                        <a asp-action="EditUser" asp-route-userId="@userModel.User.Id" class="btn btn-sm btn-info me-2">
-                            <i class="fas fa-edit me-1"></i>
-                            Edit
-                        </a>
-                        
-                        @* Role management buttons *@
+                        @* Demote buttons second *@
                         @if (userModel.IsAdmin)
                         {
                             @* Admin can only be demoted to DM (one level down) *@
-                            <form asp-action="DemoteFromAdmin" method="post" class="d-inline">
+                            <form asp-action="DemoteFromAdmin" method="post" class="d-inline me-2">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
                                 <button type="submit" class="btn btn-sm btn-warning">
                                     <i class="fas fa-arrow-down me-1"></i>
@@ -93,15 +105,8 @@
                         }
                         else if (userModel.IsDungeonMaster)
                         {
-                            @* DM can be promoted to Admin (one level up) or demoted to Player (one level down) *@
-                            <form asp-action="PromoteToAdmin" method="post" class="d-inline me-2">
-                                <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    Promote to Admin
-                                </button>
-                            </form>
-                            <form asp-action="DemoteToPlayer" method="post" class="d-inline">
+                            @* DM can be demoted to Player (one level down) *@
+                            <form asp-action="DemoteToPlayer" method="post" class="d-inline me-2">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
                                 <button type="submit" class="btn btn-sm btn-primary">
                                     <i class="fas fa-arrow-down me-1"></i>
@@ -109,17 +114,18 @@
                                 </button>
                             </form>
                         }
-                        else if (userModel.IsPlayer)
-                        {
-                            @* Player can only be promoted to DM (one level up) *@
-                            <form asp-action="PromoteToDM" method="post" class="d-inline">
-                                <input type="hidden" name="userId" value="@userModel.User.Id" />
-                                <button type="submit" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    Promote to DM
-                                </button>
-                            </form>
-                        }
+                        
+                        @* Edit User button - third *@
+                        <a asp-action="EditUser" asp-route-userId="@userModel.User.Id" class="btn btn-sm btn-info me-2">
+                            <i class="fas fa-edit me-1"></i>
+                            Edit
+                        </a>
+                        
+                        @* Delete User button - last *@
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser(@userModel.User.Id)">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
                     </td>
                 </tr>
             }

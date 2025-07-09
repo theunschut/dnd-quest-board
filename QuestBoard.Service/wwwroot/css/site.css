@@ -8,15 +8,15 @@
 }
 
 .quest-status-open {
-    border-left: 4px solid #198754;
+    border-left: 4px solid #198754; /* Green - matches bg-success */
 }
 
 .quest-status-finalized {
-    border-left: 4px solid #6c757d;
+    border-left: 4px solid #0d6efd; /* Blue - matches bg-primary */
 }
 
 .quest-status-done {
-    border-left: 4px solid #343a40;
+    border-left: 4px solid #212529; /* Dark - matches bg-dark */
 }
 
 /* Date and Vote Styles */

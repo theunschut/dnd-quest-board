@@ -6,6 +6,14 @@ namespace QuestBoard.Repository;
 
 internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<QuestEntity>(dbContext), IQuestRepository
 {
+
+    public override async Task<IList<QuestEntity>> GetAllAsync(CancellationToken token)
+    {
+        return await DbContext.Quests
+            .Include(q => q.DungeonMaster)
+            .ToListAsync(cancellationToken: token);
+    }
+
     public async Task<IList<QuestEntity>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
     {
         return await DbContext.Quests

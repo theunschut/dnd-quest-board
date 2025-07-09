@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Entities;
@@ -9,6 +8,24 @@ namespace QuestBoard.Domain.Services;
 
 internal class QuestService(IQuestRepository repository, IPlayerSignupRepository playerSignupRepository, IMapper mapper) : BaseService<Quest, QuestEntity>(repository, mapper), IQuestService
 {
+    public async Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default)
+    {
+        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
+        if (entity == null) return;
+
+        // Update quest finalization properties
+        entity.IsFinalized = true;
+        entity.FinalizedDate = finalizedDate;
+
+        // Update player selections
+        foreach (var playerSignup in entity.PlayerSignups)
+        {
+            playerSignup.IsSelected = selectedPlayerSignupIds.Contains(playerSignup.Id);
+        }
+
+        await repository.SaveChangesAsync(token);
+    }
+
     public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
     {
         var questEntities = await repository.GetQuestsByDmNameAsync(dmName, token);
@@ -47,12 +64,21 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         return Mapper.Map<Quest>(entity);
     }
 
-    public override async Task UpdateAsync(Quest model, CancellationToken token = default)
+    public async Task OpenQuestAsync(int questId, CancellationToken token = default)
     {
-        var entity = await repository.GetQuestWithManageDetailsAsync(model.Id, token);
+        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
         if (entity == null) return;
 
-        Mapper.Map(model, entity);
+        // Update quest to open it back up
+        entity.IsFinalized = false;
+        entity.FinalizedDate = null;
+
+        // Reset all player selections
+        foreach (var playerSignup in entity.PlayerSignups)
+        {
+            playerSignup.IsSelected = false;
+        }
+
         await repository.SaveChangesAsync(token);
     }
 
@@ -74,6 +100,15 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         await repository.RemoveAsync(entity, token);
     }
 
+    public override async Task UpdateAsync(Quest model, CancellationToken token = default)
+    {
+        var entity = await repository.GetQuestWithManageDetailsAsync(model.Id, token);
+        if (entity == null) return;
+
+        Mapper.Map(model, entity);
+        await repository.SaveChangesAsync(token);
+    }
+
     public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
     {
         var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
@@ -88,7 +123,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Only update proposed dates if explicitly requested
         if (updateProposedDates && proposedDates != null)
         {
-            await UpdateProposedDatesIntelligentlyAsync(entity, proposedDates, token);
+            await UpdateProposedDatesIntelligentlyAsync(entity, proposedDates);
         }
 
         await repository.SaveChangesAsync(token);
@@ -110,14 +145,20 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Only update proposed dates if explicitly requested
         if (updateProposedDates && proposedDates != null)
         {
-            affectedPlayers = await UpdateProposedDatesWithNotificationTrackingAsync(entity, proposedDates, token);
+            affectedPlayers = await UpdateProposedDatesWithNotificationTrackingAsync(entity, proposedDates);
         }
 
         await repository.SaveChangesAsync(token);
         return affectedPlayers;
     }
 
-    private Task UpdateProposedDatesIntelligentlyAsync(QuestEntity entity, IList<DateTime> newProposedDates, CancellationToken token)
+    private static bool IsSameDateTime(DateTime date1, DateTime date2)
+    {
+        // Consider dates the same if they're within 30 minutes of each other
+        return Math.Abs((date1 - date2).TotalMinutes) <= 30;
+    }
+
+    private static Task UpdateProposedDatesIntelligentlyAsync(QuestEntity entity, IList<DateTime> newProposedDates)
     {
         var existingDates = entity.ProposedDates.ToList();
         var datesToRemove = new List<ProposedDateEntity>();
@@ -127,16 +168,16 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Find dates that need to be removed (no longer in new list or significantly changed)
         foreach (var existingDate in existingDates)
         {
-            var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
+            var matchingNewDate = newProposedDates.FirstOrDefault(nd =>
                 IsSameDateTime(existingDate.Date, nd));
 
-            if (matchingNewDate == default(DateTime))
+            if (matchingNewDate == default)
             {
                 // This date was removed or significantly changed
                 datesToRemove.Add(existingDate);
-                
+
                 // Track players affected by this removal
-                if (existingDate.PlayerVotes?.Any() == true)
+                if (existingDate.PlayerVotes?.Count > 0)
                 {
                     affectedPlayerIds.AddRange(existingDate.PlayerVotes.Select(pv => pv.PlayerSignup?.PlayerId ?? 0).Where(id => id != 0));
                 }
@@ -151,7 +192,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Find dates that need to be added (new dates not in existing list)
         foreach (var newDate in newProposedDates)
         {
-            var matchingExistingDate = existingDates.FirstOrDefault(ed => 
+            var matchingExistingDate = existingDates.FirstOrDefault(ed =>
                 IsSameDateTime(ed.Date, newDate));
 
             if (matchingExistingDate == null)
@@ -183,7 +224,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         return Task.CompletedTask;
     }
 
-    private Task<List<User>> UpdateProposedDatesWithNotificationTrackingAsync(QuestEntity entity, IList<DateTime> newProposedDates, CancellationToken token)
+    private Task<List<User>> UpdateProposedDatesWithNotificationTrackingAsync(QuestEntity entity, IList<DateTime> newProposedDates)
     {
         var existingDates = entity.ProposedDates.ToList();
         var datesToRemove = new List<ProposedDateEntity>();
@@ -193,22 +234,22 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Find dates that need to be removed (no longer in new list or significantly changed)
         foreach (var existingDate in existingDates)
         {
-            var matchingNewDate = newProposedDates.FirstOrDefault(nd => 
+            var matchingNewDate = newProposedDates.FirstOrDefault(nd =>
                 IsSameDateTime(existingDate.Date, nd));
 
-            if (matchingNewDate == default(DateTime))
+            if (matchingNewDate == default)
             {
                 // This date was removed or significantly changed
                 datesToRemove.Add(existingDate);
-                
+
                 // Track players affected by this removal
-                if (existingDate.PlayerVotes?.Any() == true)
+                if (existingDate.PlayerVotes?.Count > 0)
                 {
                     var playersFromVotes = existingDate.PlayerVotes
                         .Where(pv => pv.PlayerSignup?.Player != null)
                         .Select(pv => Mapper.Map<User>(pv.PlayerSignup!.Player))
                         .ToList();
-                    
+
                     affectedPlayers.AddRange(playersFromVotes);
                 }
             }
@@ -222,7 +263,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Find dates that need to be added (new dates not in existing list)
         foreach (var newDate in newProposedDates)
         {
-            var matchingExistingDate = existingDates.FirstOrDefault(ed => 
+            var matchingExistingDate = existingDates.FirstOrDefault(ed =>
                 IsSameDateTime(ed.Date, newDate));
 
             if (matchingExistingDate == null)
@@ -251,53 +292,5 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
 
         // Return unique affected players
         return Task.FromResult(affectedPlayers.GroupBy(p => p.Id).Select(g => g.First()).ToList());
-    }
-
-    private static bool IsSameDate(DateTime date1, DateTime date2)
-    {
-        // Consider dates the same if they're on the same day
-        return date1.Date == date2.Date;
-    }
-
-    private static bool IsSameDateTime(DateTime date1, DateTime date2)
-    {
-        // Consider dates the same if they're within 30 minutes of each other
-        return Math.Abs((date1 - date2).TotalMinutes) <= 30;
-    }
-
-    public async Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default)
-    {
-        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
-        if (entity == null) return;
-
-        // Update quest finalization properties
-        entity.IsFinalized = true;
-        entity.FinalizedDate = finalizedDate;
-
-        // Update player selections
-        foreach (var playerSignup in entity.PlayerSignups)
-        {
-            playerSignup.IsSelected = selectedPlayerSignupIds.Contains(playerSignup.Id);
-        }
-
-        await repository.SaveChangesAsync(token);
-    }
-
-    public async Task OpenQuestAsync(int questId, CancellationToken token = default)
-    {
-        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
-        if (entity == null) return;
-
-        // Update quest to open it back up
-        entity.IsFinalized = false;
-        entity.FinalizedDate = null;
-
-        // Reset all player selections
-        foreach (var playerSignup in entity.PlayerSignups)
-        {
-            playerSignup.IsSelected = false;
-        }
-
-        await repository.SaveChangesAsync(token);
     }
 }
