@@ -189,45 +189,77 @@
                     <div class="alert alert-success">
                         <h5>You're signed up!</h5>
                         <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
-                        
-                        @if (Model.Quest?.ProposedDates?.Any() == true)
-                        {
-                            <hr>
-                            <h6>Your Date Preferences:</h6>
-                            @foreach (var proposedDate in Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).ToList() ?? [])
-                            {
-                                var userVote = userVotes.GetValueOrDefault(proposedDate.Id);
-                                var voteText = userVote switch
-                                {
-                                    VoteType.Yes => "✓ Yes",
-                                    VoteType.Maybe => "? Maybe",
-                                    VoteType.No => "✗ No",
-                                    _ => "No vote"
-                                };
-                                var voteClass = userVote switch
-                                {
-                                    VoteType.Yes => "text-success",
-                                    VoteType.Maybe => "text-warning",
-                                    VoteType.No => "text-danger",
-                                    _ => "text-muted"
-                                };
-                                
-                                // Check if this date is new for the current user (no vote from this user)
-                                var currentUserId = Model.Player?.Id;
-                                var isNewDate = currentUserId.HasValue && !proposedDate.PlayerVotes.Any(v => v.PlayerSignup?.Player?.Id == currentUserId);
-                                <div class="d-flex justify-content-between align-items-center py-1 @(isNewDate ? "border-start border-info border-3 ps-2" : "")">
-                                    <span>
-                                        @proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
-                                        @if (isNewDate)
-                                        {
-                                            <span class="badge bg-info text-dark ms-2">NEW</span>
-                                        }
-                                    </span>
-                                    <span class="@voteClass fw-bold">@voteText</span>
-                                </div>
-                            }
-                        }
                     </div>
+                    
+                    @if (Model.Quest?.ProposedDates?.Any() == true)
+                    {
+                        <h6 class="mb-3">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                            Your Date Preferences
+                        </h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Proposed Date</th>
+                                        <th scope="col">Your Vote</th>
+                                        <th scope="col">Vote Summary</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var proposedDate in Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).ToList() ?? [])
+                                    {
+                                        var userVote = userVotes.GetValueOrDefault(proposedDate.Id);
+                                        var voteText = userVote switch
+                                        {
+                                            VoteType.Yes => "✓ Yes",
+                                            VoteType.Maybe => "? Maybe",
+                                            VoteType.No => "✗ No",
+                                            _ => "No vote"
+                                        };
+                                        var voteClass = userVote switch
+                                        {
+                                            VoteType.Yes => "text-success",
+                                            VoteType.Maybe => "text-warning",
+                                            VoteType.No => "text-danger",
+                                            _ => "text-muted"
+                                        };
+                                        
+                                        // Check if this date is new for the current user (no vote from this user)
+                                        var currentUserId = Model.Player?.Id;
+                                        var isNewDate = currentUserId.HasValue && !proposedDate.PlayerVotes.Any(v => v.PlayerSignup?.Player?.Id == currentUserId);
+                                        
+                                        <tr class="@(isNewDate ? "border-start border-info border-3" : "")">
+                                            <td>
+                                                <i class="fas fa-calendar text-muted me-2"></i>
+                                                @proposedDate.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
+                                                @if (isNewDate)
+                                                {
+                                                    <span class="badge bg-info text-dark ms-2">NEW</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="@voteClass fw-bold">@voteText</span>
+                                            </td>
+                                            <td>
+                                                <div class="vote-summary">
+                                                    @{
+                                                        var votes = proposedDate.PlayerVotes.Where(v => v.Vote.HasValue).GroupBy(v => v.Vote!.Value).ToDictionary(g => g.Key, g => g.Count());
+                                                        var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
+                                                        var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
+                                                        var noCount = votes.GetValueOrDefault(VoteType.No, 0);
+                                                    }
+                                                    <span class="text-success">✓ @yesCount</span>
+                                                    <span class="text-warning">? @maybeCount</span>
+                                                    <span class="text-danger">✗ @noCount</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                     
                     @* Update signup form - hidden by default *@
                     <div class="card modern-card mb-4" id="updateSignupForm" style="display: none;">
