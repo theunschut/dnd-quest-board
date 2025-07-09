@@ -263,8 +263,33 @@ else
                     <p><strong>DM:</strong> @Model.DungeonMaster?.Name</p>
                     <p>
                         <strong>Status:</strong>
-                        <span class="badge @(Model.IsFinalized == true ? "bg-secondary" : "bg-success")">
-                            @(Model.IsFinalized == true ? "Finalized" : "Open for Signups")
+                        @{
+                            string statusBadge;
+                            string statusIcon;
+                            string statusText;
+                            
+                            if (Model.IsFinalized == true && Model.FinalizedDate.HasValue == true && Model.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+                            {
+                                statusBadge = "bg-dark";
+                                statusIcon = "fas fa-flag-checkered";
+                                statusText = "Done";
+                            }
+                            else if (Model.IsFinalized == true)
+                            {
+                                statusBadge = "bg-primary";
+                                statusIcon = "fas fa-check-circle";
+                                statusText = "Finalized";
+                            }
+                            else
+                            {
+                                statusBadge = "bg-success";
+                                statusIcon = "fas fa-clock";
+                                statusText = "Open for Signups";
+                            }
+                        }
+                        <span class="badge @statusBadge">
+                            <i class="@statusIcon me-1"></i>
+                            @statusText
                         </span>
                     </p>
                     <p><strong>Building Access:</strong>

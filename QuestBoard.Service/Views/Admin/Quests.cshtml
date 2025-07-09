@@ -22,6 +22,7 @@
                             <th scope="col">Title</th>
                             <th scope="col">Description</th>
                             <th scope="col">Dungeon Master</th>
+                            <th scope="col">Status</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
@@ -53,6 +54,36 @@
                             <br/>
                             <a href="mailto:@quest.DungeonMaster.Email" class="email-link small">@quest.DungeonMaster.Email</a>
                         }
+                    </td>
+                    <td>
+                        @{
+                            string statusBadge;
+                            string statusIcon;
+                            string statusText;
+                            
+                            if (quest.IsFinalized && quest.FinalizedDate.HasValue && quest.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+                            {
+                                statusBadge = "bg-dark";
+                                statusIcon = "fas fa-flag-checkered";
+                                statusText = "Done";
+                            }
+                            else if (quest.IsFinalized)
+                            {
+                                statusBadge = "bg-primary";
+                                statusIcon = "fas fa-check-circle";
+                                statusText = "Finalized";
+                            }
+                            else
+                            {
+                                statusBadge = "bg-success";
+                                statusIcon = "fas fa-clock";
+                                statusText = "Open";
+                            }
+                        }
+                        <span class="badge @statusBadge">
+                            <i class="@statusIcon me-1"></i>
+                            @statusText
+                        </span>
                     </td>
                     <td class="text-end">
                         @* Edit Quest button *@
