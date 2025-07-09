@@ -396,7 +396,9 @@
                     <h5>DM Controls</h5>
                 </div>
                 <div class="card-body modern-card-body">
-                    <a href="@Url.Action("Manage", "Quest", new { id = Model.Quest.Id })" class="btn btn-primary btn-sm">
+                    <p class="text-muted">Access the DM management interface to finalize dates and select players.</p>
+                    <a href="@Url.Action("Manage", "Quest", new { id = Model.Quest.Id })" class="btn btn-primary w-100">
+                        <i class="fas fa-cog me-2"></i>
                         Manage Quest
                     </a>
                 </div>

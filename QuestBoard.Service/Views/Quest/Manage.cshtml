@@ -4,10 +4,6 @@
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>@ViewData["Title"]</h1>
-    <a href="@Url.Action("Details", "Quest", new { id = Model.Id })" class="btn btn-secondary">View Public Page</a>
-</div>
 
 @if (!(bool)ViewBag.IsAuthorized)
 {
@@ -23,7 +19,7 @@ else
         <div class="col-md-8">
             <div class="card modern-card">
                 <div class="card-header modern-card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Date Selection & Player Management</h5>
+                    <h2 class="mb-0">@ViewData["Title"]</h2>
                     <span class="badge cr-badge fs-6">
                         <i class="fas fa-dice-d20 me-1"></i>
                         CR @Model.ChallengeRating
@@ -210,21 +206,34 @@ else
                     @if (Model.IsFinalized)
                     {
                         <hr>
-                        <h6>Selected Players:</h6>
-                        
                         var selectedPlayers = Model.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList();
                         
                         @if (selectedPlayers.Any())
                         {
-                            <ul class="list-group">
-                                @foreach (var player in selectedPlayers)
-                                {
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        @player.Player.Name
-                                        <small class="text-muted">Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt")</small>
-                                    </li>
-                                }
-                            </ul>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Selected Players</th>
+                                            <th scope="col">Signup Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var player in selectedPlayers)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <i class="fas fa-user text-muted me-2"></i>
+                                                    @player.Player.Name
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">@player.SignupTime.ToString("MMM dd, h:mm tt")</small>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                         else
                         {
@@ -300,15 +309,14 @@ else
 
             <div class="card modern-card mt-3">
                 <div class="card-header modern-card-header">
-                    <h5>DM Tips</h5>
+                    <h5>View Public Page</h5>
                 </div>
                 <div class="card-body modern-card-body">
-                    <ul class="list-unstyled small">
-                        <li>✓ Review voting results before selecting date</li>
-                        <li>✓ Consider player availability and signup order</li>
-                        <li>✓ Players will be notified via email when finalized</li>
-                        <li>✓ Once finalized, the quest cannot be changed</li>
-                    </ul>
+                    <p class="text-muted">View the quest as players see it on the main quest board.</p>
+                    <a href="@Url.Action("Details", "Quest", new { id = Model.Id })" class="btn btn-secondary w-100">
+                        <i class="fas fa-eye me-2"></i>
+                        View Public Page
+                    </a>
                 </div>
             </div>
         </div>
