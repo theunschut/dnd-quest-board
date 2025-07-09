@@ -6,7 +6,7 @@ using QuestBoard.Service.ViewModels.AdminViewModels;
 namespace QuestBoard.Service.Controllers;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService) : Controller
+public class AdminController(IUserService userService, IQuestService questService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -207,6 +207,33 @@ public class AdminController(IUserService userService) : Controller
         }
 
         await userService.RemoveAsync(user);
+        return Ok();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Quests()
+    {
+        var allQuests = await questService.GetAllAsync();
+        
+        // Sort by creation date (newest first)
+        var sortedQuests = allQuests
+            .OrderByDescending(q => q.CreatedAt)
+            .ToList();
+
+        return View(sortedQuests);
+    }
+
+    [HttpDelete]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteQuest(int id)
+    {
+        var quest = await questService.GetByIdAsync(id);
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        await questService.RemoveAsync(quest);
         return Ok();
     }
 }
