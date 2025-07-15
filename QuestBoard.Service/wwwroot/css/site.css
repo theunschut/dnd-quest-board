@@ -181,6 +181,13 @@ body:has(.quest-board-container) .container.mt-3 {
     border-color: #0dcaf0;
 }
 
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.9) !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
 /* Remove backgrounds from lists and other elements */
 ul, ol, li {
     background: none;
@@ -837,6 +844,13 @@ p, li, span, small {
     background-color: rgba(241, 196, 15, 0.9) !important;
     border-color: rgba(241, 196, 15, 1) !important;
     color: #1a1a1a !important;
+}
+
+.modern-card .alert-danger {
+    background-color: rgba(220, 53, 69, 0.9) !important;
+    border-color: rgba(220, 53, 69, 1) !important;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* Modern badge styling */

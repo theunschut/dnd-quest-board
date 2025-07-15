@@ -26,6 +26,15 @@ else
                     </span>
                 </div>
                 <div class="card-body modern-card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
                     @if (Model.IsFinalized)
                     {
                         <h6>Selected Date:</h6>
@@ -147,7 +156,7 @@ else
                             <hr>
 
                             <h6>Player Selection:</h6>
-                            <p class="text-muted">Select up to 6 players for this quest. Players are listed in signup order.</p>
+                            <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest. Players are listed in signup order.</p>
 
                             @{
                                 var dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
@@ -164,12 +173,12 @@ else
                                 @for (int i = 0; i < Model.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
                                 {
                                     var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
-                                    var isInTop6 = i < 6 && availablePlayers.Contains(player);
+                                    var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
 
                                     <div class="form-check player-item" data-player-id="@player.Id">
                                         <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
                                                value="@player.Id" id="player_@player.Id"
-                                               @(isInTop6 ? "checked" : "") />
+                                               @(isInTopPlayers ? "checked" : "") />
                                         <label class="form-check-label" for="player_@player.Id">
                                             @player.Player.Name
                                             <small class="text-muted">
@@ -323,7 +332,7 @@ else
                         </span>
                     </p>
                     <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
-                    <p><strong>Target Players:</strong> 6</p>
+                    <p><strong>Target Players:</strong> @Model.TotalPlayerCount</p>
                     <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
 
                     <hr>
@@ -414,6 +423,19 @@ else
         // Add event listeners to date radio buttons
         document.querySelectorAll('.date-selector').forEach(radio => {
             radio.addEventListener('change', updatePlayerAvailability);
+        });
+        
+        // Add event listeners to player checkboxes for validation
+        document.querySelectorAll('.player-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const selectedCount = document.querySelectorAll('.player-checkbox:checked').length;
+                const maxPlayers = @Model.TotalPlayerCount;
+                
+                if (selectedCount > maxPlayers) {
+                    this.checked = false;
+                    alert(`Cannot select more than ${maxPlayers} players for this quest.`);
+                }
+            });
         });
     });
 </script>
