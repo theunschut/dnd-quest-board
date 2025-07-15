@@ -419,28 +419,28 @@ public class QuestController(
         // Get selected date
         if (!int.TryParse(Request.Form["SelectedDateId"], out var selectedDateId))
         {
-            ModelState.AddModelError("", "Please select a date.");
-            return await Manage(id);
+            TempData["Error"] = "Please select a date.";
+            return RedirectToAction("Manage", new { id });
         }
 
         var selectedDate = quest.ProposedDates.FirstOrDefault(pd => pd.Id == selectedDateId);
 
         if (selectedDate == null)
         {
-            ModelState.AddModelError("", "Please select a date.");
-            return await Manage(id);
+            TempData["Error"] = "Please select a date.";
+            return RedirectToAction("Manage", new { id });
         }
 
         // Get selected players
         var selectedPlayerIds = Request.Form["SelectedPlayerIds"]
             .Where(idStr => !string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out _))
-            .Select(int.Parse)
+            .Select(idStr => int.Parse(idStr!))
             .ToList();
 
         if (selectedPlayerIds.Count > quest.TotalPlayerCount)
         {
-            ModelState.AddModelError("", $"Cannot select more than {quest.TotalPlayerCount} players.");
-            return await Manage(id);
+            TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players.";
+            return RedirectToAction("Manage", new { id });
         }
 
         // Finalize the quest using the specialized service method
@@ -455,7 +455,7 @@ public class QuestController(
                 player.Player.Email!,
                 player.Player.Name,
                 quest.Title,
-                quest.DungeonMaster.Name,
+                quest.DungeonMaster?.Name ?? "Unknown DM",
                 selectedDate.Date
             );
         }
