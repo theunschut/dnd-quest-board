@@ -1031,6 +1031,7 @@ p, li, span, small {
     background-color: transparent;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .calendar-day:nth-child(7n) {
@@ -1058,6 +1059,7 @@ p, li, span, small {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    overflow: hidden;
 }
 
 .quest-event {
@@ -1074,6 +1076,7 @@ p, li, span, small {
     height: 16px;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .quest-event.proposed {
@@ -1101,14 +1104,17 @@ p, li, span, small {
 
 .quest-event:hover {
     background-color: rgba(255, 255, 255, 1);
-    transform: scale(1.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 10;
+    border-radius: 6px;
+    font-size: 11px;
+    position: absolute;
+    left: 0;
+    right: 0;
     height: auto;
     min-height: 40px;
     padding: 6px 8px;
-    border-radius: 6px;
-    font-size: 11px;
+    overflow: visible;
 }
 
 .calendar-quest-title {
