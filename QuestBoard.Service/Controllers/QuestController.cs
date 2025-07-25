@@ -5,6 +5,7 @@ using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Service.ViewModels.QuestViewModels;
+using QuestBoard.Service.ViewModels.CalendarViewModels;
 
 namespace QuestBoard.Service.Controllers;
 
@@ -210,9 +211,9 @@ public class QuestController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id, CancellationToken token = default)
     {
-        var quest = await questService.GetQuestWithDetailsAsync(id);
+        var quest = await questService.GetQuestWithDetailsAsync(id, token);
 
         if (quest == null)
         {
@@ -226,7 +227,7 @@ public class QuestController(
             var userEntity = await userService.GetUserAsync(User);
             if (userEntity != null)
             {
-                currentUser = await userService.GetByIdAsync(userEntity.Id);
+                currentUser = await userService.GetByIdAsync(userEntity.Id, token);
             }
         }
 
@@ -237,6 +238,27 @@ public class QuestController(
         var isQuestDm = currentUser?.Name == quest.DungeonMaster?.Name;
         var isAdmin = currentUser != null && await userService.IsInRoleAsync(User, "Admin");
         ViewBag.CanManage = isQuestDm || isAdmin;
+
+        // Get all quests for calendar context
+        var allQuests = await questService.GetQuestsWithDetailsAsync(token);
+
+        // Get unique months that have proposed dates for this quest
+        var monthsWithProposedDates = quest.ProposedDates
+            .Select(pd => new { Year = pd.Date.Year, Month = pd.Date.Month })
+            .Distinct()
+            .OrderBy(m => m.Year).ThenBy(m => m.Month)
+            .Select(m => new CalendarViewModel
+            {
+                Year = m.Year,
+                Month = m.Month,
+                Quests = allQuests.ToList()
+            })
+            .ToList();
+
+        ViewBag.CalendarMonths = monthsWithProposedDates;
+        ViewBag.IsDetailsPage = true;
+        ViewBag.CurrentQuestId = id;
+        ViewBag.CurrentUserId = currentUser?.Id;
 
         var signup = new PlayerSignup
         {
