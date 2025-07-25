@@ -1031,6 +1031,7 @@ p, li, span, small {
     background-color: transparent;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .calendar-day:nth-child(7n) {
@@ -1058,6 +1059,7 @@ p, li, span, small {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    overflow: hidden;
 }
 
 .quest-event {
@@ -1074,6 +1076,7 @@ p, li, span, small {
     height: 16px;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .quest-event.proposed {
@@ -1101,14 +1104,17 @@ p, li, span, small {
 
 .quest-event:hover {
     background-color: rgba(255, 255, 255, 1);
-    transform: scale(1.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 10;
+    border-radius: 6px;
+    font-size: 11px;
+    position: absolute;
+    left: 0;
+    right: 0;
     height: auto;
     min-height: 40px;
     padding: 6px 8px;
-    border-radius: 6px;
-    font-size: 11px;
+    overflow: visible;
 }
 
 .calendar-quest-title {
@@ -1313,6 +1319,217 @@ p, li, span, small {
     .quest-event:hover .quest-time {
         font-size: 6px;
     }
+}
+
+/* Details page calendar styling */
+.details-page .calendar-grid {
+    height: auto;
+    min-height: 350px;
+}
+
+/* Optimize calendar for wider layout on quest details page */
+.quest-details-page .calendar-grid {
+    max-width: none;
+}
+
+.quest-details-page .calendar-body {
+    grid-auto-rows: minmax(90px, auto);
+}
+
+.details-page .calendar-body {
+    grid-auto-rows: minmax(80px, auto);
+}
+
+/* Current quest styling - remove transparency, make solid */
+.quest-event.current-quest {
+    background-color: rgba(255, 255, 255, 1) !important;
+    border-left-color: #3498db;
+    border-width: 3px;
+    /* Always expanded for current quest */
+    font-size: 11px !important;
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+}
+
+/* Disable hover expansion for non-current quest entries on details page */
+.details-page .quest-event:not(.current-quest):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    z-index: auto;
+    border-radius: 3px;
+    font-size: 9px;
+    position: relative;
+    left: auto;
+    right: auto;
+    height: 16px;
+    min-height: 16px;
+    padding: 2px 4px;
+    overflow: hidden;
+}
+
+/* Completely disable hover effects for current quest entries */
+.details-page .quest-event.current-quest:hover {
+    background-color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    height: auto !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    overflow: visible !important;
+    transform: none !important;
+}
+
+/* Keep current quest entries always expanded */
+.details-page .quest-event.current-quest .quest-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.details-page .quest-event.current-quest .calendar-quest-title {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    font-size: 11px !important;
+    flex: none !important;
+}
+
+.details-page .quest-event.current-quest .calendar-quest-dm {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+}
+
+.details-page .quest-event.current-quest .quest-time {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 1px !important;
+}
+
+.details-page .quest-event.current-quest .finalized-icon {
+    font-size: 10px !important;
+    opacity: 1 !important;
+}
+
+/* Vote buttons styling */
+.vote-buttons {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    padding: 1px;
+}
+
+.quest-event:hover .vote-buttons {
+    display: block !important;
+}
+
+/* Always show vote buttons for current quest on details page */
+.details-page .quest-event.current-quest .vote-buttons {
+    display: block !important;
+}
+
+/* User vote display styling for signed up users */
+.user-vote-display {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11;
+}
+
+.vote-indicator {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.vote-indicator i {
+    font-size: 12px;
+}
+
+/* Always show vote indicators for current quest */
+.details-page .quest-event.current-quest .user-vote-display {
+    display: block !important;
+}
+
+.vote-buttons .btn-group-vertical {
+    gap: 1px;
+}
+
+.vote-buttons .btn {
+    font-size: 8px;
+    padding: 1px 2px;
+    line-height: 1;
+    min-width: 16px;
+    height: 16px;
+    border: 1px solid;
+}
+
+/* Ensure quest events with vote buttons maintain same width */
+.quest-event.current-quest {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quest-event.current-quest .quest-link {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 0; /* Remove the padding adjustment */
+    position: relative;
+}
+
+/* Vote buttons should not affect the quest event layout */
+.quest-event:hover.current-quest {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Calendar container styling for details page */
+.details-calendar-container .calendar-grid {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.details-calendar-container .calendar-day {
+    min-height: 80px;
+}
+
+.details-calendar-container .quest-event:hover {
+    min-height: 50px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure all quest events have consistent width */
+.quest-event {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quest-event .quest-link {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    /* Keep original display properties for proper text layout */
 }
 
 /* Custom FontAwesome Radio Button Styling */

@@ -24,66 +24,10 @@
                 </div>
             </div>
             <div class="card-body modern-card-body p-0">
-                <div class="calendar-grid">
-                    <!-- Calendar Header -->
-                    <div class="calendar-header">
-                        <div class="calendar-day-header">Monday</div>
-                        <div class="calendar-day-header">Tuesday</div>
-                        <div class="calendar-day-header">Wednesday</div>
-                        <div class="calendar-day-header">Thursday</div>
-                        <div class="calendar-day-header">Friday</div>
-                        <div class="calendar-day-header">Saturday</div>
-                        <div class="calendar-day-header">Sunday</div>
-                    </div>
-                    
-                    <!-- Calendar Days -->
-                    <div class="calendar-body">
-                        @foreach (var day in Model.GetCalendarDays())
-                        {
-                            <div class="calendar-day @(day.IsEmpty ? "empty" : "") @(day.Date.Date == DateTime.Today ? "today" : "")">
-                                @if (!day.IsEmpty)
-                                {
-                                    <div class="day-number">@day.Day</div>
-                                    
-                                    @if (day.QuestsOnDay.Any())
-                                    {
-                                        <div class="quest-events">
-                                            @foreach (var questOnDay in day.QuestsOnDay.Take(3))
-                                            {
-                                                <div class="quest-event @(questOnDay.IsFinalized ? "finalized" : "proposed")" 
-                                                     title="@questOnDay.Quest.Title - @questOnDay.ProposedDate.Date.ToString("HH:mm")">
-                                                    <a href="@Url.Action("Details", "Quest", new { id = questOnDay.Quest.Id })" 
-                                                       class="quest-link">
-                                                        <div class="calendar-quest-title">@questOnDay.Quest.Title</div>
-                                                        <div class="calendar-quest-dm">@questOnDay.Quest.DungeonMaster?.Name</div>
-                                                        <div class="quest-time">@questOnDay.ProposedDate.Date.ToString("HH:mm")</div>
-                                                        @{
-                                                            var dmHasKey = questOnDay.Quest.DungeonMaster?.HasKey == true;
-                                                            var playersHaveKey = questOnDay.Quest.PlayerSignups?.Any(ps => ps.Player.HasKey == true) == true;
-                                                            var anyoneHasKey = dmHasKey || playersHaveKey;
-                                                        }
-                                                        @if (!anyoneHasKey)
-                                                        {
-                                                            <i class="fas fa-exclamation-triangle text-warning warning-icon" title="No building key available"></i>
-                                                        }
-                                                        else if (questOnDay.IsFinalized)
-                                                        {
-                                                            <i class="fas fa-check-circle finalized-icon"></i>
-                                                        }
-                                                    </a>
-                                                </div>
-                                            }
-                                            @if (day.QuestsOnDay.Count > 3)
-                                            {
-                                                <div class="more-events">+@(day.QuestsOnDay.Count - 3) more</div>
-                                            }
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
+                @{ 
+                    ViewBag.IsDetailsPage = false;
+                }
+                @await Html.PartialAsync("_Calendar", Model)
             </div>
         </div>
     </div>
