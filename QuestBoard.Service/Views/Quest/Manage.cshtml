@@ -331,7 +331,7 @@ else
                             }
                         </span>
                     </p>
-                    <p><strong>Total Signups:</strong> @Model.PlayerSignups.Count</p>
+                    <p><strong>Total Signups:</strong> @Model.PlayerSignups?.Count</p>
                     <p><strong>Target Players:</strong> @Model.TotalPlayerCount</p>
                     <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
 
@@ -429,7 +429,7 @@ else
         document.querySelectorAll('.player-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const selectedCount = document.querySelectorAll('.player-checkbox:checked').length;
-                const maxPlayers = @Model.TotalPlayerCount;
+                const maxPlayers = @Model.TotalPlayerCount
                 
                 if (selectedCount > maxPlayers) {
                     this.checked = false;
