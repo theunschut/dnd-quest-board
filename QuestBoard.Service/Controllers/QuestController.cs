@@ -517,9 +517,9 @@ public class QuestController(
 
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
-    public async Task<IActionResult> Manage(int id)
+    public async Task<IActionResult> Manage(int id, CancellationToken token = default)
     {
-        var quest = await questService.GetQuestWithManageDetailsAsync(id);
+        var quest = await questService.GetQuestWithManageDetailsAsync(id, token);
 
         if (quest == null)
         {
@@ -536,6 +536,30 @@ public class QuestController(
         var isQuestDm = currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
         var isAdmin = await userService.IsInRoleAsync(User, "Admin");
         ViewBag.IsAuthorized = isQuestDm || isAdmin;
+
+        if (ViewBag.IsAuthorized)
+        {
+            // Get all quests for calendar context
+            var allQuests = await questService.GetQuestsWithDetailsAsync(token);
+
+            // Get unique months that have proposed dates for this quest
+            var monthsWithProposedDates = quest.ProposedDates
+                .Select(pd => new { Year = pd.Date.Year, Month = pd.Date.Month })
+                .Distinct()
+                .OrderBy(m => m.Year).ThenBy(m => m.Month)
+                .Select(m => new CalendarViewModel
+                {
+                    Year = m.Year,
+                    Month = m.Month,
+                    Quests = allQuests.ToList()
+                })
+                .ToList();
+
+            ViewBag.CalendarMonths = monthsWithProposedDates;
+            ViewBag.IsManagePage = true;
+            ViewBag.CurrentQuestId = id;
+            ViewBag.CurrentUserId = currentUser.Id;
+        }
 
         return View(quest);
     }

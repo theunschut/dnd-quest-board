@@ -1471,6 +1471,293 @@ p, li, span, small {
     display: block !important;
 }
 
+/* Manage page styling */
+.manage-page .calendar-grid {
+    height: auto;
+    min-height: 300px;
+}
+
+.manage-page .calendar-body {
+    grid-auto-rows: minmax(80px, auto);
+}
+
+/* Manage page vote display */
+.manage-vote-display {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    z-index: 11;
+}
+
+.vote-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    align-items: flex-end;
+}
+
+.vote-badge {
+    font-size: 8px;
+    padding: 1px 3px;
+    line-height: 1.2;
+    min-width: 18px;
+    text-align: center;
+    border-radius: 2px;
+}
+
+/* Always show vote badges for current quest on manage page */
+.manage-page .quest-event.current-quest .manage-vote-display {
+    display: block !important;
+}
+
+/* Current quest styling for manage page - similar to details page */
+.manage-page .quest-event.current-quest {
+    background-color: rgba(255, 255, 255, 1) !important;
+    border-left-color: #3498db;
+    border-width: 3px;
+    /* Always expanded for current quest */
+    font-size: 11px !important;
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+/* Hover state for manage page */
+.manage-page .quest-event.current-quest:hover {
+    border-left-color: #0d6efd;
+}
+
+/* Selected state for manage page */
+.manage-page .quest-event.current-quest.selected {
+    border-left-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+
+/* Disable hover expansion for non-current quest entries on manage page */
+.manage-page .quest-event:not(.current-quest):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    z-index: auto;
+    border-radius: 3px;
+    font-size: 9px;
+    position: relative;
+    left: auto;
+    right: auto;
+    height: 16px;
+    min-height: 16px;
+    padding: 2px 4px;
+    overflow: hidden;
+}
+
+/* Completely disable hover effects for current quest entries on manage page */
+.manage-page .quest-event.current-quest:hover {
+    background-color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    height: auto !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    overflow: visible !important;
+    transform: none !important;
+    border-left-color: #0d6efd; /* Only change border on hover */
+}
+
+/* Force expanded content display for manage page current quest entries */
+.manage-page .quest-event.current-quest .quest-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+}
+
+.manage-page .quest-event.current-quest .calendar-quest-title {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    font-size: 11px !important;
+    flex: none !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.manage-page .quest-event.current-quest .calendar-quest-dm {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+    color: #888 !important;
+    font-style: italic !important;
+}
+
+.manage-page .quest-event.current-quest .quest-time {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 1px !important;
+    color: #666 !important;
+}
+
+.manage-page .quest-event.current-quest .finalized-icon {
+    font-size: 10px !important;
+    opacity: 1 !important;
+}
+
+/* Override any conflicting hover styles for manage page */
+.details-calendar-container.manage-page .quest-event.current-quest,
+.details-calendar-container.manage-page .quest-event.current-quest:hover {
+    background-color: rgba(255, 255, 255, 1) !important;
+    border-left-color: #3498db !important;
+    border-width: 3px !important;
+    font-size: 11px !important;
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Force link layout for manage page */
+.details-calendar-container.manage-page .quest-event.current-quest .quest-link,
+.details-calendar-container.manage-page .quest-event.current-quest:hover .quest-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    display: flex !important;
+}
+
+/* Final override - most specific selectors for manage page quest events */
+.manage-page .quest-event.current-quest .calendar-quest-title,
+.manage-page .quest-event.current-quest:hover .calendar-quest-title {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    font-size: 11px !important;
+    flex: none !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.manage-page .quest-event.current-quest .calendar-quest-dm,
+.manage-page .quest-event.current-quest:hover .calendar-quest-dm {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+    color: #888 !important;
+    font-style: italic !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.manage-page .quest-event.current-quest .quest-time,
+.manage-page .quest-event.current-quest:hover .quest-time {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 1px !important;
+    color: #666 !important;
+}
+
+/* Manage page - copy exact details page logic */
+
+/* Current quest styling - same as details page */
+.manage-page .quest-event.current-quest {
+    background-color: rgba(255, 255, 255, 1) !important;
+    border-left-color: #3498db;
+    border-width: 3px;
+    /* Always expanded for current quest */
+    font-size: 11px !important;
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+}
+
+/* Disable hover expansion for non-current quest entries on manage page */
+.manage-page .quest-event:not(.current-quest):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    z-index: auto;
+    border-radius: 3px;
+    font-size: 9px;
+    position: relative;
+    left: auto;
+    right: auto;
+    height: 16px;
+    min-height: 16px;
+    padding: 2px 4px;
+    overflow: hidden;
+}
+
+/* Completely disable hover effects for current quest entries on manage page */
+.manage-page .quest-event.current-quest:hover {
+    background-color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    height: auto !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    overflow: visible !important;
+    transform: none !important;
+    border-left-color: #0d6efd; /* Only change border on hover */
+}
+
+/* Keep current quest entries always expanded on manage page */
+.manage-page .quest-event.current-quest .quest-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.manage-page .quest-event.current-quest .calendar-quest-title {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    font-size: 11px !important;
+    flex: none !important;
+}
+
+.manage-page .quest-event.current-quest .calendar-quest-dm {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+}
+
+.manage-page .quest-event.current-quest .quest-time {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 1px !important;
+}
+
+.manage-page .quest-event.current-quest .finalized-icon {
+    font-size: 10px !important;
+    opacity: 1 !important;
+}
+
 .vote-buttons .btn-group-vertical {
     gap: 1px;
 }

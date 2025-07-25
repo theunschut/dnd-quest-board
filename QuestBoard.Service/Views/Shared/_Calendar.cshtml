@@ -1,10 +1,11 @@
 @model CalendarViewModel
 @{
     var isDetailsPage = ViewBag.IsDetailsPage == true;
+    var isManagePage = ViewBag.IsManagePage == true;
     var currentQuestId = ViewBag.CurrentQuestId as int?;
 }
 
-<div class="calendar-grid @(isDetailsPage ? "details-page" : "") details-calendar-container">
+<div class="calendar-grid @(isDetailsPage ? "details-page" : "") @(isManagePage ? "manage-page" : "") details-calendar-container @(isManagePage ? "manage-page" : "")">
     <!-- Calendar Header -->
     <div class="calendar-header">
         <div class="calendar-day-header">Monday</div>
@@ -104,6 +105,47 @@
                                                 }
                                                 <div class="vote-indicator" title="Your vote: @voteText">
                                                     <i class="@voteIcon"></i>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (isManagePage && questOnDay.Quest.Id == currentQuestId)
+                                        {
+                                            @* Vote summary for manage page *@
+                                            <div class="manage-vote-display">
+                                                @{
+                                                    var allVotes = questOnDay.ProposedDate.PlayerVotes ?? new List<PlayerDateVote>();
+                                                    var yesVotes = allVotes.Where(v => v.Vote == VoteType.Yes).ToList();
+                                                    var maybeVotes = allVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
+                                                    var noVotes = allVotes.Where(v => v.Vote == VoteType.No).ToList();
+                                                    var totalVotes = yesVotes.Count + maybeVotes.Count + noVotes.Count;
+                                                }
+                                                
+                                                @* Option 1: Vote Count Badges *@
+                                                <div class="vote-badges">
+                                                    @if (yesVotes.Any())
+                                                    {
+                                                        <span class="badge bg-success vote-badge" title="Yes: @string.Join(", ", yesVotes.Select(v => v.PlayerSignup?.Player.Name))">
+                                                            ✓ @yesVotes.Count
+                                                        </span>
+                                                    }
+                                                    @if (maybeVotes.Any())
+                                                    {
+                                                        <span class="badge bg-warning vote-badge" title="Maybe: @string.Join(", ", maybeVotes.Select(v => v.PlayerSignup?.Player.Name))">
+                                                            ? @maybeVotes.Count
+                                                        </span>
+                                                    }
+                                                    @if (noVotes.Any())
+                                                    {
+                                                        <span class="badge bg-danger vote-badge" title="No: @string.Join(", ", noVotes.Select(v => v.PlayerSignup?.Player.Name))">
+                                                            ✗ @noVotes.Count
+                                                        </span>
+                                                    }
+                                                    @if (totalVotes == 0)
+                                                    {
+                                                        <span class="badge bg-secondary vote-badge" title="No votes yet">
+                                                            No votes
+                                                        </span>
+                                                    }
                                                 </div>
                                             </div>
                                         }

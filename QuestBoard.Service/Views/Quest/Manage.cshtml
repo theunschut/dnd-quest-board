@@ -15,8 +15,9 @@
 }
 else
 {
+    <div class="quest-manage-page">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-lg-10 col-md-9">
             <div class="card modern-card">
                 <div class="card-header modern-card-header d-flex justify-content-between align-items-center">
                     <h2 class="mb-0">@ViewData["Title"]</h2>
@@ -90,6 +91,9 @@ else
                     {
                         <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
                             <h6>Proposed Dates & Voting Results:</h6>
+                            <p class="text-muted mb-3">Click on your quest events in the calendar to select the date to finalize. Vote counts are shown on each event.</p>
+                            
+                            @* Hidden radio buttons for form submission *@
                             @{
                                 var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
                                 var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
@@ -98,57 +102,32 @@ else
                             @foreach (var date in orderedDates)
                             {
                                 var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
-                                var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
-                                var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
                                 var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
-
-                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
-                                     data-date-id="@date.Id"
-                                     data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
-                                    <div class="form-check">
-                                        <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
-                                               id="date_@date.Id" @(isRecommended ? "checked" : "") />
-                                        <label class="form-check-label" for="date_@date.Id">
-                                            <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
-                                            @if (isRecommended)
-                                            {
-                                                <span class="badge bg-success ms-2">Recommended</span>
-                                            }
-                                        </label>
+                                
+                                <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
+                                       id="date_@date.Id" @(isRecommended ? "checked" : "") style="display: none;"
+                                       data-date-id="@date.Id"
+                                       data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                       data-maybe-votes="@string.Join(",", date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                       data-no-votes="@string.Join(",", date.PlayerVotes.Where(v => v.Vote == VoteType.No).Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))" />
+                            }
+                            
+                            @* Calendar views for each month with proposed dates *@
+                            @foreach (var calendarMonth in ViewBag.CalendarMonths as List<CalendarViewModel> ?? new List<CalendarViewModel>())
+                            {
+                                <div class="card modern-card mb-3">
+                                    <div class="card-header modern-card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calendar-alt text-info me-2"></i>
+                                            @calendarMonth.MonthName
+                                        </h6>
                                     </div>
-
-                                    <div class="mt-2">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        </div>
+                                    <div class="card-body modern-card-body p-0">
+                                        @{ 
+                                            ViewBag.IsManagePage = true;
+                                            ViewBag.CurrentQuestId = Model.Id;
+                                        }
+                                        @await Html.PartialAsync("_Calendar", calendarMonth)
                                     </div>
                                 </div>
                             }
@@ -263,7 +242,7 @@ else
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-lg-2 col-md-3">
             <div class="card modern-card mb-3">
                 <div class="card-header modern-card-header">
                     <h5>View Public Page</h5>
@@ -354,6 +333,7 @@ else
             </div>
         </div>
     </div>
+    </div>
 }
 
 <script>
@@ -378,16 +358,20 @@ else
         const selectedDateOption = document.querySelector('.date-selector:checked');
         if (!selectedDateOption) return;
 
-        const dateContainer = selectedDateOption.closest('.date-option');
-        const yesVotes = dateContainer.dataset.yesVotes ? dateContainer.dataset.yesVotes.split(',').filter(id => id) : [];
-        const maybeVotes = dateContainer.dataset.maybeVotes ? dateContainer.dataset.maybeVotes.split(',').filter(id => id) : [];
-        const noVotes = dateContainer.dataset.noVotes ? dateContainer.dataset.noVotes.split(',').filter(id => id) : [];
+        // Get vote data from the radio button's data attributes
+        const yesVotes = selectedDateOption.dataset.yesVotes ? selectedDateOption.dataset.yesVotes.split(',').filter(id => id) : [];
+        const maybeVotes = selectedDateOption.dataset.maybeVotes ? selectedDateOption.dataset.maybeVotes.split(',').filter(id => id) : [];
+        const noVotes = selectedDateOption.dataset.noVotes ? selectedDateOption.dataset.noVotes.split(',').filter(id => id) : [];
 
         // Update each player item
         document.querySelectorAll('.player-item').forEach(playerItem => {
+            if (!playerItem || !playerItem.dataset) return;
+            
             const playerId = playerItem.dataset.playerId;
             const checkbox = playerItem.querySelector('.player-checkbox');
             const statusSpan = playerItem.querySelector('.availability-status');
+            
+            if (!checkbox || !statusSpan || !playerId) return;
             
             // Determine availability status
             let status = '';
@@ -415,6 +399,40 @@ else
         });
     }
 
+    // Handle calendar quest event clicks for date selection
+    function handleCalendarDateSelection() {
+        document.querySelectorAll('.manage-page .quest-event.current-quest').forEach(questEvent => {
+            if (!questEvent) return;
+            
+            questEvent.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get the proposed date ID from the quest event
+                const proposedDateId = this.dataset ? this.dataset.proposedDateId : null;
+                if (!proposedDateId) return;
+                
+                // Find and select the corresponding radio button
+                const radioButton = document.querySelector(`input[type="radio"][value="${proposedDateId}"]`);
+                if (radioButton) {
+                    radioButton.checked = true;
+                    
+                    // Update visual selection
+                    document.querySelectorAll('.quest-event.current-quest').forEach(event => {
+                        if (event && event.classList) {
+                            event.classList.remove('selected');
+                        }
+                    });
+                    if (this.classList) {
+                        this.classList.add('selected');
+                    }
+                    
+                    // Update player availability
+                    updatePlayerAvailability();
+                }
+            });
+        });
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         updatePlayerAvailability();
@@ -423,6 +441,19 @@ else
         document.querySelectorAll('.date-selector').forEach(radio => {
             radio.addEventListener('change', updatePlayerAvailability);
         });
+        
+        // Handle calendar date selection
+        handleCalendarDateSelection();
+        
+        // Set initial visual selection
+        const checkedRadio = document.querySelector('.date-selector:checked');
+        if (checkedRadio && checkedRadio.value) {
+            const dateId = checkedRadio.value;
+            const questEvent = document.querySelector(`.quest-event.current-quest[data-proposed-date-id="${dateId}"]`);
+            if (questEvent && questEvent.classList) {
+                questEvent.classList.add('selected');
+            }
+        }
         
         // Add event listeners to player checkboxes for validation
         document.querySelectorAll('.player-checkbox').forEach(checkbox => {
