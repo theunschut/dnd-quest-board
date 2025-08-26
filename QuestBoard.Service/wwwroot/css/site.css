@@ -621,11 +621,28 @@ p, li, span, small {
             saturate(1.4) brightness(1.2) contrast(1.1);
 }
 
-/* Hover effect for quest cards affects the seal */
+/* User signup seal styling */
+.user-signup-seal {
+    transform: translate(50%, 50%); /* Different positioning for top-right corner */
+}
+
+.signup-seal-image {
+    opacity: 1;
+    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.8)) 
+            hue-rotate(180deg) saturate(1.5) brightness(1.1); /* Blue/green tint */
+}
+
+/* Hover effect for quest cards affects both seals */
 .fantasy-quest-card:hover .seal-image {
     transform: scale(1.15) rotate(8deg);
     filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.8)) 
             brightness(1.3) saturate(1.3);
+}
+
+.fantasy-quest-card:hover .signup-seal-image {
+    transform: scale(1.15) rotate(-8deg); /* Rotate in opposite direction */
+    filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.8)) 
+            hue-rotate(180deg) saturate(1.6) brightness(1.3);
 }
 
 
@@ -670,6 +687,11 @@ p, li, span, small {
         height: 65px;
     }
     
+    .signup-seal-image {
+        width: 65px;
+        height: 65px;
+    }
+    
     /* Responsive dice icon sizing */
     .difficulty-icon {
         font-size: 45px;
@@ -697,6 +719,11 @@ p, li, span, small {
     
     /* Smaller wax seals on mobile */
     .seal-image {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .signup-seal-image {
         width: 55px;
         height: 55px;
     }
