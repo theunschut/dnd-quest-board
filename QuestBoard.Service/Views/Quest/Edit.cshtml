@@ -44,6 +44,16 @@
                     </div>
 
                     <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="Quest.DungeonMasterSession" class="form-check-input" type="checkbox" />
+                            <label asp-for="Quest.DungeonMasterSession" class="form-check-label">
+                                <i class="fas fa-crown text-warning me-2"></i>Dungeon Master Session Only
+                            </label>
+                        </div>
+                        <div class="form-text text-muted">Check this box to make this quest visible only to Dungeon Masters and Admins. Regular players will not be able to see or sign up for this quest.</div>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Proposed Dates & Times <span class="text-danger">*</span></label>
                         @if (Model.HasExistingSignups)
                         {

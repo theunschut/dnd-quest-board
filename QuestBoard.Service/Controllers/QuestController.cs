@@ -168,6 +168,7 @@ public class QuestController(
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
             viewModel.Quest.TotalPlayerCount,
+            viewModel.Quest.DungeonMasterSession,
             true, // Always allow date updates - service will handle intelligently
             viewModel.Quest.ProposedDates,
             token

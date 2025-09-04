@@ -51,6 +51,20 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
             .ToListAsync(cancellationToken: token);
     }
 
+    public async Task<IList<QuestEntity>> GetQuestsWithSignupsForRoleAsync(bool isAdminOrDm, CancellationToken token = default)
+    {
+        var oneDayAgo = DateTime.UtcNow.AddDays(-1);
+        
+        return await DbContext.Quests
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Player)
+            .Include(q => q.DungeonMaster)
+            .Where(q => (!q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo)) &&
+                       (!q.DungeonMasterSession || isAdminOrDm))
+            .OrderByDescending(q => q.CreatedAt)
+            .ToListAsync(cancellationToken: token);
+    }
+
     public async Task<QuestEntity?> GetQuestWithDetailsAsync(int id, CancellationToken token = default)
     {
         return await DbContext.Quests
