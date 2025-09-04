@@ -10,8 +10,9 @@ public class HomeController(IQuestService questService, IUserService userService
     {
         var quests = await questService.GetQuestsWithSignupsAsync(token);
 
-        // Get current user if authenticated to check if they're a DM
+        // Get current user if authenticated to check if they're a DM and for signup status
         string? currentUserName = null;
+        int? currentUserId = null;
         if (User.Identity?.IsAuthenticated == true)
         {
             var userEntity = await userService.GetUserAsync(User);
@@ -19,10 +20,12 @@ public class HomeController(IQuestService questService, IUserService userService
             {
                 var user = await userService.GetByIdAsync(userEntity.Id, token);
                 currentUserName = user?.Name;
+                currentUserId = user?.Id;
             }
         }
 
         ViewBag.CurrentUserName = currentUserName;
+        ViewBag.CurrentUserId = currentUserId;
         return View(quests);
     }
 }
