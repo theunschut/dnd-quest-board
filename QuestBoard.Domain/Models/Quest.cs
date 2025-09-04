@@ -28,6 +28,8 @@ public class Quest : IModel
 
     public int TotalPlayerCount { get; set; }
 
+    public bool DungeonMasterSession { get; set; }
+
     public IList<ProposedDate> ProposedDates { get; set; } = [];
 
     public IList<PlayerSignup> PlayerSignups { get; set; } = [];

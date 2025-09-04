@@ -10,6 +10,8 @@ public interface IQuestRepository : IBaseRepository<QuestEntity>
 
     Task<IList<QuestEntity>> GetQuestsWithSignupsAsync(CancellationToken token = default);
 
+    Task<IList<QuestEntity>> GetQuestsWithSignupsForRoleAsync(bool isAdminOrDm, CancellationToken token = default);
+
     Task<QuestEntity?> GetQuestWithDetailsAsync(int id, CancellationToken token = default);
 
     Task<QuestEntity?> GetQuestWithManageDetailsAsync(int id, CancellationToken token = default);

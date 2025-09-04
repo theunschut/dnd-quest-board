@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Repository.Entities;
@@ -41,6 +42,12 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
     public async Task<IList<Quest>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
         var questEntities = await repository.GetQuestsWithSignupsAsync(token);
+        return Mapper.Map<IList<Quest>>(questEntities);
+    }
+
+    public async Task<IList<Quest>> GetQuestsWithSignupsForRoleAsync(bool isAdminOrDm, CancellationToken token = default)
+    {
+        var questEntities = await repository.GetQuestsWithSignupsForRoleAsync(isAdminOrDm, token);
         return Mapper.Map<IList<Quest>>(questEntities);
     }
 
@@ -109,7 +116,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         await repository.SaveChangesAsync(token);
     }
 
-    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
+    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
     {
         var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
         if (entity == null) return;
@@ -119,6 +126,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         entity.Description = description;
         entity.ChallengeRating = challengeRating;
         entity.TotalPlayerCount = totalPlayerCount;
+        entity.DungeonMasterSession = dungeonMasterSession;
 
         // Only update proposed dates if explicitly requested
         if (updateProposedDates && proposedDates != null)
@@ -129,7 +137,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         await repository.SaveChangesAsync(token);
     }
 
-    public async Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
+    public async Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
     {
         var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
         if (entity == null) return [];
@@ -141,6 +149,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         entity.Description = description;
         entity.ChallengeRating = challengeRating;
         entity.TotalPlayerCount = totalPlayerCount;
+        entity.DungeonMasterSession = dungeonMasterSession;
 
         // Only update proposed dates if explicitly requested
         if (updateProposedDates && proposedDates != null)
