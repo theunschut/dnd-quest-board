@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace QuestBoard.Service.Authorization;
+namespace EuphoriaInn.Service.Authorization;
 
 public class AdminRequirement : IAuthorizationRequirement
 {

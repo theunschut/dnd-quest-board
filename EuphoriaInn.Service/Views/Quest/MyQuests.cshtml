@@ -1,5 +1,6 @@
 @model MyQuestsViewModel
-@using QuestBoard.Service.ViewModels.QuestViewModels
+@using EuphoriaInn.Domain.Interfaces
+@using EuphoriaInn.Service.ViewModels.QuestViewModels
 @{
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
 }

@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Repository.Entities;
+﻿namespace EuphoriaInn.Repository.Entities;
 
 public interface IEntity
 {

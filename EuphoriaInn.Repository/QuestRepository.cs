@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Interfaces;
+﻿using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace QuestBoard.Repository;
+namespace EuphoriaInn.Repository;
 
 internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<QuestEntity>(dbContext), IQuestRepository
 {
@@ -46,7 +46,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
             .Include(q => q.DungeonMaster)
-            .Where(q => !q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo))
+            .Where(q => !q.IsFinalized || q.IsFinalized && q.FinalizedDate > oneDayAgo)
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);
     }
@@ -59,7 +59,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
             .Include(q => q.DungeonMaster)
-            .Where(q => (!q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo)) &&
+            .Where(q => (!q.IsFinalized || q.IsFinalized && q.FinalizedDate > oneDayAgo) &&
                        (!q.DungeonMasterSession || isAdminOrDm))
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);

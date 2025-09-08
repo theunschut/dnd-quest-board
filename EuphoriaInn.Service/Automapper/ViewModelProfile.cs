@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
-using QuestBoard.Domain.Models.QuestBoard;
-using QuestBoard.Service.ViewModels.GuildMembersViewModels;
-using QuestBoard.Service.ViewModels.QuestViewModels;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Service.ViewModels.QuestViewModels;
 
-namespace QuestBoard.Service.Automapper;
+namespace EuphoriaInn.Service.Automapper;
 
 public class ViewModelProfile : Profile
 {

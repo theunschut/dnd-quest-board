@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Repository.Interfaces;
+﻿namespace EuphoriaInn.Repository.Interfaces;
 
 public interface IBaseRepository<T>
 {

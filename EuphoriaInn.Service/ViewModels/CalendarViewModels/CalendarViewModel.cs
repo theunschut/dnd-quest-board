@@ -1,6 +1,6 @@
-using QuestBoard.Domain.Models.QuestBoard;
+using EuphoriaInn.Domain.Models.QuestBoard;
 
-namespace QuestBoard.Service.ViewModels.CalendarViewModels;
+namespace EuphoriaInn.Service.ViewModels.CalendarViewModels;
 
 public class CalendarViewModel
 {

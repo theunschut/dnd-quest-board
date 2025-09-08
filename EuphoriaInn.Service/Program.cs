@@ -1,12 +1,12 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using QuestBoard.Domain.Automapper;
-using QuestBoard.Domain.Extensions;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Extensions;
-using QuestBoard.Service.Automapper;
-using QuestBoard.Service.Authorization;
+using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Extensions;
+using EuphoriaInn.Domain.Automapper;
+using EuphoriaInn.Domain.Extensions;
+using EuphoriaInn.Service.Authorization;
+using EuphoriaInn.Service.Automapper;
 
 var builder = WebApplication.CreateBuilder(args);
 

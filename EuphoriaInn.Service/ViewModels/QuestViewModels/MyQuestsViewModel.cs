@@ -1,6 +1,6 @@
-﻿using QuestBoard.Domain.Models.QuestBoard;
+﻿using EuphoriaInn.Domain.Models.QuestBoard;
 
-namespace QuestBoard.Service.ViewModels.QuestViewModels;
+namespace EuphoriaInn.Service.ViewModels.QuestViewModels;
 
 public class MyQuestsViewModel
 {

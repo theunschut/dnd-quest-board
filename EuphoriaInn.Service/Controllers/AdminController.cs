@@ -1,9 +1,9 @@
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Service.ViewModels.AdminViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Service.ViewModels.AdminViewModels;
 
-namespace QuestBoard.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers;
 
 [Authorize(Policy = "AdminOnly")]
 public class AdminController(IUserService userService, IQuestService questService) : Controller

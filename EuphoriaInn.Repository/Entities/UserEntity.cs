@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Repository.Entities;
+namespace EuphoriaInn.Repository.Entities;
 
 public class UserEntity : IdentityUser<int>, IEntity
 {

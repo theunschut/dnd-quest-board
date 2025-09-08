@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Domain.Configuration;
+﻿namespace EuphoriaInn.Domain.Configuration;
 
 internal class SecurityConfiguration
 {

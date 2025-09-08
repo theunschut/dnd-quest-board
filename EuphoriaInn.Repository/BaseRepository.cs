@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Interfaces;
+﻿using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace QuestBoard.Repository;
+namespace EuphoriaInn.Repository;
 
 internal abstract class BaseRepository<T>(QuestBoardContext dbContext) : IBaseRepository<T> where T : class, IEntity
 {

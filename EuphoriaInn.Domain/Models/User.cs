@@ -1,7 +1,7 @@
-﻿using QuestBoard.Domain.Models.QuestBoard;
+﻿using EuphoriaInn.Domain.Models.QuestBoard;
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Domain.Models;
+namespace EuphoriaInn.Domain.Models;
 
 public class User : IModel
 {

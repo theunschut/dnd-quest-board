@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Models;
-using QuestBoard.Domain.Models.QuestBoard;
-using QuestBoard.Repository.Entities;
+using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Repository.Entities;
 
-namespace QuestBoard.Domain.Automapper;
+namespace EuphoriaInn.Domain.Automapper;
 
 public class EntityProfile : Profile
 {

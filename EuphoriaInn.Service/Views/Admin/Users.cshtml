@@ -1,5 +1,7 @@
+@using EuphoriaInn.Domain.Interfaces
+@using EuphoriaInn.Service.ViewModels.AdminViewModels
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@model IEnumerable<QuestBoard.Service.ViewModels.AdminViewModels.UserManagementViewModel>
+@model IEnumerable<UserManagementViewModel>
 
 @{
     var tokens = Antiforgery.GetAndStoreTokens(ViewContext.HttpContext);

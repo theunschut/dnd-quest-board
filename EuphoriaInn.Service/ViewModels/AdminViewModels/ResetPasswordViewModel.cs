@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.ViewModels.AdminViewModels;
+namespace EuphoriaInn.Service.ViewModels.AdminViewModels;
 
 public class ResetPasswordViewModel
 {

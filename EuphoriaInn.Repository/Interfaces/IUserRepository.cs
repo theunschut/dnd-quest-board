@@ -1,6 +1,6 @@
-﻿using QuestBoard.Repository.Entities;
+﻿using EuphoriaInn.Repository.Entities;
 
-namespace QuestBoard.Repository.Interfaces;
+namespace EuphoriaInn.Repository.Interfaces;
 
 public interface IUserRepository : IBaseRepository<UserEntity>
 {

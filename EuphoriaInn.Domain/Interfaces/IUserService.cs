@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using QuestBoard.Domain.Models;
+﻿using EuphoriaInn.Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace QuestBoard.Domain.Interfaces;
+namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IUserService : IBaseService<User>
 {

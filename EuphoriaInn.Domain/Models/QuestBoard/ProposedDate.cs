@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Domain.Models.QuestBoard;
+namespace EuphoriaInn.Domain.Models.QuestBoard;
 
 public class ProposedDate : IModel
 {

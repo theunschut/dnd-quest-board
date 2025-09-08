@@ -1,8 +1,8 @@
+using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Interfaces;
 
-namespace QuestBoard.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers;
 
 public class HomeController(IQuestService questService, IUserService userService) : Controller
 {

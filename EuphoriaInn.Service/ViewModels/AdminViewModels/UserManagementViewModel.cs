@@ -1,6 +1,6 @@
-using QuestBoard.Domain.Models;
+using EuphoriaInn.Domain.Models;
 
-namespace QuestBoard.Service.ViewModels.AdminViewModels;
+namespace EuphoriaInn.Service.ViewModels.AdminViewModels;
 
 public class UserManagementViewModel
 {

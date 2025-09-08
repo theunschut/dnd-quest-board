@@ -1,7 +1,7 @@
-using QuestBoard.Domain.Enums;
+using EuphoriaInn.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Domain.Models.QuestBoard;
+namespace EuphoriaInn.Domain.Models.QuestBoard;
 
 public class PlayerDateVote : IModel
 {

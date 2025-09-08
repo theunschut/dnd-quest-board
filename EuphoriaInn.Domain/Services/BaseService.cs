@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models;
-using QuestBoard.Repository.Interfaces;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Repository.Interfaces;
 
-namespace QuestBoard.Domain.Services;
+namespace EuphoriaInn.Domain.Services;
 
 internal abstract class BaseService<TModel, TEntity>(IBaseRepository<TEntity> repository, IMapper mapper) : IBaseService<TModel>
     where TModel : class, IModel

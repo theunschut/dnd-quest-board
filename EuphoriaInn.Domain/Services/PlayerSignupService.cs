@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models.QuestBoard;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Interfaces;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Interfaces;
 
-namespace QuestBoard.Domain.Services
+namespace EuphoriaInn.Domain.Services
 {
     internal class PlayerSignupService(IPlayerSignupRepository repository, IMapper mapper) : BaseService<PlayerSignup, PlayerSignupEntity>(repository, mapper), IPlayerSignupService
     {

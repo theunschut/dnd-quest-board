@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.ViewModels.AccountViewModels;
+namespace EuphoriaInn.Service.ViewModels.AccountViewModels;
 
 public class ChangePasswordViewModel
 {

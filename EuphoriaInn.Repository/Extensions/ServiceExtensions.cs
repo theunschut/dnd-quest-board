@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Interfaces;
 
-namespace QuestBoard.Repository.Extensions;
+namespace EuphoriaInn.Repository.Extensions;
 
 public static class ServiceExtensions
 {
@@ -17,6 +17,10 @@ public static class ServiceExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
         services.AddScoped<IQuestRepository, QuestRepository>();
+        services.AddScoped<IShopRepository, ShopRepository>();
+        services.AddScoped<IPlayerTransactionRepository, PlayerTransactionRepository>();
+        services.AddScoped<ITradeItemRepository, TradeItemRepository>();
+        services.AddScoped<IDmItemVoteRepository, DmItemVoteRepository>();
 
         return services;
     }

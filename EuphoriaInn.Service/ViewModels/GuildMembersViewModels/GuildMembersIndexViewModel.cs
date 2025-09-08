@@ -1,6 +1,6 @@
-using QuestBoard.Domain.Models;
+using EuphoriaInn.Domain.Models;
 
-namespace QuestBoard.Service.ViewModels.GuildMembersViewModels;
+namespace EuphoriaInn.Service.ViewModels.GuildMembersViewModels;
 
 public class GuildMembersIndexViewModel
 {

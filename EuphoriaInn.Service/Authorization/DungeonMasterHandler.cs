@@ -1,7 +1,7 @@
+using EuphoriaInn.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using QuestBoard.Domain.Interfaces;
 
-namespace QuestBoard.Service.Authorization;
+namespace EuphoriaInn.Service.Authorization;
 
 public class DungeonMasterHandler(IUserService userService) : AuthorizationHandler<DungeonMasterRequirement>
 {

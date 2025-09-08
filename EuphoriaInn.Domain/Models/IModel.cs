@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Domain.Models;
+﻿namespace EuphoriaInn.Domain.Models;
 
 public interface IModel
 {

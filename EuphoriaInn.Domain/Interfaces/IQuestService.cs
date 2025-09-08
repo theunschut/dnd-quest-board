@@ -1,8 +1,7 @@
-﻿using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Models;
-using QuestBoard.Domain.Models.QuestBoard;
+﻿using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Domain.Models.QuestBoard;
 
-namespace QuestBoard.Domain.Interfaces;
+namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IQuestService : IBaseService<Quest>
 {

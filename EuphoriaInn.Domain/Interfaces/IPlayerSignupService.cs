@@ -1,6 +1,6 @@
-﻿using QuestBoard.Domain.Models.QuestBoard;
+﻿using EuphoriaInn.Domain.Models.QuestBoard;
 
-namespace QuestBoard.Domain.Interfaces;
+namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IPlayerSignupService : IBaseService<PlayerSignup>
 {

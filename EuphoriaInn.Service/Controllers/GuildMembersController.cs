@@ -1,11 +1,9 @@
-﻿using AutoMapper;
+﻿using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Service.ViewModels.GuildMembersViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels.GuildMembersViewModels;
 
-namespace QuestBoard.Service.Controllers
+namespace EuphoriaInn.Service.Controllers
 {
     [Authorize]
     public class GuildMembersController(IUserService service) : Controller

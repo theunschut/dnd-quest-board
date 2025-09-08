@@ -1,7 +1,6 @@
-﻿using QuestBoard.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace QuestBoard.Service.ViewModels.QuestViewModels;
+namespace EuphoriaInn.Service.ViewModels.QuestViewModels;
 
 public class QuestViewModel
 {

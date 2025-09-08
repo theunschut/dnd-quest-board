@@ -1,8 +1,8 @@
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Service.ViewModels.CalendarViewModels;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Service.ViewModels.CalendarViewModels;
 
-namespace QuestBoard.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers;
 
 public class CalendarController(IQuestService questService) : Controller
 {

@@ -1,10 +1,10 @@
+using EuphoriaInn.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using QuestBoard.Domain.Interfaces;
 using System.Net;
 using System.Net.Mail;
 
-namespace QuestBoard.Domain.Services;
+namespace EuphoriaInn.Domain.Services;
 
 public class EmailService(IConfiguration configuration, ILogger<EmailService> logger) : IEmailService
 {

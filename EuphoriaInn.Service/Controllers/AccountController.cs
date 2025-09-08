@@ -1,9 +1,9 @@
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Service.ViewModels.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Service.ViewModels.AccountViewModels;
 
-namespace QuestBoard.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers;
 
 public class AccountController(IUserService userService) : Controller
 {

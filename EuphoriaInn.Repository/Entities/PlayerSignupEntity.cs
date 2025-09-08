@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace QuestBoard.Repository.Entities;
+namespace EuphoriaInn.Repository.Entities;
 
 [Table("PlayerSignups")]
 public class PlayerSignupEntity : IEntity

@@ -1,14 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuestBoard.Domain.Enums;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models;
-using QuestBoard.Service.ViewModels.QuestViewModels;
-using QuestBoard.Service.ViewModels.CalendarViewModels;
-using QuestBoard.Domain.Models.QuestBoard;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Service.ViewModels.QuestViewModels;
+using EuphoriaInn.Service.ViewModels.CalendarViewModels;
 
-namespace QuestBoard.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers;
 
 public class QuestController(
     IUserService userService,
@@ -246,7 +246,7 @@ public class QuestController(
 
         // Get unique months that have proposed dates for this quest
         var monthsWithProposedDates = quest.ProposedDates
-            .Select(pd => new { Year = pd.Date.Year, Month = pd.Date.Month })
+            .Select(pd => new { pd.Date.Year, pd.Date.Month })
             .Distinct()
             .OrderBy(m => m.Year).ThenBy(m => m.Month)
             .Select(m => new CalendarViewModel

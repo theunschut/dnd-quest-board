@@ -1,4 +1,4 @@
-﻿namespace QuestBoard.Service.ViewModels.CalendarViewModels;
+﻿namespace EuphoriaInn.Service.ViewModels.CalendarViewModels;
 
 public class CalendarDay
 {

@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Models;
-using QuestBoard.Repository.Entities;
-using QuestBoard.Repository.Interfaces;
 using System.Security.Claims;
 
-namespace QuestBoard.Domain.Services;
+namespace EuphoriaInn.Domain.Services;
 
 internal class UserService(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, IUserRepository repository, IMapper mapper) : BaseService<User, UserEntity>(repository, mapper), IUserService
 {

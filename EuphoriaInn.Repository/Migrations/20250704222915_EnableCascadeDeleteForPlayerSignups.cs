@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace QuestBoard.Repository.Migrations
+namespace EuphoriaInn.Repository.Migrations
 {
     /// <inheritdoc />
     public partial class EnableCascadeDeleteForPlayerSignups : Migration

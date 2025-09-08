@@ -1,0 +1,95 @@
+# Claude Code Implementation Prompt
+
+## Task Overview
+Implement a Magic Item Shop system for the existing D&D Quest Board ASP.NET Core 8 MVC application. The shop should integrate seamlessly with the current 3-layer clean architecture and follow established patterns.
+
+## Project Context
+- **Existing Application**: D&D Quest Board with quest management, DM registration, and player signup
+- **Architecture**: 3-layer clean architecture (Domain/Repository/Service)
+- **Tech Stack**: ASP.NET Core 8 MVC, Entity Framework Core, SQLite, Bootstrap 5
+- **Current Features**: Quest CRUD, DM management, player voting system, email notifications
+
+## Requirements to Implement
+
+### Core Shop Features
+1. **Basic Equipment Store**: Always-available D&D equipment with unlimited stock
+2. **Magic Item Management**: DMs can add magic items with quantities and D&D Beyond links
+3. **Approval Workflow**: Items start as drafts, require DM majority vote to publish
+4. **Player Shop Interface**: Browse and purchase published items
+5. **Pricing System**: Auto-price magic items based on Tasha's Cauldron rarity guidelines
+6. **Trade/Bargain System**: Player-to-player item trading and sell-back system
+7. **Limited Time Items**: Optional availability windows for special items
+
+### Technical Implementation Requirements
+
+#### Database Schema (Add to existing QuestBoardContext)
+```csharp
+// Core entities needed:
+- ShopItem (name, description, type, rarity, price, quantity, status, reference_url)
+- DmItemVote (shop_item_id, dm_id, vote_type, vote_date) 
+- PlayerTransaction (player_info, item_id, transaction_type, price, date)
+- TradeItem (item_name, offered_by_player, wanted_item, status, listed_date)
+
+// Enums:
+- ItemType: Equipment, MagicItem, TradeItem
+- ItemRarity: Common, Uncommon, Rare, VeryRare, Legendary
+- ItemStatus: Draft, UnderReview, Published, Archived
+- TransactionType: Purchase, Trade, Sell, QuestReward
+```
+
+#### Repository Pattern (Follow existing pattern)
+- Create `IShopRepository` and `ShopRepository` following `IQuestRepository` pattern
+- Add shop-related methods to handle CRUD, voting, transactions
+- Use AutoMapper for entity-to-domain model mapping
+- Integrate with existing `QuestBoardContext`
+
+#### MVC Controllers & Views
+- `ShopController`: Public shop browsing, item details, purchase flow
+- `ShopManagementController`: DM item creation, approval dashboard, inventory management
+- Views: Shop storefront, item details, DM management dashboard, trade interface
+- Follow existing Bootstrap 5 + D&D theming patterns
+
+### Specific Implementation Steps
+
+1. **Database Layer First**:
+   - Add new entities to QuestBoard.Domain
+   - Create migration with basic D&D equipment seed data
+   - Add AutoMapper profiles for new entities
+
+2. **Repository Implementation**:
+   - Create shop repositories following existing quest repository patterns
+   - Implement voting logic similar to existing quest date voting
+   - Add transaction tracking and trade management methods
+
+3. **Business Logic**:
+   - Implement Tasha's Cauldron pricing algorithm for magic item rarities
+   - Create approval workflow (draft → under review → published)
+   - Add inventory management (quantity tracking, limited time items)
+
+4. **Controllers & Views**:
+   - Public shop interface with item browsing and filtering
+   - DM management dashboard for item creation and approval
+   - Trade/bargain bin interface for player-to-player transactions
+   - Integration with existing session-based DM authentication
+
+5. **Integration Points**:
+   - Link quest rewards to shop inventory
+   - Email notifications for item approvals and purchases
+   - Maintain consistency with existing UI/UX patterns
+
+### Design Guidelines
+- **Follow Existing Patterns**: Use the same architectural patterns as quest management
+- **Reuse Components**: Leverage existing voting system, email service, and session management
+- **Maintain Theme**: Keep D&D theming consistent with current Bootstrap 5 styling
+- **Clean Architecture**: Maintain separation between Domain/Repository/Service layers
+- **Database Consistency**: Use same naming conventions and relationship patterns
+
+### Expected Deliverables
+- Complete database schema with migrations
+- Repository layer with full CRUD and business logic
+- MVC controllers with comprehensive shop functionality
+- Responsive views with D&D-themed styling
+- Integration with existing authentication and email systems
+- Seed data for basic D&D equipment
+
+Please implement this Magic Item Shop system following the established patterns in the codebase, ensuring it integrates seamlessly with the existing quest management functionality in the EuphoriaInn application.

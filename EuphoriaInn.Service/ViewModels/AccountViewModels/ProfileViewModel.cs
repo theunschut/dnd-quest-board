@@ -1,6 +1,6 @@
-﻿using QuestBoard.Domain.Models;
+﻿using EuphoriaInn.Domain.Models;
 
-namespace QuestBoard.Service.ViewModels.AccountViewModels;
+namespace EuphoriaInn.Service.ViewModels.AccountViewModels;
 
 public class ProfileViewModel
 {

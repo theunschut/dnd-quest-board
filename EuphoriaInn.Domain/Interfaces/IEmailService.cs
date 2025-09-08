@@ -1,4 +1,4 @@
-namespace QuestBoard.Domain.Interfaces;
+namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IEmailService
 {

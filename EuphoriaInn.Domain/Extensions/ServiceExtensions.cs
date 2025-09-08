@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using QuestBoard.Domain.Configuration;
-using QuestBoard.Domain.Interfaces;
-using QuestBoard.Domain.Services;
 
-namespace QuestBoard.Domain.Extensions;
+namespace EuphoriaInn.Domain.Extensions;
 
 public static class ServiceExtensions
 {

@@ -1,4 +1,4 @@
-namespace QuestBoard.Domain.Enums;
+namespace EuphoriaInn.Domain.Enums;
 
 public enum Role
 {
