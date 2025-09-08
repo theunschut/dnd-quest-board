@@ -13,6 +13,7 @@ public static class ServiceExtensions
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IPlayerSignupService, PlayerSignupService>();
         services.AddScoped<IQuestService, QuestService>();
+        services.AddScoped<IShopService, ShopService>();
 
         return services;
     }

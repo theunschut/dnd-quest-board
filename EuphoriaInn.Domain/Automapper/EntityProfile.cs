@@ -2,6 +2,7 @@
 using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.Domain.Automapper;
@@ -43,5 +44,39 @@ public class EntityProfile : Profile
 
         CreateMap<PlayerDateVoteEntity, PlayerDateVote>()
             .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.Vote.HasValue ? (VoteType)src.Vote.Value : (VoteType?)null));
+
+        // Shop entity mappings
+        
+        // ShopItem mapping with enum conversions
+        CreateMap<ShopItem, ShopItemEntity>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type))
+            .ForMember(dest => dest.Rarity, opt => opt.MapFrom(src => (int)src.Rarity))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status));
+
+        CreateMap<ShopItemEntity, ShopItem>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (ItemType)src.Type))
+            .ForMember(dest => dest.Rarity, opt => opt.MapFrom(src => (ItemRarity)src.Rarity))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (ItemStatus)src.Status));
+
+        // DmItemVote mapping
+        CreateMap<DmItemVote, DmItemVoteEntity>()
+            .ForMember(dest => dest.VoteType, opt => opt.MapFrom(src => (int)src.VoteType));
+
+        CreateMap<DmItemVoteEntity, DmItemVote>()
+            .ForMember(dest => dest.VoteType, opt => opt.MapFrom(src => (VoteType)src.VoteType));
+
+        // PlayerTransaction mapping
+        CreateMap<PlayerTransaction, PlayerTransactionEntity>()
+            .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => (int)src.TransactionType));
+
+        CreateMap<PlayerTransactionEntity, PlayerTransaction>()
+            .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => (TransactionType)src.TransactionType));
+
+        // TradeItem mapping
+        CreateMap<TradeItem, TradeItemEntity>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status));
+
+        CreateMap<TradeItemEntity, TradeItem>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (TradeStatus)src.Status));
     }
 }
