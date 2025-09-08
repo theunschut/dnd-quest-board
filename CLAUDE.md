@@ -18,13 +18,13 @@ This is a comprehensive D&D Quest Board web application built with ASP.NET Core 
 dotnet build
 
 # Run the application
-dotnet run --project QuestBoard.Service
+dotnet run --project EuphoriaInn.Service
 
 # Restore packages for solution
 dotnet restore
 ```
 
-### From QuestBoard.Service Directory
+### From EuphoriaInn.Service Directory
 ```bash
 # Run the application
 dotnet run
@@ -39,7 +39,7 @@ dotnet restore
 dotnet ef database update
 
 # Create Entity Framework migrations (run from Service project)
-dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
+dotnet ef migrations add MigrationName --project ../EuphoriaInn.Repository
 ```
 
 ### Connection String Notes
@@ -63,9 +63,9 @@ docker-compose down
 The application follows a clean architecture pattern with three main layers:
 
 ### Project Structure
-- **QuestBoard.Domain**: Contains business models, enums, and core domain logic
-- **QuestBoard.Repository**: Data access layer with Entity Framework Core, repositories, and AutoMapper profiles
-- **QuestBoard.Service**: MVC web application with controllers, views, services, and view models
+- **EuphoriaInn.Domain**: Contains business models, enums, and core domain logic
+- **EuphoriaInn.Repository**: Data access layer with Entity Framework Core, repositories, and AutoMapper profiles
+- **EuphoriaInn.Service**: MVC web application with controllers, views, services, and view models
 
 ### Technology Stack
 - **Backend**: ASP.NET Core 8 MVC with Repository Pattern
@@ -75,7 +75,7 @@ The application follows a clean architecture pattern with three main layers:
 - **Mapping**: AutoMapper for entity-to-model mapping
 - **Deployment**: Docker containerization
 
-### Core Domain Models (QuestBoard.Domain)
+### Core Domain Models (EuphoriaInn.Domain)
 - `Quest`: Main quest entity with title, description, difficulty, DM info, and scheduling
 - `User`: User account management with authentication and profile information
 - `ProposedDate`: Date options for each quest with voting capabilities
@@ -84,7 +84,7 @@ The application follows a clean architecture pattern with three main layers:
 - `Difficulty`: Enum for quest difficulty levels (Easy, Medium, Hard, Deadly)
 - `VoteType`: Enum for player vote types (Yes, No, Maybe)
 
-### Domain Services (QuestBoard.Domain/Services)
+### Domain Services (EuphoriaInn.Domain/Services)
 - `QuestService`: Business logic for quest management and coordination
 - `UserService`: User account management and authentication logic
 - `PlayerSignupService`: Player registration and quest participation logic
@@ -95,7 +95,7 @@ The application follows a clean architecture pattern with three main layers:
 - `SecurityConfiguration`: Centralized security settings and authentication configuration
 - `ServiceExtensions`: Dependency injection configuration for domain services
 
-### Repository Layer (QuestBoard.Repository)
+### Repository Layer (EuphoriaInn.Repository)
 - `IQuestRepository`: Interface defining quest data operations
 - `QuestRepository`: Implementation with Entity Framework Core
 - `IUserRepository`: Interface for user account data operations
@@ -108,7 +108,7 @@ The application follows a clean architecture pattern with three main layers:
 - AutoMapper profiles for entity-to-domain model mapping
 - `ServiceExtensions`: Repository dependency injection configuration
 
-### Service Layer (QuestBoard.Service)
+### Service Layer (EuphoriaInn.Service)
 #### Controllers
 - `HomeController`: Handles main quest board display and dashboard
 - `QuestController`: Manages quest CRUD operations and player interactions
@@ -234,14 +234,14 @@ The application follows a clean architecture pattern with three main layers:
 dotnet tool install --global dotnet-ef
 
 # Create a new migration (run from Service project directory)
-cd QuestBoard.Service
-dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
+cd EuphoriaInn.Service
+dotnet ef migrations add MigrationName --project ../EuphoriaInn.Repository
 
 # Apply migrations to database
-dotnet ef database update --project ../QuestBoard.Repository
+dotnet ef database update --project ../EuphoriaInn.Repository
 
 # Remove the last migration (if needed)
-dotnet ef migrations remove --project ../QuestBoard.Repository
+dotnet ef migrations remove --project ../EuphoriaInn.Repository
 ```
 
 ### Automatic Migration Application
@@ -257,10 +257,10 @@ If you encounter "table already exists" errors when switching from EnsureCreated
 2. **For clean migration setup**: 
    ```bash
    # Remove current migrations
-   dotnet ef migrations remove --project ../QuestBoard.Repository
+   dotnet ef migrations remove --project ../EuphoriaInn.Repository
    
    # Create initial migration (from current schema)
-   dotnet ef migrations add InitialCreate --project ../QuestBoard.Repository
+   dotnet ef migrations add InitialCreate --project ../EuphoriaInn.Repository
    
    # Delete database and restart app to apply migrations cleanly
    ```
