@@ -37,10 +37,10 @@ public class ShopManagementController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(CancellationToken token = default)
+    public Task<IActionResult> Create(CancellationToken token = default)
     {
         var viewModel = new CreateShopItemViewModel();
-        return View(viewModel);
+        return Task.FromResult<IActionResult>(View(viewModel));
     }
 
     [HttpPost]

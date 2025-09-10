@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace EuphoriaInn.Domain.Services;
 
-internal class ShopService(IShopRepository repository, IUserTransactionRepository transactionRepository, IUserService userService, IMapper mapper) : BaseService<ShopItem, ShopItemEntity>(repository, mapper), IShopService
+internal class ShopService(IShopRepository repository, IUserTransactionRepository transactionRepository, IMapper mapper) : BaseService<ShopItem, ShopItemEntity>(repository, mapper), IShopService
 {
     public async Task<IList<ShopItem>> GetPublishedItemsAsync(CancellationToken token = default)
     {
