@@ -14,6 +14,7 @@ public static class ServiceExtensions
         services.AddScoped<IPlayerSignupService, PlayerSignupService>();
         services.AddScoped<IQuestService, QuestService>();
         services.AddScoped<IShopService, ShopService>();
+        services.AddScoped<IShopSeedService, ShopSeedService>();
 
         return services;
     }

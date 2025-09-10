@@ -1,13 +1,15 @@
 using AutoMapper;
-using EuphoriaInn.Domain.Interfaces;
-using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace EuphoriaInn.Domain.Services;
 
-internal class ShopService(IShopRepository repository, IDmItemVoteRepository voteRepository, IMapper mapper) : BaseService<ShopItem, ShopItemEntity>(repository, mapper), IShopService
+internal class ShopService(IShopRepository repository, IUserTransactionRepository transactionRepository, IUserService userService, IMapper mapper) : BaseService<ShopItem, ShopItemEntity>(repository, mapper), IShopService
 {
     public async Task<IList<ShopItem>> GetPublishedItemsAsync(CancellationToken token = default)
     {
@@ -27,12 +29,6 @@ internal class ShopService(IShopRepository repository, IDmItemVoteRepository vot
         return Mapper.Map<IList<ShopItem>>(itemEntities);
     }
 
-    public async Task<IList<ShopItem>> GetItemsWithVotesAsync(CancellationToken token = default)
-    {
-        var itemEntities = await repository.GetItemsWithVotesAsync(token);
-        return Mapper.Map<IList<ShopItem>>(itemEntities);
-    }
-
     public async Task<ShopItem?> GetItemWithDetailsAsync(int id, CancellationToken token = default)
     {
         var itemEntity = await repository.GetItemWithDetailsAsync(id, token);
@@ -45,27 +41,12 @@ internal class ShopService(IShopRepository repository, IDmItemVoteRepository vot
         return Mapper.Map<IList<ShopItem>>(itemEntities);
     }
 
-    public async Task<bool> HasDmVotedAsync(int itemId, int dmId, CancellationToken token = default)
-    {
-        return await repository.HasDmVotedAsync(itemId, dmId, token);
-    }
-
-    public async Task<int> GetYesVotesCountAsync(int itemId, CancellationToken token = default)
-    {
-        return await repository.GetYesVotesCountAsync(itemId, token);
-    }
-
-    public async Task<int> GetTotalDmCountAsync(CancellationToken token = default)
-    {
-        return await repository.GetTotalDmCountAsync(token);
-    }
-
     // Business logic methods
 
-    public async Task<decimal> CalculateItemPriceAsync(ItemRarity rarity, CancellationToken token = default)
+    public Task<decimal> CalculateItemPriceAsync(ItemRarity rarity, CancellationToken token = default)
     {
         // Implement Tasha's Cauldron pricing guidelines
-        return rarity switch
+        return Task.FromResult(rarity switch
         {
             ItemRarity.Common => 100m,
             ItemRarity.Uncommon => 500m,
@@ -73,65 +54,77 @@ internal class ShopService(IShopRepository repository, IDmItemVoteRepository vot
             ItemRarity.VeryRare => 50000m,
             ItemRarity.Legendary => 200000m,
             _ => 100m
-        };
-    }
-
-    public async Task SubmitForApprovalAsync(int itemId, CancellationToken token = default)
-    {
-        var itemEntity = await repository.GetByIdAsync(itemId, token);
-        if (itemEntity != null && itemEntity.Status == (int)ItemStatus.Draft)
-        {
-            itemEntity.Status = (int)ItemStatus.UnderReview;
-            await repository.UpdateAsync(itemEntity, token);
-        }
-    }
-
-    public async Task VoteOnItemAsync(int itemId, int dmId, VoteType voteType, CancellationToken token = default)
-    {
-        // Check if DM has already voted
-        var existingVote = await voteRepository.GetVoteAsync(itemId, dmId, token);
-        
-        if (existingVote != null)
-        {
-            // Update existing vote
-            existingVote.VoteType = (int)voteType;
-            existingVote.VoteDate = DateTime.UtcNow;
-            await voteRepository.UpdateAsync(existingVote, token);
-        }
-        else
-        {
-            // Create new vote
-            var newVote = new DmItemVoteEntity
-            {
-                ShopItemId = itemId,
-                DmId = dmId,
-                VoteType = (int)voteType,
-                VoteDate = DateTime.UtcNow
-            };
-            await voteRepository.AddAsync(newVote, token);
-        }
-    }
-
-    public async Task<bool> CheckApprovalStatusAsync(int itemId, CancellationToken token = default)
-    {
-        var yesVotes = await GetYesVotesCountAsync(itemId, token);
-        var totalDms = await GetTotalDmCountAsync(token);
-        
-        // Require majority approval (more than 50% of DMs)
-        return totalDms > 0 && yesVotes > (totalDms / 2);
+        });
     }
 
     public async Task PublishItemAsync(int itemId, CancellationToken token = default)
     {
         var itemEntity = await repository.GetByIdAsync(itemId, token);
-        if (itemEntity != null && itemEntity.Status == (int)ItemStatus.UnderReview)
+        if (itemEntity != null && itemEntity.Status == (int)ItemStatus.Draft)
         {
-            var isApproved = await CheckApprovalStatusAsync(itemId, token);
-            if (isApproved)
-            {
-                itemEntity.Status = (int)ItemStatus.Published;
-                await repository.UpdateAsync(itemEntity, token);
-            }
+            itemEntity.Status = (int)ItemStatus.Published;
+            await repository.UpdateAsync(itemEntity, token);
         }
+    }
+
+    public async Task<UserTransaction> PurchaseItemAsync(int itemId, int quantity, User user, CancellationToken token = default)
+    {
+        var itemEntity = await repository.GetByIdAsync(itemId, token);
+        if (itemEntity == null || itemEntity.Status != (int)ItemStatus.Published)
+        {
+            throw new InvalidOperationException("Item is not available for purchase.");
+        }
+
+        if (itemEntity.Quantity > 0 && itemEntity.Quantity < quantity)
+        {
+            throw new InvalidOperationException($"Only {itemEntity.Quantity} items available in stock.");
+        }
+
+        // Update item quantity if it's not unlimited (quantity > 0)
+        if (itemEntity.Quantity > 0)
+        {
+            itemEntity.Quantity -= quantity;
+            await repository.UpdateAsync(itemEntity, token);
+        }
+
+        // Create transaction record
+        var transactionEntity = new UserTransactionEntity
+        {
+            ShopItemId = itemId,
+            UserId = user.Id,
+            Quantity = quantity,
+            Price = itemEntity.Price * quantity,
+            TransactionType = (int)TransactionType.Purchase,
+            TransactionDate = DateTime.UtcNow,
+            Notes = $"Purchase of {quantity}x {itemEntity.Name}"
+        };
+
+        await transactionRepository.AddAsync(transactionEntity, token);
+        await transactionRepository.SaveChangesAsync(token);
+        
+        // Map back to domain model and return
+        return Mapper.Map<UserTransaction>(transactionEntity);
+    }
+
+    public async Task ArchiveItemAsync(int itemId, CancellationToken token = default)
+    {
+        var itemEntity = await repository.GetByIdAsync(itemId, token);
+        if (itemEntity != null)
+        {
+            itemEntity.Status = (int)ItemStatus.Archived;
+            await repository.UpdateAsync(itemEntity, token);
+        }
+    }
+
+    public async Task<IList<UserTransaction>> GetUserTransactionsAsync(int userId, CancellationToken token = default)
+    {
+        var transactionEntities = await transactionRepository.GetTransactionsByUserAsync(userId, token);
+        return Mapper.Map<IList<UserTransaction>>(transactionEntities);
+    }
+
+    public async Task<IList<UserTransaction>> GetAllTransactionsAsync(CancellationToken token = default)
+    {
+        var transactionEntities = await transactionRepository.GetAllAsync(token);
+        return Mapper.Map<IList<UserTransaction>>(transactionEntities);
     }
 }

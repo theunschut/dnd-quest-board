@@ -3,7 +3,7 @@ using EuphoriaInn.Service.ViewModels.AdminViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EuphoriaInn.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
 public class AdminController(IUserService userService, IQuestService questService) : Controller

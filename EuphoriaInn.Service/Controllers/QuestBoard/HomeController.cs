@@ -2,7 +2,7 @@ using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EuphoriaInn.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers.QuestBoard;
 
 public class HomeController(IQuestService questService, IUserService userService) : Controller
 {

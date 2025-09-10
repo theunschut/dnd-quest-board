@@ -18,9 +18,8 @@ public static class ServiceExtensions
         services.AddScoped<IPlayerSignupRepository, PlayerSignupRepository>();
         services.AddScoped<IQuestRepository, QuestRepository>();
         services.AddScoped<IShopRepository, ShopRepository>();
-        services.AddScoped<IPlayerTransactionRepository, PlayerTransactionRepository>();
+        services.AddScoped<IUserTransactionRepository, UserTransactionRepository>();
         services.AddScoped<ITradeItemRepository, TradeItemRepository>();
-        services.AddScoped<IDmItemVoteRepository, DmItemVoteRepository>();
 
         return services;
     }

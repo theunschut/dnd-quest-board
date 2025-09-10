@@ -46,7 +46,5 @@ public class ShopItemEntity : IEntity
     [ForeignKey(nameof(CreatedByDmId))]
     public virtual UserEntity CreatedByDm { get; set; } = null!;
 
-    public virtual ICollection<DmItemVoteEntity> DmVotes { get; set; } = [];
-
-    public virtual ICollection<PlayerTransactionEntity> Transactions { get; set; } = [];
+    public virtual ICollection<UserTransactionEntity> Transactions { get; set; } = [];
 }

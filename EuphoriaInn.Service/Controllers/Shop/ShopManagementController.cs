@@ -6,7 +6,7 @@ using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Service.ViewModels.ShopViewModels;
 
-namespace EuphoriaInn.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers.Shop;
 
 [Authorize(Policy = "DungeonMasterOnly")]
 public class ShopManagementController(
@@ -25,12 +25,12 @@ public class ShopManagementController(
         }
 
         var myItems = await shopService.GetItemsByDmAsync(currentUser.Id, token);
-        var itemsForReview = await shopService.GetItemsWithVotesAsync(token);
+        var draftItems = await shopService.GetItemsByStatusAsync(ItemStatus.Draft, token);
 
         var viewModel = new ShopManagementIndexViewModel
         {
             MyItems = mapper.Map<IList<ShopItemViewModel>>(myItems),
-            ItemsForReview = mapper.Map<IList<ShopItemViewModel>>(itemsForReview)
+            ItemsForReview = mapper.Map<IList<ShopItemViewModel>>(draftItems.Where(i => i.CreatedByDmId != currentUser.Id).ToList())
         };
 
         return View(viewModel);
@@ -122,7 +122,7 @@ public class ShopManagementController(
         // Only allow editing if item is still in draft status
         if (item.Status != ItemStatus.Draft)
         {
-            TempData["Error"] = "Cannot edit items that have been submitted for review.";
+            TempData["Error"] = "Cannot edit items that have been published.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -144,7 +144,7 @@ public class ShopManagementController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitForReview(int id, CancellationToken token = default)
+    public async Task<IActionResult> Publish(int id, CancellationToken token = default)
     {
         var item = await shopService.GetByIdAsync(id, token);
         if (item == null)
@@ -158,48 +158,65 @@ public class ShopManagementController(
             return Forbid();
         }
 
-        await shopService.SubmitForApprovalAsync(id, token);
+        if (item.Status != ItemStatus.Draft)
+        {
+            TempData["Error"] = "This item is already published or archived.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        await shopService.PublishItemAsync(id, token);
         
-        TempData["Success"] = "Item submitted for DM review!";
+        TempData["Success"] = "Item published successfully!";
         return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Vote(int id, VoteType voteType, CancellationToken token = default)
+    public async Task<IActionResult> Archive(int id, CancellationToken token = default)
     {
-        var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null)
-        {
-            return Challenge();
-        }
-
         var item = await shopService.GetByIdAsync(id, token);
         if (item == null)
         {
             return NotFound();
         }
 
-        if (item.Status != ItemStatus.UnderReview)
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
         {
-            TempData["Error"] = "This item is not under review.";
+            return Forbid();
+        }
+
+        await shopService.ArchiveItemAsync(id, token);
+        
+        TempData["Success"] = "Item archived successfully!";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reopen(int id, CancellationToken token = default)
+    {
+        var item = await shopService.GetByIdAsync(id, token);
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        if (item.Status != ItemStatus.Archived)
+        {
+            TempData["Error"] = "Only archived items can be reopened.";
             return RedirectToAction(nameof(Index));
         }
 
-        await shopService.VoteOnItemAsync(id, currentUser.Id, voteType, token);
-
-        // Check if item should be published based on votes
-        var isApproved = await shopService.CheckApprovalStatusAsync(id, token);
-        if (isApproved)
-        {
-            await shopService.PublishItemAsync(id, token);
-            TempData["Success"] = $"Item approved and published! Your {voteType.ToString().ToLower()} vote helped reach consensus.";
-        }
-        else
-        {
-            TempData["Success"] = $"Your {voteType.ToString().ToLower()} vote has been recorded.";
-        }
-
+        await shopService.PublishItemAsync(id, token);
+        
+        TempData["Success"] = "Item reopened successfully!";
         return RedirectToAction(nameof(Index));
     }
 
@@ -222,7 +239,7 @@ public class ShopManagementController(
         // Only allow deletion if item is still in draft status
         if (item.Status != ItemStatus.Draft)
         {
-            TempData["Error"] = "Cannot delete items that have been submitted for review.";
+            TempData["Error"] = "Cannot delete items that have been published.";
             return RedirectToAction(nameof(Index));
         }
 

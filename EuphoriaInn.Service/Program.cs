@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Extensions;
 using EuphoriaInn.Domain.Automapper;
@@ -89,4 +90,30 @@ app.MapHealthChecks("/health");
 
 app.Services.ConfigureDatabase();
 
+// Seed basic shop data
+await SeedShopDataAsync(app);
+
 app.Run();
+
+static async Task SeedShopDataAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    try
+    {
+        var shopSeedService = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Domain.Interfaces.IShopSeedService>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+        
+        // Find first admin/DM user to attribute seed data to
+        var adminUser = await userManager.Users.FirstOrDefaultAsync();
+        if (adminUser != null)
+        {
+            await shopSeedService.SeedBasicEquipmentAsync(adminUser.Id);
+        }
+    }
+    catch (Exception ex)
+    {
+        // Log error but don't stop application startup
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error seeding shop data");
+    }
+}

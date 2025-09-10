@@ -1,0 +1,261 @@
+@using EuphoriaInn.Service.ViewModels.ShopViewModels
+@model ShopIndexViewModel
+@{
+    ViewData["Title"] = "The Mystical Merchant's Emporium";
+}
+
+<!-- Purchase History Side Panel -->
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="purchase-history-panel">
+        <div class="panel-header">
+            <h6 class="mb-0">
+                <i class="fas fa-history me-2"></i>My Purchases
+            </h6>
+        </div>
+        <div class="panel-body">
+            @if (Model.UserPurchases?.Any() == true)
+            {
+                <div class="purchase-list">
+                    @foreach (var purchase in Model.UserPurchases.Take(15))
+                    {
+                        <div class="purchase-item mb-2 p-2">
+                            <div class="purchase-name fw-bold text-truncate" title="@purchase.ItemName">
+                                @purchase.ItemName
+                            </div>
+                            <div class="purchase-details d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-sort-numeric-up me-1"></i>@purchase.Quantity
+                                </small>
+                                <small class="text-warning">
+                                    <i class="fas fa-coins me-1"></i>@purchase.Price gp
+                                </small>
+                            </div>
+                            <small class="text-muted d-block">
+                                <i class="fas fa-clock me-1"></i>@purchase.TransactionDate.ToString("MMM dd")
+                            </small>
+                        </div>
+                    }
+                </div>
+                @if (Model.UserPurchases.Count > 15)
+                {
+                    <div class="text-center mt-2">
+                        <small class="text-muted">Showing latest 15 purchases</small>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted p-3">
+                    <i class="fas fa-shopping-cart fa-2x mb-2 opacity-50"></i>
+                    <p class="mb-0">No purchases yet</p>
+                    <small>Your purchase history will appear here</small>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="shop-container @(User.Identity?.IsAuthenticated == true ? "with-panel" : "")">
+    <!-- Shop Header -->
+    <div class="shop-header">
+        <h1><i class="fas fa-store me-3"></i>The Mystical Merchant's Emporium</h1>
+        <p class="mb-0 text-light">"Welcome, adventurer! Browse my wares and find what you seek..."</p>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="shop-categories text-center">
+        <a href="@Url.Action("Index", "Shop")" class="category-btn @(Model.SelectedType == null ? "active" : "")">
+            <i class="fas fa-list me-2"></i>All Items
+        </a>
+        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.Equipment })" 
+           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.Equipment ? "active" : "")">
+            <i class="fas fa-shield-alt me-2"></i>Equipment
+        </a>
+        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.MagicItem })" 
+           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.MagicItem ? "active" : "")">
+            <i class="fas fa-magic me-2"></i>Magic Items
+        </a>
+        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.QuestItems })" 
+           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.QuestItems ? "active" : "")">
+            <i class="fas fa-magic me-2"></i>Quest Items
+        </a>
+    </div>
+
+    <!-- Shop Inventory -->
+    <div class="shop-inventory">
+        @if (Model.Items?.Any() == true)
+        {
+            <div class="inventory-grid" id="inventory-grid">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="item-card" data-bs-toggle="modal" data-bs-target="#itemDetailsModal" 
+                         data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })">
+                        
+                        <!-- Item Header -->
+                        <div class="item-header">
+                            <h5 class="item-name text-light">@item.Name</h5>
+                            <span class="item-rarity rarity-@item.Rarity.ToString().ToLower()">
+                                @item.Rarity.ToString().Replace("VeryRare", "Very Rare")
+                            </span>
+                        </div>
+
+                        <!-- Item Description -->
+                        <div class="item-description">
+                            @{
+                                var shortDescription = item.Description.Length > 120 
+                                    ? item.Description.Substring(0, 120) + "..." 
+                                    : item.Description;
+                            }
+                            @shortDescription
+                        </div>
+
+                        <!-- Item Footer -->
+                        <div class="item-footer">
+                            <div class="item-price">
+                                <i class="fas fa-coins me-1"></i>@item.Price gp
+                            </div>
+                            <div class="item-stock @(item.Quantity == 0 ? "unlimited" : (item.Quantity <= 5 ? "low" : ""))">
+                                @if (item.Quantity == 0)
+                                {
+                                    <i class="fas fa-infinity me-1"></i><text>Unlimited</text>
+                                }
+                                else if (item.Quantity <= 5)
+                                {
+                                    <i class="fas fa-exclamation-triangle me-1"></i><text>@item.Quantity left</text>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-box me-1"></i><text>@item.Quantity in stock</text>
+                                }
+                            </div>
+                        </div>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <button type="button" class="purchase-btn" 
+                                    data-bs-toggle="modal" data-bs-target="#itemDetailsModal" 
+                                    data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })"
+                                    onclick="event.stopPropagation()"
+                                    @(item.Status != EuphoriaInn.Domain.Enums.ItemStatus.Published || (item.Quantity != 0 && item.Quantity <= 0) ? "disabled" : "")>
+                                <i class="fas fa-shopping-cart me-1"></i>Purchase
+                            </button>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login", "Account")" class="purchase-btn" title="Login required" onclick="event.stopPropagation()">
+                                <i class="fas fa-lock me-1"></i>Login to Purchase
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-shop">
+                <i class="fas fa-store-slash fa-3x mb-3 text-muted"></i>
+                <h3>The shop is currently empty</h3>
+                <p>Check back later for new items, or contact a Dungeon Master about stocking the shop.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Floating Merchant -->
+    <div class="shop-merchant" title="Mystical Merchant" onclick="showMerchantDialog()">
+        <i class="fas fa-user-tie"></i>
+    </div>
+</div>
+
+<!-- Item Details Modal -->
+<div class="modal fade" id="itemDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="itemDetailsTitle">Item Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="itemDetailsBody">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast show" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["Success"]
+            </div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast show" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+            <div class="toast-header bg-danger text-white">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["Error"]
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastElements = document.querySelectorAll('.toast');
+            toastElements.forEach(function(toastElement) {
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            });
+        });
+
+        // Minimal script for modal loading (Bootstrap 5 doesn't have remote modal)
+        document.getElementById('itemDetailsModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const itemUrl = button.getAttribute('data-item-url');
+            if (itemUrl) {
+                fetch(itemUrl)
+                    .then(response => response.text())
+                    .then(html => document.getElementById('itemDetailsBody').innerHTML = html);
+            }
+        });
+
+        // Handle purchase button clicks separately from card clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            const purchaseButtons = document.querySelectorAll('.purchase-btn[data-bs-toggle="modal"]');
+            purchaseButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevent card click from also triggering
+                });
+            });
+        });
+
+        // Show merchant dialog
+        function showMerchantDialog() {
+            const messages = [
+                "Welcome to my shop, traveler! What can I get for you today?",
+                "These items are of the finest quality, I assure you!",
+                "Looking for something specific? Browse my collection!",
+                "Every adventurer needs good equipment. Take a look around!",
+                "Ah, another customer! Please, examine my wares carefully."
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            alert(randomMessage);
+        }
+    </script>
+}

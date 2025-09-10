@@ -3,18 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EuphoriaInn.Repository.Entities;
 
-[Table("PlayerTransactions")]
-public class PlayerTransactionEntity : IEntity
+[Table("UserTransactions")]
+public class UserTransactionEntity : IEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Required]
-    public int PlayerId { get; set; }
+    public int UserId { get; set; }
 
-    [ForeignKey(nameof(PlayerId))]
-    public virtual UserEntity Player { get; set; } = null!;
+    [ForeignKey(nameof(UserId))]
+    public virtual UserEntity User { get; set; } = null!;
 
     [Required]
     public int ShopItemId { get; set; }

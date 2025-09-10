@@ -10,7 +10,6 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Include(si => si.DmVotes)
             .Include(si => si.Transactions)
             .ToListAsync(cancellationToken: token);
     }
@@ -19,7 +18,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Where(si => si.Status == 2) // Published
+            .Where(si => si.Status == 1) // Published
             .Where(si => si.AvailableFrom == null || si.AvailableFrom <= DateTime.UtcNow)
             .Where(si => si.AvailableUntil == null || si.AvailableUntil >= DateTime.UtcNow)
             .OrderBy(si => si.Type)
@@ -31,8 +30,6 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Include(si => si.DmVotes)
-                .ThenInclude(v => v.Dm)
             .Where(si => si.Status == status)
             .OrderByDescending(si => si.CreatedAt)
             .ToListAsync(cancellationToken: token);
@@ -42,7 +39,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Where(si => si.Type == type && si.Status == 2) // Published
+            .Where(si => si.Type == type && si.Status == 1) // Published
             .Where(si => si.AvailableFrom == null || si.AvailableFrom <= DateTime.UtcNow)
             .Where(si => si.AvailableUntil == null || si.AvailableUntil >= DateTime.UtcNow)
             .OrderBy(si => si.Rarity)
@@ -50,25 +47,12 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
             .ToListAsync(cancellationToken: token);
     }
 
-    public async Task<IList<ShopItemEntity>> GetItemsWithVotesAsync(CancellationToken token = default)
-    {
-        return await DbContext.ShopItems
-            .Include(si => si.CreatedByDm)
-            .Include(si => si.DmVotes)
-                .ThenInclude(v => v.Dm)
-            .Where(si => si.Status == 1) // UnderReview
-            .OrderByDescending(si => si.CreatedAt)
-            .ToListAsync(cancellationToken: token);
-    }
-
     public async Task<ShopItemEntity?> GetItemWithDetailsAsync(int id, CancellationToken token = default)
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Include(si => si.DmVotes)
-                .ThenInclude(v => v.Dm)
             .Include(si => si.Transactions)
-                .ThenInclude(t => t.Player)
+                .ThenInclude(t => t.User)
             .FirstOrDefaultAsync(si => si.Id == id, cancellationToken: token);
     }
 
@@ -76,29 +60,8 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
     {
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
-            .Include(si => si.DmVotes)
             .Where(si => si.CreatedByDmId == dmId)
             .OrderByDescending(si => si.CreatedAt)
             .ToListAsync(cancellationToken: token);
-    }
-
-    public async Task<bool> HasDmVotedAsync(int itemId, int dmId, CancellationToken token = default)
-    {
-        return await DbContext.DmItemVotes
-            .AnyAsync(v => v.ShopItemId == itemId && v.DmId == dmId, cancellationToken: token);
-    }
-
-    public async Task<int> GetYesVotesCountAsync(int itemId, CancellationToken token = default)
-    {
-        return await DbContext.DmItemVotes
-            .CountAsync(v => v.ShopItemId == itemId && v.VoteType == 2, cancellationToken: token); // Yes = 2
-    }
-
-    public async Task<int> GetTotalDmCountAsync(CancellationToken token = default)
-    {
-        // For now, return a simple count - this will need to be implemented properly later
-        // when we understand how roles are stored in this system
-        return await DbContext.Users
-            .CountAsync(cancellationToken: token);
     }
 }

@@ -58,25 +58,12 @@ public class EntityProfile : Profile
             .ForMember(dest => dest.Rarity, opt => opt.MapFrom(src => (ItemRarity)src.Rarity))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (ItemStatus)src.Status));
 
-        // DmItemVote mapping
-        CreateMap<DmItemVote, DmItemVoteEntity>()
-            .ForMember(dest => dest.VoteType, opt => opt.MapFrom(src => (int)src.VoteType));
 
-        CreateMap<DmItemVoteEntity, DmItemVote>()
-            .ForMember(dest => dest.VoteType, opt => opt.MapFrom(src => (VoteType)src.VoteType));
-
-        // PlayerTransaction mapping
-        CreateMap<PlayerTransaction, PlayerTransactionEntity>()
+        // UserTransaction mapping
+        CreateMap<UserTransaction, UserTransactionEntity>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => (int)src.TransactionType));
 
-        CreateMap<PlayerTransactionEntity, PlayerTransaction>()
+        CreateMap<UserTransactionEntity, UserTransaction>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => (TransactionType)src.TransactionType));
-
-        // TradeItem mapping
-        CreateMap<TradeItem, TradeItemEntity>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status));
-
-        CreateMap<TradeItemEntity, TradeItem>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (TradeStatus)src.Status));
     }
 }

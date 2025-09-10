@@ -67,7 +67,6 @@ public class ShopItemViewModel
     public string StatusDisplayName => Status switch
     {
         ItemStatus.Draft => "Draft",
-        ItemStatus.UnderReview => "Under Review",
         ItemStatus.Published => "Available",
         ItemStatus.Archived => "Archived",
         _ => "Unknown"
@@ -76,7 +75,6 @@ public class ShopItemViewModel
     public string StatusColorClass => Status switch
     {
         ItemStatus.Draft => "text-muted",
-        ItemStatus.UnderReview => "text-warning",
         ItemStatus.Published => "text-success",
         ItemStatus.Archived => "text-secondary",
         _ => "text-muted"

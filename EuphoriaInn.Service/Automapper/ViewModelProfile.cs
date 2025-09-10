@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Service.ViewModels.QuestViewModels;
+using EuphoriaInn.Service.ViewModels.ShopViewModels;
 
 namespace EuphoriaInn.Service.Automapper;
 
@@ -22,5 +24,35 @@ public class ViewModelProfile : Profile
         CreateMap<Quest, QuestViewModel>()
             .ForMember(dest => dest.ProposedDates, opt => opt.MapFrom(src => src.ProposedDates.Select(pd => pd.Date).ToList()))
             .ForMember(dest => dest.DungeonMasterId, opt => opt.MapFrom(src => src.DungeonMaster != null ? src.DungeonMaster.Id : 0));
+
+        // Shop mappings
+        
+        // ShopItem to ShopItemViewModel
+        CreateMap<ShopItem, ShopItemViewModel>()
+            .ForMember(dest => dest.CreatedByDmName, opt => opt.MapFrom(src => src.CreatedByDm != null ? src.CreatedByDm.Name : "Unknown"));
+
+        // ShopItem to CreateShopItemViewModel (reverse)
+        CreateMap<CreateShopItemViewModel, ShopItem>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.CreatedByDm, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedByDmId, opt => opt.Ignore());
+
+        // ShopItem to EditShopItemViewModel
+        CreateMap<ShopItem, EditShopItemViewModel>();
+        
+        // EditShopItemViewModel to ShopItem
+        CreateMap<EditShopItemViewModel, ShopItem>()
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedByDm, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedByDmId, opt => opt.Ignore());
+
+        // ShopItem to ShopItemDetailsViewModel
+        CreateMap<ShopItem, ShopItemDetailsViewModel>()
+            .ForMember(dest => dest.CreatedByDmName, opt => opt.MapFrom(src => src.CreatedByDm != null ? src.CreatedByDm.Name : "Unknown"));
+
+        // UserTransaction to UserTransactionViewModel
+        CreateMap<UserTransaction, UserTransactionViewModel>()
+            .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.ShopItem != null ? src.ShopItem.Name : "Unknown Item"));
     }
 }

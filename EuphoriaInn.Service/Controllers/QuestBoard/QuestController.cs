@@ -8,7 +8,7 @@ using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Service.ViewModels.QuestViewModels;
 using EuphoriaInn.Service.ViewModels.CalendarViewModels;
 
-namespace EuphoriaInn.Service.Controllers;
+namespace EuphoriaInn.Service.Controllers.QuestBoard;
 
 public class QuestController(
     IUserService userService,

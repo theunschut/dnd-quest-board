@@ -4,5 +4,5 @@ public enum ItemType
 {
     Equipment,
     MagicItem,
-    TradeItem
+    QuestItems
 }

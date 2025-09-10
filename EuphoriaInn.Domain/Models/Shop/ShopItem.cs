@@ -41,7 +41,5 @@ public class ShopItem : IModel
 
     public User? CreatedByDm { get; set; }
 
-    public IList<DmItemVote> DmVotes { get; set; } = [];
-
-    public IList<PlayerTransaction> Transactions { get; set; } = [];
+    public IList<UserTransaction> Transactions { get; set; } = [];
 }

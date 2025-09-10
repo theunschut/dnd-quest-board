@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EuphoriaInn.Domain.Models.Shop;
 
-public class PlayerTransaction : IModel
+public class UserTransaction : IModel
 {
     public int Id { get; set; }
 
     [Required]
-    public int PlayerId { get; set; }
+    public int UserId { get; set; }
 
-    public User? Player { get; set; }
+    public User? User { get; set; }
 
     [Required]
     public int ShopItemId { get; set; }

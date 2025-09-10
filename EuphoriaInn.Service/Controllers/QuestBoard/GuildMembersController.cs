@@ -3,7 +3,7 @@ using EuphoriaInn.Service.ViewModels.GuildMembersViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EuphoriaInn.Service.Controllers
+namespace EuphoriaInn.Service.Controllers.QuestBoard
 {
     [Authorize]
     public class GuildMembersController(IUserService service) : Controller

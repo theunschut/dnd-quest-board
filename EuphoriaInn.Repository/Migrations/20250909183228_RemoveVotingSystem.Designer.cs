@@ -4,6 +4,7 @@ using EuphoriaInn.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EuphoriaInn.Repository.Migrations
 {
     [DbContext(typeof(QuestBoardContext))]
-    partial class QuestBoardContextModelSnapshot : ModelSnapshot
+    [Migration("20250909183228_RemoveVotingSystem")]
+    partial class RemoveVotingSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,6 +84,45 @@ namespace EuphoriaInn.Repository.Migrations
                     b.HasIndex("UserEntityId");
 
                     b.ToTable("PlayerSignups");
+                });
+
+            modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerTransactionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShopItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("ShopItemId");
+
+                    b.ToTable("PlayerTransactions");
                 });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.ProposedDateEntity", b =>
@@ -324,45 +366,6 @@ namespace EuphoriaInn.Repository.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.UserTransactionEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShopItemId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TransactionType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShopItemId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTransactions");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -538,6 +541,25 @@ namespace EuphoriaInn.Repository.Migrations
                     b.Navigation("Quest");
                 });
 
+            modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerTransactionEntity", b =>
+                {
+                    b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EuphoriaInn.Repository.Entities.ShopItemEntity", "ShopItem")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ShopItemId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("ShopItem");
+                });
+
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.ProposedDateEntity", b =>
                 {
                     b.HasOne("EuphoriaInn.Repository.Entities.QuestEntity", "Quest")
@@ -580,25 +602,6 @@ namespace EuphoriaInn.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("OfferedByPlayer");
-                });
-
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.UserTransactionEntity", b =>
-                {
-                    b.HasOne("EuphoriaInn.Repository.Entities.ShopItemEntity", "ShopItem")
-                        .WithMany("Transactions")
-                        .HasForeignKey("ShopItemId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("ShopItem");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

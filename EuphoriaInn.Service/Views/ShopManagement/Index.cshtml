@@ -1,0 +1,313 @@
+@using EuphoriaInn.Service.ViewModels.ShopViewModels
+@model ShopManagementIndexViewModel
+@{
+    ViewData["Title"] = "Shop Management - DM Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="card modern-card">
+        <div class="card-header modern-card-header">
+            <h2 class="mb-0">
+                <i class="fas fa-store text-warning me-2"></i>
+                Shop Management Dashboard
+            </h2>
+        </div>
+        <div class="card-body modern-card-body">
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-box fa-2x mb-2"></i>
+                            <h4>@Model.MyItems.Count</h4>
+                            <p class="mb-0">My Items</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                            <h4>@Model.ItemsForReview.Count</h4>
+                            <p class="mb-0">Pending Review</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <h4>@Model.MyItems.Count(i => i.Status == ItemStatus.Published)</h4>
+                            <p class="mb-0">Available</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-magic fa-2x mb-2"></i>
+                            <h4>@Model.MyItems.Count(i => i.Type == ItemType.MagicItem)</h4>
+                            <p class="mb-0">Magic Items</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3 mb-4">
+                <a href="/ShopManagement/Create" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </a>
+                <a href="/Shop" class="btn btn-outline-primary">
+                    <i class="fas fa-store me-2"></i>View Shop
+                </a>
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#bulkActionsModal">
+                    <i class="fas fa-tasks me-2"></i>Bulk Actions
+                </button>
+            </div>
+
+            <!-- Items Pending Review Section -->
+            @if (Model.ItemsForReview.Any())
+            {
+                <div class="mb-5">
+                    <h4 class="text-warning mb-3">
+                        <i class="fas fa-clock me-2"></i>Items Awaiting Review
+                        <small class="text-muted">(@Model.ItemsForReview.Count items need DM votes)</small>
+                    </h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Rarity</th>
+                                    <th>Price</th>
+                                    <th>Submitted By</th>
+                                    <th>Votes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ItemsForReview)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.Name</strong>
+                                            <br><small class="text-muted">@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@item.Type</span>
+                                        </td>
+                                        <td>
+                                            <span class="item-rarity rarity-@item.Rarity.ToString().ToLower()">
+                                                @item.Rarity.ToString().Replace("VeryRare", "Very Rare")
+                                            </span>
+                                        </td>
+                                        <td>@item.Price gp</td>
+                                        <td>@item.CreatedByDmName</td>
+                                        <td>
+                                            <small class="text-muted">
+                                                <i class="fas fa-@item.Status.ToString().ToLower()"></i> @item.Status
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="/Shop/Details/@item.Id" class="btn btn-outline-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <form method="post" action="/ShopManagement/Publish/@item.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to publish this item?')">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-success" title="Publish">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <!-- My Items Section -->
+            <div class="mb-4">
+                <h4 class="text-primary mb-3">
+                    <i class="fas fa-user-cog me-2"></i>My Items
+                    <small class="text-muted">(@Model.MyItems.Count items)</small>
+                </h4>
+                
+                @if (Model.MyItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Rarity</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.MyItems.OrderByDescending(i => i.Id))
+                                {
+                                    <tr class="@(item.Status == ItemStatus.Draft ? "table-warning" : "")">
+                                        <td>
+                                            <strong>@item.Name</strong>
+                                            <br><small class="text-muted">@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@item.Type</span>
+                                        </td>
+                                        <td>
+                                            <span class="item-rarity rarity-@item.Rarity.ToString().ToLower()">
+                                                @item.Rarity.ToString().Replace("VeryRare", "Very Rare")
+                                            </span>
+                                        </td>
+                                        <td>@item.Price gp</td>
+                                        <td>
+                                            @if (item.Quantity == 0)
+                                            {
+                                                <span class="badge bg-success">Unlimited</span>
+                                            }
+                                            else if (item.Quantity <= 5)
+                                            {
+                                                <span class="badge bg-warning">@item.Quantity left</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info">@item.Quantity</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (item.Status)
+                                            {
+                                                case ItemStatus.Published:
+                                                    <span class="badge bg-success">Available</span>
+                                                    break;
+                                                case ItemStatus.Draft:
+                                                    <span class="badge bg-secondary">Draft</span>
+                                                    break;
+                                                case ItemStatus.Archived:
+                                                    <span class="badge bg-secondary">Archived</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@item.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="/Shop/Details/@item.Id" class="btn btn-outline-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/ShopManagement/Edit/@item.Id" class="btn btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                @if (item.Status == ItemStatus.Published)
+                                                {
+                                                    <form method="post" action="/ShopManagement/Archive/@item.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive this item?')">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-outline-secondary" title="Archive">
+                                                            <i class="fas fa-ban"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (item.Status == ItemStatus.Archived)
+                                                {
+                                                    <form method="post" action="/ShopManagement/Reopen/@item.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to reopen this item?')">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-outline-success" title="Reopen">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                @if (item.Status == ItemStatus.Draft)
+                                                {
+                                                    <form method="post" action="/ShopManagement/Delete/@item.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete this item? This action cannot be undone.')">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info text-center py-4">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h5>No Items Yet</h5>
+                        <p>You haven't created any shop items yet. Start by adding your first item!</p>
+                        <a href="/ShopManagement/Create" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Create First Item
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <hr>
+
+            <!-- Navigation -->
+            <div class="d-flex justify-content-between">
+                <a href="/Quest/MyQuests" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to My Quests
+                </a>
+                <a href="/ShopManagement/Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Bulk Actions</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an action to apply to multiple items:</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning" onclick="bulkAction('discontinue')">
+                        <i class="fas fa-ban me-2"></i>Discontinue Selected Items
+                    </button>
+                    <button class="btn btn-success" onclick="bulkAction('activate')">
+                        <i class="fas fa-check me-2"></i>Activate Selected Items
+                    </button>
+                    <button class="btn btn-info" onclick="bulkAction('restock')">
+                        <i class="fas fa-plus-circle me-2"></i>Restock Selected Items
+                    </button>
+                </div>
+                <hr>
+                <p class="small text-muted">Note: Bulk actions will be available in a future update.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Placeholder for bulk actions
+        function bulkAction(action) {
+            alert(`Bulk ${action} functionality will be available in a future update.`);
+        }
+    </script>
+}

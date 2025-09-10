@@ -14,9 +14,7 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<ShopItemEntity> ShopItems { get; set; }
 
-    public DbSet<DmItemVoteEntity> DmItemVotes { get; set; }
-
-    public DbSet<PlayerTransactionEntity> PlayerTransactions { get; set; }
+    public DbSet<UserTransactionEntity> UserTransactions { get; set; }
 
     public DbSet<TradeItemEntity> TradeItems { get; set; }
 
@@ -76,27 +74,15 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<ShopItemEntity>()
-            .HasMany(si => si.DmVotes)
-            .WithOne(v => v.ShopItem)
-            .HasForeignKey(v => v.ShopItemId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<ShopItemEntity>()
             .HasMany(si => si.Transactions)
             .WithOne(t => t.ShopItem)
             .HasForeignKey(t => t.ShopItemId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<DmItemVoteEntity>()
-            .HasOne(v => v.Dm)
+        modelBuilder.Entity<UserTransactionEntity>()
+            .HasOne(t => t.User)
             .WithMany()
-            .HasForeignKey(v => v.DmId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<PlayerTransactionEntity>()
-            .HasOne(t => t.Player)
-            .WithMany()
-            .HasForeignKey(t => t.PlayerId)
+            .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<TradeItemEntity>()
@@ -105,9 +91,5 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasForeignKey(ti => ti.OfferedByPlayerId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Ensure unique vote per DM per shop item
-        modelBuilder.Entity<DmItemVoteEntity>()
-            .HasIndex(v => new { v.ShopItemId, v.DmId })
-            .IsUnique();
     }
 }
