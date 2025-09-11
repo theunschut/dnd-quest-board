@@ -36,7 +36,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 10,
-                Quantity = 0, // Unlimited
+                Quantity = -1, // Unlimited
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/shortsword"
             },
             new() {
@@ -45,7 +45,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 50,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/longbow"
             },
             new() {
@@ -54,7 +54,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 15,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/warhammer"
             },
             new() {
@@ -63,7 +63,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 50,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/greatsword"
             },
 
@@ -74,7 +74,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 10,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/leather-armor"
             },
             new() {
@@ -83,7 +83,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 75,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/chain-mail"
             },
             new() {
@@ -103,7 +103,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 10,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/shield"
             },
             new() {
@@ -112,7 +112,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 25,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/thieves-tools"
             },
             new() {
@@ -121,7 +121,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 5,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/healers-kit"
             },
             new() {
@@ -130,7 +130,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
                 Type = ItemType.Equipment,
                 Rarity = ItemRarity.Common,
                 Price = 2,
-                Quantity = 0,
+                Quantity = -1,
                 ReferenceUrl = "https://www.dndbeyond.com/equipment/rope-hempen-50-feet"
             },
 
