@@ -11,6 +11,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
         return await DbContext.ShopItems
             .Include(si => si.CreatedByDm)
             .Include(si => si.Transactions)
+            .OrderBy(si => si.Name)
             .ToListAsync(cancellationToken: token);
     }
 
@@ -21,8 +22,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
             .Where(si => si.Status == 1) // Published
             .Where(si => si.AvailableFrom == null || si.AvailableFrom <= DateTime.UtcNow)
             .Where(si => si.AvailableUntil == null || si.AvailableUntil >= DateTime.UtcNow)
-            .OrderBy(si => si.Type)
-            .ThenBy(si => si.Name)
+            .OrderBy(si => si.Name)
             .ToListAsync(cancellationToken: token);
     }
 
@@ -32,6 +32,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
             .Include(si => si.CreatedByDm)
             .Where(si => si.Status == status)
             .OrderByDescending(si => si.CreatedAt)
+            .ThenBy(si => si.Name)
             .ToListAsync(cancellationToken: token);
     }
 
@@ -42,8 +43,7 @@ internal class ShopRepository(QuestBoardContext dbContext) : BaseRepository<Shop
             .Where(si => si.Type == type && si.Status == 1) // Published
             .Where(si => si.AvailableFrom == null || si.AvailableFrom <= DateTime.UtcNow)
             .Where(si => si.AvailableUntil == null || si.AvailableUntil >= DateTime.UtcNow)
-            .OrderBy(si => si.Rarity)
-            .ThenBy(si => si.Name)
+            .OrderBy(si => si.Name)
             .ToListAsync(cancellationToken: token);
     }
 

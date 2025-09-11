@@ -16,6 +16,7 @@ public interface IShopService : IBaseService<ShopItem>
     Task<decimal> CalculateItemPriceAsync(ItemRarity rarity, CancellationToken token = default);
     Task PublishItemAsync(int itemId, CancellationToken token = default);
     Task<UserTransaction> PurchaseItemAsync(int itemId, int quantity, User user, CancellationToken token = default);
+    Task<UserTransaction> ReturnOrSellItemAsync(int transactionId, int quantity, User user, CancellationToken token = default);
     Task ArchiveItemAsync(int itemId, CancellationToken token = default);
     
     // Transaction methods

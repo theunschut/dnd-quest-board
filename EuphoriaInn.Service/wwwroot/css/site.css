@@ -244,6 +244,11 @@
     color: #dc3545;
 }
 
+.item-stock.sold-out {
+    color: #6c757d;
+    font-style: italic;
+}
+
 .purchase-btn {
     background: linear-gradient(45deg, #28a745, #20c997);
     border: none;
@@ -2139,4 +2144,134 @@ input[type="radio"]:focus + .custom-radio-label {
     .shop-container.with-panel {
         margin-left: 0;
     }
+}
+
+/* Return/Sell buttons that appear on hover */
+.return-sell-buttons {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.25rem;
+}
+
+.purchase-item:hover .return-sell-buttons {
+    opacity: 1;
+    visibility: visible;
+}
+
+.return-sell-buttons .btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    line-height: 1.1;
+    border-radius: 4px;
+    font-weight: 600;
+    text-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.return-sell-buttons .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.return-sell-buttons .btn-success {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    border-color: #1e7e34 !important;
+    color: white !important;
+}
+
+.return-sell-buttons .btn-success:hover {
+    background: linear-gradient(45deg, #218838, #1a9174) !important;
+    border-color: #1c7430 !important;
+}
+
+.return-sell-buttons .btn-warning {
+    background: linear-gradient(45deg, #ffc107, #e0a800) !important;
+    border-color: #d39e00 !important;
+    color: #212529 !important;
+}
+
+.return-sell-buttons .btn-warning:hover {
+    background: linear-gradient(45deg, #e0a800, #c69500) !important;
+    border-color: #b08800 !important;
+}
+
+/* Success colored items for sold/returned transactions */
+.purchase-details .text-success {
+    color: #28a745 !important;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9),
+                 -1px -1px 2px rgba(0, 0, 0, 0.9),
+                 1px -1px 2px rgba(0, 0, 0, 0.9),
+                 -1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Style for purchase details text like (Fully Returned/Sold) */
+.purchase-details-text {
+    color: rgba(244, 228, 188, 0.7) !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-shadow: none !important;
+    margin-left: 0.5rem;
+}
+
+/* Merchant toast styling */
+.merchant-toast {
+    max-width: 350px;
+    border: 2px solid #ffc107;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.merchant-toast .toast-header {
+    background: linear-gradient(45deg, #ffc107, #e0a800) !important;
+    color: #1a1a1a !important;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.merchant-toast .toast-body {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1a1a1a;
+    font-style: italic;
+    font-weight: 500;
+    padding: 1rem;
+    border-radius: 0 0 6px 6px;
+}
+
+/* Gray-out styling for sold/returned items */
+.purchase-item.sold-returned {
+    opacity: 0.6;
+    filter: grayscale(50%);
+    transition: all 0.3s ease;
+}
+
+.purchase-item.sold-returned:hover {
+    opacity: 0.8;
+    filter: grayscale(30%);
+    transform: translateX(2px); /* Less movement than active items */
+}
+
+.purchase-item.sold-returned .purchase-name {
+    color: rgba(244, 228, 188, 0.5) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7),
+                 -1px -1px 1px rgba(0, 0, 0, 0.7) !important;
+}
+
+.purchase-item.sold-returned .purchase-details small {
+    color: rgba(244, 228, 188, 0.4) !important;
+}
+
+.purchase-item.sold-returned .purchase-details .text-warning {
+    color: rgba(255, 193, 7, 0.5) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
+.purchase-item.sold-returned .purchase-details .text-success {
+    color: rgba(40, 167, 69, 0.6) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
 }

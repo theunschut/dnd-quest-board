@@ -30,7 +30,21 @@ public class ShopController(IShopService shopService, IUserService userService, 
             if (currentUser != null)
             {
                 var userTransactions = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
-                viewModel.UserPurchases = mapper.Map<IList<UserTransactionViewModel>>(userTransactions.OrderByDescending(t => t.TransactionDate));
+                var mappedTransactions = mapper.Map<IList<UserTransactionViewModel>>(userTransactions.OrderByDescending(t => t.TransactionDate));
+                
+                // Calculate remaining quantities for purchase transactions
+                foreach (var transaction in mappedTransactions.Where(t => t.TransactionType == Domain.Enums.TransactionType.Purchase))
+                {
+                    // Find how much has been returned/sold from this transaction
+                    var existingReturns = userTransactions
+                        .Where(t => t.TransactionType == Domain.Enums.TransactionType.Sell && 
+                                   t.OriginalTransactionId == transaction.Id)
+                        .Sum(t => t.Quantity);
+                    
+                    transaction.RemainingQuantity = transaction.Quantity - existingReturns;
+                }
+                
+                viewModel.UserPurchases = mappedTransactions;
             }
         }
 
@@ -83,6 +97,51 @@ public class ShopController(IShopService shopService, IUserService userService, 
         {
             TempData["Error"] = "An error occurred while processing your purchase. Please try again.";
             return RedirectToAction(nameof(Details), new { id });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Sell(int id, int quantity = 1, CancellationToken token = default)
+    {
+        try
+        {
+            var currentUser = await userService.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            var transaction = await shopService.ReturnOrSellItemAsync(id, quantity, currentUser, token);
+            
+            // Calculate if it was a return or sell based on the refund amount
+            var originalTransaction = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
+            var original = originalTransaction.FirstOrDefault(t => t.Id == id);
+            
+            if (original != null)
+            {
+                var originalUnitPrice = original.Price / original.Quantity;
+                var expectedReturnPrice = originalUnitPrice * quantity;
+                var isReturn = Math.Abs(transaction.Price - expectedReturnPrice) < 0.01m;
+                
+                var actionType = isReturn ? "returned" : "sold";
+                TempData["Success"] = $"Successfully {actionType} {quantity}x {original.ShopItem?.Name ?? "item"} for {transaction.Price} gp!";
+            }
+            else
+            {
+                TempData["Success"] = $"Item processed successfully for {transaction.Price} gp!";
+            }
+            
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception)
+        {
+            TempData["Error"] = "An error occurred while processing your request. Please try again.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -35,4 +35,15 @@ public class UserTransactionEntity : IEntity
 
     [StringLength(500)]
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// For return/sell transactions, references the original purchase transaction ID
+    /// </summary>
+    public int? OriginalTransactionId { get; set; }
+
+    /// <summary>
+    /// Navigation property to the original purchase transaction (for returns/sells)
+    /// </summary>
+    [ForeignKey(nameof(OriginalTransactionId))]
+    public virtual UserTransactionEntity? OriginalTransaction { get; set; }
 }

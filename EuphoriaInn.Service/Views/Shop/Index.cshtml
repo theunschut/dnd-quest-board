@@ -10,7 +10,7 @@
     <div class="purchase-history-panel">
         <div class="panel-header">
             <h6 class="mb-0">
-                <i class="fas fa-history me-2"></i>My Purchases
+                <i class="fas fa-history me-2"></i>My Transactions
             </h6>
         </div>
         <div class="panel-body">
@@ -19,22 +19,87 @@
                 <div class="purchase-list">
                     @foreach (var purchase in Model.UserPurchases.Take(15))
                     {
-                        <div class="purchase-item mb-2 p-2">
-                            <div class="purchase-name fw-bold text-truncate" title="@purchase.ItemName">
-                                @purchase.ItemName
-                            </div>
-                            <div class="purchase-details d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    <i class="fas fa-sort-numeric-up me-1"></i>@purchase.Quantity
+                        @if (purchase.TransactionType == EuphoriaInn.Domain.Enums.TransactionType.Purchase)
+                        {
+                            var timeSincePurchase = DateTime.UtcNow - purchase.TransactionDate;
+                            var canReturn = timeSincePurchase.TotalHours <= 24;
+                            var hasRemainingItems = purchase.RemainingQuantity > 0;
+                            
+                            <div class="purchase-item mb-2 p-2 position-relative @(!hasRemainingItems ? "sold-returned" : "")">
+                                <div class="purchase-name fw-bold text-truncate" title="@purchase.ItemName">
+                                    @purchase.ItemName
+                                    @if (!hasRemainingItems)
+                                    {
+                                        <span class="purchase-details-text">(Fully Returned/Sold)</span>
+                                    }
+                                </div>
+                                <div class="purchase-details d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sort-numeric-up me-1"></i>
+                                        @if (hasRemainingItems && purchase.RemainingQuantity != purchase.Quantity)
+                                        {
+                                            @purchase.RemainingQuantity<text>/</text>@purchase.Quantity
+                                        }
+                                        else
+                                        {
+                                            @purchase.Quantity
+                                        }
+                                    </small>
+                                    <small class="text-warning">
+                                        <i class="fas fa-coins me-1"></i>@purchase.Price gp
+                                    </small>
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-clock me-1"></i>@purchase.TransactionDate.ToString("MMM dd")
                                 </small>
-                                <small class="text-warning">
-                                    <i class="fas fa-coins me-1"></i>@purchase.Price gp
+                                
+                                <!-- Return/Sell buttons (shown on hover, only if items remaining) -->
+                                @if (hasRemainingItems)
+                                {
+                                    <div class="return-sell-buttons position-absolute">
+                                        @if (canReturn)
+                                        {
+                                            <form method="post" action="@Url.Action("Sell", "Shop")" class="d-inline">
+                                                <input type="hidden" name="id" value="@purchase.Id" />
+                                                <input type="hidden" name="quantity" value="@purchase.RemainingQuantity" />
+                                                <button type="submit" class="btn btn-success btn-sm me-1" title="Return @purchase.RemainingQuantity item(s) for full price (within 24h)">
+                                                    <i class="fas fa-undo me-1"></i>Return (@purchase.RemainingQuantity)
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" action="@Url.Action("Sell", "Shop")" class="d-inline">
+                                                <input type="hidden" name="id" value="@purchase.Id" />
+                                                <input type="hidden" name="quantity" value="@purchase.RemainingQuantity" />
+                                                <button type="submit" class="btn btn-warning btn-sm" title="Sell @purchase.RemainingQuantity item(s) for 50% of original price">
+                                                    <i class="fas fa-coins me-1"></i>Sell (@purchase.RemainingQuantity)
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="purchase-item mb-2 p-2">
+                                <div class="purchase-name fw-bold text-truncate" title="@purchase.ItemName">
+                                    @purchase.ItemName @(purchase.TransactionType == EuphoriaInn.Domain.Enums.TransactionType.Sell ? "(Sold/Returned)" : "")
+                                </div>
+                                <div class="purchase-details d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sort-numeric-up me-1"></i>@purchase.Quantity
+                                    </small>
+                                    <small class="@(purchase.TransactionType == EuphoriaInn.Domain.Enums.TransactionType.Sell ? "text-success" : "text-warning")">
+                                        <i class="fas fa-coins me-1"></i>@(purchase.TransactionType == EuphoriaInn.Domain.Enums.TransactionType.Sell ? "+" : "")@purchase.Price gp
+                                    </small>
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-clock me-1"></i>@purchase.TransactionDate.ToString("MMM dd")
                                 </small>
                             </div>
-                            <small class="text-muted d-block">
-                                <i class="fas fa-clock me-1"></i>@purchase.TransactionDate.ToString("MMM dd")
-                            </small>
-                        </div>
+                        }
                     }
                 </div>
                 @if (Model.UserPurchases.Count > 15)
@@ -115,10 +180,14 @@
                             <div class="item-price">
                                 <i class="fas fa-coins me-1"></i>@item.Price gp
                             </div>
-                            <div class="item-stock @(item.Quantity == 0 ? "unlimited" : (item.Quantity <= 5 ? "low" : ""))">
-                                @if (item.Quantity == 0)
+                            <div class="item-stock @(item.Quantity == -1 ? "unlimited" : (item.Quantity == 0 ? "sold-out" : (item.Quantity <= 5 ? "low" : "")))">
+                                @if (item.Quantity == -1)
                                 {
                                     <i class="fas fa-infinity me-1"></i><text>Unlimited</text>
+                                }
+                                else if (item.Quantity == 0)
+                                {
+                                    <i class="fas fa-times-circle me-1"></i><text>Sold Out</text>
                                 }
                                 else if (item.Quantity <= 5)
                                 {
@@ -137,7 +206,7 @@
                                     data-bs-toggle="modal" data-bs-target="#itemDetailsModal" 
                                     data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })"
                                     onclick="event.stopPropagation()"
-                                    @(item.Status != EuphoriaInn.Domain.Enums.ItemStatus.Published || (item.Quantity != 0 && item.Quantity <= 0) ? "disabled" : "")>
+                                    @(item.Status != EuphoriaInn.Domain.Enums.ItemStatus.Published || item.Quantity == 0 ? "disabled" : "")>
                                 <i class="fas fa-shopping-cart me-1"></i>Purchase
                             </button>
                         }
@@ -251,11 +320,57 @@
                 "These items are of the finest quality, I assure you!",
                 "Looking for something specific? Browse my collection!",
                 "Every adventurer needs good equipment. Take a look around!",
-                "Ah, another customer! Please, examine my wares carefully."
+                "Ah, another customer! Please, examine my wares carefully.",
+                "Step right up! I've got potions, weapons, and magical trinkets!",
+                "Don't let the dust fool you - these are genuine magical artifacts!",
+                "I've been expecting you... well, someone like you anyway.",
+                "Coin up front, no credit! But I guarantee satisfaction!",
+                "Fresh stock from the deepest dungeons and highest towers!",
+                "Quality merchandise at reasonable prices - well, mostly reasonable.",
+                "Browse at your leisure, but don't touch what you can't afford!",
+                "I've got items that have seen more adventure than most heroes!",
+                "Each piece tells a story... usually involving previous owners' demise.",
+                "Special deals for repeat customers! Are you a repeat customer?",
+                "If you break it, you bought it! Magic items are particularly fragile.",
+                "I accept gold, gems, and interesting tales of adventure!",
+                "Need something sharpened? Enchanted? Cursed removed? I'm your man!",
+                "Between you and me, that sword over there might be haunted.",
+                "No returns after 24 hours - unless it tries to eat you, then we'll talk."
             ];
             
             const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            alert(randomMessage);
+            showMerchantToast(randomMessage);
+        }
+
+        // Show merchant message as toast
+        function showMerchantToast(message) {
+            // Create toast element
+            const toastHtml = `
+                <div class="toast merchant-toast" role="alert" data-bs-autohide="true" data-bs-delay="6000">
+                    <div class="toast-header bg-warning text-dark">
+                        <i class="fas fa-user-tie me-2"></i>
+                        <strong class="me-auto">Mystical Merchant</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            // Add to toast container
+            const toastContainer = document.querySelector('.toast-container');
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+
+            // Initialize and show the toast
+            const newToast = toastContainer.lastElementChild;
+            const toast = new bootstrap.Toast(newToast);
+            toast.show();
+
+            // Remove the toast element after it's hidden
+            newToast.addEventListener('hidden.bs.toast', function() {
+                this.remove();
+            });
         }
     </script>
 }
