@@ -54,9 +54,10 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label asp-for="Type" class="form-label"></label>
-                            <select asp-for="Type" class="form-select">
+                            <select asp-for="Type" class="form-select" onchange="updatePriceSuggestion()">
                                 <option value="Equipment" selected="@(Model.Type == ItemType.Equipment)">Equipment</option>
                                 <option value="MagicItem" selected="@(Model.Type == ItemType.MagicItem)">Magic Item</option>
+                                <option value="QuestItems" selected="@(Model.Type == ItemType.QuestItems)">Quest Item</option>
                             </select>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
@@ -95,9 +96,9 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="Quantity" class="form-label"></label>
-                            <input asp-for="Quantity" type="number" class="form-control" min="0" />
+                            <input asp-for="Quantity" type="number" class="form-control" min="-1" />
                             <span asp-validation-for="Quantity" class="text-danger"></span>
-                            <div class="form-text">Set to 0 for unlimited stock</div>
+                            <div class="form-text">Set to -1 for unlimited stock, 0 means sold out, positive numbers for limited stock</div>
                         </div>
                     </div>
                 </div>
@@ -109,7 +110,12 @@
                             <label for="Price" class="form-label">Price (Gold Pieces)</label>
                             <div class="input-group">
                                 <input asp-for="Price" type="number" class="form-control" min="0" step="0.01" />
-                                <span class="input-group-text">gp</span>
+                                <button type="button" class="btn btn-secondary" id="randomPriceBtn" onclick="setRandomPrice()" title="Set random price within rarity range">
+                                    <i class="fas fa-dice"></i>
+                                </button>
+                                <button type="button" class="btn btn-info" id="calculatedPriceBtn" onclick="setCalculatedPrice()" title="Use Tasha's recommended price">
+                                    <i class="fas fa-hat-wizard"></i>
+                                </button>
                             </div>
                             <span asp-validation-for="Price" class="text-danger"></span>
                             <div class="form-text" id="price-suggestion">
@@ -131,70 +137,31 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <h5 class="text-info mb-3">
-                            <i class="fas fa-clock me-2"></i>Availability Window (Optional)
+                            <i class="fas fa-clock me-2"></i>Availability Window
                         </h5>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="enableAvailabilityWindow" onchange="toggleAvailabilityWindow()" @(Model.AvailableFrom != null || Model.AvailableUntil != null ? "checked" : "")>
+                            <label class="form-check-label" for="enableAvailabilityWindow">
+                                Set specific availability dates for this item
+                            </label>
+                            <div class="form-text">Check this to set when the item should be available in the shop. Leave unchecked for permanent availability.</div>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="AvailableFrom" class="form-label"></label>
-                            <input asp-for="AvailableFrom" type="datetime-local" class="form-control" />
+                            <input asp-for="AvailableFrom" type="datetime-local" class="form-control" disabled="@(Model.AvailableFrom == null && Model.AvailableUntil == null)" />
                             <span asp-validation-for="AvailableFrom" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="AvailableUntil" class="form-label"></label>
-                            <input asp-for="AvailableUntil" type="datetime-local" class="form-control" />
+                            <input asp-for="AvailableUntil" type="datetime-local" class="form-control" disabled="@(Model.AvailableFrom == null && Model.AvailableUntil == null)" />
                             <span asp-validation-for="AvailableUntil" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Item Preview -->
-                <div class="mb-4">
-                    <h5 class="text-info mb-3">
-                        <i class="fas fa-eye me-2"></i>Item Preview
-                    </h5>
-                    <div class="border rounded p-3 bg-light text-dark" id="item-preview">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0" id="preview-name">@Model.Name</h6>
-                            <span class="badge bg-secondary" id="preview-rarity">@Model.Rarity.ToString().Replace("VeryRare", "Very Rare")</span>
-                        </div>
-                        <p class="text-muted small mb-2" id="preview-type">@Model.Type</p>
-                        <p class="mb-2" id="preview-description">@Model.Description</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-warning" id="preview-price">@Model.Price gp</span>
-                            <span class="text-muted small" id="preview-stock">@(Model.Quantity == 0 ? "Unlimited" : Model.Quantity + " in stock")</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Status Management -->
-                @if (Model.Status != ItemStatus.Draft)
-                {
-                    <div class="mb-4">
-                        <h5 class="text-warning mb-3">
-                            <i class="fas fa-cogs me-2"></i>Status Management
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="Status" class="form-label">Item Status</label>
-                                <select asp-for="Status" class="form-select">
-                                    <option value="Available" selected="@(Model.Status == ItemStatus.Published)">Available</option>
-                                    <option value="Discontinued" selected="@(Model.Status == ItemStatus.Archived)">Discontinued</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                @if (Model.Rarity >= ItemRarity.Rare && Model.Type == ItemType.MagicItem)
-                                {
-                                    <button type="button" class="btn btn-warning" onclick="submitForReview()">
-                                        <i class="fas fa-paper-plane me-2"></i>Submit for Review
-                                    </button>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
 
                 <!-- Warning for review items -->
                 @if (Model.Status == ItemStatus.Draft)
@@ -239,85 +206,83 @@
             'Legendary': { min: 50001, max: 200000, text: 'Legendary items typically cost 50,001+ gp' }
         };
 
+        function toggleAvailabilityWindow() {
+            const checkbox = document.getElementById('enableAvailabilityWindow');
+            const availableFrom = document.querySelector('input[name="AvailableFrom"]');
+            const availableUntil = document.querySelector('input[name="AvailableUntil"]');
+            
+            if (checkbox.checked) {
+                availableFrom.disabled = false;
+                availableUntil.disabled = false;
+            } else {
+                availableFrom.disabled = true;
+                availableUntil.disabled = true;
+                availableFrom.value = '';
+                availableUntil.value = '';
+            }
+        }
+
+        // Fixed prices from Tasha's Cauldron (matching ShopService CalculateItemPriceAsync)
+        const calculatedPrices = {
+            'Common': 100,
+            'Uncommon': 500,
+            'Rare': 5000,
+            'VeryRare': 50000,
+            'Legendary': 200000
+        };
+
         function updatePriceSuggestion() {
             const rarity = document.getElementById('Rarity').value;
+            const itemType = document.getElementById('Type').value;
             const suggestionDiv = document.getElementById('price-suggestion');
-            
+            const randomBtn = document.getElementById('randomPriceBtn');
+            const calculatedBtn = document.getElementById('calculatedPriceBtn');
+
+            if (itemType && itemType == 'Equipment') {
+                suggestionDiv.innerHTML = '';
+                suggestionDiv.className = '';
+
+                // Enable buttons
+                randomBtn.disabled = false;
+                calculatedBtn.disabled = false;
+            }
+            else if (rarity && pricingGuide[rarity]) {
+                const guide = pricingGuide[rarity];
+                const calculatedPrice = calculatedPrices[rarity];
+                suggestionDiv.innerHTML = `<i class="fas fa-coins me-1"></i>${guide.text}<br><small class="text-muted">Tasha's recommended: ${calculatedPrice} gp</small>`;
+                suggestionDiv.className = 'form-text text-info';
+
+                // Enable buttons
+                randomBtn.disabled = false;
+                calculatedBtn.disabled = false;
+            } else {
+                suggestionDiv.innerHTML = 'Select a rarity to see pricing suggestions. Use the dice button for random pricing or calculator for Tasha\'s recommended price.';
+                suggestionDiv.className = 'form-text';
+
+                // Disable buttons
+                randomBtn.disabled = true;
+                calculatedBtn.disabled = true;
+            }
+        }
+
+        function setRandomPrice() {
+            const rarity = document.getElementById('Rarity').value;
             if (rarity && pricingGuide[rarity]) {
                 const guide = pricingGuide[rarity];
-                suggestionDiv.innerHTML = `<i class="fas fa-coins me-1"></i>${guide.text}`;
-                suggestionDiv.className = 'form-text text-info';
-            } else {
-                suggestionDiv.innerHTML = 'Select a rarity to see pricing suggestions';
-                suggestionDiv.className = 'form-text';
-            }
-            
-            updatePreview();
-        }
-
-        function updatePreview() {
-            const name = document.getElementById('Name').value || 'Item Name';
-            const type = document.getElementById('Type').value || 'Item Type';
-            const rarity = document.getElementById('Rarity').value || 'Rarity';
-            const description = document.getElementById('Description').value || 'Item description...';
-            const price = document.getElementById('Price').value || '0';
-            const quantity = document.getElementById('Quantity').value || '0';
-            
-            document.getElementById('preview-name').textContent = name;
-            document.getElementById('preview-type').textContent = type;
-            document.getElementById('preview-rarity').textContent = rarity.replace('VeryRare', 'Very Rare');
-            document.getElementById('preview-description').textContent = description.length > 120 
-                ? description.substring(0, 120) + '...' 
-                : description;
-            document.getElementById('preview-price').textContent = price + ' gp';
-            
-            const stockText = quantity == 0 ? 'Unlimited' : quantity + ' in stock';
-            document.getElementById('preview-stock').textContent = stockText;
-            
-            // Update rarity badge styling
-            const rarityBadge = document.getElementById('preview-rarity');
-            rarityBadge.className = `badge rarity-${rarity.toLowerCase()}`;
-        }
-
-        function submitForReview() {
-            if (confirm('Are you sure you want to submit this item for review? It will become unavailable until approved by other DMs.')) {
-                fetch(`/ShopManagement/SubmitForReview/@Model.Id`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Item submitted for review successfully!');
-                        location.reload();
-                    } else {
-                        alert('Submit failed: ' + (data.message || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error submitting for review:', error);
-                    alert('Submit failed. Please try again.');
-                });
+                const randomPrice = Math.floor(Math.random() * (guide.max - guide.min + 1)) + guide.min;
+                document.getElementById('Price').value = randomPrice;
             }
         }
 
-        // Auto-update preview as user types
+        function setCalculatedPrice() {
+            const rarity = document.getElementById('Rarity').value;
+            if (rarity && calculatedPrices[rarity]) {
+                document.getElementById('Price').value = calculatedPrices[rarity];
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const formInputs = ['Name', 'Type', 'Rarity', 'Description', 'Price', 'Quantity'];
-            formInputs.forEach(inputId => {
-                const element = document.getElementById(inputId);
-                if (element) {
-                    element.addEventListener('input', updatePreview);
-                    element.addEventListener('change', updatePreview);
-                }
-            });
-            
-            // Initialize
             updatePriceSuggestion();
-            updatePreview();
         });
 
         // Form validation

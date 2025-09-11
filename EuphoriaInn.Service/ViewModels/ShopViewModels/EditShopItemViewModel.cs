@@ -29,9 +29,9 @@ public class EditShopItemViewModel
     [Range(0, double.MaxValue, ErrorMessage = "Price must be 0 or greater")]
     public decimal Price { get; set; }
 
-    [Display(Name = "Quantity (0 = unlimited)")]
-    [Range(0, int.MaxValue)]
-    public int Quantity { get; set; } = 0;
+    [Display(Name = "Quantity (-1 = unlimited)")]
+    [Range(-1, int.MaxValue)]
+    public int Quantity { get; set; } = 1;
 
     [Display(Name = "D&D Beyond Reference URL")]
     [StringLength(500)]

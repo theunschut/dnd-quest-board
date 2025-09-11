@@ -11,6 +11,12 @@ namespace EuphoriaInn.Domain.Services;
 
 internal class ShopService(IShopRepository repository, IUserTransactionRepository transactionRepository, IMapper mapper) : BaseService<ShopItem, ShopItemEntity>(repository, mapper), IShopService
 {
+    public async Task<IList<ShopItem>> GetAllItemsAsync(CancellationToken token = default)
+    {
+        var itemEntities = await repository.GetAllAsync(token);
+        return Mapper.Map<IList<ShopItem>>(itemEntities);
+    }
+
     public async Task<IList<ShopItem>> GetPublishedItemsAsync(CancellationToken token = default)
     {
         var itemEntities = await repository.GetPublishedItemsAsync(token);
@@ -60,7 +66,7 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
     public async Task PublishItemAsync(int itemId, CancellationToken token = default)
     {
         var itemEntity = await repository.GetByIdAsync(itemId, token);
-        if (itemEntity != null && itemEntity.Status == (int)ItemStatus.Draft)
+        if (itemEntity != null)
         {
             itemEntity.Status = (int)ItemStatus.Published;
             await repository.UpdateAsync(itemEntity, token);

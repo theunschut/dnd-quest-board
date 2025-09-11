@@ -6,6 +6,7 @@ namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IShopService : IBaseService<ShopItem>
 {
+    Task<IList<ShopItem>> GetAllItemsAsync(CancellationToken token = default);
     Task<IList<ShopItem>> GetPublishedItemsAsync(CancellationToken token = default);
     Task<IList<ShopItem>> GetItemsByStatusAsync(ItemStatus status, CancellationToken token = default);
     Task<IList<ShopItem>> GetItemsByTypeAsync(ItemType type, CancellationToken token = default);

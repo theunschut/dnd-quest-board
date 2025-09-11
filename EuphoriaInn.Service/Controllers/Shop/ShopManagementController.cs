@@ -10,6 +10,7 @@ namespace EuphoriaInn.Service.Controllers.Shop;
 
 [Authorize(Policy = "DungeonMasterOnly")]
 public class ShopManagementController(
+    IAuthorizationService authorizationService,
     IShopService shopService,
     IUserService userService,
     IMapper mapper
@@ -24,13 +25,16 @@ public class ShopManagementController(
             return Challenge();
         }
 
-        var myItems = await shopService.GetItemsByDmAsync(currentUser.Id, token);
-        var draftItems = await shopService.GetItemsByStatusAsync(ItemStatus.Draft, token);
+        var allItems = await shopService.GetAllAsync(token);
+        var myItems = allItems.Where(i => i.CreatedByDmId == currentUser.Id);
+        var draftItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status == ItemStatus.Draft);
+        var publishedItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status != ItemStatus.Draft);
 
         var viewModel = new ShopManagementIndexViewModel
         {
             MyItems = mapper.Map<IList<ShopItemViewModel>>(myItems),
-            ItemsForReview = mapper.Map<IList<ShopItemViewModel>>(draftItems.Where(i => i.CreatedByDmId != currentUser.Id).ToList())
+            ItemsForReview = mapper.Map<IList<ShopItemViewModel>>(draftItems),
+            AllOtherItems = mapper.Map<IList<ShopItemViewModel>>(publishedItems)
         };
 
         return View(viewModel);
@@ -62,9 +66,9 @@ public class ShopManagementController(
         {
             Name = viewModel.Name,
             Description = viewModel.Description,
-            Type = viewModel.Type,
-            Rarity = viewModel.Rarity,
-            Price = await shopService.CalculateItemPriceAsync(viewModel.Rarity, token),
+            Type = viewModel.Type!.Value,
+            Rarity = viewModel.Rarity!.Value,
+            Price = viewModel.Price,
             Quantity = viewModel.Quantity,
             ReferenceUrl = viewModel.ReferenceUrl,
             Status = ItemStatus.Draft,
@@ -72,6 +76,12 @@ public class ShopManagementController(
             AvailableFrom = viewModel.AvailableFrom,
             AvailableUntil = viewModel.AvailableUntil
         };
+
+        if (shopItem.Status == ItemStatus.Draft && (shopItem.Rarity == ItemRarity.Common || shopItem.Rarity == ItemRarity.Uncommon))
+        {
+            // Auto-publish common and uncommon items
+            shopItem.Status = ItemStatus.Published;
+        }
 
         await shopService.AddAsync(shopItem, token);
         
@@ -89,9 +99,9 @@ public class ShopManagementController(
         }
 
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
+        if (currentUser == null)
         {
-            return Forbid();
+            return Challenge();
         }
 
         var viewModel = mapper.Map<EditShopItemViewModel>(item);
@@ -114,27 +124,26 @@ public class ShopManagementController(
         }
 
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
+        if (currentUser == null)
         {
-            return Forbid();
-        }
-
-        // Only allow editing if item is still in draft status
-        if (item.Status != ItemStatus.Draft)
-        {
-            TempData["Error"] = "Cannot edit items that have been published.";
-            return RedirectToAction(nameof(Index));
+            return Challenge();
         }
 
         item.Name = viewModel.Name;
         item.Description = viewModel.Description;
         item.Type = viewModel.Type;
         item.Rarity = viewModel.Rarity;
-        item.Price = await shopService.CalculateItemPriceAsync(viewModel.Rarity, token);
+        item.Price = viewModel.Price;
         item.Quantity = viewModel.Quantity;
         item.ReferenceUrl = viewModel.ReferenceUrl;
         item.AvailableFrom = viewModel.AvailableFrom;
         item.AvailableUntil = viewModel.AvailableUntil;
+
+        if (item.Status == ItemStatus.Draft && (item.Rarity == ItemRarity.Common || item.Rarity == ItemRarity.Uncommon))
+        {
+            // Auto-publish common and uncommon items upon editing
+            item.Status = ItemStatus.Published;
+        }
 
         await shopService.UpdateAsync(item, token);
         
@@ -153,7 +162,7 @@ public class ShopManagementController(
         }
 
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
+        if (currentUser == null || item.CreatedByDmId == currentUser.Id)
         {
             return Forbid();
         }
@@ -180,12 +189,6 @@ public class ShopManagementController(
             return NotFound();
         }
 
-        var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
-        {
-            return Forbid();
-        }
-
         await shopService.ArchiveItemAsync(id, token);
         
         TempData["Success"] = "Item archived successfully!";
@@ -200,12 +203,6 @@ public class ShopManagementController(
         if (item == null)
         {
             return NotFound();
-        }
-
-        var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
-        {
-            return Forbid();
         }
 
         if (item.Status != ItemStatus.Archived)
@@ -230,17 +227,15 @@ public class ShopManagementController(
             return NotFound();
         }
 
-        var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null || item.CreatedByDmId != currentUser.Id)
-        {
-            return Forbid();
-        }
-
         // Only allow deletion if item is still in draft status
-        if (item.Status != ItemStatus.Draft)
+        var isAdmin = (await authorizationService.AuthorizeAsync(User, "AdminOnly")).Succeeded;
+        if (!isAdmin)
         {
-            TempData["Error"] = "Cannot delete items that have been published.";
-            return RedirectToAction(nameof(Index));
+            if (item.Status != ItemStatus.Draft)
+            {
+                TempData["Error"] = "Cannot delete items that have been published.";
+                return RedirectToAction(nameof(Index));
+            } 
         }
 
         await shopService.RemoveAsync(item, token);
