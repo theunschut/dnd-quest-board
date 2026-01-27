@@ -162,14 +162,24 @@ else
                             <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest. Players are listed in signup order.</p>
 
                             @{
-                                var dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
-                                    orderedDates.First() : 
-                                    orderedDates.First(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
-                                var availablePlayers = dateForPlayerSelection.PlayerVotes
-                                .Where(v => v.Vote == VoteType.Yes)
-                                .Select(v => v.PlayerSignup)
-                                .OrderBy(ps => ps?.SignupTime)
-                                .ToList();
+                                ProposedDate? dateForPlayerSelection = null;
+                                List<PlayerSignup?> availablePlayers = new List<PlayerSignup?>();
+                                
+                                if (Model.ProposedDates?.Any() == true)
+                                {
+                                    dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
+                                        orderedDates.First() : 
+                                        orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
+                                    
+                                    if (dateForPlayerSelection != null)
+                                    {
+                                        availablePlayers = dateForPlayerSelection.PlayerVotes
+                                            .Where(v => v.Vote == VoteType.Yes)
+                                            .Select(v => v.PlayerSignup)
+                                            .OrderBy(ps => ps?.SignupTime)
+                                            .ToList();
+                                    }
+                                }
                             }
 
                             <div id="player-selection">
@@ -340,19 +350,25 @@ else
                     <hr>
 
                     <h6>Quick Stats:</h6>
-                    @{
+                    @if (Model.ProposedDates?.Any() == true)
+                    {
                         var mostPopularDate = Model.ProposedDates
-                        .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
-                        .First();
+                            .OrderByDescending(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes))
+                            .First();
                         var yesCount = mostPopularDate.PlayerVotes.Count(v => v.Vote == VoteType.Yes);
+                        
+                        <p>
+                            <strong>Best Date:</strong>
+                            <small>@mostPopularDate.Date.ToString("MMM dd, h:mm tt")</small>
+                        </p>
+                        <p>
+                            <small class="text-success">@yesCount players available</small>
+                        </p>
                     }
-                    <p>
-                        <strong>Best Date:</strong>
-                        <small>@mostPopularDate.Date.ToString("MMM dd, h:mm tt")</small>
-                    </p>
-                    <p>
-                        <small class="text-success">@yesCount players available</small>
-                    </p>
+                    else
+                    {
+                        <p class="text-muted">No proposed dates yet</p>
+                    }
                 </div>
             </div>
         </div>
