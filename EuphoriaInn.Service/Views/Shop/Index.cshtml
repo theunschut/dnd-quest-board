@@ -147,6 +147,26 @@
         </a>
     </div>
 
+    <!-- Shop Search Bar -->
+    <div class="shop-search mb-3 text-center">
+        <div class="input-group justify-content-center" style="max-width: 700px; margin: 0 auto;">
+            <input type="text" id="shopSearchInput" class="form-control"
+                   placeholder="Search items by name..." onkeyup="filterShopItems()" autocomplete="off" />
+            <div class="input-group-text bg-dark border-dark" style="min-width: 220px;">
+                <input class="form-check-input mt-0" type="checkbox" id="searchDescriptionCheckbox"
+                       style="margin-right: 8px;" onchange="filterShopItems()" />
+                <label for="searchDescriptionCheckbox" class="ms-1 mb-0"
+                       style="font-size: 0.95em; cursor:pointer; user-select:none; color: #fff;">
+                    Search by description
+                </label>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
     <!-- Shop Inventory -->
     <div class="shop-inventory">
         @if (Model.Items?.Any() == true)
@@ -154,7 +174,10 @@
             <div class="inventory-grid" id="inventory-grid">
                 @foreach (var item in Model.Items)
                 {
-                    <div class="item-card" data-bs-toggle="modal" data-bs-target="#itemDetailsModal" 
+                    <div class="item-card"
+                         data-item-name="@item.Name.ToLowerInvariant()"
+                         data-item-description="@item.Description.ToLowerInvariant()"
+                         data-bs-toggle="modal" data-bs-target="#itemDetailsModal"
                          data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })">
                         
                         <!-- Item Header -->
@@ -219,6 +242,13 @@
                     </div>
                 }
             </div>
+
+            <div id="shopEmptyMsg" class="empty-shop" style="display:none;">
+                <i class="fas fa-store-slash fa-3x mb-3 text-muted"></i>
+                <h3>No items match your search</h3>
+                <p>Try a different name or check your spelling.</p>
+            </div>
+
         }
         else
         {
@@ -372,5 +402,36 @@
                 this.remove();
             });
         }
+
+                function filterShopItems() {
+            const input = document.getElementById('shopSearchInput');
+            const filter = input.value.toLowerCase();
+            const includeDescription = document.getElementById('searchDescriptionCheckbox').checked;
+            const cards = document.querySelectorAll('.inventory-grid .item-card');
+            let anyVisible = false;
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-item-name') || '';
+                const description = card.getAttribute('data-item-description') || '';
+                const matches = !filter ||
+                    name.includes(filter) ||
+                    (includeDescription && description.includes(filter));
+                if (matches) {
+                    card.style.display = '';
+                    anyVisible = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide "no results" message
+            const emptyMsg = document.getElementById('shopEmptyMsg');
+            if (emptyMsg) {
+                emptyMsg.style.display = anyVisible ? 'none' : '';
+            }
+        }
+
+
+
     </script>
 }
