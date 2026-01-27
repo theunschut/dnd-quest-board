@@ -84,5 +84,5 @@ public class ShopItemViewModel
         Status == ItemStatus.Published &&
         (AvailableFrom == null || AvailableFrom <= DateTime.UtcNow) &&
         (AvailableUntil == null || AvailableUntil >= DateTime.UtcNow) &&
-        Quantity > 0;
+        Quantity != 0;
 }
