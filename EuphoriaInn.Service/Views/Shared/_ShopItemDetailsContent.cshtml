@@ -145,7 +145,7 @@
 <hr>
 @if (User.Identity?.IsAuthenticated == true)
 {
-    @if (Model.Status == ItemStatus.Published && (Model.Quantity > 0 || Model.Quantity == 0))
+    @if (Model.Status == ItemStatus.Published && Model.Quantity != 0)
     {
         <div class="text-center">
             <form method="post" action="@Url.Action("Purchase", "Shop", new { id = Model.Id })">
