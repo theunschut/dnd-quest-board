@@ -91,138 +91,156 @@ else
                     }
                     else
                     {
-                        <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
-                            <h6>Proposed Dates & Voting Results:</h6>
-                            @{
-                                var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
-                                var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
-                                var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
-                            }
-                            @foreach (var date in orderedDates)
-                            {
-                                var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
-                                var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
-                                var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
-                                var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
-
-                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
-                                     data-date-id="@date.Id"
-                                     data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
-                                    <div class="form-check">
-                                        <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
-                                               id="date_@date.Id" @(isRecommended ? "checked" : "") />
-                                        <label class="form-check-label" for="date_@date.Id">
-                                            <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
-                                            @if (isRecommended)
-                                            {
-                                                <span class="badge bg-success ms-2">Recommended</span>
-                                            }
-                                        </label>
-                                    </div>
-
-                                    <div class="mt-2">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-
-                            <hr>
-
-                            <h6>Player Selection:</h6>
-                            <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest. Players are listed in signup order.</p>
-
-                            @{
-                                ProposedDate? dateForPlayerSelection = null;
-                                List<PlayerSignup?> availablePlayers = new List<PlayerSignup?>();
-                                
-                                if (Model.ProposedDates?.Any() == true)
-                                {
-                                    dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
-                                        orderedDates.First() : 
-                                        orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
-                                    
-                                    if (dateForPlayerSelection != null)
-                                    {
-                                        availablePlayers = dateForPlayerSelection.PlayerVotes
-                                            .Where(v => v.Vote == VoteType.Yes)
-                                            .Select(v => v.PlayerSignup)
-                                            .OrderBy(ps => ps?.SignupTime)
-                                            .ToList();
-                                    }
-                                }
-                            }
-
-                            <div id="player-selection">
-                                @for (int i = 0; i < Model.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
-                                {
-                                    var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
-                                    var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
-
-                                    <div class="form-check player-item" data-player-id="@player.Id">
-                                        <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
-                                               value="@player.Id" id="player_@player.Id"
-                                               @(isInTopPlayers ? "checked" : "") />
-                                        <label class="form-check-label" for="player_@player.Id">
-                                            @player.Player.Name
-                                            <small class="text-muted">
-                                                (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
-                                                <span class="availability-status">
-                                                    @if (availablePlayers.Contains(player))
-                                                    {
-                                                        <span class="text-success">- Available for recommended date</span>
-                                                    }
-                                                </span>
-                                            </small>
-                                        </label>
-                                    </div>
-                                }
-                            </div>
-
-                            <hr>
-
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <button type="submit" class="btn btn-success">Finalize Quest</button>
-                                    <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary ms-2">
+                        @if (!Model.ProposedDates?.Any() == true)
+                        {
+                            <div class="alert alert-warning">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i>No Proposed Dates</h5>
+                                <p>This quest doesn't have any proposed dates yet. Please edit the quest to add some dates before you can finalize it.</p>
+                                <div class="mt-3">
+                                    <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary">
                                         <i class="fas fa-edit me-1"></i>Edit Quest
                                     </a>
                                     <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
-                                        <i class="fas fa-trash me-1"></i>Delete
+                                        <i class="fas fa-trash me-1"></i>Delete Quest
                                     </a>
                                 </div>
-                                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
                             </div>
-                        </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
+                                <h6>Proposed Dates & Voting Results:</h6>
+                                @{
+                                    var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
+                                    var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
+                                    var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
+                                }
+                                @foreach (var date in orderedDates)
+                                {
+                                    var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
+                                    var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
+                                    var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
+                                    var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
+
+                                    <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
+                                         data-date-id="@date.Id"
+                                         data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                         data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                         data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
+                                        <div class="form-check">
+                                            <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
+                                                   id="date_@date.Id" @(isRecommended ? "checked" : "") />
+                                            <label class="form-check-label" for="date_@date.Id">
+                                                <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                                @if (isRecommended)
+                                                {
+                                                    <span class="badge bg-success ms-2">Recommended</span>
+                                                }
+                                            </label>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                <hr>
+
+                                <h6>Player Selection:</h6>
+                                <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest. Players are listed in signup order.</p>
+
+                                @{
+                                    ProposedDate? dateForPlayerSelection = null;
+                                    List<PlayerSignup?> availablePlayers = new List<PlayerSignup?>();
+                                    
+                                    if (Model.ProposedDates?.Any() == true)
+                                    {
+                                        dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
+                                            orderedDates.First() : 
+                                            orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
+                                        
+                                        if (dateForPlayerSelection != null)
+                                        {
+                                            availablePlayers = dateForPlayerSelection.PlayerVotes
+                                                .Where(v => v.Vote == VoteType.Yes)
+                                                .Select(v => v.PlayerSignup)
+                                                .OrderBy(ps => ps?.SignupTime)
+                                                .ToList();
+                                        }
+                                    }
+                                }
+
+                                <div id="player-selection">
+                                    @for (int i = 0; i < Model.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
+                                    {
+                                        var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
+                                        var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
+
+                                        <div class="form-check player-item" data-player-id="@player.Id">
+                                            <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
+                                                   value="@player.Id" id="player_@player.Id"
+                                                   @(isInTopPlayers ? "checked" : "") />
+                                            <label class="form-check-label" for="player_@player.Id">
+                                                @player.Player.Name
+                                                <small class="text-muted">
+                                                    (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                    <span class="availability-status">
+                                                        @if (availablePlayers.Contains(player))
+                                                        {
+                                                            <span class="text-success">- Available for recommended date</span>
+                                                        }
+                                                    </span>
+                                                </small>
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-success">Finalize Quest</button>
+                                        <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary ms-2">
+                                            <i class="fas fa-edit me-1"></i>Edit Quest
+                                        </a>
+                                        <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
+                                </div>
+                            </form>
+                        }
                     }
 
                     @if (Model.IsFinalized)

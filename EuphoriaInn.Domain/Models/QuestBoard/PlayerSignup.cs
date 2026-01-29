@@ -12,5 +12,9 @@ public class PlayerSignup : IModel
 
     public required Quest Quest { get; set; }
 
+    public int? CharacterId { get; set; }
+
+    public Character? Character { get; set; }
+
     public IList<PlayerDateVote> DateVotes { get; set; } = [];
 }

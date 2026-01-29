@@ -1,4 +1,4 @@
-﻿using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Service.ViewModels.GuildMembersViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EuphoriaInn.Service.Controllers.QuestBoard
 {
     [Authorize]
-    public class GuildMembersController(IUserService service) : Controller
+    public class PlayersController(IUserService service) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken token = default)

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Service.ViewModels.QuestViewModels;
 using EuphoriaInn.Service.ViewModels.ShopViewModels;
+using EuphoriaInn.Service.ViewModels.CharacterViewModels;
 
 namespace EuphoriaInn.Service.Automapper;
 
@@ -54,5 +56,20 @@ public class ViewModelProfile : Profile
         // UserTransaction to UserTransactionViewModel
         CreateMap<UserTransaction, UserTransactionViewModel>()
             .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.ShopItem != null ? src.ShopItem.Name : "Unknown Item"));
+
+        // Character to CharacterViewModel
+        CreateMap<Character, CharacterViewModel>()
+            .ForMember(dest => dest.OwnerName, opt => opt.MapFrom(src => src.Owner != null ? src.Owner.Name : "Unknown"))
+            .ForMember(dest => dest.IsOwner, opt => opt.Ignore())
+            .ForMember(dest => dest.ProfilePictureFile, opt => opt.Ignore());
+
+        // CharacterViewModel to Character
+        CreateMap<CharacterViewModel, Character>()
+            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+        // CharacterClass mappings
+        CreateMap<CharacterClass, CharacterClassViewModel>()
+            .ReverseMap();
     }
 }

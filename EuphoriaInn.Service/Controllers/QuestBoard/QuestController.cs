@@ -15,7 +15,8 @@ public class QuestController(
     IEmailService emailService,
     IMapper mapper,
     IPlayerSignupService playerSignupService,
-    IQuestService questService
+    IQuestService questService,
+    ICharacterService characterService
     ) : Controller
 {
     [HttpGet]
@@ -224,17 +225,23 @@ public class QuestController(
 
         // Get current user if authenticated
         User? currentUser = null;
+        IList<Character>? userCharacters = null;
         if (User.Identity?.IsAuthenticated == true)
         {
             var userEntity = await userService.GetUserAsync(User);
             if (userEntity != null)
             {
                 currentUser = await userService.GetByIdAsync(userEntity.Id, token);
+                
+                // Get user's active characters
+                var allCharacters = await characterService.GetCharactersByOwnerIdAsync(currentUser.Id, token);
+                userCharacters = allCharacters.Where(c => c.Status == CharacterStatus.Active).ToList();
             }
         }
 
         // Check if current user is signed up
         ViewBag.IsPlayerSignedUp = currentUser != null && quest.PlayerSignups.Any(ps => ps.Player.Id == currentUser.Id);
+        ViewBag.UserCharacters = userCharacters ?? new List<Character>();
 
         // Check if current user can manage this quest (DM or admin)
         var isQuestDm = currentUser?.Name == quest.DungeonMaster?.Name;
@@ -299,6 +306,17 @@ public class QuestController(
         // Use the authenticated user instead of form input
         signup.Player = user;
         signup.Quest = quest;
+        
+        // Validate character if selected
+        if (signup.CharacterId.HasValue)
+        {
+            var character = await characterService.GetCharacterWithDetailsAsync(signup.CharacterId.Value);
+            if (character == null || character.OwnerId != user.Id || character.Status != CharacterStatus.Active)
+            {
+                ModelState.AddModelError("", "Invalid character selection.");
+                return await Details(questId);
+            }
+        }
 
         await playerSignupService.AddAsync(signup);
 
@@ -308,7 +326,7 @@ public class QuestController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> JoinFinalizedQuest(int questId)
+    public async Task<IActionResult> JoinFinalizedQuest(int questId, int? characterId)
     {
         var quest = await questService.GetQuestWithDetailsAsync(questId);
         if (quest == null || !quest.IsFinalized || quest.FinalizedDate == null)
@@ -334,6 +352,17 @@ public class QuestController(
             return RedirectToAction("Details", new { id = questId });
         }
 
+        // Validate character if selected
+        if (characterId.HasValue)
+        {
+            var character = await characterService.GetCharacterWithDetailsAsync(characterId.Value);
+            if (character == null || character.OwnerId != user.Id || character.Status != CharacterStatus.Active)
+            {
+                ModelState.AddModelError("", "Invalid character selection.");
+                return RedirectToAction("Details", new { id = questId });
+            }
+        }
+
         // Find the finalized date's corresponding proposed date for vote creation
         var finalizedProposedDate = quest.ProposedDates
             .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
@@ -349,6 +378,7 @@ public class QuestController(
         {
             Player = user,
             Quest = quest,
+            CharacterId = characterId,
             IsSelected = true, // Automatically select since quest is finalized and has space
             DateVotes = [new PlayerDateVote 
             { 

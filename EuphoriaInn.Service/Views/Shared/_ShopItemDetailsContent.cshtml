@@ -40,10 +40,16 @@
             </div>
             <div class="card-body modern-card-body">
                 <div class="d-flex align-items-center mb-2">
-                    @if (Model.Quantity == 0)
+                    @if (Model.Quantity == -1)
                     {
                         <span class="badge bg-success">
                             <i class="fas fa-infinity me-1"></i>Unlimited Stock
+                        </span>
+                    }
+                    else if (Model.Quantity == 0)
+                    {
+                        <span class="badge bg-danger">
+                            <i class="fas fa-times-circle me-1"></i>Out of Stock
                         </span>
                     }
                     else if (Model.Quantity <= 5)
@@ -159,10 +165,14 @@
                                 <i class="fas fa-sort-numeric-up me-1"></i>Quantity
                             </label>
                             <input type="number" class="form-control text-center" id="quantity" name="quantity" 
-                                   value="1" min="1" max="@(Model.Quantity == 0 ? 99 : Model.Quantity)">
+                                   value="1" min="1" max="@(Model.Quantity == -1 ? 99 : Model.Quantity)">
                             @if (Model.Quantity > 0)
                             {
                                 <small class="text-muted">Max: @Model.Quantity available</small>
+                            }
+                            else if (Model.Quantity == -1)
+                            {
+                                <small class="text-muted">Unlimited stock available</small>
                             }
                         </div>
                     </div>

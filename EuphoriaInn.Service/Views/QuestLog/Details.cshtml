@@ -18,15 +18,15 @@
             <div class="card-body modern-card-body">
                 <!-- Quest Basic Info -->
                 <div class="mb-4">
-                    <h5><i class="fas fa-info-circle me-2"></i>Quest Information</h5>
-                    <div class="row">
+                    <h5 class="text-white"><i class="fas fa-info-circle me-2"></i>Quest Information</h5>
+                    <div class="row text-white">
                         <div class="col-md-6">
-                            <p><strong>Dungeon Master:</strong> @Model.Quest.DungeonMaster?.Name</p>
-                            <p><strong>Challenge Rating:</strong> @Model.Quest.ChallengeRating</p>
+                            <p class="text-white"><strong>Dungeon Master:</strong> @Model.Quest.DungeonMaster?.Name</p>
+                            <p class="text-white"><strong>Challenge Rating:</strong> @Model.Quest.ChallengeRating</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Completed On:</strong> @Model.Quest.FinalizedDate?.ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
-                            <p><strong>Created:</strong> @Model.Quest.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                            <p class="text-white"><strong>Completed On:</strong> @Model.Quest.FinalizedDate?.ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
+                            <p class="text-white"><strong>Created:</strong> @Model.Quest.CreatedAt.ToString("MMMM dd, yyyy")</p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
 
                 <!-- Original Quest Description -->
                 <div class="mb-4">
-                    <h5><i class="fas fa-scroll me-2"></i>Original Quest Description</h5>
+                    <h5 class="text-white"><i class="fas fa-scroll me-2"></i>Original Quest Description</h5>
                     <div class="quest-description-box">
                         @Model.Quest.Description
                     </div>
@@ -45,7 +45,7 @@
 
                 <!-- Adventurers Who Participated -->
                 <div class="mb-4">
-                    <h5><i class="fas fa-users me-2"></i>Adventurers</h5>
+                    <h5 class="text-white"><i class="fas fa-users me-2"></i>Adventurers</h5>
                     @{
                         var selectedPlayers = Model.Quest.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList();
                     }
@@ -73,13 +73,13 @@
 
                 <!-- Session Recap -->
                 <div class="mb-4">
-                    <h5><i class="fas fa-book me-2"></i>Session Recap</h5>
+                    <h5 class="text-white"><i class="fas fa-book me-2"></i>Session Recap</h5>
                     
                     @if ((bool)ViewBag.CanEditRecap)
                     {
                         <form asp-action="UpdateRecap" asp-route-id="@Model.Quest.Id" method="post">
                             <div class="mb-3">
-                                <label for="recap" class="form-label">
+                                <label for="recap" class="form-label text-white">
                                     Write or update the session recap:
                                 </label>
                                 <textarea class="form-control" 
@@ -88,7 +88,7 @@
                                           rows="10" 
                                           placeholder="Describe what happened during this quest..."
                                           style="background-color: rgba(255, 255, 255, 0.95) !important; color: #1a1a1a !important; border: 2px solid #8B4513; font-weight: 500;">@Model.Quest.Recap</textarea>
-                                <small class="form-text">
+                                <small class="form-text text-white">
                                     Share the story of this adventure with your players!
                                 </small>
                             </div>
@@ -118,7 +118,7 @@
     <div class="col-md-4">
         <div class="card modern-card mb-3">
             <div class="card-header modern-card-header">
-                <h5>Quick Actions</h5>
+                <h5 class="text-white mb-0">Quick Actions</h5>
             </div>
             <div class="card-body modern-card-body">
                 <a href="@Url.Action("Index", "QuestLog")" class="btn btn-secondary w-100 mb-2">
@@ -137,12 +137,12 @@
 
         <div class="card modern-card">
             <div class="card-header modern-card-header">
-                <h5>Quest Statistics</h5>
+                <h5 class="text-white mb-0">Quest Statistics</h5>
             </div>
             <div class="card-body modern-card-body">
-                <p><strong>Total Signups:</strong> @Model.Quest.PlayerSignups.Count</p>
-                <p><strong>Participants:</strong> @selectedPlayers.Count / @Model.Quest.TotalPlayerCount</p>
-                <p>
+                <p class="text-white"><strong>Total Signups:</strong> @Model.Quest.PlayerSignups.Count</p>
+                <p class="text-white"><strong>Participants:</strong> @selectedPlayers.Count / @Model.Quest.TotalPlayerCount</p>
+                <p class="text-white">
                     <strong>Building Access:</strong>
                     @{
                         var dmHasKey = Model.Quest.DungeonMaster?.HasKey == true;
@@ -160,7 +160,7 @@
                         }
                     </span>
                 </p>
-                <p>
+                <p class="text-white">
                     <strong>Status:</strong>
                     <span class="badge bg-dark">
                         <i class="fas fa-flag-checkered me-1"></i>

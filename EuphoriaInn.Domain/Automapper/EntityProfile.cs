@@ -65,5 +65,21 @@ public class EntityProfile : Profile
 
         CreateMap<UserTransactionEntity, UserTransaction>()
             .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => (TransactionType)src.TransactionType));
+
+        // Character mapping
+        CreateMap<Character, CharacterEntity>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (int)src.Role));
+
+        CreateMap<CharacterEntity, Character>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (CharacterStatus)src.Status))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (CharacterRole)src.Role));
+
+        // CharacterClass mapping with enum conversions
+        CreateMap<CharacterClass, CharacterClassEntity>()
+            .ForMember(dest => dest.Class, opt => opt.MapFrom(src => (int)src.Class));
+
+        CreateMap<CharacterClassEntity, CharacterClass>()
+            .ForMember(dest => dest.Class, opt => opt.MapFrom(src => (DndClass)src.Class));
     }
 }

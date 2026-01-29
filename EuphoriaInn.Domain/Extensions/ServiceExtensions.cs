@@ -15,6 +15,7 @@ public static class ServiceExtensions
         services.AddScoped<IQuestService, QuestService>();
         services.AddScoped<IShopService, ShopService>();
         services.AddScoped<IShopSeedService, ShopSeedService>();
+        services.AddScoped<ICharacterService, CharacterService>();
 
         return services;
     }

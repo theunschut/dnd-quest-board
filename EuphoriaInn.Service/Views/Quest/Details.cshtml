@@ -54,19 +54,65 @@
                         <h5>Quest Finalized!</h5>
                         <p><strong>Date & Time:</strong> @Model.Quest?.FinalizedDate?.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</p>
                         <p><strong>Selected Players:</strong></p>
-                        <ul>
+                        <ul class="list-unstyled">
                             @foreach (var player in Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList() ?? [])
                             {
-                                <li>@player.Player.Name</li>
+                                <li class="d-flex align-items-center mb-2">
+                                    @if (player.Character?.ProfilePicture != null)
+                                    {
+                                        <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                             alt="@player.Character.Name" 
+                                             class="character-avatar me-2" />
+                                    }
+                                    else if (player.Character != null)
+                                    {
+                                        <div class="character-avatar-placeholder me-2">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <strong>@player.Player.Name</strong>
+                                        @if (player.Character != null)
+                                        {
+                                            var classList = string.Join(", ", player.Character.Classes.Select(c => c.Class.ToString()));
+                                            <small class="d-block character-class-badge">
+                                                @player.Character.Name (@classList)
+                                            </small>
+                                        }
+                                    </div>
+                                </li>
                             }
                         </ul>
                         @if (Model.Quest?.PlayerSignups.Where(ps => !ps.IsSelected).Any() == true)
                         {
                             <p><strong>Waitlist:</strong></p>
-                            <ul>
+                            <ul class="list-unstyled">
                                 @foreach (var player in Model.Quest?.PlayerSignups.Where(ps => !ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList() ?? [])
                                 {
-                                    <li>@player.Player.Name</li>
+                                    <li class="d-flex align-items-center mb-2">
+                                        @if (player.Character?.ProfilePicture != null)
+                                        {
+                                            <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                                 alt="@player.Character.Name" 
+                                                 class="character-avatar me-2" />
+                                        }
+                                        else if (player.Character != null)
+                                        {
+                                            <div class="character-avatar-placeholder me-2">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <strong>@player.Player.Name</strong>
+                                            @if (player.Character != null)
+                                            {
+                                                var classList = string.Join(", ", player.Character.Classes.Select(c => c.Class.ToString()));
+                                                <small class="d-block character-class-badge">
+                                                    @player.Character.Name (@classList)
+                                                </small>
+                                            }
+                                        </div>
+                                    </li>
                                 }
                             </ul>
                         }
@@ -91,6 +137,22 @@
 
                                 <form asp-action="JoinFinalizedQuest" method="post">
                                     <input type="hidden" name="questId" value="@Model.Quest?.Id" />
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Character (Optional)</label>
+                                        <select name="characterId" class="form-select">
+                                            <option value="">-- Join without character --</option>
+                                            @foreach (var character in ViewBag.UserCharacters as List<EuphoriaInn.Domain.Models.Character> ?? new List<EuphoriaInn.Domain.Models.Character>())
+                                            {
+                                                var classList = string.Join(", ", character.Classes.Select(c => $"{c.Class} {c.ClassLevel}"));
+                                                <option value="@character.Id">
+                                                    @character.Name - Level @character.Level (@classList)
+                                                </option>
+                                            }
+                                        </select>
+                                        <small class="form-text">Choose which character you'll be playing for this quest.</small>
+                                    </div>
+                                    
                                     <button type="submit" class="btn btn-success">
                                         <i class="fas fa-plus-circle me-2"></i>Join Quest
                                     </button>
@@ -121,6 +183,21 @@
                             <form asp-action="Details" method="post">
                                 <input type="hidden" name="Id" value="0" />
                                 <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
+
+                                <div class="mb-3">
+                                    <label class="form-label">Select Character (Optional)</label>
+                                    <select name="CharacterId" class="form-select">
+                                        <option value="">-- Sign up without character --</option>
+                                        @foreach (var character in ViewBag.UserCharacters as List<EuphoriaInn.Domain.Models.Character> ?? new List<EuphoriaInn.Domain.Models.Character>())
+                                        {
+                                            var classList = string.Join(", ", character.Classes.Select(c => $"{c.Class} {c.ClassLevel}"));
+                                            <option value="@character.Id">
+                                                @character.Name - Level @character.Level (@classList)
+                                            </option>
+                                        }
+                                    </select>
+                                    <small class="form-text">Choose which character you'll be playing, or sign up without one.</small>
+                                </div>
 
                                 <h6>Vote on Proposed Dates:</h6>
                                 <p class="text-muted mb-3">Click on quest events in the calendar below to vote on proposed dates. Your votes will be saved automatically.</p>
@@ -384,8 +461,29 @@
                     <div class="player-list">
                         @foreach (var signup in Model.Quest?.PlayerSignups.OrderBy(ps => ps.SignupTime).ToList() ?? [])
                         {
-                            <div class="d-flex justify-content-between align-items-center py-1">
-                                <span>@signup.Player.Name</span>
+                            <div class="d-flex align-items-center py-2">
+                                @if (signup.Character?.ProfilePicture != null)
+                                {
+                                    <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = signup.Character.Id })" 
+                                         alt="@signup.Character.Name" 
+                                         class="character-avatar me-2" />
+                                }
+                                else if (signup.Character != null)
+                                {
+                                    <div class="character-avatar-placeholder me-2">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1">
+                                    <strong>@signup.Player.Name</strong>
+                                    @if (signup.Character != null)
+                                    {
+                                        var classList = string.Join(", ", signup.Character.Classes.Select(c => c.Class.ToString()));
+                                        <small class="text-muted d-block character-class-badge">
+                                            @signup.Character.Name (@classList)
+                                        </small>
+                                    }
+                                </div>
                                 <small class="text-muted">@signup.SignupTime.ToString("MMM dd")</small>
                             </div>
                         }
