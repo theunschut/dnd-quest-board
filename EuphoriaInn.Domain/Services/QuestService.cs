@@ -302,4 +302,26 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Return unique affected players
         return Task.FromResult(affectedPlayers.GroupBy(p => p.Id).Select(g => g.First()).ToList());
     }
+
+    public async Task<IList<Quest>> GetCompletedQuestsAsync(CancellationToken token = default)
+    {
+        var questEntities = await repository.GetQuestsWithDetailsAsync(token);
+        
+        // Filter for quests that are finalized and the finalized date is in the past
+        var completedQuestEntities = questEntities
+            .Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+            .OrderByDescending(q => q.FinalizedDate)
+            .ToList();
+        
+        return Mapper.Map<IList<Quest>>(completedQuestEntities);
+    }
+
+    public async Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default)
+    {
+        var entity = await repository.GetQuestWithDetailsAsync(questId, token);
+        if (entity == null) return;
+
+        entity.Recap = recap;
+        await repository.SaveChangesAsync(token);
+    }
 }

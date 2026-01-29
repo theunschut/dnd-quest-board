@@ -32,6 +32,8 @@ public class QuestEntity : IEntity
 
     public bool DungeonMasterSession { get; set; }
 
+    public string? Recap { get; set; }
+
     [ForeignKey(nameof(DungeonMasterId))]
     public virtual UserEntity DungeonMaster { get; set; } = null!;
 

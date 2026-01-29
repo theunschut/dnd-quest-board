@@ -23,4 +23,8 @@ public interface IQuestService : IBaseService<Quest>
     Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default);
     
     Task OpenQuestAsync(int questId, CancellationToken token = default);
+
+    Task<IList<Quest>> GetCompletedQuestsAsync(CancellationToken token = default);
+
+    Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default);
 }

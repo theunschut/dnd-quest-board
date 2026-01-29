@@ -29,6 +29,8 @@ public class Quest : IModel
 
     public bool DungeonMasterSession { get; set; }
 
+    public string? Recap { get; set; }
+
     public IList<ProposedDate> ProposedDates { get; set; } = [];
 
     public IList<PlayerSignup> PlayerSignups { get; set; } = [];
