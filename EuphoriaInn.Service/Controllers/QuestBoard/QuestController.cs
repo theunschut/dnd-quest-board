@@ -275,7 +275,7 @@ public class QuestController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Details(PlayerSignup signup)
+    public async Task<IActionResult> Details(PlayerSignup signup, int selectedRole = 0)
     {
         if (signup.Quest?.Id == null || signup.Quest.Id == 0) return NotFound();
         var questId = signup.Quest.Id;
@@ -299,6 +299,7 @@ public class QuestController(
         // Use the authenticated user instead of form input
         signup.Player = user;
         signup.Quest = quest;
+        signup.Role = (SignupRole)selectedRole; // Set role from form
 
         await playerSignupService.AddAsync(signup);
 
@@ -308,7 +309,7 @@ public class QuestController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> JoinFinalizedQuest(int questId)
+    public async Task<IActionResult> JoinFinalizedQuest(int questId, int selectedRole = 0)
     {
         var quest = await questService.GetQuestWithDetailsAsync(questId);
         if (quest == null || !quest.IsFinalized || quest.FinalizedDate == null)
@@ -326,12 +327,20 @@ public class QuestController(
             return RedirectToAction("Details", new { id = questId });
         }
 
-        // Check if quest has space (max 6 selected players)
-        var selectedPlayersCount = quest.PlayerSignups.Where(ps => ps.IsSelected).Count();
-        if (selectedPlayersCount >= quest.TotalPlayerCount)
+        var role = (SignupRole)selectedRole;
+
+        // Check if quest has space - only count Player roles
+        if (role == SignupRole.Player)
         {
-            ModelState.AddModelError("", $"This quest is full ({selectedPlayersCount}/{quest.TotalPlayerCount} players).");
-            return RedirectToAction("Details", new { id = questId });
+            var selectedPlayersCount = quest.PlayerSignups
+                .Where(ps => ps.IsSelected && ps.Role == SignupRole.Player)
+                .Count();
+
+            if (selectedPlayersCount >= quest.TotalPlayerCount)
+            {
+                ModelState.AddModelError("", $"This quest is full ({selectedPlayersCount}/{quest.TotalPlayerCount} players).");
+                return RedirectToAction("Details", new { id = questId });
+            }
         }
 
         // Find the finalized date's corresponding proposed date for vote creation
@@ -344,17 +353,19 @@ public class QuestController(
             return RedirectToAction("Details", new { id = questId });
         }
 
-        // Create signup with automatic "Yes" vote for the finalized date
+        // Create signup
         var signup = new PlayerSignup
         {
             Player = user,
             Quest = quest,
-            IsSelected = true, // Automatically select since quest is finalized and has space
-            DateVotes = [new PlayerDateVote 
-            { 
-                ProposedDateId = finalizedProposedDate.Id,
-                Vote = VoteType.Yes
-            }]
+            Role = role,
+            IsSelected = true, // Auto-approve all roles when joining finalized quest
+            DateVotes = role == SignupRole.Spectator ? [] : // Spectators don't vote
+                [new PlayerDateVote
+                {
+                    ProposedDateId = finalizedProposedDate.Id,
+                    Vote = VoteType.Yes
+                }]
         };
 
         await playerSignupService.AddAsync(signup);
@@ -461,7 +472,12 @@ public class QuestController(
             .Select(idStr => int.Parse(idStr!))
             .ToList();
 
-        if (selectedPlayerIds.Count > quest.TotalPlayerCount)
+        // Validate: Only count Player roles against the limit
+        var selectedPlayerRoleCount = quest.PlayerSignups
+            .Where(ps => selectedPlayerIds.Contains(ps.Id) && ps.Role == SignupRole.Player)
+            .Count();
+
+        if (selectedPlayerRoleCount > quest.TotalPlayerCount)
         {
             TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players.";
             return RedirectToAction("Manage", new { id });
@@ -470,14 +486,16 @@ public class QuestController(
         // Finalize the quest using the specialized service method
         await questService.FinalizeQuestAsync(id, selectedDate.Date, selectedPlayerIds);
 
-        // Send email notifications to selected players
-        var selectedPlayers = quest.PlayerSignups.Where(ps => selectedPlayerIds.Contains(ps.Id) && !string.IsNullOrEmpty(ps.Player.Email));
+        // Send email notifications to ALL selected roles (Players, AssistantDMs, AND Spectators)
+        var selectedSignups = quest.PlayerSignups
+            .Where(ps => (selectedPlayerIds.Contains(ps.Id) || ps.Role == SignupRole.Spectator)
+                         && !string.IsNullOrEmpty(ps.Player.Email));
 
-        foreach (var player in selectedPlayers)
+        foreach (var signup in selectedSignups)
         {
             await emailService.SendQuestFinalizedEmailAsync(
-                player.Player.Email!,
-                player.Player.Name,
+                signup.Player.Email!,
+                signup.Player.Name,
                 quest.Title,
                 quest.DungeonMaster?.Name ?? "Unknown DM",
                 selectedDate.Date

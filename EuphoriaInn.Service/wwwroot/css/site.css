@@ -36,11 +36,6 @@
     color: #6c757d;
 }
 
-.player-list {
-    max-height: 200px;
-    overflow-y: auto;
-}
-
 /* Form Input Fixes */
 .form-control:focus {
     border-color: #ffc107;
