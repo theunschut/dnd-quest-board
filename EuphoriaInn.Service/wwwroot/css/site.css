@@ -1625,16 +1625,527 @@ p, li, span, small {
     }
 }
 
+/* Details page calendar styling */
+.details-page .calendar-grid {
+    height: auto;
+    min-height: 350px;
+}
+
+/* Optimize calendar for wider layout on quest details page */
+.quest-details-page .calendar-grid {
+    max-width: none;
+}
+
+.quest-details-page .calendar-body {
+    grid-auto-rows: minmax(90px, auto);
+}
+
+.details-page .calendar-body {
+    grid-auto-rows: minmax(80px, auto);
+}
+
+/* Current quest styling - remove transparency, make solid */
+.quest-event.current-quest {
+    background-color: rgba(255, 255, 255, 1) !important;
+    border-left-color: #3498db;
+    border-width: 3px;
+    /* Always expanded for current quest */
+    font-size: 11px !important;
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+}
+
+/* Disable hover expansion for non-current quest entries on details page */
+.details-page .quest-event:not(.current-quest):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    z-index: auto;
+    border-radius: 3px;
+    font-size: 9px;
+    position: relative;
+    left: auto;
+    right: auto;
+    height: 16px;
+    min-height: 16px;
+    padding: 2px 4px;
+    overflow: hidden;
+}
+
+/* Completely disable hover effects for current quest entries */
+.details-page .quest-event.current-quest:hover {
+    background-color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    z-index: 10 !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    height: auto !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    overflow: visible !important;
+    transform: none !important;
+}
+
+/* Keep current quest entries always expanded */
+.details-page .quest-event.current-quest .quest-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.details-page .quest-event.current-quest .calendar-quest-title {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+    font-size: 11px !important;
+    flex: none !important;
+}
+
+.details-page .quest-event.current-quest .calendar-quest-dm {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+}
+
+.details-page .quest-event.current-quest .quest-time {
+    display: block !important;
+    font-size: 9px !important;
+    margin-top: 1px !important;
+}
+
+.details-page .quest-event.current-quest .finalized-icon {
+    font-size: 10px !important;
+    opacity: 1 !important;
+}
+
+/* Vote buttons styling */
+.vote-buttons {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    padding: 1px;
+}
+
+.quest-event:hover .vote-buttons {
+    display: block !important;
+}
+
+/* Always show vote buttons for current quest on details page */
+.details-page .quest-event.current-quest .vote-buttons {
+    display: block !important;
+}
+
+/* User vote display styling for signed up users */
+.user-vote-display {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11;
+}
+
+.vote-indicator {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.vote-indicator i {
+    font-size: 12px;
+}
+
+/* Always show vote indicators for current quest */
+.details-page .quest-event.current-quest .user-vote-display {
+    display: block !important;
+}
+
+.vote-buttons .btn-group-vertical {
+    gap: 1px;
+}
+
+.vote-buttons .btn {
+    font-size: 8px;
+    padding: 1px 2px;
+    line-height: 1;
+    min-width: 16px;
+    height: 16px;
+    border: 1px solid;
+}
+
+/* Ensure quest events with vote buttons maintain same width */
+.quest-event.current-quest {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quest-event.current-quest .quest-link {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 0; /* Remove the padding adjustment */
+    position: relative;
+}
+
+/* Vote buttons should not affect the quest event layout */
+.quest-event:hover.current-quest {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Calendar container styling for details page */
+.details-calendar-container .calendar-grid {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.details-calendar-container .calendar-day {
+    min-height: 80px;
+}
+
+.details-calendar-container .quest-event:hover {
+    min-height: 50px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure all quest events have consistent width */
+.quest-event {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quest-event .quest-link {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    /* Keep original display properties for proper text layout */
+}
+
+/* Custom FontAwesome Radio Button Styling */
+.custom-radio-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.custom-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    color: #F4E4BC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: 500;
+}
+
+.custom-radio-label:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Hover state colors for better visibility */
+.custom-radio-label[data-vote="yes"]:hover i {
+    color: #28a745 !important; /* Green on hover */
+}
+
+.custom-radio-label[data-vote="maybe"]:hover i {
+    color: #ffc107 !important; /* Yellow on hover */
+}
+
+.custom-radio-label[data-vote="no"]:hover i {
+    color: #dc3545 !important; /* Red on hover */
+}
+
+.custom-radio-label[data-vote="novote"]:hover i {
+    color: #6c757d !important; /* Gray on hover */
+}
+
+.custom-radio-label i {
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+    color: #6c757d; /* Gray for unselected */
+}
+
+/* Unselected state */
+.custom-radio-label[data-vote="yes"] i {
+    color: #6c757d;
+}
+
+.custom-radio-label[data-vote="maybe"] i {
+    color: #6c757d;
+}
+
+.custom-radio-label[data-vote="no"] i {
+    color: #6c757d;
+}
+
+.custom-radio-label[data-vote="novote"] i {
+    color: #6c757d;
+}
+
+/* Selected state colors */
+input[type="radio"]:checked + .custom-radio-label[data-vote="yes"] i {
+    color: #28a745; /* Green for Yes */
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="maybe"] i {
+    color: #ffc107; /* Yellow for Maybe */
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="no"] i {
+    color: #dc3545; /* Red for No */
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="novote"] i {
+    color: #6c757d; /* Gray for No Vote */
+}
+
+/* Selected state styling */
+input[type="radio"]:checked + .custom-radio-label {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="yes"] {
+    border-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="maybe"] {
+    border-color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="no"] {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+input[type="radio"]:checked + .custom-radio-label[data-vote="novote"] {
+    border-color: #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Focus state */
+input[type="radio"]:focus + .custom-radio-label {
+    outline: 2px solid rgba(255, 193, 7, 0.5);
+    outline-offset: 2px;
+}
+
+/* Clickable date blocks */
+.date-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.date-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced clickable date blocks for manage page */
+.manage-date-option {
+    cursor: pointer;
+    padding: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.manage-date-option:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.manage-date-option input[type="radio"]:checked ~ * {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: #3498db;
+}
+
+.manage-date-option input[type="radio"]:checked {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: #3498db;
+}
+
+/* Purchase History Side Panel Styles */
+.purchase-history-panel {
+    position: fixed;
+    top: 56px; /* Height of Bootstrap navbar */
+    left: 0;
+    width: 280px;
+    height: calc(100vh - 56px);
+    background: rgba(15, 15, 25, 0.95);
+    border-right: 3px solid #ffc107;
+    border-top: 2px solid rgba(139, 69, 19, 0.9); /* Connect with navbar border */
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1025; /* Below navbar but above other content */
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    margin: 0; /* Remove all margins */
+    padding: 0; /* Remove all padding */
+}
+
+.purchase-history-panel .panel-header {
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #444;
+    color: #F4E4BC;
+    padding: 1rem;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: none !important;
+}
+
+.purchase-history-panel .panel-header h6 {
+    color: #F4E4BC !important;
+    text-shadow: none !important;
+}
+
+.purchase-history-panel .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #ffc107 rgba(0, 0, 0, 0.3);
+}
+
+.purchase-history-panel .panel-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.purchase-history-panel .panel-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.purchase-history-panel .panel-body::-webkit-scrollbar-thumb {
+    background: #ffc107;
+    border-radius: 4px;
+}
+
+.purchase-item {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #444;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.purchase-item:hover {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+}
+
+.purchase-name {
+    color: #F4E4BC;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9),
+                 -1px -1px 2px rgba(0, 0, 0, 0.9),
+                 1px -1px 2px rgba(0, 0, 0, 0.9),
+                 -1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.purchase-details {
+    margin-top: 0.25rem;
+}
+
+.purchase-details small {
+    font-size: 0.75rem;
+    color: #F4E4BC !important;
+    text-shadow: none !important;
+}
+
+.purchase-details .text-muted {
+    color: rgba(244, 228, 188, 0.7) !important;
+    text-shadow: none !important;
+}
+
+.purchase-details .text-warning {
+    color: #ffc107 !important;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9),
+                 -1px -1px 2px rgba(0, 0, 0, 0.9),
+                 1px -1px 2px rgba(0, 0, 0, 0.9),
+                 -1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Fix date styling in purchase items */
+.purchase-item small.text-muted {
+    color: rgba(244, 228, 188, 0.7) !important;
+    text-shadow: none !important;
+}
+
+/* Shop container adjustment when panel is present */
+.shop-container.with-panel {
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .purchase-history-panel {
+        width: 250px;
+    }
+
+    .shop-container.with-panel {
+        margin-left: 250px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .purchase-history-panel {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .purchase-history-panel.mobile-open {
+        transform: translateX(0);
+    }
+
+    .shop-container.with-panel {
+        margin-left: 0;
+    }
+}
+
 @media (max-width: 480px) {
     .purchase-history-panel {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
-    
+
     .purchase-history-panel.mobile-open {
         transform: translateX(0);
     }
-    
+
     .shop-container.with-panel {
         margin-left: 0;
     }
@@ -1701,7 +2212,198 @@ p, li, span, small {
     font-weight: 600;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9),
                  -1px -1px 2px rgba(0, 0, 0, 0.9),
-                 1px 1px 6px rgba(0, 0, 0, 0.8) !important;
+                 1px -1px 2px rgba(0, 0, 0, 0.9),
+                 -1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Style for purchase details text like (Fully Returned/Sold) */
+.purchase-details-text {
+    color: rgba(244, 228, 188, 0.7) !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-shadow: none !important;
+    margin-left: 0.5rem;
+}
+
+/* Magic Item type badge styling */
+.type-magic-item {
+    background: linear-gradient(45deg, #6f42c1, #4c6ef5) !important;
+    color: white !important;
+    border: 1px solid rgba(111, 66, 193, 0.3) !important;
+    box-shadow: 0 0 8px rgba(111, 66, 193, 0.4);
+    animation: magic-shimmer 3s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.type-magic-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    animation: magic-shine 4s ease-in-out infinite;
+}
+
+@keyframes magic-shimmer {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(111, 66, 193, 0.4), 0 0 12px rgba(76, 110, 245, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(111, 66, 193, 0.6), 0 0 16px rgba(76, 110, 245, 0.4);
+    }
+}
+
+@keyframes magic-shine {
+    0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+    50% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+    75% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Equipment type badge - subtle styling for contrast */
+.type-equipment {
+    background-color: #6c757d !important;
+    color: white !important;
+    border: 1px solid rgba(108, 117, 125, 0.3) !important;
+}
+
+/* Consistent sizing for action buttons in tables */
+.btn-sm.btn-action {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* Quest Item type badge styling */
+.type-quest-item {
+    background: linear-gradient(45deg, #ffc107, #fd7e14, #dc3545) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 193, 7, 0.6) !important;
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.5);
+    animation: quest-pulse 2.5s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+.type-quest-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -150%;
+    width: 300%;
+    height: 200%;
+    background: linear-gradient(45deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        rgba(255, 215, 0, 0.2),
+        rgba(255, 255, 255, 0.15),
+        transparent);
+    transform: rotate(25deg);
+    animation: quest-sweep 5s ease-in-out infinite;
+}
+
+.type-quest-item::after {
+    content: '✦';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    animation: quest-sparkle 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes quest-pulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(255, 193, 7, 0.5), 0 0 20px rgba(255, 126, 20, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.8), 0 0 30px rgba(255, 126, 20, 0.5);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes quest-sweep {
+    0% { transform: translateX(-300%) translateY(-100%) rotate(25deg); }
+    20% { transform: translateX(-300%) translateY(-100%) rotate(25deg); }
+    40% { transform: translateX(200%) translateY(50%) rotate(25deg); }
+    100% { transform: translateX(200%) translateY(50%) rotate(25deg); }
+}
+
+@keyframes quest-sparkle {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.8) rotate(0deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+    }
+}
+
+/* Merchant toast styling */
+.merchant-toast {
+    max-width: 350px;
+    border: 2px solid #ffc107;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.merchant-toast .toast-header {
+    background: linear-gradient(45deg, #ffc107, #e0a800) !important;
+    color: #1a1a1a !important;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.merchant-toast .toast-body {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1a1a1a;
+    font-style: italic;
+    font-weight: 500;
+    padding: 1rem;
+    border-radius: 0 0 6px 6px;
+}
+
+/* Gray-out styling for sold/returned items */
+.purchase-item.sold-returned {
+    opacity: 0.6;
+    filter: grayscale(50%);
+    transition: all 0.3s ease;
+}
+
+.purchase-item.sold-returned:hover {
+    opacity: 0.8;
+    filter: grayscale(30%);
+    transform: translateX(2px); /* Less movement than active items */
+}
+
+.purchase-item.sold-returned .purchase-name {
+    color: rgba(244, 228, 188, 0.5) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7),
+                 -1px -1px 1px rgba(0, 0, 0, 0.7) !important;
+}
+
+.purchase-item.sold-returned .purchase-details small {
+    color: rgba(244, 228, 188, 0.4) !important;
+}
+
+.purchase-item.sold-returned .purchase-details .text-warning {
+    color: rgba(255, 193, 7, 0.5) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+}
+
+.purchase-item.sold-returned .purchase-details .text-success {
+    color: rgba(40, 167, 69, 0.6) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* ========================================
