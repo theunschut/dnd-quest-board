@@ -1,0 +1,127 @@
+using EuphoriaInn.Repository.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace EuphoriaInn.IntegrationTests.Helpers;
+
+public static class TestDataHelper
+{
+    public static async Task<QuestEntity> CreateTestQuestAsync(
+        IServiceProvider services,
+        int dungeonMasterId,
+        string title = "Test Quest",
+        string description = "Test Description",
+        int challengeRating = 5,
+        bool isFinalized = false)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        var quest = new QuestEntity
+        {
+            Title = title,
+            Description = description,
+            ChallengeRating = challengeRating,
+            DungeonMasterId = dungeonMasterId,
+            IsFinalized = isFinalized,
+            TotalPlayerCount = 4,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        context.Quests.Add(quest);
+        await context.SaveChangesAsync();
+
+        return quest;
+    }
+
+    public static async Task<PlayerSignupEntity> CreatePlayerSignupAsync(
+        IServiceProvider services,
+        int questId,
+        int playerId,
+        int signupRole = 0,
+        bool isSelected = false)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        var signup = new PlayerSignupEntity
+        {
+            QuestId = questId,
+            PlayerId = playerId,
+            SignupRole = signupRole,
+            IsSelected = isSelected,
+            SignupTime = DateTime.UtcNow
+        };
+
+        context.PlayerSignups.Add(signup);
+        await context.SaveChangesAsync();
+
+        return signup;
+    }
+
+    public static async Task<ShopItemEntity> CreateShopItemAsync(
+        IServiceProvider services,
+        int createdByDmId,
+        string name = "Test Item",
+        decimal price = 10.0m,
+        int quantity = 5)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        var item = new ShopItemEntity
+        {
+            Name = name,
+            Description = "Test item description",
+            Price = price,
+            Quantity = quantity,
+            Type = 0, // Weapon type
+            Rarity = 0, // Common rarity
+            Status = 0, // Active status
+            CreatedByDmId = createdByDmId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        context.ShopItems.Add(item);
+        await context.SaveChangesAsync();
+
+        return item;
+    }
+
+    public static async Task ClearDatabaseAsync(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        // Get the database name before dropping
+        var connectionString = context.Database.GetConnectionString();
+
+        // Close all active connections to the database
+        await context.Database.CloseConnectionAsync();
+
+        // Drop and recreate the entire database for a clean slate
+        // This is much more reliable than trying to delete individual records
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        // Seed the necessary roles after database creation
+        await SeedRolesAsync(services);
+    }
+
+    public static async Task SeedRolesAsync(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+        string[] roleNames = { "Admin", "DungeonMaster", "Player" };
+
+        foreach (var roleName in roleNames)
+        {
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>(roleName));
+            }
+        }
+    }
+}
