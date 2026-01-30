@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuphoriaInn.Service", "EuphoriaInn.Service\EuphoriaInn.Service.csproj", "{8590DF03-9622-402C-814C-FC0DC55F3861}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuphoriaInn.UnitTests", "EuphoriaInn.UnitTests\EuphoriaInn.UnitTests.csproj", "{DAF2A202-A37F-48B2-B42C-C3C4017AFB12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuphoriaInn.IntegrationTests", "EuphoriaInn.IntegrationTests\EuphoriaInn.IntegrationTests.csproj", "{27C36F2F-A07A-4C9E-87C4-5C3F7C8949F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{412354E6-2132-4413-AC98-A723AFAF1346}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +88,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DAF2A202-A37F-48B2-B42C-C3C4017AFB12} = {412354E6-2132-4413-AC98-A723AFAF1346}
+		{27C36F2F-A07A-4C9E-87C4-5C3F7C8949F7} = {412354E6-2132-4413-AC98-A723AFAF1346}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E4A29073-93B0-4FE2-8A92-036D0E281BF1}
