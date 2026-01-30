@@ -1,6 +1,3 @@
-using EuphoriaInn.Repository.Entities;
-using Microsoft.EntityFrameworkCore;
-
 namespace EuphoriaInn.IntegrationTests.Helpers;
 
 public class TestDatabase : IDisposable

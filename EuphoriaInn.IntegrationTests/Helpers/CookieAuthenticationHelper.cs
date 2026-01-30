@@ -1,6 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
-using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 

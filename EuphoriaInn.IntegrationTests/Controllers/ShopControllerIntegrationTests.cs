@@ -1,7 +1,5 @@
 using System.Net;
 using EuphoriaInn.IntegrationTests.Helpers;
-using Microsoft.Extensions.DependencyInjection;
-using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 

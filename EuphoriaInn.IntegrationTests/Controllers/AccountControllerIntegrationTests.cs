@@ -1,10 +1,6 @@
 using System.Net;
-using System.Net.Http.Json;
 using EuphoriaInn.IntegrationTests.Helpers;
-using EuphoriaInn.Service.ViewModels.AccountViewModels;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 

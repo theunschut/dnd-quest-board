@@ -1,10 +1,7 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using EuphoriaInn.Repository.Entities;
 using System.Security.Claims;
-using Microsoft.AspNetCore.TestHost;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 

@@ -1,6 +1,4 @@
-using EuphoriaInn.Repository.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 
