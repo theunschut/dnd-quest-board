@@ -123,12 +123,13 @@ public class QuestControllerIntegrationTests_Comprehensive : IClassFixture<WebAp
 
         var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["questId"] = quest.Id.ToString(),
-            ["signupRole"] = "0" // Player role
+            ["Id"] = "0",
+            ["Quest.Id"] = quest.Id.ToString(),
+            ["selectedRole"] = "0" // Player role
         });
 
         // Act
-        var response = await playerClient.PostAsync($"/Quest/Signup", formContent);
+        var response = await playerClient.PostAsync($"/Quest/Details", formContent);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.Found);
@@ -148,6 +149,10 @@ public class QuestControllerIntegrationTests_Comprehensive : IClassFixture<WebAp
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
         var (dmClient, dm) = await AuthenticationHelper.CreateAuthenticatedDMClientAsync(_factory);
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id);
+
+        // Add proposed dates (required for Manage view)
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.Today.AddDays(7));
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.Today.AddDays(14));
 
         // Add some signups
         var player = await AuthenticationHelper.CreateTestUserAsync(
@@ -171,6 +176,9 @@ public class QuestControllerIntegrationTests_Comprehensive : IClassFixture<WebAp
         var (dmClient, dm) = await AuthenticationHelper.CreateAuthenticatedDMClientAsync(_factory);
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id);
 
+        // Add proposed dates
+        var proposedDate = await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.Today.AddDays(7));
+
         var player1 = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "finalizeplayer1", "fp1@example.com");
         var player2 = await AuthenticationHelper.CreateTestUserAsync(
@@ -179,15 +187,16 @@ public class QuestControllerIntegrationTests_Comprehensive : IClassFixture<WebAp
         var signup1 = await TestDataHelper.CreatePlayerSignupAsync(_factory.Services, quest.Id, player1.Id);
         var signup2 = await TestDataHelper.CreatePlayerSignupAsync(_factory.Services, quest.Id, player2.Id);
 
-        var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
+        var formData = new List<KeyValuePair<string, string>>
         {
-            ["questId"] = quest.Id.ToString(),
-            ["finalizedDate"] = DateTime.Today.AddDays(7).ToString("yyyy-MM-dd"),
-            ["selectedPlayerIds"] = $"{signup1.Id},{signup2.Id}"
-        });
+            new KeyValuePair<string, string>("SelectedDateId", proposedDate.Id.ToString()),
+            new KeyValuePair<string, string>("SelectedPlayerIds", signup1.Id.ToString()),
+            new KeyValuePair<string, string>("SelectedPlayerIds", signup2.Id.ToString())
+        };
+        var formContent = new FormUrlEncodedContent(formData);
 
         // Act
-        var response = await dmClient.PostAsync("/Quest/Finalize", formContent);
+        var response = await dmClient.PostAsync($"/Quest/Finalize/{quest.Id}", formContent);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.Found);
@@ -211,7 +220,7 @@ public class QuestControllerIntegrationTests_Comprehensive : IClassFixture<WebAp
         var (otherClient, _) = await AuthenticationHelper.CreateAuthenticatedDMClientAsync(_factory, "otherdeletem", "otherdelete@example.com");
 
         // Act
-        var response = await otherClient.PostAsync($"/Quest/Delete/{quest.Id}", null);
+        var response = await otherClient.DeleteAsync($"/Quest/Delete/{quest.Id}");
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);

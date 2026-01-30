@@ -130,11 +130,8 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
         var password = "ProfilePass123!";
-        var user = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "profileuser", "profile@example.com", password, "Profile User");
-
-        // Sign in using cookie authentication
-        var client = await CookieAuthenticationHelper.SignInAsync(_factory, user, password);
+        var (client, user) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "profileuser", "profile@example.com", password, "Profile User");
 
         // Act
         var response = await client.GetAsync("/Account/Profile");

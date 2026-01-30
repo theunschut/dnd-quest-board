@@ -72,6 +72,18 @@ public class QuestLogControllerIntegrationTests : IClassFixture<WebApplicationFa
         var quest = await TestDataHelper.CreateTestQuestAsync(
             _factory.Services, dm.Id, "Quest With Details", "Detailed description", 10, isFinalized: true);
 
+        // Set finalized date to at least 1 day in the past
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var questToUpdate = await context.Quests.FindAsync(quest.Id);
+            if (questToUpdate != null)
+            {
+                questToUpdate.FinalizedDate = DateTime.UtcNow.AddDays(-2);
+                await context.SaveChangesAsync();
+            }
+        }
+
         // Act
         var response = await _client.GetAsync($"/QuestLog/Details/{quest.Id}");
 
@@ -104,6 +116,18 @@ public class QuestLogControllerIntegrationTests : IClassFixture<WebApplicationFa
             _factory.Services, dm.Id, "Finalized Quest", "Done", 5, isFinalized: true);
         var activeQuest = await TestDataHelper.CreateTestQuestAsync(
             _factory.Services, dm.Id, "Active Quest", "Not done", 5, isFinalized: false);
+
+        // Set finalized date for the finalized quest
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var questToUpdate = await context.Quests.FindAsync(finalizedQuest.Id);
+            if (questToUpdate != null)
+            {
+                questToUpdate.FinalizedDate = DateTime.UtcNow.AddDays(-2);
+                await context.SaveChangesAsync();
+            }
+        }
 
         // Act
         var response = await _client.GetAsync("/QuestLog");

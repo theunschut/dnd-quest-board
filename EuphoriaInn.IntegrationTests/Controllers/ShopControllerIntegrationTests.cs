@@ -18,8 +18,12 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
     [Fact]
     public async Task Index_ShouldReturnShopPage()
     {
+        // Arrange - Shop requires authentication
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
         // Act
-        var response = await _client.GetAsync("/Shop");
+        var response = await client.GetAsync("/Shop");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -32,6 +36,8 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
     {
         // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        // Create shopkeeper and items BEFORE creating authenticated client
         var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "shopkeeper", "shopkeeper@example.com");
 
@@ -40,8 +46,11 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         await TestDataHelper.CreateShopItemAsync(
             _factory.Services, shopkeeper.Id, "Health Potion", 5.0m, 10);
 
+        // Create authenticated client AFTER data setup
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
         // Act
-        var response = await _client.GetAsync("/Shop");
+        var response = await client.GetAsync("/Shop");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -55,6 +64,10 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
     {
         // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        // Create authenticated client
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
         var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "detailshop", "detailshop@example.com");
 
@@ -62,7 +75,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             _factory.Services, shopkeeper.Id, "Magic Staff", 50.0m, 1);
 
         // Act
-        var response = await _client.GetAsync($"/Shop/Details/{item.Id}");
+        var response = await client.GetAsync($"/Shop/Details/{item.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -74,8 +87,12 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
     [Fact]
     public async Task Details_WithInvalidItemId_ShouldReturn404()
     {
+        // Arrange - Shop requires authentication
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
         // Act
-        var response = await _client.GetAsync("/Shop/Details/99999");
+        var response = await client.GetAsync("/Shop/Details/99999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -89,16 +106,18 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "purchaseshop", "purchase@example.com");
         var item = await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id);
 
+        // Try to access Shop page without auth to get anti-forgery token (will redirect)
+        // For this test, we're just checking that unauthenticated access is blocked
         var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["itemId"] = item.Id.ToString(),
+            ["id"] = item.Id.ToString(),
             ["quantity"] = "1"
         });
 
         // Act
         var response = await _client.PostAsync("/Shop/Purchase", formContent);
 
-        // Assert
+        // Assert - Should redirect to login or return unauthorized
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
     }
 
@@ -116,11 +135,23 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var item = await TestDataHelper.CreateShopItemAsync(
             _factory.Services, shopkeeper.Id, "Affordable Item", 10.0m, 5);
 
-        var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
+        // Get the shop page to extract anti-forgery token
+        var getResponse = await buyerClient.GetAsync("/Shop");
+        var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
+
+        // Set the anti-forgery cookie
+        if (!string.IsNullOrEmpty(cookieValue))
         {
-            ["itemId"] = item.Id.ToString(),
-            ["quantity"] = "1"
-        });
+            buyerClient.DefaultRequestHeaders.Add("Cookie", $".AspNetCore.Antiforgery={cookieValue}");
+        }
+
+        var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
+            new Dictionary<string, string>
+            {
+                ["id"] = item.Id.ToString(),
+                ["quantity"] = "1"
+            },
+            token);
 
         // Act
         var response = await buyerClient.PostAsync("/Shop/Purchase", formContent);
@@ -143,11 +174,23 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var item = await TestDataHelper.CreateShopItemAsync(
             _factory.Services, shopkeeper.Id, "Expensive Item", 100.0m, 5);
 
-        var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
+        // Get the shop page to extract anti-forgery token
+        var getResponse = await buyerClient.GetAsync("/Shop");
+        var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
+
+        // Set the anti-forgery cookie
+        if (!string.IsNullOrEmpty(cookieValue))
         {
-            ["itemId"] = item.Id.ToString(),
-            ["quantity"] = "1"
-        });
+            buyerClient.DefaultRequestHeaders.Add("Cookie", $".AspNetCore.Antiforgery={cookieValue}");
+        }
+
+        var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
+            new Dictionary<string, string>
+            {
+                ["id"] = item.Id.ToString(),
+                ["quantity"] = "1"
+            },
+            token);
 
         // Act
         var response = await buyerClient.PostAsync("/Shop/Purchase", formContent);
@@ -161,6 +204,10 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
     {
         // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        // Create authenticated client
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
         var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "searchshop", "searchshop@example.com");
 
@@ -169,7 +216,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Magic Wand", 30.0m);
 
         // Act
-        var response = await _client.GetAsync("/Shop?search=sword");
+        var response = await client.GetAsync("/Shop?search=sword");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

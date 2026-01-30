@@ -1,7 +1,11 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
+using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 
@@ -16,6 +20,7 @@ public static class AuthenticationHelper
     {
         using var scope = services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
         // Make usernames and emails unique to avoid conflicts across tests
         var uniqueSuffix = Guid.NewGuid().ToString("N").Substring(0, 8);
@@ -36,6 +41,13 @@ public static class AuthenticationHelper
         {
             throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
+
+        // Assign default Player role to all new users
+        if (!await roleManager.RoleExistsAsync("Player"))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>("Player"));
+        }
+        await userManager.AddToRoleAsync(user, "Player");
 
         return user;
     }
@@ -63,8 +75,11 @@ public static class AuthenticationHelper
             roles ??= new[] { "Player" }; // Default to Player role
         }
 
-        // Create client - Test authentication scheme is now registered globally in WebApplicationFactoryBase
-        var client = factory.CreateClient();
+        // Create client using the same factory instance (don't create a new one)
+        var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
 
         // Encode user info with roles in the authorization header
         var userInfo = $"{user.Id}:{user.UserName}:{user.Email}:{string.Join(",", roles)}";
@@ -88,13 +103,13 @@ public static class AuthenticationHelper
         {
             using var scope = factory.Services.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
             var userFromDb = await userManager.FindByIdAsync(user.Id.ToString());
             if (userFromDb != null)
             {
                 foreach (var role in roles)
                 {
                     // Check if role exists, create if not
-                    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
                     if (!await roleManager.RoleExistsAsync(role))
                     {
                         await roleManager.CreateAsync(new IdentityRole<int>(role));
@@ -104,7 +119,25 @@ public static class AuthenticationHelper
             }
         }
 
-        var client = await CreateAuthenticatedClientAsync(factory, userName, email, password, name, roles);
+        // Get all roles for the user from database
+        string[] userRoles;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+            var userFromDb = await userManager.FindByIdAsync(user.Id.ToString());
+            userRoles = userFromDb != null ? (await userManager.GetRolesAsync(userFromDb)).ToArray() : new[] { "Player" };
+        }
+
+        // Create client using the same factory instance
+        var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        // Encode user info with all roles in the authorization header
+        var userInfo = $"{user.Id}:{user.UserName}:{user.Email}:{string.Join(",", userRoles)}";
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test", userInfo);
+
         return (client, user);
     }
 
@@ -139,48 +172,60 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     {
     }
 
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Test "))
+
+        // If there's a Test authorization header, use it
+        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Test "))
         {
-            return Task.FromResult(AuthenticateResult.NoResult());
-        }
+            var userInfo = authHeader.Substring("Test ".Length);
+            var parts = userInfo.Split(':');
 
-        var userInfo = authHeader.Substring("Test ".Length);
-        var parts = userInfo.Split(':');
-
-        if (parts.Length < 4)
-        {
-            return Task.FromResult(AuthenticateResult.Fail("Invalid auth header format"));
-        }
-
-        var userId = parts[0];
-        var userName = parts[1];
-        var email = parts[2];
-        var rolesStr = parts[3];
-
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, userId),
-            new Claim(ClaimTypes.Name, userName),
-            new Claim(ClaimTypes.Email, email)
-        };
-
-        // Add role claims
-        if (!string.IsNullOrEmpty(rolesStr))
-        {
-            var roles = rolesStr.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var role in roles)
+            if (parts.Length < 4)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                return AuthenticateResult.Fail("Invalid auth header format");
             }
+
+            var userId = parts[0];
+            var userName = parts[1];
+            var email = parts[2];
+            var rolesStr = parts[3];
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Email, email)
+            };
+
+            // Add role claims
+            if (!string.IsNullOrEmpty(rolesStr))
+            {
+                var roles = rolesStr.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
+            var identity = new ClaimsIdentity(claims, "Test");
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, "Test");
+
+            return AuthenticateResult.Success(ticket);
         }
 
-        var identity = new ClaimsIdentity(claims, "Test");
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, "Test");
+        // No Test header - check if we have Identity cookies
+        // We need to manually read the cookie and validate it
+        if (Context.Request.Cookies.ContainsKey(".AspNetCore.Identity.Application"))
+        {
+            // There's an Identity cookie - let the middleware handle authentication naturally
+            // by skipping (returning NoResult) and letting the request pipeline continue
+            // This will allow the Identity.Application scheme to be tried
+            return AuthenticateResult.NoResult();
+        }
 
-        return Task.FromResult(AuthenticateResult.Success(ticket));
+        return AuthenticateResult.NoResult();
     }
 }

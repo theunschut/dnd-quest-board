@@ -39,13 +39,13 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         // Create authenticated client first (this also creates a user in the database)
         var (client, authUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Create additional users to display in guild members
+        // Create additional users to display in guild members (with unique names)
         await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "warrior1", "warrior1@example.com");
+            _factory.Services, "warrior1", "warrior1@example.com", "Test123!", "Warrior One");
         await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "mage1", "mage1@example.com");
+            _factory.Services, "mage1", "mage1@example.com", "Test123!", "Mage One");
         await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "dm1", "dm1@example.com");
+            _factory.Services, "dm1", "dm1@example.com", "Test123!", "DM One");
 
         // Act
         var response = await client.GetAsync("/GuildMembers");
@@ -53,10 +53,10 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
-        // Usernames now have GUID suffixes, so we check for the base username
-        content.Should().Match("*warrior1*");
-        content.Should().Match("*mage1*");
-        content.Should().Match("*dm1*");
+        // Check for the user names (not usernames which have GUID suffixes)
+        content.Should().Contain("Warrior One");
+        content.Should().Contain("Mage One");
+        content.Should().Contain("DM One");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
 
         // Create additional user to test DM badge display
         await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "dmspecial", "dmspecial@example.com");
+            _factory.Services, "dmspecial", "dmspecial@example.com", "Test123!", "Special DM");
 
         // Act
         var response = await client.GetAsync("/GuildMembers");
@@ -78,8 +78,8 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
-        // Username now has GUID suffix, so we check for the base username
-        content.Should().Match("*dmspecial*");
+        // Check for the user's display name
+        content.Should().Contain("Special DM");
     }
 
     [Fact]

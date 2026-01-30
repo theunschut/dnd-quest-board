@@ -18,7 +18,7 @@ public class DungeonMasterHandler(IUserService userService) : AuthorizationHandl
         // Check if user is Admin (admins have all DM permissions) or DungeonMaster
         var isAdmin = await userService.IsInRoleAsync(context.User, "Admin");
         var isDungeonMaster = await userService.IsInRoleAsync(context.User, "DungeonMaster");
-        
+
         if (isAdmin || isDungeonMaster)
         {
             context.Succeed(requirement);

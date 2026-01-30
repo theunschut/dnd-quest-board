@@ -37,7 +37,8 @@
       "Bash(dotnet test:*)",
       "Bash(for file in CalendarControllerIntegrationTests.cs QuestLogControllerIntegrationTests.cs GuildMembersControllerIntegrationTests.cs)",
       "Bash(do sed -i 's/        _client = factory\\\\.CreateClient\\(\\);/        \\\\/\\\\/ Use non-redirecting client to properly test authorization redirects\\\\n        _client = factory.CreateNonRedirectingClient\\(\\);/' \"C:\\\\Repos\\\\quest-board\\\\EuphoriaInn.IntegrationTests\\\\Controllers$file\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(dotnet list:*)"
     ],
     "deny": []
   }

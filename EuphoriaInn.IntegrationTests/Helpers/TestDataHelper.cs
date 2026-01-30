@@ -57,6 +57,26 @@ public static class TestDataHelper
         return signup;
     }
 
+    public static async Task<ProposedDateEntity> CreateProposedDateAsync(
+        IServiceProvider services,
+        int questId,
+        DateTime date)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        var proposedDate = new ProposedDateEntity
+        {
+            QuestId = questId,
+            Date = date
+        };
+
+        context.Set<ProposedDateEntity>().Add(proposedDate);
+        await context.SaveChangesAsync();
+
+        return proposedDate;
+    }
+
     public static async Task<ShopItemEntity> CreateShopItemAsync(
         IServiceProvider services,
         int createdByDmId,
@@ -75,7 +95,7 @@ public static class TestDataHelper
             Quantity = quantity,
             Type = 0, // Weapon type
             Rarity = 0, // Common rarity
-            Status = 0, // Active status
+            Status = 1, // Published status (required for items to show in shop)
             CreatedByDmId = createdByDmId,
             CreatedAt = DateTime.UtcNow
         };

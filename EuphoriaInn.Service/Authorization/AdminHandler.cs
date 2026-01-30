@@ -16,7 +16,7 @@ public class AdminHandler(IUserService userService) : AuthorizationHandler<Admin
         }
 
         var isAdmin = await userService.IsInRoleAsync(context.User, "Admin");
-        
+
         if (isAdmin)
         {
             context.Succeed(requirement);

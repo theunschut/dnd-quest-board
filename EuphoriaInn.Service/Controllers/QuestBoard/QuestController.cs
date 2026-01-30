@@ -72,7 +72,7 @@ public class QuestController(
     public async Task<IActionResult> Edit(int id, CancellationToken token = default)
     {
         var quest = await questService.GetQuestWithDetailsAsync(id, token);
-        
+
         if (quest == null)
         {
             return NotFound();
@@ -98,15 +98,15 @@ public class QuestController(
 
         var dms = await userService.GetAllDungeonMastersAsync(token);
         var questViewModel = mapper.Map<QuestViewModel>(quest);
-        
+
         // Allow editing proposed dates even with signups (service will handle it intelligently)
         var canEditProposedDates = true;
         var hasExistingSignups = quest.PlayerSignups.Any();
-        
-        return View(new EditQuestViewModel 
-        { 
+
+        return View(new EditQuestViewModel
+        {
             Id = quest.Id,
-            Quest = questViewModel, 
+            Quest = questViewModel,
             DungeonMasters = dms,
             CanEditProposedDates = canEditProposedDates,
             HasExistingSignups = hasExistingSignups
@@ -124,7 +124,7 @@ public class QuestController(
         }
 
         var existingQuest = await questService.GetQuestWithDetailsAsync(id, token);
-        
+
         if (existingQuest == null)
         {
             return NotFound();
@@ -160,7 +160,6 @@ public class QuestController(
             viewModel.DungeonMasters = dms;
             return View(viewModel);
         }
-
 
         // Use the specialized service method to update quest properties and get affected players
         var affectedPlayers = await questService.UpdateQuestPropertiesWithNotificationsAsync(
@@ -198,6 +197,7 @@ public class QuestController(
 
     [HttpDelete]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         var quest = await questService.GetQuestWithDetailsAsync(id);
@@ -205,6 +205,18 @@ public class QuestController(
         if (quest == null)
         {
             return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is the quest's DM or an Admin
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
+        {
+            return Forbid();
         }
 
         await questService.RemoveAsync(quest);
