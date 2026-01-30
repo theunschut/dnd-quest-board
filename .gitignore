@@ -711,4 +711,7 @@ FodyWeavers.xsd
 *.sqlite
 *.sqlite3
 
+# Claude Code configuration
+.claude/
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,csharp,aspnetcore
