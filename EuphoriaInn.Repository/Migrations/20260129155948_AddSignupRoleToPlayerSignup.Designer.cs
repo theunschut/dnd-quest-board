@@ -4,6 +4,7 @@ using EuphoriaInn.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EuphoriaInn.Repository.Migrations
 {
     [DbContext(typeof(QuestBoardContext))]
-    partial class QuestBoardContextModelSnapshot : ModelSnapshot
+    [Migration("20260129155948_AddSignupRoleToPlayerSignup")]
+    partial class AddSignupRoleToPlayerSignup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,80 +24,6 @@ namespace EuphoriaInn.Repository.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterClassEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Class")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClassLevel")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.ToTable("CharacterClasses");
-                });
-
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Backstory")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("ProfilePicture")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SheetLink")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("Characters");
-                });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerDateVoteEntity", b =>
                 {
@@ -131,9 +60,6 @@ namespace EuphoriaInn.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CharacterId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsSelected")
                         .HasColumnType("bit");
 
@@ -153,8 +79,6 @@ namespace EuphoriaInn.Repository.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
 
                     b.HasIndex("PlayerId");
 
@@ -586,28 +510,6 @@ namespace EuphoriaInn.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterClassEntity", b =>
-                {
-                    b.HasOne("EuphoriaInn.Repository.Entities.CharacterEntity", "Character")
-                        .WithMany("Classes")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-                });
-
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterEntity", b =>
-                {
-                    b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerDateVoteEntity", b =>
                 {
                     b.HasOne("EuphoriaInn.Repository.Entities.PlayerSignupEntity", "PlayerSignup")
@@ -629,11 +531,6 @@ namespace EuphoriaInn.Repository.Migrations
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerSignupEntity", b =>
                 {
-                    b.HasOne("EuphoriaInn.Repository.Entities.CharacterEntity", "Character")
-                        .WithMany("PlayerSignups")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
@@ -649,8 +546,6 @@ namespace EuphoriaInn.Repository.Migrations
                     b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", null)
                         .WithMany("Signups")
                         .HasForeignKey("UserEntityId");
-
-                    b.Navigation("Character");
 
                     b.Navigation("Player");
 
@@ -775,13 +670,6 @@ namespace EuphoriaInn.Repository.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterEntity", b =>
-                {
-                    b.Navigation("Classes");
-
-                    b.Navigation("PlayerSignups");
                 });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.PlayerSignupEntity", b =>

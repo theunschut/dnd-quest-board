@@ -21,7 +21,16 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         // Update player selections
         foreach (var playerSignup in entity.PlayerSignups)
         {
-            playerSignup.IsSelected = selectedPlayerSignupIds.Contains(playerSignup.Id);
+            // Auto-approve spectators (SignupRole = 1)
+            if (playerSignup.SignupRole == 1)
+            {
+                playerSignup.IsSelected = true;
+            }
+            else
+            {
+                // For Players and AssistantDMs, use DM's selection
+                playerSignup.IsSelected = selectedPlayerSignupIds.Contains(playerSignup.Id);
+            }
         }
 
         await repository.SaveChangesAsync(token);

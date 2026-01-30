@@ -32,7 +32,8 @@
       "Bash(dotnet ef migrations:*)",
       "Bash(dotnet --list-sdks)",
       "Bash(export PATH=\"$PATH:/root/.dotnet/tools\")",
-      "Bash(dotnet dotnet-ef migrations:*)"
+      "Bash(dotnet dotnet-ef migrations:*)",
+      "Bash(dotnet tool restore:*)"
     ],
     "deny": []
   }

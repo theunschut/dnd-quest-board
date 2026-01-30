@@ -1,3 +1,5 @@
+using EuphoriaInn.Domain.Enums;
+
 namespace EuphoriaInn.Domain.Models.QuestBoard;
 
 public class PlayerSignup : IModel
@@ -9,6 +11,8 @@ public class PlayerSignup : IModel
     public DateTime SignupTime { get; set; } = DateTime.UtcNow;
 
     public bool IsSelected { get; set; }
+
+    public SignupRole Role { get; set; } = SignupRole.Player;
 
     public required Quest Quest { get; set; }
 
