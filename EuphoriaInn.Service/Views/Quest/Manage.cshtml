@@ -159,18 +159,18 @@ else
                             <hr>
 
                             <h6>Player Selection:</h6>
-                            <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest. Players are listed in signup order.</p>
+                            <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest.</p>
 
                             @{
                                 ProposedDate? dateForPlayerSelection = null;
                                 List<PlayerSignup?> availablePlayers = new List<PlayerSignup?>();
-                                
+
                                 if (Model.ProposedDates?.Any() == true)
                                 {
-                                    dateForPlayerSelection = hasMultipleDatesWithSameVotes ? 
-                                        orderedDates.First() : 
+                                    dateForPlayerSelection = hasMultipleDatesWithSameVotes ?
+                                        orderedDates.First() :
                                         orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
-                                    
+
                                     if (dateForPlayerSelection != null)
                                     {
                                         availablePlayers = dateForPlayerSelection.PlayerVotes
@@ -180,30 +180,109 @@ else
                                             .ToList();
                                     }
                                 }
+
+                                // Group signups by role
+                                var playerSignups = Model.PlayerSignups
+                                    .Where(ps => ps.Role == SignupRole.Player)
+                                    .OrderBy(ps => ps.SignupTime)
+                                    .ToList();
+                                var assistantDMs = Model.PlayerSignups
+                                    .Where(ps => ps.Role == SignupRole.AssistantDM)
+                                    .OrderBy(ps => ps.SignupTime)
+                                    .ToList();
+                                var spectators = Model.PlayerSignups
+                                    .Where(ps => ps.Role == SignupRole.Spectator)
+                                    .OrderBy(ps => ps.SignupTime)
+                                    .ToList();
                             }
 
                             <div id="player-selection">
-                                @for (int i = 0; i < Model.PlayerSignups.OrderBy(ps => ps.SignupTime).Count(); i++)
+                                @* Players Section *@
+                                @if (playerSignups.Any())
                                 {
-                                    var player = Model.PlayerSignups.OrderBy(ps => ps.SignupTime).ElementAt(i);
-                                    var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
+                                    <div class="mb-3">
+                                        <h6 class="text-primary">
+                                            <i class="fas fa-users me-2"></i>
+                                            Players (Select up to @Model.TotalPlayerCount)
+                                        </h6>
+                                        @for (int i = 0; i < playerSignups.Count; i++)
+                                        {
+                                            var player = playerSignups[i];
+                                            var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
 
-                                    <div class="form-check player-item" data-player-id="@player.Id">
-                                        <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
-                                               value="@player.Id" id="player_@player.Id"
-                                               @(isInTopPlayers ? "checked" : "") />
-                                        <label class="form-check-label" for="player_@player.Id">
-                                            @player.Player.Name
-                                            <small class="text-muted">
-                                                (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
-                                                <span class="availability-status">
-                                                    @if (availablePlayers.Contains(player))
-                                                    {
-                                                        <span class="text-success">- Available for recommended date</span>
-                                                    }
-                                                </span>
-                                            </small>
-                                        </label>
+                                            <div class="form-check player-item" data-player-id="@player.Id" data-role="player">
+                                                <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
+                                                       value="@player.Id" id="player_@player.Id"
+                                                       @(isInTopPlayers ? "checked" : "") />
+                                                <label class="form-check-label" for="player_@player.Id">
+                                                    @player.Player.Name
+                                                    <small class="text-muted">
+                                                        (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                        <span class="availability-status">
+                                                            @if (availablePlayers.Contains(player))
+                                                            {
+                                                                <span class="text-success">- Available for recommended date</span>
+                                                            }
+                                                        </span>
+                                                    </small>
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                @* Assistant DMs Section *@
+                                @if (assistantDMs.Any())
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="text-success">
+                                            <i class="fas fa-user-shield me-2"></i>
+                                            Assistant DMs (Pre-selected, uncheck to exclude)
+                                        </h6>
+                                        <div class="alert alert-info small">
+                                            Assistant DMs are pre-selected by default. Uncheck to exclude them from the quest.
+                                        </div>
+                                        @foreach (var assistant in assistantDMs)
+                                        {
+                                            var isAvailable = availablePlayers.Contains(assistant);
+                                            <div class="form-check player-item" data-player-id="@assistant.Id" data-role="assistant">
+                                                <input class="form-check-input assistant-checkbox" type="checkbox" name="SelectedPlayerIds"
+                                                       value="@assistant.Id" id="assistant_@assistant.Id"
+                                                       checked />
+                                                <label class="form-check-label" for="assistant_@assistant.Id">
+                                                    @assistant.Player.Name
+                                                    <small class="text-muted">
+                                                        (Signed up: @assistant.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                        @if (isAvailable)
+                                                        {
+                                                            <span class="text-success">- Available</span>
+                                                        }
+                                                    </small>
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                @* Spectators Section *@
+                                @if (spectators.Any())
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="text-info">
+                                            <i class="fas fa-eye me-2"></i>
+                                            Spectators (Auto-approved)
+                                        </h6>
+                                        <div class="alert alert-success small">
+                                            Spectators are automatically approved and do not require selection.
+                                        </div>
+                                        @foreach (var spectator in spectators)
+                                        {
+                                            <div class="player-item text-muted">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                @spectator.Player.Name
+                                                <small>(Signed up: @spectator.SignupTime.ToString("MMM dd, h:mm tt"))</small>
+                                            </div>
+                                        }
                                     </div>
                                 }
                             </div>
@@ -228,15 +307,27 @@ else
                     @if (Model.IsFinalized)
                     {
                         <hr>
-                        var selectedPlayers = Model.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime).ToList();
-                        
-                        @if (selectedPlayers.Any())
+                        var selectedPlayers = Model.PlayerSignups
+                            .Where(ps => ps.IsSelected && ps.Role == SignupRole.Player)
+                            .OrderBy(ps => ps.SignupTime)
+                            .ToList();
+                        var selectedAssistants = Model.PlayerSignups
+                            .Where(ps => ps.IsSelected && ps.Role == SignupRole.AssistantDM)
+                            .OrderBy(ps => ps.SignupTime)
+                            .ToList();
+                        var selectedSpectators = Model.PlayerSignups
+                            .Where(ps => ps.IsSelected && ps.Role == SignupRole.Spectator)
+                            .OrderBy(ps => ps.SignupTime)
+                            .ToList();
+
+                        @if (selectedPlayers.Any() || selectedAssistants.Any() || selectedSpectators.Any())
                         {
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Selected Players</th>
+                                            <th scope="col">Selected Participants</th>
+                                            <th scope="col">Role</th>
                                             <th scope="col">Signup Time</th>
                                         </tr>
                                     </thead>
@@ -244,13 +335,25 @@ else
                                         @foreach (var player in selectedPlayers)
                                         {
                                             <tr>
-                                                <td>
-                                                    <i class="fas fa-user text-muted me-2"></i>
-                                                    @player.Player.Name
-                                                </td>
-                                                <td>
-                                                    <small class="text-muted">@player.SignupTime.ToString("MMM dd, h:mm tt")</small>
-                                                </td>
+                                                <td><i class="fas fa-user text-primary me-2"></i>@player.Player.Name</td>
+                                                <td><span class="badge bg-primary">Player</span></td>
+                                                <td><small class="text-muted">@player.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
+                                            </tr>
+                                        }
+                                        @foreach (var assistant in selectedAssistants)
+                                        {
+                                            <tr>
+                                                <td><i class="fas fa-user-shield text-success me-2"></i>@assistant.Player.Name</td>
+                                                <td><span class="badge bg-success">Assistant DM</span></td>
+                                                <td><small class="text-muted">@assistant.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
+                                            </tr>
+                                        }
+                                        @foreach (var spectator in selectedSpectators)
+                                        {
+                                            <tr>
+                                                <td><i class="fas fa-eye text-info me-2"></i>@spectator.Player.Name</td>
+                                                <td><span class="badge bg-info">Spectator</span></td>
+                                                <td><small class="text-muted">@spectator.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
                                             </tr>
                                         }
                                     </tbody>
@@ -259,7 +362,7 @@ else
                         }
                         else
                         {
-                            <p class="text-muted">No players selected for this quest.</p>
+                            <p class="text-muted">No participants selected for this quest.</p>
                         }
 
                         <hr>
@@ -444,12 +547,16 @@ else
         });
         
         // Add event listeners to player checkboxes for validation
+        // Only count Player role checkboxes toward the limit
         document.querySelectorAll('.player-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const selectedCount = document.querySelectorAll('.player-checkbox:checked').length;
+                // Count only checkboxes whose parent has data-role="player"
+                const selectedPlayerCount = Array.from(document.querySelectorAll('.player-checkbox:checked'))
+                    .filter(cb => cb.closest('[data-role="player"]'))
+                    .length;
                 const maxPlayers = @Model.TotalPlayerCount
-                
-                if (selectedCount > maxPlayers) {
+
+                if (selectedPlayerCount > maxPlayers) {
                     this.checked = false;
                     alert(`Cannot select more than ${maxPlayers} players for this quest.`);
                 }

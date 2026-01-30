@@ -17,6 +17,12 @@ namespace EuphoriaInn.Domain.Services
                 throw new ArgumentException("Player signup not found", nameof(playerSignupId));
             }
 
+            // Validate: Spectators (SignupRole = 1) cannot vote
+            if (playerSignupEntity.SignupRole == 1)
+            {
+                throw new InvalidOperationException("Spectators cannot vote on dates");
+            }
+
             // Map the new date votes to entities
             var dateVoteEntities = Mapper.Map<List<PlayerDateVoteEntity>>(dateVotes);
             

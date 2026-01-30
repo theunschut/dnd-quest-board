@@ -30,9 +30,11 @@ public class EntityProfile : Profile
             .ForMember(dest => dest.Quest, opt => opt.Ignore())
             .ForMember(dest => dest.QuestId, opt => opt.MapFrom(src => src.Quest.Id))
             .ForMember(dest => dest.Player, opt => opt.Ignore())
-            .ForMember(dest => dest.PlayerId, opt => opt.MapFrom(src => src.Player.Id));
+            .ForMember(dest => dest.PlayerId, opt => opt.MapFrom(src => src.Player.Id))
+            .ForMember(dest => dest.SignupRole, opt => opt.MapFrom(src => (int)src.Role));
 
-        CreateMap<PlayerSignupEntity, PlayerSignup>();
+        CreateMap<PlayerSignupEntity, PlayerSignup>()
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (SignupRole)src.SignupRole));
 
         // ProposedDate mapping
         CreateMap<ProposedDate, ProposedDateEntity>()

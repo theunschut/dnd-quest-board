@@ -10,6 +10,9 @@ public class PlayerSignupEntity : IEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    [Required]
+    public int SignupRole { get; set; } = 0; // 0 = Player (default)
+
     [ForeignKey(nameof(QuestId))]
     public bool IsSelected { get; set; }
 
