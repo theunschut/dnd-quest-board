@@ -28,9 +28,9 @@
     border-right: 1px solid rgba(244, 228, 188, 0.2);
 }
 
-.calendar-day-header:last-child {
-    border-right: none;
-}
+    .calendar-day-header:last-child {
+        border-right: none;
+    }
 
 .calendar-body {
     display: grid;
@@ -49,18 +49,18 @@
     overflow: hidden;
 }
 
-.calendar-day:nth-child(7n) {
-    border-right: none;
-}
+    .calendar-day:nth-child(7n) {
+        border-right: none;
+    }
 
-.calendar-day.empty {
-    background-color: rgba(0, 0, 0, 0.1);
-}
+    .calendar-day.empty {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
 
-.calendar-day.today {
-    background-color: rgba(52, 152, 219, 0.1);
-    border: 2px solid rgba(52, 152, 219, 0.5);
-}
+    .calendar-day.today {
+        background-color: rgba(52, 152, 219, 0.1);
+        border: 2px solid rgba(52, 152, 219, 0.5);
+    }
 
 .day-number {
     font-weight: 600;
@@ -99,13 +99,13 @@
     box-sizing: border-box;
 }
 
-.quest-event.proposed {
-    border-left-color: #ffc107;
-}
+    .quest-event.proposed {
+        border-left-color: #ffc107;
+    }
 
-.quest-event.finalized {
-    border-left-color: #28a745;
-}
+    .quest-event.finalized {
+        border-left-color: #28a745;
+    }
 
 .quest-link {
     text-decoration: none;
@@ -120,10 +120,10 @@
     position: relative;
 }
 
-.quest-link:hover {
-    color: #1a1a1a;
-    text-decoration: none;
-}
+    .quest-link:hover {
+        color: #1a1a1a;
+        text-decoration: none;
+    }
 
 .quest-event:hover {
     background-color: rgba(255, 255, 255, 1);
@@ -166,19 +166,19 @@
     min-height: 48px;
 }
 
-.quest-event:hover .calendar-quest-title {
-    font-size: 10px !important;
-}
+    .quest-event:hover .calendar-quest-title {
+        font-size: 10px !important;
+    }
 
-.quest-event:hover .calendar-quest-dm {
-    display: block !important;
-    font-size: 8px !important;
-}
+    .quest-event:hover .calendar-quest-dm {
+        display: block !important;
+        font-size: 8px !important;
+    }
 
-.quest-event:hover .quest-time {
-    display: block !important;
-    font-size: 8px !important;
-}
+    .quest-event:hover .quest-time {
+        display: block !important;
+        font-size: 8px !important;
+    }
 
 /* Status Icon Displays (Finalized & Warning) - Fixed positioning at top */
 .finalized-icon-display,
@@ -200,9 +200,9 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.status-indicator i {
-    font-size: 0.9rem;
-}
+    .status-indicator i {
+        font-size: 0.9rem;
+    }
 
 /* Vote Buttons - Fixed positioning at top */
 .vote-buttons {
@@ -216,64 +216,64 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.vote-buttons .btn-group-vertical {
-    gap: 2px;
-    display: flex;
-    flex-direction: column;
-}
+    .vote-buttons .btn-group-vertical {
+        gap: 2px;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* Hide the actual radio input */
-.vote-buttons .btn-check {
-    position: absolute;
-    clip: rect(0, 0, 0, 0);
-    pointer-events: none;
-}
+    /* Hide the actual radio input */
+    .vote-buttons .btn-check {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none;
+    }
 
-/* Style the label as the button */
-.vote-buttons .btn {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 3px;
-    font-size: 10px;
-    line-height: 1;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    min-width: 16px;
-    border: 1px solid;
-}
+    /* Style the label as the button */
+    .vote-buttons .btn {
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+        font-size: 10px;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        min-width: 16px;
+        border: 1px solid;
+    }
 
-.vote-buttons .btn:first-child {
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-}
+        .vote-buttons .btn:first-child {
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
 
-.vote-buttons .btn:last-child {
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-}
+        .vote-buttons .btn:last-child {
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
 
-/* Checked state styling */
-.vote-buttons .btn-check:checked + .btn-outline-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white;
-}
+    /* Checked state styling */
+    .vote-buttons .btn-check:checked + .btn-outline-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
 
-.vote-buttons .btn-check:checked + .btn-outline-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: white;
-}
+    .vote-buttons .btn-check:checked + .btn-outline-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: white;
+    }
 
-.vote-buttons .btn-check:checked + .btn-outline-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: white;
-}
+    .vote-buttons .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
 
 .quest-event:hover .vote-buttons {
     display: block !important;
@@ -315,9 +315,9 @@
     padding: 2px;
 }
 
-.vote-indicator i {
-    font-size: 0.9rem;
-}
+    .vote-indicator i {
+        font-size: 0.9rem;
+    }
 
 /* Always show vote indicators for current quest */
 .details-page .quest-event.current-quest .user-vote-display {
@@ -332,11 +332,11 @@
     z-index: 5;
 }
 
-.quest-date-indicator .badge {
-    font-size: 7px;
-    padding: 2px 4px;
-    white-space: nowrap;
-}
+    .quest-date-indicator .badge {
+        font-size: 7px;
+        padding: 2px 4px;
+        white-space: nowrap;
+    }
 
 /* More Events Indicator */
 .more-events {
@@ -364,30 +364,30 @@
     background-color: rgba(255, 255, 255, 0.9);
 }
 
-.legend-item.proposed {
-    border-left-color: #ffc107;
-}
+    .legend-item.proposed {
+        border-left-color: #ffc107;
+    }
 
-.legend-item.finalized {
-    border-left-color: #28a745;
-}
+    .legend-item.finalized {
+        border-left-color: #28a745;
+    }
 
 .legend-card {
     height: fit-content;
 }
 
-.legend-card .card-body {
-    padding: 0.75rem !important;
-}
+    .legend-card .card-body {
+        padding: 0.75rem !important;
+    }
 
-.legend-card small {
-    font-size: 0.75rem;
-    line-height: 1.2;
-}
+    .legend-card small {
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
 
 /* Details Page Calendar Styling */
 .details-page .calendar-grid {
-    height: auto;
+    height: 90px;
     min-height: 350px;
 }
 
@@ -426,7 +426,7 @@
     border-width: 3px;
     font-size: 9px !important;
     min-height: 48px !important;
-    height: auto !important;
+    height: 90px !important;
     padding: 2px 4px !important;
     padding-right: 30px !important;
     border-radius: 3px !important;
@@ -438,11 +438,11 @@
     box-sizing: border-box;
 }
 
-.quest-event.current-quest .quest-link {
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-}
+    .quest-event.current-quest .quest-link {
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+    }
 
 .quest-event:hover.current-quest {
     width: 100%;
@@ -490,7 +490,7 @@
     position: relative !important;
     left: auto !important;
     right: auto !important;
-    height: auto !important;
+    height: 90px !important;
     min-height: 48px !important;
     padding: 2px 4px !important;
     padding-right: 30px !important;
@@ -507,28 +507,28 @@
     font-size: 9px;
 }
 
-/* Hide DM name and time for non-current quests by default */
-.details-page .quest-event:not(.current-quest) .calendar-quest-dm,
-.details-page .quest-event:not(.current-quest) .quest-time {
-    display: none;
-}
+    /* Hide DM name and time for non-current quests by default */
+    .details-page .quest-event:not(.current-quest) .calendar-quest-dm,
+    .details-page .quest-event:not(.current-quest) .quest-time {
+        display: none;
+    }
 
-/* Expand non-current quest events on hover (like calendar page) */
-.details-page .quest-event:not(.current-quest):hover {
-    background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 10;
-    border-radius: 3px;
-    font-size: 9px;
-    position: relative;
-    min-height: 48px;
-}
+    /* Expand non-current quest events on hover (like calendar page) */
+    .details-page .quest-event:not(.current-quest):hover {
+        background-color: rgba(255, 255, 255, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        border-radius: 3px;
+        font-size: 9px;
+        position: relative;
+        min-height: 48px;
+    }
 
-/* Show DM name and time on hover for non-current quests */
-.details-page .quest-event:not(.current-quest):hover .calendar-quest-dm,
-.details-page .quest-event:not(.current-quest):hover .quest-time {
-    display: block !important;
-}
+        /* Show DM name and time on hover for non-current quests */
+        .details-page .quest-event:not(.current-quest):hover .calendar-quest-dm,
+        .details-page .quest-event:not(.current-quest):hover .quest-time {
+            display: block !important;
+        }
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -555,11 +555,11 @@
         height: 14px;
     }
 
-    .quest-event:hover {
-        font-size: 9px;
-        min-height: 35px;
-        padding: 4px 6px;
-    }
+        .quest-event:hover {
+            font-size: 9px;
+            min-height: 35px;
+            padding: 4px 6px;
+        }
 
     .quest-title {
         font-size: 8px;
@@ -606,21 +606,21 @@
         padding: 1px 2px;
     }
 
-    .quest-event:hover {
-        font-size: 8px;
-        min-height: 30px;
-        padding: 3px 4px;
-    }
+        .quest-event:hover {
+            font-size: 8px;
+            min-height: 30px;
+            padding: 3px 4px;
+        }
 
-    .quest-event:hover .calendar-quest-title {
-        font-size: 8px;
-    }
+            .quest-event:hover .calendar-quest-title {
+                font-size: 8px;
+            }
 
-    .quest-event:hover .calendar-quest-dm {
-        font-size: 6px;
-    }
+            .quest-event:hover .calendar-quest-dm {
+                font-size: 6px;
+            }
 
-    .quest-event:hover .quest-time {
-        font-size: 6px;
-    }
+            .quest-event:hover .quest-time {
+                font-size: 6px;
+            }
 }
