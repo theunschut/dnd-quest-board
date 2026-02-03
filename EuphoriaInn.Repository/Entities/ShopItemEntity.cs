@@ -35,6 +35,11 @@ public class ShopItemEntity : IEntity
     [StringLength(500)]
     public string? ReferenceUrl { get; set; }
 
+    [StringLength(1000)]
+    public string? DenialReason { get; set; }
+
+    public DateTime? DeniedAt { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? AvailableFrom { get; set; }

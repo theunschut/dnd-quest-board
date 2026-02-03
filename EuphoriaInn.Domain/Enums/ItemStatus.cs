@@ -4,5 +4,6 @@ public enum ItemStatus
 {
     Draft,
     Published,
-    Archived
+    Archived,
+    Denied
 }

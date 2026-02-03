@@ -180,7 +180,7 @@
 
                 <button type="submit" class="btn btn-success btn-lg">
                     <i class="fas fa-shopping-cart me-2"></i>
-                    Add to Cart
+                    Purchase Item
                 </button>
             </form>
         </div>
@@ -199,6 +199,43 @@
             This item is currently out of stock.
         </div>
     }
+
+    <!-- Sell to Shop Section -->
+    @if (Model.Status == ItemStatus.Published)
+    {
+        <hr>
+        <div class="text-center">
+            <h6 class="mb-3">
+                <i class="fas fa-hand-holding-usd me-2"></i>Sell to Shop
+            </h6>
+            <p class="text-muted">
+                Sell this item to the shop for <strong class="text-warning">@((Model.Price / 2).ToString("N0")) gp</strong>
+                <small>(half the shop price)</small>
+            </p>
+            <form method="post" action="@Url.Action("SellToShop", "Shop", new { id = Model.Id })" onsubmit="return confirmSell(event, '@Model.Name', @((Model.Price / 2).ToString("N0")))">
+                @Html.AntiForgeryToken()
+                
+                <!-- Quantity Selection for Selling -->
+                <div class="mb-3">
+                    <div class="row justify-content-center">
+                        <div class="col-md-4 col-sm-6">
+                            <label for="sellQuantity" class="form-label">
+                                <i class="fas fa-sort-numeric-up me-1"></i>Quantity to Sell
+                            </label>
+                            <input type="number" class="form-control text-center" id="sellQuantity" name="quantity" 
+                                   value="1" min="1" max="99" onchange="updateSellPrice('@Model.Price')">
+                            <small class="text-muted">You will receive: <strong id="totalSellPrice">@((Model.Price / 2).ToString("N0"))</strong> gp</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="fas fa-hand-holding-usd me-2"></i>
+                    Sell to Shop
+                </button>
+            </form>
+        </div>
+    }
 }
 else
 {
@@ -207,3 +244,24 @@ else
         <a href="/Account/Login" class="text-decoration-none">Login</a> to purchase this item.
     </div>
 }
+
+<script>
+    function updateSellPrice(shopPrice) {
+        const quantity = document.getElementById('sellQuantity').value;
+        const sellPricePerUnit = parseFloat(shopPrice) / 2;
+        const totalSellPrice = (sellPricePerUnit * quantity).toFixed(0);
+        document.getElementById('totalSellPrice').textContent = parseInt(totalSellPrice).toLocaleString();
+    }
+
+    function confirmSell(event, itemName, pricePerUnit) {
+        const quantity = document.getElementById('sellQuantity').value;
+        const totalPrice = (pricePerUnit * quantity).toFixed(0);
+        const message = `Are you sure you want to sell ${quantity}x ${itemName} to the shop for ${parseInt(totalPrice).toLocaleString()} gp?`;
+        
+        if (!confirm(message)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+</script>
