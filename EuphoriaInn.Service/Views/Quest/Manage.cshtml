@@ -112,10 +112,10 @@ else
                                 <h6>Proposed Dates & Voting Results:</h6>
                                 @{
                                     var maxYesVotes = Model.ProposedDates!.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
-                                    var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
-                                    var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
+                                    var hasMultipleDatesWithSameVotes = Model.ProposedDates?.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
+                                    var orderedDates = Model.ProposedDates?.OrderBy(pd => pd.Date).ToList();
                                 }
-                                @foreach (var date in orderedDates)
+                                @foreach (var date in orderedDates ?? [])
                                 {
                                     var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
                                     var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
@@ -185,8 +185,8 @@ else
                                 if (Model.ProposedDates?.Any() == true)
                                 {
                                     dateForPlayerSelection = hasMultipleDatesWithSameVotes ?
-                                        orderedDates.First() :
-                                        orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
+                                        orderedDates?.First() :
+                                        orderedDates?.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
 
                                     if (dateForPlayerSelection != null)
                                     {
