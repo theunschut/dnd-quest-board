@@ -74,13 +74,11 @@
                                 <div class="mb-3 proposed-date-item">
                                     <label class="form-label">Proposed Date @(i + 1)</label>
                                     <div class="input-group">
-                                        <input name="Quest.ProposedDates[@i]" type="datetime-local" class="form-control" required step="60" value="@sortedProposedDates[i].ToString("yyyy-MM-ddTHH:mm")" />
-                                        @if (i > 0)
-                                        {
-                                            <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
-                                                <i class="fas fa-trash me-1"></i>Remove
-                                            </button>
-                                        }
+                                        <input type="text" class="form-control" readonly value="@sortedProposedDates[i].ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")" />
+                                        <input type="hidden" name="Quest.ProposedDates[@i]" value="@sortedProposedDates[i].ToString("yyyy-MM-ddTHH:mm")" />
+                                        <button type="button" class="btn btn-danger" onclick="removeProposedDate(this)">
+                                            <i class="fas fa-trash me-1"></i>Remove
+                                        </button>
                                     </div>
                                     <span asp-validation-for="Quest.ProposedDates[i]" class="text-danger"></span>
                                 </div>
@@ -118,11 +116,11 @@
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Changes to dates automatically notify affected players
+                        Existing dates cannot be edited, only removed
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
-                        Minor time adjustments preserve player votes
+                        Add new dates if you need different times
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-check text-warning me-2"></i>
@@ -130,7 +128,7 @@
                     </li>
                     <li>
                         <i class="fas fa-check text-warning me-2"></i>
-                        Players can re-vote on new dates after changes
+                        Players can vote on new dates after changes
                     </li>
                 </ul>
             </div>
