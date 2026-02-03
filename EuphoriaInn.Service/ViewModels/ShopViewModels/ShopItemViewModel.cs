@@ -28,6 +28,11 @@ public class ShopItemViewModel
     [Display(Name = "D&D Beyond Link")]
     public string? ReferenceUrl { get; set; }
 
+    [Display(Name = "Denial Reason")]
+    public string? DenialReason { get; set; }
+
+    public DateTime? DeniedAt { get; set; }
+
     [Display(Name = "Created At")]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}")]
     public DateTime CreatedAt { get; set; }
@@ -69,6 +74,7 @@ public class ShopItemViewModel
         ItemStatus.Draft => "Draft",
         ItemStatus.Published => "Available",
         ItemStatus.Archived => "Archived",
+        ItemStatus.Denied => "Denied",
         _ => "Unknown"
     };
 
@@ -77,6 +83,7 @@ public class ShopItemViewModel
         ItemStatus.Draft => "text-muted",
         ItemStatus.Published => "text-success",
         ItemStatus.Archived => "text-secondary",
+        ItemStatus.Denied => "text-danger",
         _ => "text-muted"
     };
 

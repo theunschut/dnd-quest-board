@@ -28,13 +28,14 @@ public class ShopManagementController(
         var allItems = await shopService.GetAllAsync(token);
         var myItems = allItems.Where(i => i.CreatedByDmId == currentUser.Id);
         var draftItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status == ItemStatus.Draft);
-        var publishedItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status != ItemStatus.Draft);
+        var publishedItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status == ItemStatus.Published);
+        var archivedItems = allItems.Where(i => i.CreatedByDmId != currentUser.Id && i.Status == ItemStatus.Archived);
 
         var viewModel = new ShopManagementIndexViewModel
         {
             MyItems = mapper.Map<IList<ShopItemViewModel>>(myItems),
             ItemsForReview = mapper.Map<IList<ShopItemViewModel>>(draftItems),
-            AllOtherItems = mapper.Map<IList<ShopItemViewModel>>(publishedItems)
+            AllOtherItems = mapper.Map<IList<ShopItemViewModel>>(publishedItems.Concat(archivedItems))
         };
 
         return View(viewModel);
@@ -139,6 +140,14 @@ public class ShopManagementController(
         item.AvailableFrom = viewModel.AvailableFrom;
         item.AvailableUntil = viewModel.AvailableUntil;
 
+        // If item was denied, reset it to draft when edited
+        if (item.Status == ItemStatus.Denied)
+        {
+            item.Status = ItemStatus.Draft;
+            item.DenialReason = null;
+            item.DeniedAt = null;
+        }
+
         if (item.Status == ItemStatus.Draft && (item.Rarity == ItemRarity.Common || item.Rarity == ItemRarity.Uncommon))
         {
             // Auto-publish common and uncommon items upon editing
@@ -147,7 +156,9 @@ public class ShopManagementController(
 
         await shopService.UpdateAsync(item, token);
 
-        TempData["Success"] = "Item updated successfully!";
+        TempData["Success"] = item.Status == ItemStatus.Draft 
+            ? "Item updated and resubmitted for review!" 
+            : "Item updated successfully!";
         return RedirectToAction(nameof(Index));
     }
 
@@ -197,6 +208,41 @@ public class ShopManagementController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Deny(int id, string denialReason, CancellationToken token = default)
+    {
+        if (string.IsNullOrWhiteSpace(denialReason))
+        {
+            TempData["Error"] = "Please provide a reason for denying this item.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var item = await shopService.GetByIdAsync(id, token);
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null || item.CreatedByDmId == currentUser.Id)
+        {
+            TempData["Error"] = "You cannot deny your own items.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (item.Status != ItemStatus.Draft)
+        {
+            TempData["Error"] = "Only draft items can be denied.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        await shopService.DenyItemAsync(id, denialReason, token);
+
+        TempData["Success"] = $"Item '{item.Name}' has been denied.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Reopen(int id, CancellationToken token = default)
     {
         var item = await shopService.GetByIdAsync(id, token);
@@ -227,11 +273,11 @@ public class ShopManagementController(
             return NotFound();
         }
 
-        // Only allow deletion if item is still in draft status
+        // Only allow deletion if item is still in draft or denied status
         var isAdmin = (await authorizationService.AuthorizeAsync(User, "AdminOnly")).Succeeded;
         if (!isAdmin)
         {
-            if (item.Status != ItemStatus.Draft)
+            if (item.Status != ItemStatus.Draft && item.Status != ItemStatus.Denied)
             {
                 TempData["Error"] = "Cannot delete items that have been published.";
                 return RedirectToAction(nameof(Index));

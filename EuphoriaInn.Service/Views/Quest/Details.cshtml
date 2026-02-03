@@ -81,6 +81,7 @@
                                     <tbody>
                                         @foreach (var participant in allSelectedParticipants)
                                         {
+                                            var isCurrentUser = participant.Player.Id == ViewBag.CurrentUserId;
                                             <tr>
                                                 <td>@participant.Player.Name</td>
                                                 <td>
@@ -105,7 +106,18 @@
                                                     }
                                                     else
                                                     {
-                                                        <span class="text-muted fst-italic">No character</span>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="text-muted fst-italic">No character</span>
+                                                            @if (isCurrentUser && ViewBag.UserCharacters != null && ((List<Character>)ViewBag.UserCharacters).Any())
+                                                            {
+                                                                <button type="button" class="btn btn-sm btn-success" 
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target="#addCharacterModal"
+                                                                        title="Add character">
+                                                                    <i class="fas fa-plus"></i>
+                                                                </button>
+                                                            }
+                                                        </div>
                                                     }
                                                 </td>
                                                 <td>
@@ -150,6 +162,7 @@
                                     <tbody>
                                         @foreach (var player in waitlistPlayers)
                                         {
+                                            var isCurrentUser = player.Player.Id == ViewBag.CurrentUserId;
                                             <tr>
                                                 <td>@player.Player.Name</td>
                                                 <td>
@@ -174,7 +187,18 @@
                                                     }
                                                     else
                                                     {
-                                                        <span class="text-muted fst-italic">No character</span>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="text-muted fst-italic">No character</span>
+                                                            @if (isCurrentUser && ViewBag.UserCharacters != null && ((List<Character>)ViewBag.UserCharacters).Any())
+                                                            {
+                                                                <button type="button" class="btn btn-sm btn-success" 
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target="#addCharacterModal"
+                                                                        title="Add character">
+                                                                    <i class="fas fa-plus"></i>
+                                                                </button>
+                                                            }
+                                                        </div>
                                                     }
                                                 </td>
                                                 <td>
@@ -681,6 +705,52 @@
         </div>
     </div>
 </div>
+</div>
+
+<!-- Add Character Modal -->
+<div class="modal fade" id="addCharacterModal" tabindex="-1" aria-labelledby="addCharacterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="addCharacterModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Add Character to Signup
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="UpdateSignupCharacter" method="post" id="addCharacterForm">
+                <div class="modal-body">
+                    <input type="hidden" name="questId" value="@Model.Quest?.Id" />
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Select a character to add to your quest signup. This character will be saved to the database.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="characterSelect" class="form-label">Select Character <span class="text-danger">*</span></label>
+                        <select name="characterId" id="characterSelect" class="form-select" required>
+                            <option value="">-- Select a character --</option>
+                            @foreach (var character in ViewBag.UserCharacters as List<Character> ?? new List<Character>())
+                            {
+                                var classList = string.Join(", ", character.Classes.Select(c => $"{c.Class} {c.ClassLevel}"));
+                                <option value="@character.Id">
+                                    @character.Name - Level @character.Level (@classList)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Add Character
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>

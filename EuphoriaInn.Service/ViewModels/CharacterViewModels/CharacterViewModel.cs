@@ -35,6 +35,8 @@ public class CharacterViewModel
 
     public byte[]? ProfilePicture { get; set; }
 
+    [MaxFileSize(5 * 1024 * 1024, ErrorMessage = "Profile picture cannot exceed 5 MB")]
+    [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif" }, ErrorMessage = "Only image files (JPG, PNG, GIF) are allowed")]
     public IFormFile? ProfilePictureFile { get; set; }
 
     public List<CharacterClassViewModel> Classes { get; set; } = [];
@@ -51,4 +53,53 @@ public class CharacterClassViewModel
 
     [Range(1, 20, ErrorMessage = "Class level must be between 1 and 20")]
     public int ClassLevel { get; set; } = 1;
+}
+
+// Custom validation attributes
+public class MaxFileSizeAttribute : ValidationAttribute
+{
+    private readonly int _maxFileSize;
+
+    public MaxFileSizeAttribute(int maxFileSize)
+    {
+        _maxFileSize = maxFileSize;
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if (value is IFormFile file)
+        {
+            if (file.Length > _maxFileSize)
+            {
+                var maxSizeMB = _maxFileSize / 1024.0 / 1024.0;
+                return new ValidationResult($"File size cannot exceed {maxSizeMB:F1} MB");
+            }
+        }
+
+        return ValidationResult.Success;
+    }
+}
+
+public class AllowedExtensionsAttribute : ValidationAttribute
+{
+    private readonly string[] _extensions;
+
+    public AllowedExtensionsAttribute(string[] extensions)
+    {
+        _extensions = extensions;
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if (value is IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!_extensions.Contains(extension))
+            {
+                return new ValidationResult($"Only {string.Join(", ", _extensions)} files are allowed");
+            }
+        }
+
+        return ValidationResult.Success;
+    }
 }

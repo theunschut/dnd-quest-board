@@ -149,7 +149,7 @@ public class QuestController(
             return BadRequest("Cannot edit a finalized quest. Open the quest first to make changes.");
         }
 
-        // Allow editing proposed dates even with signups (service will handle it intelligently)
+        // Allow editing of proposed dates even with signups (service will handle it intelligently)
         var canEditProposedDates = true;
         var hasExistingSignups = existingQuest.PlayerSignups.Any();
         viewModel.CanEditProposedDates = canEditProposedDates;
@@ -442,6 +442,43 @@ public class QuestController(
 
         // Update the player's date votes
         await playerSignupService.UpdatePlayerDateVotesAsync(playerSignup.Id, dateVotes);
+
+        return RedirectToAction("Details", new { id = questId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> UpdateSignupCharacter(int questId, int? characterId)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(questId);
+        if (quest == null)
+            return NotFound();
+
+        // Get current authenticated user
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        // Find the user's signup for this quest
+        var playerSignup = quest.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == user.Id);
+        if (playerSignup == null)
+        {
+            return BadRequest("You are not signed up for this quest.");
+        }
+
+        // Validate character if provided
+        if (characterId.HasValue)
+        {
+            var character = await characterService.GetCharacterWithDetailsAsync(characterId.Value);
+            if (character == null || character.OwnerId != user.Id || character.Status != CharacterStatus.Active)
+            {
+                return BadRequest("Invalid character selection.");
+            }
+        }
+
+        // Update the character
+        await playerSignupService.UpdateSignupCharacterAsync(playerSignup.Id, characterId);
 
         return RedirectToAction("Details", new { id = questId });
     }
