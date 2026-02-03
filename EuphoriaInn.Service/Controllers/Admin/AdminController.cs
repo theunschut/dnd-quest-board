@@ -134,7 +134,7 @@ public class AdminController(IUserService userService, IQuestService questServic
             {
                 return RedirectToAction(nameof(Users));
             }
-            
+
             user.Name = model.Name;
             user.Email = model.Email;
             user.HasKey = model.HasKey;
@@ -180,13 +180,13 @@ public class AdminController(IUserService userService, IQuestService questServic
             }
 
             var result = await userService.ResetPasswordAsync(User, user, model.NewPassword);
-            
+
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = $"Password reset successfully for {user.Name}!";
                 return RedirectToAction(nameof(Users));
             }
-            
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -214,7 +214,7 @@ public class AdminController(IUserService userService, IQuestService questServic
     public async Task<IActionResult> Quests()
     {
         var allQuests = await questService.GetAllAsync();
-        
+
         // Sort by creation date (newest first)
         var sortedQuests = allQuests
             .OrderByDescending(q => q.CreatedAt)

@@ -47,7 +47,7 @@ public class CalendarViewModel
         var lastDayOfMonth = new DateTime(Year, Month, DaysInMonth);
         var lastDayOfWeek = ((int)lastDayOfMonth.DayOfWeek + 6) % 7; // Adjust for Monday-first week
         var emptyDaysAtEnd = (6 - lastDayOfWeek) % 7;
-        
+
         for (int i = 0; i < emptyDaysAtEnd; i++)
         {
             days.Add(new CalendarDay { IsEmpty = true });
@@ -70,7 +70,7 @@ public class CalendarViewModel
                     // Find the corresponding proposed date that was chosen
                     var chosenProposedDate = quest.ProposedDates
                         .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
-                    
+
                     if (chosenProposedDate != null)
                     {
                         questsOnDay.Add(new QuestOnDay

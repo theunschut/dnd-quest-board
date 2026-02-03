@@ -16,7 +16,7 @@ namespace EuphoriaInn.Service.Controllers.QuestBoard
                 DungeonMasters = await service.GetAllDungeonMastersAsync(token),
                 Players = await service.GetAllPlayersAsync(token)
             };
-            
+
             return View(viewModel);
         }
 

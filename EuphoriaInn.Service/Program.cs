@@ -1,13 +1,13 @@
 
+using EuphoriaInn.Domain.Automapper;
+using EuphoriaInn.Domain.Extensions;
+using EuphoriaInn.Repository.Entities;
+using EuphoriaInn.Repository.Extensions;
+using EuphoriaInn.Service.Authorization;
+using EuphoriaInn.Service.Automapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Extensions;
-using EuphoriaInn.Domain.Automapper;
-using EuphoriaInn.Domain.Extensions;
-using EuphoriaInn.Service.Authorization;
-using EuphoriaInn.Service.Automapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +26,7 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
-    
+
     // User settings
     options.User.RequireUniqueEmail = true;
 })

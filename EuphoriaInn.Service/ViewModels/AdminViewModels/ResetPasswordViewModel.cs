@@ -5,7 +5,7 @@ namespace EuphoriaInn.Service.ViewModels.AdminViewModels;
 public class ResetPasswordViewModel
 {
     public int UserId { get; set; }
-    
+
     public string UserName { get; set; } = string.Empty;
 
     [Required]

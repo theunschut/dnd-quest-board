@@ -26,7 +26,7 @@ public class ViewModelProfile : Profile
             .ForMember(dest => dest.DungeonMasterId, opt => opt.MapFrom(src => src.DungeonMaster != null ? src.DungeonMaster.Id : 0));
 
         // Shop mappings
-        
+
         // ShopItem to ShopItemViewModel
         CreateMap<ShopItem, ShopItemViewModel>()
             .ForMember(dest => dest.CreatedByDmName, opt => opt.MapFrom(src => src.CreatedByDm != null ? src.CreatedByDm.Name : "Unknown"));
@@ -40,7 +40,7 @@ public class ViewModelProfile : Profile
 
         // ShopItem to EditShopItemViewModel
         CreateMap<ShopItem, EditShopItemViewModel>();
-        
+
         // EditShopItemViewModel to ShopItem
         CreateMap<EditShopItemViewModel, ShopItem>()
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())

@@ -24,7 +24,7 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
         // Configure all foreign key relationships to use NO ACTION (Restrict) to avoid cascade cycles
         // This is the safest approach for SQL Server
-        
+
         modelBuilder.Entity<QuestEntity>()
             .HasOne(q => q.DungeonMaster)
             .WithMany(dm => dm.Quests)
