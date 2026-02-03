@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Service.ViewModels.QuestLogViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EuphoriaInn.Service.Controllers.QuestBoard;
 

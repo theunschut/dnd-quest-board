@@ -80,7 +80,7 @@ public class ShopItemViewModel
         _ => "text-muted"
     };
 
-    public bool IsAvailable => 
+    public bool IsAvailable =>
         Status == ItemStatus.Published &&
         (AvailableFrom == null || AvailableFrom <= DateTime.UtcNow) &&
         (AvailableUntil == null || AvailableUntil >= DateTime.UtcNow) &&

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;

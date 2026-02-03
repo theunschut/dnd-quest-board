@@ -1,10 +1,10 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Service.ViewModels.ShopViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EuphoriaInn.Service.Controllers.Shop;
 
@@ -84,7 +84,7 @@ public class ShopManagementController(
         }
 
         await shopService.AddAsync(shopItem, token);
-        
+
         TempData["Success"] = "Item created successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -146,7 +146,7 @@ public class ShopManagementController(
         }
 
         await shopService.UpdateAsync(item, token);
-        
+
         TempData["Success"] = "Item updated successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -174,7 +174,7 @@ public class ShopManagementController(
         }
 
         await shopService.PublishItemAsync(id, token);
-        
+
         TempData["Success"] = "Item published successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -190,7 +190,7 @@ public class ShopManagementController(
         }
 
         await shopService.ArchiveItemAsync(id, token);
-        
+
         TempData["Success"] = "Item archived successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -212,7 +212,7 @@ public class ShopManagementController(
         }
 
         await shopService.PublishItemAsync(id, token);
-        
+
         TempData["Success"] = "Item reopened successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -235,11 +235,11 @@ public class ShopManagementController(
             {
                 TempData["Error"] = "Cannot delete items that have been published.";
                 return RedirectToAction(nameof(Index));
-            } 
+            }
         }
 
         await shopService.RemoveAsync(item, token);
-        
+
         TempData["Success"] = "Item deleted successfully!";
         return RedirectToAction(nameof(Index));
     }

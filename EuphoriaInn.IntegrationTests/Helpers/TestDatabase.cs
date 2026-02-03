@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
-using EuphoriaInn.Repository.Entities;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 

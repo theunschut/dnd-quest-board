@@ -26,7 +26,7 @@ public class HomeController(IQuestService questService, IUserService userService
                 // Determine user role for quest filtering
                 var isAdmin = await userService.IsInRoleAsync(User, "Admin");
                 var isDungeonMaster = await userService.IsInRoleAsync(User, "DungeonMaster");
-                
+
                 if (isAdmin)
                     userRole = Role.Admin;
                 else if (isDungeonMaster)

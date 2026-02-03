@@ -1,5 +1,5 @@
-using System.Net;
 using EuphoriaInn.IntegrationTests.Helpers;
+using System.Net;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 

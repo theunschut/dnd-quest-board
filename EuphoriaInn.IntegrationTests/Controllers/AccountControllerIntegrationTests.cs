@@ -1,6 +1,6 @@
-using System.Net;
 using EuphoriaInn.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Identity;
+using System.Net;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 

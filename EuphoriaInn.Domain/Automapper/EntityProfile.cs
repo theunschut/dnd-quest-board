@@ -48,7 +48,7 @@ public class EntityProfile : Profile
             .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.Vote.HasValue ? (VoteType)src.Vote.Value : (VoteType?)null));
 
         // Shop entity mappings
-        
+
         // ShopItem mapping with enum conversions
         CreateMap<ShopItem, ShopItemEntity>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type))

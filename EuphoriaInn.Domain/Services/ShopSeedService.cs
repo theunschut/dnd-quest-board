@@ -16,7 +16,7 @@ public class ShopSeedService(IShopService shopService) : IShopSeedService
         }
 
         var basicItems = GetBasicEquipmentData();
-        
+
         foreach (var item in basicItems)
         {
             item.CreatedByDmId = createdByUserId;

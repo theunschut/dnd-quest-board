@@ -82,7 +82,7 @@ public class AccountController(IUserService userService) : Controller
         var user = await userService.GetUserAsync(User);
         var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
         var isAdmin = await userService.IsInRoleAsync(user, "Admin");
-        
+
         var model = new ProfileViewModel
         {
             User = user
@@ -101,7 +101,7 @@ public class AccountController(IUserService userService) : Controller
         var user = await userService.GetUserAsync(User);
         var isDungeonMaster = await userService.IsInRoleAsync(user, "DungeonMaster");
         var isAdmin = await userService.IsInRoleAsync(user, "Admin");
-        
+
         var model = new EditProfileViewModel
         {
             Id = user.Id,
@@ -122,7 +122,7 @@ public class AccountController(IUserService userService) : Controller
         if (ModelState.IsValid)
         {
             var user = await userService.GetUserAsync(User);
-            
+
             user.Name = model.Name;
             user.Email = model.Email;
             user.HasKey = model.HasKey;
@@ -153,13 +153,13 @@ public class AccountController(IUserService userService) : Controller
         if (ModelState.IsValid)
         {
             var result = await userService.ChangePasswordAsync(User, model.CurrentPassword, model.NewPassword);
-            
+
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Password changed successfully!";
                 return RedirectToAction(nameof(Profile));
             }
-            
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);

@@ -6,7 +6,6 @@ namespace EuphoriaInn.Repository;
 
 internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<QuestEntity>(dbContext), IQuestRepository
 {
-
     public override async Task<IList<QuestEntity>> GetAllAsync(CancellationToken token)
     {
         return await DbContext.Quests
@@ -47,7 +46,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
     public async Task<IList<QuestEntity>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
-        
+
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
@@ -63,7 +62,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
     public async Task<IList<QuestEntity>> GetQuestsWithSignupsForRoleAsync(bool isAdminOrDm, CancellationToken token = default)
     {
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
-        
+
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
