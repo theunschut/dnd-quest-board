@@ -19,6 +19,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .Where(q => q.DungeonMaster.Name == dmName)
             .OrderByDescending(q => q.CreatedAt)
@@ -34,6 +37,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
                         .ThenInclude(ps => ps.Player)
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .ToListAsync(cancellationToken: token);
     }
@@ -45,6 +51,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .Where(q => !q.IsFinalized || q.IsFinalized && q.FinalizedDate > oneDayAgo)
             .OrderByDescending(q => q.CreatedAt)
@@ -58,6 +67,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
         return await DbContext.Quests
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .Where(q => (!q.IsFinalized || q.IsFinalized && q.FinalizedDate > oneDayAgo) &&
                        (!q.DungeonMasterSession || isAdminOrDm))
@@ -72,6 +84,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
                 .ThenInclude(pd => pd.PlayerVotes)
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
     }
@@ -85,6 +100,9 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
                         .ThenInclude(ps => ps.Player)
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Character)
+                    .ThenInclude(c => c.Classes)
             .Include(q => q.DungeonMaster)
             .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
     }

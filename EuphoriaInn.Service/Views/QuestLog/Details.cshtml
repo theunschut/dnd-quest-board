@@ -51,17 +51,34 @@
                     }
                     @if (selectedPlayers.Any())
                     {
-                        <div class="row">
+                        <ul class="quest-signup-list list-unstyled">
                             @foreach (var player in selectedPlayers)
                             {
-                                <div class="col-md-6 mb-2">
-                                    <div class="player-badge">
-                                        <i class="fas fa-user-shield me-2"></i>
-                                        @player.Player.Name
-                                    </div>
-                                </div>
+                                <li class="quest-signup-item">
+                                    <span class="player-name">@player.Player.Name</span>
+                                    @if (player.Character != null)
+                                    {
+                                        <span class="character-info">
+                                            <span class="character-divider">(</span>
+                                            @if (player.Character.ProfilePicture != null)
+                                            {
+                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                                     alt="@player.Character.Name" 
+                                                     class="character-mini-avatar" />
+                                            }
+                                            else
+                                            {
+                                                <span class="character-mini-avatar-placeholder">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                            }
+                                            <span class="character-name">@player.Character.Name</span>
+                                            <span class="character-divider">)</span>
+                                        </span>
+                                    }
+                                </li>
                             }
-                        </div>
+                        </ul>
                     }
                     else
                     {

@@ -59,139 +59,134 @@
                             var selectedAssistants = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected && ps.Role == SignupRole.AssistantDM).OrderBy(ps => ps.SignupTime).ToList() ?? [];
                             var selectedSpectators = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected && ps.Role == SignupRole.Spectator).OrderBy(ps => ps.SignupTime).ToList() ?? [];
                             var waitlistPlayers = Model.Quest?.PlayerSignups.Where(ps => !ps.IsSelected && ps.Role == SignupRole.Player).OrderBy(ps => ps.SignupTime).ToList() ?? [];
+                            
+                            var allSelectedParticipants = new List<PlayerSignup>();
+                            allSelectedParticipants.AddRange(selectedPlayers);
+                            allSelectedParticipants.AddRange(selectedAssistants);
+                            allSelectedParticipants.AddRange(selectedSpectators);
                         }
 
-                        @if (selectedPlayers.Any())
+                        @if (allSelectedParticipants.Any())
                         {
-                            <p><strong><i class="fas fa-users text-primary me-1"></i>Selected Players:</strong></p>
-                            <ul class="quest-signup-list list-unstyled">
-                                @foreach (var player in selectedPlayers)
-                                {
-                                    <li class="quest-signup-item">
-                                        <span class="player-name">@player.Player.Name</span>
-                                        @if (player.Character != null)
+                            <p><strong><i class="fas fa-users me-1"></i>Participants:</strong></p>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Player Name</th>
+                                            <th>Character</th>
+                                            <th>Role</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var participant in allSelectedParticipants)
                                         {
-                                            <span class="character-info">
-                                                <span class="character-divider">(</span>
-                                                @if (player.Character.ProfilePicture != null)
-                                                {
-                                                    <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
-                                                         alt="@player.Character.Name" 
-                                                         class="character-mini-avatar" />
-                                                }
-                                                else
-                                                {
-                                                    <span class="character-mini-avatar-placeholder">
-                                                        <i class="fas fa-user"></i>
-                                                    </span>
-                                                }
-                                                <span class="character-name">@player.Character.Name</span>
-                                                <span class="character-divider">)</span>
-                                            </span>
+                                            <tr>
+                                                <td>@participant.Player.Name</td>
+                                                <td>
+                                                    @if (participant.Character != null)
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            @if (participant.Character.ProfilePicture != null)
+                                                            {
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })" 
+                                                                     alt="@participant.Character.Name" 
+                                                                     class="character-mini-avatar me-2" 
+                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </span>
+                                                            }
+                                                            <span>@participant.Character.Name</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No character</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (participant.Role == SignupRole.Player)
+                                                    {
+                                                        <span class="badge bg-primary">
+                                                            <i class="fas fa-user me-1"></i>Player
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.AssistantDM)
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-user-shield me-1"></i>Assistant DM
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.Spectator)
+                                                    {
+                                                        <span class="badge bg-info">
+                                                            <i class="fas fa-eye me-1"></i>Spectator
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
                                         }
-                                    </li>
-                                }
-                            </ul>
-                        }
-
-                        @if (selectedAssistants.Any())
-                        {
-                            <p><strong><i class="fas fa-user-shield text-success me-1"></i>Assistant DMs:</strong></p>
-                            <ul class="quest-signup-list list-unstyled">
-                                @foreach (var assistant in selectedAssistants)
-                                {
-                                    <li class="quest-signup-item">
-                                        <span class="player-name">@assistant.Player.Name</span>
-                                        @if (assistant.Character != null)
-                                        {
-                                            <span class="character-info">
-                                                <span class="character-divider">(</span>
-                                                @if (assistant.Character.ProfilePicture != null)
-                                                {
-                                                    <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = assistant.Character.Id })" 
-                                                         alt="@assistant.Character.Name" 
-                                                         class="character-mini-avatar" />
-                                                }
-                                                else
-                                                {
-                                                    <span class="character-mini-avatar-placeholder">
-                                                        <i class="fas fa-user"></i>
-                                                    </span>
-                                                }
-                                                <span class="character-name">@assistant.Character.Name</span>
-                                                <span class="character-divider">)</span>
-                                            </span>
-                                        }
-                                    </li>
-                                }
-                            </ul>
-                        }
-
-                        @if (selectedSpectators.Any())
-                        {
-                            <p><strong><i class="fas fa-eye text-info me-1"></i>Spectators:</strong></p>
-                            <ul class="quest-signup-list list-unstyled">
-                                @foreach (var spectator in selectedSpectators)
-                                {
-                                    <li class="quest-signup-item">
-                                        <span class="player-name">@spectator.Player.Name</span>
-                                        @if (spectator.Character != null)
-                                        {
-                                            <span class="character-info">
-                                                <span class="character-divider">(</span>
-                                                @if (spectator.Character.ProfilePicture != null)
-                                                {
-                                                    <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = spectator.Character.Id })" 
-                                                         alt="@spectator.Character.Name" 
-                                                         class="character-mini-avatar" />
-                                                }
-                                                else
-                                                {
-                                                    <span class="character-mini-avatar-placeholder">
-                                                        <i class="fas fa-user"></i>
-                                                    </span>
-                                                }
-                                                <span class="character-name">@spectator.Character.Name</span>
-                                                <span class="character-divider">)</span>
-                                            </span>
-                                        }
-                                    </li>
-                                }
-                            </ul>
+                                    </tbody>
+                                </table>
+                            </div>
                         }
 
                         @if (waitlistPlayers.Any())
                         {
                             <p><strong>Waitlist:</strong></p>
-                            <ul>
-                                @foreach (var player in waitlistPlayers)
-                                {
-                                    <li class="d-flex align-items-center mb-2">
-                                        @if (player.Character?.ProfilePicture != null)
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Player Name</th>
+                                            <th>Character</th>
+                                            <th>Role</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var player in waitlistPlayers)
                                         {
-                                            <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
-                                                 alt="@player.Character.Name" 
-                                                 class="character-avatar me-2" />
+                                            <tr>
+                                                <td>@player.Player.Name</td>
+                                                <td>
+                                                    @if (player.Character != null)
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            @if (player.Character.ProfilePicture != null)
+                                                            {
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                                                     alt="@player.Character.Name" 
+                                                                     class="character-mini-avatar me-2" 
+                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </span>
+                                                            }
+                                                            <span>@player.Character.Name</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No character</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user me-1"></i>Player (Waitlist)
+                                                    </span>
+                                                </td>
+                                            </tr>
                                         }
-                                        else if (player.Character != null)
-                                        {
-                                            <div class="character-avatar-placeholder me-2">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                        }
-                                        <div>
-                                            <strong>@player.Player.Name</strong>
-                                            @if (player.Character != null)
-                                            {
-                                                var classList = string.Join(", ", player.Character.Classes.Select(c => c.Class.ToString()));
-                                                <small class="d-block character-class-badge">
-                                                    @player.Character.Name (@classList)
-                                                </small>
-                                            }
-                                        </div>
-                                    </li>
-                                }
-                            </ul>
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                     </div>
 
@@ -264,6 +259,7 @@
                                     <form asp-action="JoinFinalizedQuest" method="post" class="d-inline" id="joinSpectatorForm">
                                         <input type="hidden" name="questId" value="@Model.Quest?.Id" />
                                         <input type="hidden" name="selectedRole" value="1" />
+                                        <input type="hidden" name="characterId" id="spectatorCharacterId" value="" />
                                         <button type="submit" class="btn btn-info w-100">
                                             <i class="fas fa-eye me-2"></i>Join as Spectator
                                             <small class="d-block mt-1" style="font-size: 0.8em;">Watch the session (auto-approved)</small>
@@ -277,6 +273,7 @@
                                         const characterId = this.value;
                                         document.getElementById('playerCharacterId').value = characterId;
                                         document.getElementById('assistantCharacterId').value = characterId;
+                                        document.getElementById('spectatorCharacterId').value = characterId;
                                     });
                                 </script>
                             </div>
