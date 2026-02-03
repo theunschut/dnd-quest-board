@@ -12,6 +12,8 @@ COPY ["EuphoriaInn.sln", "./"]
 COPY ["EuphoriaInn.Domain/EuphoriaInn.Domain.csproj", "EuphoriaInn.Domain/"]
 COPY ["EuphoriaInn.Repository/EuphoriaInn.Repository.csproj", "EuphoriaInn.Repository/"]
 COPY ["EuphoriaInn.Service/EuphoriaInn.Service.csproj", "EuphoriaInn.Service/"]
+COPY ["EuphoriaInn.UnitTests/EuphoriaInn.UnitTests.csproj", "EuphoriaInn.UnitTests/"]
+COPY ["EuphoriaInn.IntegrationTests/EuphoriaInn.IntegrationTests.csproj", "EuphoriaInn.IntegrationTests/"]
 
 # Restore packages for the entire solution
 RUN dotnet restore "EuphoriaInn.sln"
