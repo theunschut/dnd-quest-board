@@ -42,7 +42,7 @@ else
                     {
                         <h6>Selected Date:</h6>
                         
-                        var finalizedDate = Model.ProposedDates.FirstOrDefault(pd => pd.Date.Date == Model.FinalizedDate?.Date);
+                        var finalizedDate = Model.ProposedDates!.FirstOrDefault(pd => pd.Date.Date == Model.FinalizedDate?.Date);
                         if (finalizedDate != null)
                         {
                             var yesVotes = finalizedDate.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
@@ -111,7 +111,7 @@ else
                             <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
                                 <h6>Proposed Dates & Voting Results:</h6>
                                 @{
-                                    var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
+                                    var maxYesVotes = Model.ProposedDates!.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
                                     var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
                                     var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
                                 }
@@ -607,11 +607,11 @@ else
                 const selectedPlayerCount = Array.from(document.querySelectorAll('.player-checkbox:checked'))
                     .filter(cb => cb.closest('[data-role="player"]'))
                     .length;
-                const maxPlayers = @Model.TotalPlayerCount
+                const maxPlayers = @Model.TotalPlayerCount;
 
                 if (selectedPlayerCount > maxPlayers) {
                     this.checked = false;
-                    alert(`Cannot select more than ${maxPlayers} players for this quest.`);
+                    alert('Cannot select more than ' + maxPlayers + ' players for this quest.');
                 }
             });
         });

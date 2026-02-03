@@ -246,8 +246,11 @@ public class QuestController(
                 currentUser = await userService.GetByIdAsync(userEntity.Id, token);
                 
                 // Get user's active characters
-                var allCharacters = await characterService.GetCharactersByOwnerIdAsync(currentUser.Id, token);
-                userCharacters = allCharacters.Where(c => c.Status == CharacterStatus.Active).ToList();
+                if (currentUser != null)
+                {
+                    var allCharacters = await characterService.GetCharactersByOwnerIdAsync(currentUser.Id, token);
+                    userCharacters = allCharacters.Where(c => c.Status == CharacterStatus.Active).ToList();
+                }
             }
         }
 
