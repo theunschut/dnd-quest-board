@@ -14,6 +14,18 @@ public class CalendarController(IQuestService questService) : Controller
         var selectedYear = year ?? currentDate.Year;
         var selectedMonth = month ?? currentDate.Month;
 
+        // Validate month is between 1 and 12
+        if (selectedMonth < 1 || selectedMonth > 12)
+        {
+            return BadRequest("Invalid month. Month must be between 1 and 12.");
+        }
+
+        // Validate year is reasonable (between 1900 and 2100)
+        if (selectedYear < 1900 || selectedYear > 2100)
+        {
+            return BadRequest("Invalid year. Year must be between 1900 and 2100.");
+        }
+
         // Get all quests with their proposed dates
         var allQuests = await questService.GetQuestsWithDetailsAsync(token);
 

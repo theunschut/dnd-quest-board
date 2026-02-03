@@ -10,7 +10,8 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddRepositoryServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Add Entity Framework
+        // Add Entity Framework with SQL Server
+        // Integration tests will override the connection string via configuration
         services.AddDbContext<QuestBoardContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
