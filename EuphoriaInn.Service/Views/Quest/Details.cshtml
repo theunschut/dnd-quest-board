@@ -59,50 +59,134 @@
                             var selectedAssistants = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected && ps.Role == SignupRole.AssistantDM).OrderBy(ps => ps.SignupTime).ToList() ?? [];
                             var selectedSpectators = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected && ps.Role == SignupRole.Spectator).OrderBy(ps => ps.SignupTime).ToList() ?? [];
                             var waitlistPlayers = Model.Quest?.PlayerSignups.Where(ps => !ps.IsSelected && ps.Role == SignupRole.Player).OrderBy(ps => ps.SignupTime).ToList() ?? [];
+                            
+                            var allSelectedParticipants = new List<PlayerSignup>();
+                            allSelectedParticipants.AddRange(selectedPlayers);
+                            allSelectedParticipants.AddRange(selectedAssistants);
+                            allSelectedParticipants.AddRange(selectedSpectators);
                         }
 
-                        @if (selectedPlayers.Any())
+                        @if (allSelectedParticipants.Any())
                         {
-                            <p><strong><i class="fas fa-users text-primary me-1"></i>Selected Players:</strong></p>
-                            <ul>
-                                @foreach (var player in selectedPlayers)
-                                {
-                                    <li>@player.Player.Name</li>
-                                }
-                            </ul>
-                        }
-
-                        @if (selectedAssistants.Any())
-                        {
-                            <p><strong><i class="fas fa-user-shield text-success me-1"></i>Assistant DMs:</strong></p>
-                            <ul>
-                                @foreach (var assistant in selectedAssistants)
-                                {
-                                    <li>@assistant.Player.Name</li>
-                                }
-                            </ul>
-                        }
-
-                        @if (selectedSpectators.Any())
-                        {
-                            <p><strong><i class="fas fa-eye text-info me-1"></i>Spectators:</strong></p>
-                            <ul>
-                                @foreach (var spectator in selectedSpectators)
-                                {
-                                    <li>@spectator.Player.Name</li>
-                                }
-                            </ul>
+                            <p><strong><i class="fas fa-users me-1"></i>Participants:</strong></p>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Player Name</th>
+                                            <th>Character</th>
+                                            <th>Role</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var participant in allSelectedParticipants)
+                                        {
+                                            <tr>
+                                                <td>@participant.Player.Name</td>
+                                                <td>
+                                                    @if (participant.Character != null)
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            @if (participant.Character.ProfilePicture != null)
+                                                            {
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })" 
+                                                                     alt="@participant.Character.Name" 
+                                                                     class="character-mini-avatar me-2" 
+                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </span>
+                                                            }
+                                                            <span>@participant.Character.Name</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No character</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (participant.Role == SignupRole.Player)
+                                                    {
+                                                        <span class="badge bg-primary">
+                                                            <i class="fas fa-user me-1"></i>Player
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.AssistantDM)
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-user-shield me-1"></i>Assistant DM
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.Spectator)
+                                                    {
+                                                        <span class="badge bg-info">
+                                                            <i class="fas fa-eye me-1"></i>Spectator
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
 
                         @if (waitlistPlayers.Any())
                         {
                             <p><strong>Waitlist:</strong></p>
-                            <ul>
-                                @foreach (var player in waitlistPlayers)
-                                {
-                                    <li>@player.Player.Name</li>
-                                }
-                            </ul>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Player Name</th>
+                                            <th>Character</th>
+                                            <th>Role</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var player in waitlistPlayers)
+                                        {
+                                            <tr>
+                                                <td>@player.Player.Name</td>
+                                                <td>
+                                                    @if (player.Character != null)
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            @if (player.Character.ProfilePicture != null)
+                                                            {
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                                                     alt="@player.Character.Name" 
+                                                                     class="character-mini-avatar me-2" 
+                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </span>
+                                                            }
+                                                            <span>@player.Character.Name</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No character</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user me-1"></i>Player (Waitlist)
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                     </div>
 
@@ -132,34 +216,66 @@
                                 </div>
 
                                 <h6 class="mb-3">Select Your Role:</h6>
+                                
+                                @* Single Character Selection for All Roles *@
+                                <div class="mb-3">
+                                    <label class="form-label">Select Character (Optional)</label>
+                                    <select id="finalizedQuestCharacter" class="form-select">
+                                        <option value="">-- Join without character --</option>
+                                        @foreach (var character in ViewBag.UserCharacters as List<EuphoriaInn.Domain.Models.Character> ?? new List<EuphoriaInn.Domain.Models.Character>())
+                                        {
+                                            var classList = string.Join(", ", character.Classes.Select(c => $"{c.Class} {c.ClassLevel}"));
+                                            <option value="@character.Id">
+                                                @character.Name - Level @character.Level (@classList)
+                                            </option>
+                                        }
+                                    </select>
+                                    <small class="form-text">Choose which character you'll be playing, or join without one.</small>
+                                </div>
+
                                 <div class="d-grid gap-2">
-                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline">
+                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline" id="joinPlayerForm">
                                         <input type="hidden" name="questId" value="@Model.Quest?.Id" />
                                         <input type="hidden" name="selectedRole" value="0" />
+                                        <input type="hidden" name="characterId" id="playerCharacterId" value="" />
+                                        
                                         <button type="submit" class="btn btn-primary w-100">
                                             <i class="fas fa-users me-2"></i>Join as Player
                                             <small class="d-block mt-1" style="font-size: 0.8em;">Participate in the quest (counts toward player limit)</small>
                                         </button>
                                     </form>
 
-                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline">
+                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline" id="joinAssistantForm">
                                         <input type="hidden" name="questId" value="@Model.Quest?.Id" />
                                         <input type="hidden" name="selectedRole" value="2" />
+                                        <input type="hidden" name="characterId" id="assistantCharacterId" value="" />
+                                        
                                         <button type="submit" class="btn btn-success w-100">
                                             <i class="fas fa-user-shield me-2"></i>Join as Assistant DM
                                             <small class="d-block mt-1" style="font-size: 0.8em;">Help the DM run the session</small>
                                         </button>
                                     </form>
 
-                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline">
+                                    <form asp-action="JoinFinalizedQuest" method="post" class="d-inline" id="joinSpectatorForm">
                                         <input type="hidden" name="questId" value="@Model.Quest?.Id" />
                                         <input type="hidden" name="selectedRole" value="1" />
+                                        <input type="hidden" name="characterId" id="spectatorCharacterId" value="" />
                                         <button type="submit" class="btn btn-info w-100">
                                             <i class="fas fa-eye me-2"></i>Join as Spectator
                                             <small class="d-block mt-1" style="font-size: 0.8em;">Watch the session (auto-approved)</small>
                                         </button>
                                     </form>
                                 </div>
+
+                                <script>
+                                    // Sync character selection to all forms
+                                    document.getElementById('finalizedQuestCharacter').addEventListener('change', function() {
+                                        const characterId = this.value;
+                                        document.getElementById('playerCharacterId').value = characterId;
+                                        document.getElementById('assistantCharacterId').value = characterId;
+                                        document.getElementById('spectatorCharacterId').value = characterId;
+                                    });
+                                </script>
                             </div>
                         </div>
                     }
@@ -186,6 +302,22 @@
                             <form asp-action="Details" method="post">
                                 <input type="hidden" name="Id" value="0" />
                                 <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
+
+                                @* Character Selection *@
+                                <div class="mb-3">
+                                    <label class="form-label">Select Character (Optional)</label>
+                                    <select name="CharacterId" class="form-select">
+                                        <option value="">-- Sign up without character --</option>
+                                        @foreach (var character in ViewBag.UserCharacters as List<EuphoriaInn.Domain.Models.Character> ?? new List<EuphoriaInn.Domain.Models.Character>())
+                                        {
+                                            var classList = string.Join(", ", character.Classes.Select(c => $"{c.Class} {c.ClassLevel}"));
+                                            <option value="@character.Id">
+                                                @character.Name - Level @character.Level (@classList)
+                                            </option>
+                                        }
+                                    </select>
+                                    <small class="form-text">Choose which character you'll be playing, or sign up without one.</small>
+                                </div>
 
                                 @* Role Selection *@
                                 <div class="mb-3">
@@ -627,7 +759,7 @@
                                             voteValue === 'maybe' ? 'warning' : 'danger'));
                 
                 // Update hidden form field
-                const hiddenFields = document.querySelectorAll('[name*="DateVotes"][name*="ProposedDateId"]');
+                const hiddenFields = document.querySelectorAll('[name*]="DateVotes"][name*="ProposedDateId"]');
                 let voteIndex = -1;
                 
                 hiddenFields.forEach((field, index) => {

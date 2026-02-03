@@ -40,12 +40,17 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         var (client, authUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
         // Create additional users to display in guild members (with unique names)
-        await AuthenticationHelper.CreateTestUserAsync(
+        var warrior = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "warrior1", "warrior1@example.com", "Test123!", "Warrior One");
-        await AuthenticationHelper.CreateTestUserAsync(
+        var mage = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "mage1", "mage1@example.com", "Test123!", "Mage One");
-        await AuthenticationHelper.CreateTestUserAsync(
+        var dm = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "dm1", "dm1@example.com", "Test123!", "DM One");
+
+        // Create characters for each user
+        await TestDataHelper.CreateTestCharacterAsync(_factory.Services, warrior.Id, "Warrior One", level: 5, dndClass: 5); // Fighter
+        await TestDataHelper.CreateTestCharacterAsync(_factory.Services, mage.Id, "Mage One", level: 3, dndClass: 12); // Wizard
+        await TestDataHelper.CreateTestCharacterAsync(_factory.Services, dm.Id, "DM One", level: 10, dndClass: 3); // Cleric
 
         // Act
         var response = await client.GetAsync("/GuildMembers");
@@ -69,8 +74,11 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
         // Create additional user to test DM badge display
-        await AuthenticationHelper.CreateTestUserAsync(
+        var dmUser = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "dmspecial", "dmspecial@example.com", "Test123!", "Special DM");
+
+        // Create character for the DM user
+        await TestDataHelper.CreateTestCharacterAsync(_factory.Services, dmUser.Id, "Special DM", level: 10, dndClass: 7); // Paladin
 
         // Act
         var response = await client.GetAsync("/GuildMembers");
@@ -94,6 +102,9 @@ public class GuildMembersControllerIntegrationTests : IClassFixture<WebApplicati
         // Create additional user with specific name to test display
         var user = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "detailedchar", "detailed@example.com", name: "Aragorn the Ranger");
+
+        // Create character for the user (use "Aragorn" as character name to match test expectation)
+        await TestDataHelper.CreateTestCharacterAsync(_factory.Services, user.Id, "Aragorn", level: 8, dndClass: 8); // Ranger
 
         // Act
         var response = await client.GetAsync("/GuildMembers");

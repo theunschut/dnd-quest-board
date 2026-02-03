@@ -18,6 +18,10 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<TradeItemEntity> TradeItems { get; set; }
 
+    public DbSet<CharacterEntity> Characters { get; set; }
+
+    public DbSet<CharacterClassEntity> CharacterClasses { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -91,5 +95,31 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasForeignKey(ti => ti.OfferedByPlayerId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // Character entity relationships
+        modelBuilder.Entity<CharacterEntity>()
+            .HasOne(c => c.Owner)
+            .WithMany()
+            .HasForeignKey(c => c.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterEntity>()
+            .HasMany(c => c.Classes)
+            .WithOne(cc => cc.Character)
+            .HasForeignKey(cc => cc.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterEntity>()
+            .HasMany(c => c.PlayerSignups)
+            .WithOne(ps => ps.Character)
+            .HasForeignKey(ps => ps.CharacterId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Player signup can optionally have a character
+        modelBuilder.Entity<PlayerSignupEntity>()
+            .HasOne(ps => ps.Character)
+            .WithMany(c => c.PlayerSignups)
+            .HasForeignKey(ps => ps.CharacterId)
+            .OnDelete(DeleteBehavior.NoAction)
+            .IsRequired(false);
     }
 }

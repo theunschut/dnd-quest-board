@@ -168,7 +168,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     {
     }
 
-    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var authHeader = Request.Headers["Authorization"].ToString();
 
@@ -180,7 +180,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
             if (parts.Length < 4)
             {
-                return AuthenticateResult.Fail("Invalid auth header format");
+                return Task.FromResult(AuthenticateResult.Fail("Invalid auth header format"));
             }
 
             var userId = parts[0];
@@ -209,7 +209,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, "Test");
 
-            return AuthenticateResult.Success(ticket);
+            return Task.FromResult(AuthenticateResult.Success(ticket));
         }
 
         // No Test header - check if we have Identity cookies
@@ -219,9 +219,9 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
             // There's an Identity cookie - let the middleware handle authentication naturally
             // by skipping (returning NoResult) and letting the request pipeline continue
             // This will allow the Identity.Application scheme to be tried
-            return AuthenticateResult.NoResult();
+            return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        return AuthenticateResult.NoResult();
+        return Task.FromResult(AuthenticateResult.NoResult());
     }
 }

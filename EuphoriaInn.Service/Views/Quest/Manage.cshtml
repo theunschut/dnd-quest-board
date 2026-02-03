@@ -42,7 +42,7 @@ else
                     {
                         <h6>Selected Date:</h6>
                         
-                        var finalizedDate = Model.ProposedDates.FirstOrDefault(pd => pd.Date.Date == Model.FinalizedDate?.Date);
+                        var finalizedDate = Model.ProposedDates!.FirstOrDefault(pd => pd.Date.Date == Model.FinalizedDate?.Date);
                         if (finalizedDate != null)
                         {
                             var yesVotes = finalizedDate.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
@@ -91,72 +91,89 @@ else
                     }
                     else
                     {
-                        <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
-                            <h6>Proposed Dates & Voting Results:</h6>
-                            @{
-                                var maxYesVotes = Model.ProposedDates.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
-                                var hasMultipleDatesWithSameVotes = Model.ProposedDates.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
-                                var orderedDates = Model.ProposedDates.OrderBy(pd => pd.Date).ToList();
-                            }
-                            @foreach (var date in orderedDates)
-                            {
-                                var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
-                                var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
-                                var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
-                                var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
+                        @if (!Model.ProposedDates?.Any() == true)
+                        {
+                            <div class="alert alert-warning">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i>No Proposed Dates</h5>
+                                <p>This quest doesn't have any proposed dates yet. Please edit the quest to add some dates before you can finalize it.</p>
+                                <div class="mt-3">
+                                    <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary">
+                                        <i class="fas fa-edit me-1"></i>Edit Quest
+                                    </a>
+                                    <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
+                                        <i class="fas fa-trash me-1"></i>Delete Quest
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <form asp-action="Finalize" asp-route-id="@Model.Id" method="post">
+                                <h6>Proposed Dates & Voting Results:</h6>
+                                @{
+                                    var maxYesVotes = Model.ProposedDates!.Max(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes));
+                                    var hasMultipleDatesWithSameVotes = Model.ProposedDates?.Count(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes) > 1;
+                                    var orderedDates = Model.ProposedDates?.OrderBy(pd => pd.Date).ToList();
+                                }
+                                @foreach (var date in orderedDates ?? [])
+                                {
+                                    var yesVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Yes).ToList();
+                                    var maybeVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.Maybe).ToList();
+                                    var noVotes = date.PlayerVotes.Where(v => v.Vote == VoteType.No).ToList();
+                                    var isRecommended = !hasMultipleDatesWithSameVotes && yesVotes.Count == maxYesVotes;
 
-                                <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
-                                     data-date-id="@date.Id"
-                                     data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
-                                     data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
-                                    <div class="form-check">
-                                        <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
-                                               id="date_@date.Id" @(isRecommended ? "checked" : "") />
-                                        <label class="form-check-label" for="date_@date.Id">
-                                            <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
-                                            @if (isRecommended)
-                                            {
-                                                <span class="badge bg-success ms-2">Recommended</span>
-                                            }
-                                        </label>
-                                    </div>
+                                    <div class="date-option manage-date-option @(isRecommended ? "border-success" : "")"
+                                         data-date-id="@date.Id"
+                                         data-yes-votes="@string.Join(",", yesVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                         data-maybe-votes="@string.Join(",", maybeVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))"
+                                         data-no-votes="@string.Join(",", noVotes.Select(v => v.PlayerSignup?.Id.ToString()).Where(id => !string.IsNullOrEmpty(id)))">
+                                        <div class="form-check">
+                                            <input class="form-check-input date-selector" type="radio" name="SelectedDateId" value="@date.Id"
+                                                   id="date_@date.Id" @(isRecommended ? "checked" : "") />
+                                            <label class="form-check-label" for="date_@date.Id">
+                                                <strong>@date.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</strong>
+                                                @if (isRecommended)
+                                                {
+                                                    <span class="badge bg-success ms-2">Recommended</span>
+                                                }
+                                            </label>
+                                        </div>
 
-                                    <div class="mt-2">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
-                                                <ul class="list-unstyled small">
-                                                    @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
-                                                    {
-                                                        <li>@vote.PlayerSignup?.Player.Name</li>
-                                                    }
-                                                </ul>
+                                        <div class="mt-2">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <small class="text-success"><strong>Yes (@yesVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in yesVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-warning"><strong>Maybe (@maybeVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in maybeVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-danger"><strong>No (@noVotes.Count):</strong></small>
+                                                    <ul class="list-unstyled small">
+                                                        @foreach (var vote in noVotes.OrderBy(v => v.PlayerSignup?.SignupTime))
+                                                        {
+                                                            <li>@vote.PlayerSignup?.Player.Name</li>
+                                                        }
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            }
+                                }
 
-                            <hr>
+                                <hr>
 
                             <h6>Player Selection:</h6>
                             <p class="text-muted">Select up to @Model.TotalPlayerCount players for this quest.</p>
@@ -168,8 +185,8 @@ else
                                 if (Model.ProposedDates?.Any() == true)
                                 {
                                     dateForPlayerSelection = hasMultipleDatesWithSameVotes ?
-                                        orderedDates.First() :
-                                        orderedDates.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
+                                        orderedDates?.First() :
+                                        orderedDates?.FirstOrDefault(pd => pd.PlayerVotes.Count(v => v.Vote == VoteType.Yes) == maxYesVotes);
 
                                     if (dateForPlayerSelection != null)
                                     {
@@ -289,19 +306,20 @@ else
 
                             <hr>
 
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <button type="submit" class="btn btn-success">Finalize Quest</button>
-                                    <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary ms-2">
-                                        <i class="fas fa-edit me-1"></i>Edit Quest
-                                    </a>
-                                    <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
-                                        <i class="fas fa-trash me-1"></i>Delete
-                                    </a>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-success">Finalize Quest</button>
+                                        <a href="@Url.Action("Edit", "Quest", new { id = Model.Id })" class="btn btn-primary ms-2">
+                                            <i class="fas fa-edit me-1"></i>Edit Quest
+                                        </a>
+                                        <a href="#" class="btn btn-danger ms-2" onclick="deleteQuest(@Model.Id)">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
                                 </div>
-                                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
-                            </div>
-                        </form>
+                            </form>
+                        }
                     }
 
                     @if (Model.IsFinalized)
@@ -320,40 +338,75 @@ else
                             .OrderBy(ps => ps.SignupTime)
                             .ToList();
 
-                        @if (selectedPlayers.Any() || selectedAssistants.Any() || selectedSpectators.Any())
+                        var allSelectedParticipants = new List<PlayerSignup>();
+                        allSelectedParticipants.AddRange(selectedPlayers);
+                        allSelectedParticipants.AddRange(selectedAssistants);
+                        allSelectedParticipants.AddRange(selectedSpectators);
+
+                        @if (allSelectedParticipants.Any())
                         {
+                            <h6>Selected Participants:</h6>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Selected Participants</th>
-                                            <th scope="col">Role</th>
-                                            <th scope="col">Signup Time</th>
+                                            <th>Player Name</th>
+                                            <th>Character</th>
+                                            <th>Role</th>
+                                            <th>Signup Time</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var player in selectedPlayers)
+                                        @foreach (var participant in allSelectedParticipants)
                                         {
                                             <tr>
-                                                <td><i class="fas fa-user text-primary me-2"></i>@player.Player.Name</td>
-                                                <td><span class="badge bg-primary">Player</span></td>
-                                                <td><small class="text-muted">@player.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
-                                            </tr>
-                                        }
-                                        @foreach (var assistant in selectedAssistants)
-                                        {
-                                            <tr>
-                                                <td><i class="fas fa-user-shield text-success me-2"></i>@assistant.Player.Name</td>
-                                                <td><span class="badge bg-success">Assistant DM</span></td>
-                                                <td><small class="text-muted">@assistant.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
-                                            </tr>
-                                        }
-                                        @foreach (var spectator in selectedSpectators)
-                                        {
-                                            <tr>
-                                                <td><i class="fas fa-eye text-info me-2"></i>@spectator.Player.Name</td>
-                                                <td><span class="badge bg-info">Spectator</span></td>
-                                                <td><small class="text-muted">@spectator.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
+                                                <td>@participant.Player.Name</td>
+                                                <td>
+                                                    @if (participant.Character != null)
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            @if (participant.Character.ProfilePicture != null)
+                                                            {
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })" 
+                                                                     alt="@participant.Character.Name" 
+                                                                     class="character-mini-avatar me-2" 
+                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                    <i class="fas fa-user"></i>
+                                                                </span>
+                                                            }
+                                                            <span>@participant.Character.Name</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No character</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (participant.Role == SignupRole.Player)
+                                                    {
+                                                        <span class="badge bg-primary">
+                                                            <i class="fas fa-user me-1"></i>Player
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.AssistantDM)
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-user-shield me-1"></i>Assistant DM
+                                                        </span>
+                                                    }
+                                                    else if (participant.Role == SignupRole.Spectator)
+                                                    {
+                                                        <span class="badge bg-info">
+                                                            <i class="fas fa-eye me-1"></i>Spectator
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td><small class="text-muted">@participant.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
                                             </tr>
                                         }
                                     </tbody>
@@ -554,11 +607,11 @@ else
                 const selectedPlayerCount = Array.from(document.querySelectorAll('.player-checkbox:checked'))
                     .filter(cb => cb.closest('[data-role="player"]'))
                     .length;
-                const maxPlayers = @Model.TotalPlayerCount
+                const maxPlayers = @Model.TotalPlayerCount;
 
                 if (selectedPlayerCount > maxPlayers) {
                     this.checked = false;
-                    alert(`Cannot select more than ${maxPlayers} players for this quest.`);
+                    alert('Cannot select more than ' + maxPlayers + ' players for this quest.');
                 }
             });
         });

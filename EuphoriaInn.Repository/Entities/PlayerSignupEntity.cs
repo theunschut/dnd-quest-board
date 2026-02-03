@@ -24,11 +24,16 @@ public class PlayerSignupEntity : IEntity
     [Required]
     public int QuestId { get; set; }
 
+    public int? CharacterId { get; set; }
+
     [ForeignKey(nameof(PlayerId))]
     public UserEntity Player { get; set; } = null!;
 
     [ForeignKey(nameof(QuestId))]
     public virtual QuestEntity Quest { get; set; } = null!;
+
+    [ForeignKey(nameof(CharacterId))]
+    public virtual CharacterEntity? Character { get; set; }
 
     public virtual ICollection<PlayerDateVoteEntity> DateVotes { get; set; } = [];
 }

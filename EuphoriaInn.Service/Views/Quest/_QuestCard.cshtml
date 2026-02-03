@@ -47,10 +47,43 @@
                     <strong class="text-warning">Date:</strong><br>
                     <small class="text-muted">@Model.FinalizedDate?.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
                 </p>
-                <p class="card-text">
-                    <strong class="text-warning">Players:</strong><br>
-                    <small class="text-muted">@string.Join(", ", Model.PlayerSignups.Where(ps => ps.IsSelected).Select(ps => ps.Player.Name))</small>
-                </p>
+                <div class="card-text">
+                    <strong class="text-warning d-block mb-2">Players:</strong>
+                    <table class="quest-players-table">
+                        <tbody>
+                            @foreach (var player in Model.PlayerSignups.Where(ps => ps.IsSelected).OrderBy(ps => ps.SignupTime))
+                            {
+                                <tr>
+                                    <td class="player-name-cell">@player.Player.Name</td>
+                                    @if (player.Character != null)
+                                    {
+                                        <td class="character-avatar-cell">
+                                            @if (player.Character.ProfilePicture != null)
+                                            {
+                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
+                                                     alt="@player.Character.Name" 
+                                                     class="character-table-avatar" />
+                                            }
+                                            else
+                                            {
+                                                <span class="character-table-avatar-placeholder">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="character-name-cell">@player.Character.Name</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="character-avatar-cell" colspan="2">
+                                            <span class="text-muted small">No character</span>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {

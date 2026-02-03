@@ -85,13 +85,16 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         {
             throw new InvalidOperationException("This item is sold out.");
         }
-
+        
+        // Only check quantity limits if not unlimited stock
         if (itemEntity.Quantity > 0 && itemEntity.Quantity < quantity)
         {
             throw new InvalidOperationException($"Only {itemEntity.Quantity} items available in stock.");
         }
 
-        // Update item quantity if it's not unlimited (quantity != -1)
+        // Update item quantity only if it's limited stock (quantity > 0)
+        // -1 = unlimited stock, don't modify
+        // 0 = sold out, can't purchase (already checked above)
         if (itemEntity.Quantity > 0)
         {
             itemEntity.Quantity -= quantity;

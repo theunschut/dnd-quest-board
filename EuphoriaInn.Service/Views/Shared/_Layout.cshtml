@@ -9,11 +9,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/calendar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/quests.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shop.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/guild-members.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100 @ViewData["BodyClass"]">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-            <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
+            <div class="container-fluid px-3">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index"><i class="fas fa-dice-d20"></i> D&D Quest Board</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
                     <span class="navbar-toggler-icon"></span>
@@ -81,6 +85,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="GuildMembers" asp-action="Index">
                                     <i class="fas fa-people-group me-1"></i>Guild Members
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Players" asp-action="Index">
+                                    <i class="fas fa-users me-1"></i>Players
                                 </a>
                             </li>
 

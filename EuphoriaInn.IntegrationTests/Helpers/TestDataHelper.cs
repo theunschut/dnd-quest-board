@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Identity;
+using EuphoriaInn.Repository;
+using EuphoriaInn.Repository.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 
@@ -104,6 +107,45 @@ public static class TestDataHelper
         await context.SaveChangesAsync();
 
         return item;
+    }
+
+    public static async Task<CharacterEntity> CreateTestCharacterAsync(
+        IServiceProvider services,
+        int ownerId,
+        string name = "Test Character",
+        int level = 1,
+        int status = 0, // Active
+        int role = 1, // Backup
+        int dndClass = 5) // Fighter
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        var character = new CharacterEntity
+        {
+            Name = name,
+            OwnerId = ownerId,
+            Level = level,
+            Status = status,
+            Role = role,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        context.Characters.Add(character);
+        await context.SaveChangesAsync();
+
+        // Add a character class (required)
+        var characterClass = new CharacterClassEntity
+        {
+            CharacterId = character.Id,
+            Class = dndClass,
+            ClassLevel = level
+        };
+
+        context.CharacterClasses.Add(characterClass);
+        await context.SaveChangesAsync();
+
+        return character;
     }
 
     public static async Task ClearDatabaseAsync(IServiceProvider services)
