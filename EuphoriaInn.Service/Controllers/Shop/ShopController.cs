@@ -146,4 +146,36 @@ public class ShopController(IShopService shopService, IUserService userService, 
             return RedirectToAction(nameof(Index));
         }
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SellToShop(int id, int quantity = 1, CancellationToken token = default)
+    {
+        try
+        {
+            var currentUser = await userService.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            var transaction = await shopService.SellItemToShopAsync(id, quantity, currentUser, token);
+            var item = await shopService.GetItemWithDetailsAsync(id, token);
+
+            TempData["GoldReceived"] = transaction.Price.ToString("N0");
+            TempData["Success"] = $"You sold {quantity}x {item?.Name ?? "item"} to the shop";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (Exception)
+        {
+            TempData["Error"] = "An error occurred while processing your request. Please try again.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+    }
 }

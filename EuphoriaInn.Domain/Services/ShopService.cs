@@ -184,12 +184,62 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         return Mapper.Map<UserTransaction>(refundTransactionEntity);
     }
 
+    public async Task<UserTransaction> SellItemToShopAsync(int itemId, int quantity, User user, CancellationToken token = default)
+    {
+        var itemEntity = await repository.GetByIdAsync(itemId, token);
+        if (itemEntity == null || itemEntity.Status != (int)ItemStatus.Published)
+        {
+            throw new InvalidOperationException("Item is not available for sale.");
+        }
+
+        // Calculate sell price (half of shop price)
+        var sellPrice = (itemEntity.Price / 2) * quantity;
+
+        // Update item quantity if it's not unlimited (quantity != -1)
+        if (itemEntity.Quantity >= 0)
+        {
+            itemEntity.Quantity += quantity;
+            await repository.UpdateAsync(itemEntity, token);
+        }
+
+        // Create sell transaction record
+        var sellTransactionEntity = new UserTransactionEntity
+        {
+            ShopItemId = itemId,
+            UserId = user.Id,
+            Quantity = quantity,
+            Price = sellPrice,
+            TransactionType = (int)TransactionType.Sell,
+            TransactionDate = DateTime.UtcNow,
+            OriginalTransactionId = null,
+            Notes = $"Sold {quantity}x {itemEntity.Name} to shop"
+        };
+
+        await transactionRepository.AddAsync(sellTransactionEntity, token);
+        await transactionRepository.SaveChangesAsync(token);
+
+        // Map back to domain model and return
+        return Mapper.Map<UserTransaction>(sellTransactionEntity);
+    }
+
     public async Task ArchiveItemAsync(int itemId, CancellationToken token = default)
     {
         var itemEntity = await repository.GetByIdAsync(itemId, token);
         if (itemEntity != null)
         {
             itemEntity.Status = (int)ItemStatus.Archived;
+            await repository.UpdateAsync(itemEntity, token);
+        }
+    }
+
+    public async Task DenyItemAsync(int itemId, string denialReason, CancellationToken token = default)
+    {
+        var itemEntity = await repository.GetByIdAsync(itemId, token);
+        if (itemEntity != null)
+        {
+            itemEntity.Status = (int)ItemStatus.Denied;
+            itemEntity.DenialReason = denialReason;
+            itemEntity.DeniedAt = DateTime.UtcNow;
             await repository.UpdateAsync(itemEntity, token);
         }
     }

@@ -42,5 +42,21 @@ namespace EuphoriaInn.Domain.Services
             // Update the entity
             await repository.UpdateAsync(playerSignupEntity, cancellationToken);
         }
+
+        public async Task UpdateSignupCharacterAsync(int playerSignupId, int? characterId, CancellationToken cancellationToken = default)
+        {
+            // Get the existing player signup
+            var playerSignupEntity = await repository.GetByIdAsync(playerSignupId, cancellationToken);
+            if (playerSignupEntity == null)
+            {
+                throw new ArgumentException("Player signup not found", nameof(playerSignupId));
+            }
+
+            // Update the character ID
+            playerSignupEntity.CharacterId = characterId;
+
+            // Update the entity
+            await repository.UpdateAsync(playerSignupEntity, cancellationToken);
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 using EuphoriaInn.Domain.Automapper;
 using EuphoriaInn.Domain.Extensions;
 using EuphoriaInn.Repository.Entities;
@@ -7,9 +6,22 @@ using EuphoriaInn.Service.Authorization;
 using EuphoriaInn.Service.Automapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Kestrel server limits
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB (slightly higher than validation to allow for form overhead)
+});
+
+// Configure IIS server limits (if running on IIS)
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
