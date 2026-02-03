@@ -645,20 +645,30 @@
     z-index: 3;
 }
 
-.quest-log-card-header h5 {
+.quest-log-card-header h3.quest-log-card-title {
     font-family: 'Cinzel', serif;
-    color: #F4E4BC !important;
+    color: #ffffff !important;
     margin: 0;
     font-size: 1.25rem;
     font-weight: 700;
     text-shadow: none !important;
 }
 
-.quest-log-card-header small {
-    color: #F4E4BC !important;
-    font-size: 0.85rem;
-    display: block;
-    margin-top: 0.25rem;
+/* Super-specific selectors to override .modern-card h3 from site.css */
+.quest-log-card .quest-log-card-header h3,
+.quest-log-card .quest-log-card-header h3.quest-log-card-title,
+.quest-log-container .quest-log-card .quest-log-card-header h3 {
+    color: #ffffff !important;
+    text-shadow: none !important;
+    font-family: 'Cinzel', serif !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+.quest-log-card .quest-log-card-header small,
+.modern-card.quest-log-card .quest-log-card-header small,
+.quest-log-card.modern-card .quest-log-card-header small {
+    color: #ffffff !important;
     text-shadow: none !important;
 }
 
@@ -875,10 +885,10 @@
    MUST be at the end to have higher specificity
    ======================================== */
 
-/* Super-specific selectors to override .modern-card h5 from site.css */
-.quest-log-card .quest-log-card-header h5,
-.modern-card.quest-log-card .quest-log-card-header h5,
-.quest-log-card.modern-card .quest-log-card-header h5 {
+/* Super-specific selectors to override .modern-card h3 from site.css */
+.quest-log-card .quest-log-card-header h3,
+.quest-log-card .quest-log-card-header h3.quest-log-card-title,
+.quest-log-container .quest-log-card .quest-log-card-header h3 {
     color: #ffffff !important;
     text-shadow: none !important;
     font-family: 'Cinzel', serif !important;
