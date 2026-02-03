@@ -88,10 +88,14 @@ app.MapControllerRoute(
 
 app.MapHealthChecks("/health");
 
-app.Services.ConfigureDatabase();
+// Only run migrations if not in testing environment
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Services.ConfigureDatabase();
 
-// Seed basic shop data
-await SeedShopDataAsync(app);
+    // Seed basic shop data
+    await SeedShopDataAsync(app);
+}
 
 app.Run();
 
@@ -102,7 +106,7 @@ static async Task SeedShopDataAsync(WebApplication app)
     {
         var shopSeedService = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Domain.Interfaces.IShopSeedService>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
-        
+
         // Find first admin/DM user to attribute seed data to
         var adminUser = await userManager.Users.FirstOrDefaultAsync();
         if (adminUser != null)
@@ -117,3 +121,6 @@ static async Task SeedShopDataAsync(WebApplication app)
         logger.LogError(ex, "Error seeding shop data");
     }
 }
+
+// Make Program class accessible to integration tests
+public partial class Program { }

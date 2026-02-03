@@ -56,11 +56,10 @@ See you at the table!
             mailMessage.To.Add(toEmail);
 
             await client.SendMailAsync(mailMessage);
-            logger.LogInformation("Quest finalized email sent to {Email} for quest {QuestTitle}", toEmail, questTitle);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send quest finalized email to {Email} for quest {QuestTitle}", toEmail, questTitle);
+            logger.LogError(ex, "Failed to send quest finalized email for quest {QuestTitle}", questTitle);
         }
     }
 
@@ -113,11 +112,10 @@ Thanks for your understanding!
             mailMessage.To.Add(toEmail);
 
             await client.SendMailAsync(mailMessage);
-            logger.LogInformation("Quest date changed email sent to {Email} for quest {QuestTitle}", toEmail, questTitle);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send quest date changed email to {Email} for quest {QuestTitle}", toEmail, questTitle);
+            logger.LogError(ex, "Failed to send quest date changed email for quest {QuestTitle}", questTitle);
         }
     }
 }

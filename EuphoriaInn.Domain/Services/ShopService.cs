@@ -5,7 +5,6 @@ using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Interfaces;
-using Microsoft.AspNetCore.Identity;
 
 namespace EuphoriaInn.Domain.Services;
 

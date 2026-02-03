@@ -31,19 +31,19 @@ public class ShopController(IShopService shopService, IUserService userService, 
             {
                 var userTransactions = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
                 var mappedTransactions = mapper.Map<IList<UserTransactionViewModel>>(userTransactions.OrderByDescending(t => t.TransactionDate));
-                
+
                 // Calculate remaining quantities for purchase transactions
                 foreach (var transaction in mappedTransactions.Where(t => t.TransactionType == Domain.Enums.TransactionType.Purchase))
                 {
                     // Find how much has been returned/sold from this transaction
                     var existingReturns = userTransactions
-                        .Where(t => t.TransactionType == Domain.Enums.TransactionType.Sell && 
+                        .Where(t => t.TransactionType == Domain.Enums.TransactionType.Sell &&
                                    t.OriginalTransactionId == transaction.Id)
                         .Sum(t => t.Quantity);
-                    
+
                     transaction.RemainingQuantity = transaction.Quantity - existingReturns;
                 }
-                
+
                 viewModel.UserPurchases = mappedTransactions;
             }
         }
@@ -72,6 +72,7 @@ public class ShopController(IShopService shopService, IUserService userService, 
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Purchase(int id, int quantity = 1, CancellationToken token = default)
     {
         try
@@ -83,9 +84,9 @@ public class ShopController(IShopService shopService, IUserService userService, 
             }
 
             var transaction = await shopService.PurchaseItemAsync(id, quantity, currentUser, token);
-            
+
             TempData["Success"] = $"Successfully purchased {quantity}x {transaction.ShopItem?.Name ?? "item"} for {transaction.Price} gp!";
-            
+
             return RedirectToAction(nameof(Index));
         }
         catch (InvalidOperationException ex)
@@ -101,6 +102,7 @@ public class ShopController(IShopService shopService, IUserService userService, 
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Sell(int id, int quantity = 1, CancellationToken token = default)
     {
         try
@@ -112,17 +114,17 @@ public class ShopController(IShopService shopService, IUserService userService, 
             }
 
             var transaction = await shopService.ReturnOrSellItemAsync(id, quantity, currentUser, token);
-            
+
             // Calculate if it was a return or sell based on the refund amount
             var originalTransaction = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
             var original = originalTransaction.FirstOrDefault(t => t.Id == id);
-            
+
             if (original != null)
             {
                 var originalUnitPrice = original.Price / original.Quantity;
                 var expectedReturnPrice = originalUnitPrice * quantity;
                 var isReturn = Math.Abs(transaction.Price - expectedReturnPrice) < 0.01m;
-                
+
                 var actionType = isReturn ? "returned" : "sold";
                 TempData["Success"] = $"Successfully {actionType} {quantity}x {original.ShopItem?.Name ?? "item"} for {transaction.Price} gp!";
             }
@@ -130,7 +132,7 @@ public class ShopController(IShopService shopService, IUserService userService, 
             {
                 TempData["Success"] = $"Item processed successfully for {transaction.Price} gp!";
             }
-            
+
             return RedirectToAction(nameof(Index));
         }
         catch (InvalidOperationException ex)
