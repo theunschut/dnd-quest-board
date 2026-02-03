@@ -111,14 +111,8 @@ public static class TestDataHelper
         using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
 
-        // Get the database name before dropping
-        var connectionString = context.Database.GetConnectionString();
-
-        // Close all active connections to the database
-        await context.Database.CloseConnectionAsync();
-
         // Drop and recreate the entire database for a clean slate
-        // This is much more reliable than trying to delete individual records
+        // This works for both InMemory and relational databases
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 

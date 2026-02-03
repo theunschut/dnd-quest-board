@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Builder;
+using EuphoriaInn.Repository.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace EuphoriaInn.IntegrationTests;
 
@@ -39,29 +41,44 @@ public class WebApplicationFactoryBase : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
-        builder.ConfigureAppConfiguration((context, configBuilder) =>
+        builder.ConfigureServices(services =>
         {
-            configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+            // Remove all Entity Framework related services
+            var efServiceDescriptors = services.Where(d =>
+                d.ServiceType == typeof(DbContextOptions<QuestBoardContext>) ||
+                d.ServiceType == typeof(QuestBoardContext) ||
+                d.ServiceType.FullName?.StartsWith("Microsoft.EntityFrameworkCore") == true)
+                .ToList();
+
+            foreach (var descriptor in efServiceDescriptors)
             {
-                ["ConnectionStrings:DefaultConnection"] = Database.ConnectionString
+                services.Remove(descriptor);
+            }
+
+            // Add DbContext that uses the same SQLite in-memory connection as TestDatabase
+            // This ensures all DbContext instances (test setup and web app) share the same database
+            services.AddDbContext<QuestBoardContext>(options =>
+            {
+                options.UseSqlite(Database.Connection);
+                options.EnableSensitiveDataLogging();
             });
         });
 
         builder.ConfigureTestServices(services =>
         {
             // Replace IAntiforgery with a decorator that validates everything but delegates token generation
-            var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(Microsoft.AspNetCore.Antiforgery.IAntiforgery));
-            if (descriptor != null)
+            var antiforgeryDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(Microsoft.AspNetCore.Antiforgery.IAntiforgery));
+            if (antiforgeryDescriptor != null)
             {
-                services.Remove(descriptor);
+                services.Remove(antiforgeryDescriptor);
                 services.Add(ServiceDescriptor.Describe(
                     typeof(Microsoft.AspNetCore.Antiforgery.IAntiforgery),
                     sp =>
                     {
-                        var inner = ActivatorUtilities.CreateInstance(sp, descriptor.ImplementationType!);
+                        var inner = ActivatorUtilities.CreateInstance(sp, antiforgeryDescriptor.ImplementationType!);
                         return new TestAntiforgeryDecorator((Microsoft.AspNetCore.Antiforgery.IAntiforgery)inner);
                     },
-                    descriptor.Lifetime));
+                    antiforgeryDescriptor.Lifetime));
             }
 
             // Add test authentication scheme and make it the default
