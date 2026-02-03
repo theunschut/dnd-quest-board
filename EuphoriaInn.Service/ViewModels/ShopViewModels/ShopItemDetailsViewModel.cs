@@ -6,7 +6,7 @@ public class ShopItemDetailsViewModel : ShopItemViewModel
 {
     public IList<DmItemVoteViewModel> DmVotes { get; set; } = [];
     public IList<PlayerTransactionViewModel> RecentTransactions { get; set; } = [];
-    
+
     public int YesVotes => DmVotes.Count(v => v.VoteType == VoteType.Yes);
     public int NoVotes => DmVotes.Count(v => v.VoteType == VoteType.No);
     public int MaybeVotes => DmVotes.Count(v => v.VoteType == VoteType.Maybe);

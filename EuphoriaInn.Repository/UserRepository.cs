@@ -16,7 +16,7 @@ internal class UserRepository(QuestBoardContext context) : BaseRepository<UserEn
         return await DbSet
             .Where(u => DbContext.UserRoles
                 .Any(ur => ur.UserId == u.Id &&
-                          DbContext.Roles.Any(r => r.Id == ur.RoleId && 
+                          DbContext.Roles.Any(r => r.Id == ur.RoleId &&
                                                 (r.Name == "DungeonMaster" || r.Name == "Admin"))))
             .ToListAsync(cancellationToken: token);
     }

@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace EuphoriaInn.Repository;
 

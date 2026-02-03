@@ -1,12 +1,12 @@
 using AutoMapper;
+using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Service.ViewModels.CalendarViewModels;
+using EuphoriaInn.Service.ViewModels.QuestViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EuphoriaInn.Domain.Interfaces;
-using EuphoriaInn.Domain.Enums;
-using EuphoriaInn.Domain.Models.QuestBoard;
-using EuphoriaInn.Domain.Models;
-using EuphoriaInn.Service.ViewModels.QuestViewModels;
-using EuphoriaInn.Service.ViewModels.CalendarViewModels;
 
 namespace EuphoriaInn.Service.Controllers.QuestBoard;
 

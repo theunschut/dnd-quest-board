@@ -85,7 +85,7 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         {
             throw new InvalidOperationException("This item is sold out.");
         }
-        
+
         if (itemEntity.Quantity > 0 && itemEntity.Quantity < quantity)
         {
             throw new InvalidOperationException($"Only {itemEntity.Quantity} items available in stock.");
@@ -112,7 +112,7 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
 
         await transactionRepository.AddAsync(transactionEntity, token);
         await transactionRepository.SaveChangesAsync(token);
-        
+
         // Map back to domain model and return
         return Mapper.Map<UserTransaction>(transactionEntity);
     }
@@ -128,12 +128,12 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         // Check how much has already been returned/sold for this original purchase
         var allUserTransactions = await transactionRepository.GetTransactionsByUserAsync(user.Id, token);
         var existingReturns = allUserTransactions
-            .Where(t => t.TransactionType == (int)TransactionType.Sell && 
+            .Where(t => t.TransactionType == (int)TransactionType.Sell &&
                        t.OriginalTransactionId == transactionId)
             .Sum(t => t.Quantity);
 
         var remainingQuantity = originalTransaction.Quantity - existingReturns;
-        
+
         if (remainingQuantity <= 0)
         {
             throw new InvalidOperationException("This item has already been fully returned/sold.");
@@ -176,7 +176,7 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
 
         await transactionRepository.AddAsync(refundTransactionEntity, token);
         await transactionRepository.SaveChangesAsync(token);
-        
+
         // Map back to domain model and return
         return Mapper.Map<UserTransaction>(refundTransactionEntity);
     }
