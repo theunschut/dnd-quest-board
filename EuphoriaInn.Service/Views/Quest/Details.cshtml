@@ -340,18 +340,24 @@
                                 </div>
 
                                 <h6>Vote on Proposed Dates:</h6>
-                                <p class="text-muted mb-3" id="votingInstruction">Click on quest events in the calendar below to vote on proposed dates. Your votes will be saved automatically.</p>
-                                
-                                @* Hidden form fields for the DateVotes *@
+                                <p class="text-muted mb-3" id="votingInstruction">Click on the Yes/Maybe/No buttons for each proposed date in the calendar below.</p>
+
+                                @* Hidden form fields for the DateVotes - these will be populated by the calendar vote buttons *@
                                 @{
                                     var sortedDateVotes = Model.DateVotes.OrderBy(dv => dv.ProposedDate?.Date).ToList();
+                                    // Create a lookup dictionary for vote indices by ProposedDateId
+                                    var voteIndexLookup = new Dictionary<int, int>();
+                                    for (var i = 0; i < sortedDateVotes.Count; i++)
+                                    {
+                                        voteIndexLookup[sortedDateVotes[i].ProposedDateId] = i;
+                                    }
+                                    ViewBag.VoteIndexLookup = voteIndexLookup;
                                 }
                                 @for (var i = 0; i < sortedDateVotes.Count; i++)
                                 {
                                     var vote = sortedDateVotes[i];
                                     <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
                                     <input type="hidden" name="DateVotes[@i].PlayerSignupId" value="@vote.PlayerSignupId" />
-                                    <input type="hidden" name="DateVotes[@i].Vote" value="" id="hiddenVote_@i" />
                                 }
 
                                 @* Calendar views for each month with proposed dates *@
@@ -370,7 +376,10 @@
                                     </div>
                                 }
 
-                                <button type="submit" class="btn btn-primary">Sign Up with Current Votes</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Sign Up with Votes
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -707,12 +716,11 @@
         document.querySelector('[onclick="showUpdateForm()"]').style.display = 'inline-block';
     }
     
-    // Vote button functionality for calendar
+    // Handle role selection change to hide/show voting section
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle role selection change
         const roleSelect = document.getElementById('selectedRole');
-        const votingSection = document.querySelectorAll('.card.modern-card.mb-3');
         const votingInstruction = document.getElementById('votingInstruction');
+        const calendarCards = document.querySelectorAll('.card.modern-card.mb-3');
 
         if (roleSelect) {
             roleSelect.addEventListener('change', function() {
@@ -720,81 +728,20 @@
 
                 if (isSpectator) {
                     // Hide voting for spectators
-                    votingSection.forEach(section => section.style.display = 'none');
+                    calendarCards.forEach(card => card.style.display = 'none');
                     if (votingInstruction) {
                         votingInstruction.textContent = 'As a spectator, you will be automatically approved. No date voting required.';
                         votingInstruction.classList.add('alert', 'alert-info');
                     }
                 } else {
                     // Show voting for players and assistant DMs
-                    votingSection.forEach(section => section.style.display = 'block');
+                    calendarCards.forEach(card => card.style.display = 'block');
                     if (votingInstruction) {
-                        votingInstruction.textContent = 'Click on quest events in the calendar below to vote on proposed dates. Your votes will be saved automatically.';
+                        votingInstruction.textContent = 'Click on the Yes/Maybe/No buttons for each proposed date in the calendar below.';
                         votingInstruction.classList.remove('alert', 'alert-info');
                     }
                 }
             });
         }
-
-        // Handle vote button clicks
-        document.querySelectorAll('.vote-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const voteValue = this.dataset.vote;
-                const proposedDateId = this.dataset.proposedDateId;
-                
-                // Update button states in this group
-                const parentGroup = this.closest('.vote-buttons');
-                parentGroup.querySelectorAll('.vote-btn').forEach(otherBtn => {
-                    otherBtn.classList.remove('btn-success', 'btn-warning', 'btn-danger');
-                    otherBtn.classList.add('btn-outline-' + (otherBtn.dataset.vote === 'yes' ? 'success' : 
-                                                            otherBtn.dataset.vote === 'maybe' ? 'warning' : 'danger'));
-                });
-                
-                // Set selected button as active
-                this.classList.remove('btn-outline-success', 'btn-outline-warning', 'btn-outline-danger');
-                this.classList.add('btn-' + (voteValue === 'yes' ? 'success' : 
-                                            voteValue === 'maybe' ? 'warning' : 'danger'));
-                
-                // Update hidden form field
-                const hiddenFields = document.querySelectorAll('[name*]="DateVotes"][name*="ProposedDateId"]');
-                let voteIndex = -1;
-                
-                hiddenFields.forEach((field, index) => {
-                    if (field.value == proposedDateId) {
-                        voteIndex = index;
-                    }
-                });
-                
-                if (voteIndex >= 0) {
-                    const voteField = document.getElementById(`hiddenVote_${voteIndex}`);
-                    if (voteField) {
-                        // Map vote values to enum values
-                        const voteMap = { 'yes': '2', 'maybe': '1', 'no': '0' };
-                        voteField.value = voteMap[voteValue];
-                    }
-                }
-                
-                // Visual feedback
-                const questEvent = this.closest('.quest-event');
-                questEvent.style.borderLeftColor = voteValue === 'yes' ? '#28a745' : 
-                                                   voteValue === 'maybe' ? '#ffc107' : '#dc3545';
-                
-                // Show success message
-                console.log(`Vote "${voteValue}" recorded for proposed date ${proposedDateId}`);
-            });
-        });
-        
-        // Prevent quest event links from navigating when voting
-        document.querySelectorAll('.quest-event .quest-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Only prevent navigation if clicking on the vote buttons area
-                if (e.target.closest('.vote-buttons')) {
-                    e.preventDefault();
-                }
-            });
-        });
     });
 </script>
