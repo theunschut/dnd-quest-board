@@ -38,7 +38,7 @@ function removeProposedDate(button) {
     button.closest('.proposed-date-item').remove();
     
     // Determine the correct field name prefix based on the form context
-    const existingInput = container.querySelector('input[type="datetime-local"]');
+    const existingInput = container.querySelector('input[type="datetime-local"], input[type="hidden"][name*="ProposedDates"]');
     const isEditForm = existingInput && existingInput.name.includes('Quest.ProposedDates');
     const fieldPrefix = isEditForm ? 'Quest.ProposedDates' : 'ProposedDates';
     
@@ -46,9 +46,12 @@ function removeProposedDate(button) {
     const dateItems = container.querySelectorAll('.proposed-date-item');
     dateItems.forEach((item, index) => {
         const label = item.querySelector('label');
-        const input = item.querySelector('input[type="datetime-local"]');
+        const visibleInput = item.querySelector('input[type="datetime-local"]');
+        const hiddenInput = item.querySelector('input[type="hidden"]');
+        
         if (label) label.textContent = `Proposed Date ${index + 1}`;
-        if (input) input.name = `${fieldPrefix}[${index}]`;
+        if (visibleInput) visibleInput.name = `${fieldPrefix}[${index}]`;
+        if (hiddenInput) hiddenInput.name = `${fieldPrefix}[${index}]`;
     });
 }
 
