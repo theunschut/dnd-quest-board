@@ -1,34 +1,33 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace EuphoriaInn.IntegrationTests.Helpers;
 
 /// <summary>
 /// Middleware that selects the Test authentication scheme when a Test authorization header is present
 /// </summary>
-public class TestAuthSelectorMiddleware
+public class TestAuthSelectorMiddleware(RequestDelegate next, IWebHostEnvironment environment)
 {
-    private readonly RequestDelegate _next;
-
-    public TestAuthSelectorMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
-        var authHeader = context.Request.Headers["Authorization"].ToString();
-
-        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Test "))
+        // Only allow test authentication in non-production environments
+        if (!environment.IsProduction())
         {
-            // Use Test authentication scheme for this request
-            var result = await context.AuthenticateAsync("Test");
-            if (result.Succeeded)
+            var authHeader = context.Request.Headers.Authorization.ToString();
+
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Test ", StringComparison.Ordinal))
             {
-                context.User = result.Principal;
+                // Use Test authentication scheme for this request
+                var result = await context.AuthenticateAsync("Test");
+                if (result.Succeeded)
+                {
+                    context.User = result.Principal;
+                }
             }
         }
 
-        await _next(context);
+        await next(context);
     }
 }
