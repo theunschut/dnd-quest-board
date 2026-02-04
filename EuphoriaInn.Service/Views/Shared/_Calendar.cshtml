@@ -38,62 +38,85 @@
                                      data-quest-id="@questOnDay.Quest.Id"
                                      data-proposed-date-id="@questOnDay.ProposedDate.Id"
                                      data-is-details-page="@isDetailsPage.ToString().ToLower()">
-                                    <a href="@Url.Action("Details", "Quest", new { id = questOnDay.Quest.Id })" 
+                                    <a href="@Url.Action("Details", "Quest", new { id = questOnDay.Quest.Id })"
                                        class="quest-link">
                                         <div class="calendar-quest-title">@questOnDay.Quest.Title</div>
                                         <div class="calendar-quest-dm">@questOnDay.Quest.DungeonMaster?.Name</div>
                                         <div class="quest-time">@questOnDay.ProposedDate.Date.ToString("HH:mm")</div>
-                                        @{
-                                            var dmHasKey = questOnDay.Quest.DungeonMaster?.HasKey == true;
-                                            var playersHaveKey = questOnDay.Quest.PlayerSignups?.Any(ps => ps.Player.HasKey == true) == true;
-                                            var anyoneHasKey = dmHasKey || playersHaveKey;
-                                        }
-                                        @if (!anyoneHasKey)
-                                        {
-                                            <i class="fas fa-exclamation-triangle text-warning warning-icon" title="No building key available"></i>
-                                        }
-                                        else if (questOnDay.IsFinalized)
-                                        {
-                                            <i class="fas fa-check-circle finalized-icon"></i>
-                                        }
                                     </a>
-                                    
-                                    @* Vote buttons and vote display for details page *@
-                                    @if (isDetailsPage && questOnDay.Quest.Id == currentQuestId)
+
+                                    @* Status icons (finalized/warning) - positioned outside the link *@
+                                    @{
+                                        var dmHasKey = questOnDay.Quest.DungeonMaster?.HasKey == true;
+                                        var playersHaveKey = questOnDay.Quest.PlayerSignups?.Any(ps => ps.Player.HasKey == true) == true;
+                                        var anyoneHasKey = dmHasKey || playersHaveKey;
+                                    }
+                                    @if (!anyoneHasKey)
                                     {
+                                        <div class="warning-icon-display">
+                                            <div class="status-indicator">
+                                                <i class="fas fa-exclamation-triangle text-warning" title="No building key available"></i>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (questOnDay.IsFinalized)
+                                    {
+                                        <div class="finalized-icon-display">
+                                            <div class="status-indicator">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @* Vote buttons and vote display *@
+                                    @{
                                         var currentUserId = ViewBag.CurrentUserId;
                                         var userVote = questOnDay.ProposedDate.PlayerVotes?.FirstOrDefault(v => v.PlayerSignup?.Player?.Id == currentUserId)?.Vote;
+                                    }
+
+                                    @if (isDetailsPage && questOnDay.Quest.Id == currentQuestId)
+                                    {
                                         var isPlayerSignedUp = ViewBag.IsPlayerSignedUp;
-                                        
+
                                         @if (!questOnDay.IsFinalized && !(bool)isPlayerSignedUp)
                                         {
-                                            @* Vote buttons for non-signed up users *@
-                                            <div class="vote-buttons">
-                                                <div class="btn-group-vertical" role="group">
-                                                    <button type="button" class="btn btn-sm vote-btn @(userVote == VoteType.Yes ? "btn-success" : "btn-outline-success")" 
-                                                            data-vote="yes" data-proposed-date-id="@questOnDay.ProposedDate.Id">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm vote-btn @(userVote == VoteType.Maybe ? "btn-warning" : "btn-outline-warning")" 
-                                                            data-vote="maybe" data-proposed-date-id="@questOnDay.ProposedDate.Id">
-                                                        <i class="fas fa-question"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm vote-btn @(userVote == VoteType.No ? "btn-danger" : "btn-outline-danger")" 
-                                                            data-vote="no" data-proposed-date-id="@questOnDay.ProposedDate.Id">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
+                                            @* Vote buttons for non-signed up users using proper form binding *@
+                                            var voteIndexLookup = ViewBag.VoteIndexLookup as Dictionary<int, int>;
+                                            var voteIndex = voteIndexLookup?.ContainsKey(questOnDay.ProposedDate.Id) == true
+                                                ? voteIndexLookup[questOnDay.ProposedDate.Id]
+                                                : -1;
+
+                                            @if (voteIndex >= 0)
+                                            {
+                                                <div class="vote-buttons">
+                                                    <div class="btn-group-vertical" role="group">
+                                                        <input type="radio" class="btn-check" name="DateVotes[@voteIndex].Vote" id="vote_@(voteIndex)_yes" value="2" autocomplete="off">
+                                                        <label class="btn btn-sm btn-outline-success" for="vote_@(voteIndex)_yes">
+                                                            <i class="fas fa-check"></i>
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check" name="DateVotes[@voteIndex].Vote" id="vote_@(voteIndex)_maybe" value="1" autocomplete="off">
+                                                        <label class="btn btn-sm btn-outline-warning" for="vote_@(voteIndex)_maybe">
+                                                            <i class="fas fa-question"></i>
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check" name="DateVotes[@voteIndex].Vote" id="vote_@(voteIndex)_no" value="0" autocomplete="off">
+                                                        <label class="btn btn-sm btn-outline-danger" for="vote_@(voteIndex)_no">
+                                                            <i class="fas fa-times"></i>
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         }
-                                        else if ((bool)isPlayerSignedUp)
+                                        else if ((bool)isPlayerSignedUp && userVote.HasValue)
                                         {
-                                            @* Show user's vote for signed up users *@
+                                            @* Show user's vote for signed up users on details page *@
                                             <div class="user-vote-display">
                                                 @{
                                                     var voteIcon = userVote switch
                                                     {
                                                         VoteType.Yes => "fas fa-check-circle text-success",
-                                                        VoteType.Maybe => "fas fa-question-circle text-warning", 
+                                                        VoteType.Maybe => "fas fa-question-circle text-warning",
                                                         VoteType.No => "fas fa-times-circle text-danger",
                                                         _ => "fas fa-circle text-muted"
                                                     };
@@ -110,6 +133,31 @@
                                                 </div>
                                             </div>
                                         }
+                                    }
+                                    else if (!isDetailsPage && userVote.HasValue)
+                                    {
+                                        @* Show user's vote for all signed up quests on main calendar page *@
+                                        <div class="user-vote-display">
+                                            @{
+                                                var voteIcon = userVote switch
+                                                {
+                                                    VoteType.Yes => "fas fa-check-circle text-success",
+                                                    VoteType.Maybe => "fas fa-question-circle text-warning",
+                                                    VoteType.No => "fas fa-times-circle text-danger",
+                                                    _ => "fas fa-circle text-muted"
+                                                };
+                                                var voteText = userVote switch
+                                                {
+                                                    VoteType.Yes => "Yes",
+                                                    VoteType.Maybe => "Maybe",
+                                                    VoteType.No => "No",
+                                                    _ => "No Vote"
+                                                };
+                                            }
+                                            <div class="vote-indicator" title="Your vote: @voteText">
+                                                <i class="@voteIcon"></i>
+                                            </div>
+                                        </div>
                                     }
                                 </div>
                             }
