@@ -23,7 +23,7 @@
                 </span>
             </div>
             <div class="card-body modern-card-body">
-                <p class="lead">@Model.Quest?.Description</p>
+                <p class="lead" style="white-space: pre-wrap;">@Model.Quest?.Description</p>
 
                 @if (Model.Quest?.IsFinalized == true)
                 {var selectedPlayersCount = Model.Quest?.PlayerSignups.Where(ps => ps.IsSelected && ps.Role == SignupRole.Player).Count() ?? 0;

@@ -140,6 +140,8 @@
     flex-shrink: 0;
     margin-bottom: 2px;
     line-height: 1.2;
+    width: 100%;
+    max-width: 100%;
 }
 
 .calendar-quest-dm {
@@ -190,14 +192,14 @@
 }
 
 .status-indicator {
-    background: rgba(255, 255, 255, 0.95);
+    background: transparent;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
     .status-indicator i {
@@ -304,15 +306,15 @@
 }
 
 .vote-indicator {
-    background: rgba(255, 255, 255, 0.95);
+    background: transparent;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    padding: 2px;
+    box-shadow: none;
+    padding: 0;
 }
 
     .vote-indicator i {
@@ -385,7 +387,16 @@
         line-height: 1.2;
     }
 
-/* Details Page Calendar Styling */
+/* ========================================
+   DETAILS PAGE CALENDAR STYLING
+   ========================================
+   Architecture:
+   - Base .quest-event styles (lines 81-143) serve as the default
+   - These base styles work correctly for both Calendar page and Details page
+   - Only .current-quest gets specific overrides to stand out
+   - Non-current quests automatically inherit base styles
+   ======================================== */
+
 .details-page .calendar-grid {
     height: 90px;
     min-height: 350px;
@@ -426,7 +437,7 @@
     border-width: 3px;
     font-size: 9px !important;
     min-height: 48px !important;
-    height: 90px !important;
+    height: auto !important;
     padding: 2px 4px !important;
     padding-right: 30px !important;
     border-radius: 3px !important;
@@ -436,6 +447,11 @@
     overflow: visible !important;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Fixed height when vote buttons are present (to prevent cutoff) */
+.quest-event.current-quest:has(.vote-buttons) {
+    height: 90px !important;
 }
 
     .quest-event.current-quest .quest-link {
@@ -462,6 +478,8 @@
     font-size: 10px !important;
     flex-shrink: 0 !important;
     margin-bottom: 2px !important;
+    width: 100%;
+    max-width: 100%;
 }
 
 .details-page .quest-event.current-quest .calendar-quest-dm {
@@ -490,7 +508,7 @@
     position: relative !important;
     left: auto !important;
     right: auto !important;
-    height: 90px !important;
+    height: auto !important;
     min-height: 48px !important;
     padding: 2px 4px !important;
     padding-right: 30px !important;
@@ -498,37 +516,13 @@
     transform: none !important;
 }
 
-/* Non-current quest events on details page - compact by default (like calendar page) */
-.details-page .quest-event:not(.current-quest) {
-    height: auto;
-    min-height: 24px;
-    padding: 2px 4px;
-    overflow: visible;
-    font-size: 9px;
+/* Fixed height on hover when vote buttons are present */
+.details-page .quest-event.current-quest:hover:has(.vote-buttons) {
+    height: 90px !important;
 }
 
-    /* Hide DM name and time for non-current quests by default */
-    .details-page .quest-event:not(.current-quest) .calendar-quest-dm,
-    .details-page .quest-event:not(.current-quest) .quest-time {
-        display: none;
-    }
-
-    /* Expand non-current quest events on hover (like calendar page) */
-    .details-page .quest-event:not(.current-quest):hover {
-        background-color: rgba(255, 255, 255, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        z-index: 10;
-        border-radius: 3px;
-        font-size: 9px;
-        position: relative;
-        min-height: 48px;
-    }
-
-        /* Show DM name and time on hover for non-current quests */
-        .details-page .quest-event:not(.current-quest):hover .calendar-quest-dm,
-        .details-page .quest-event:not(.current-quest):hover .quest-time {
-            display: block !important;
-        }
+/* Non-current quest events on details page automatically inherit base styles */
+/* No overrides needed - the base .quest-event styles work correctly */
 
 /* Responsive Design */
 @media (max-width: 768px) {
