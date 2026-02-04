@@ -41,8 +41,8 @@
 }
 
 .player-list {
-    max-height: 200px;
-    overflow-y: auto;
+    /* Removed max-height and overflow-y to eliminate scrollbar */
+    /* List is never too large to fit naturally */
 }
 
 /* Fantasy Quest Board Container */
