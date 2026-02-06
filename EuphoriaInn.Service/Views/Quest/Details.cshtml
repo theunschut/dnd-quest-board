@@ -418,32 +418,34 @@
                         <h5>You're signed up!</h5>
                         <p>Thank you for signing up. You'll be notified when the quest is finalized.</p>
                     </div>
-                    
-                    @if (Model.Quest?.ProposedDates?.Any() == true)
-                    {
-                        <h6 class="mb-3">
-                            <i class="fas fa-calendar-alt text-primary me-2"></i>
-                            Your Date Preferences
-                        </h6>
-                        <p class="text-muted mb-3">View your votes and all proposed dates in the calendar below. Current quest dates are highlighted.</p>
-                        
-                        @* Calendar views for each month with proposed dates *@
-                        @foreach (var calendarMonth in ViewBag.CalendarMonths as List<CalendarViewModel> ?? new List<CalendarViewModel>())
+
+                    <div id="viewSignupCalendar">
+                        @if (Model.Quest?.ProposedDates?.Any() == true)
                         {
-                            <div class="card modern-card mb-3">
-                                <div class="card-header modern-card-header">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-calendar-alt text-info me-2"></i>
-                                        @calendarMonth.MonthName
-                                    </h6>
+                            <h6 class="mb-3">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                Your Date Preferences
+                            </h6>
+                            <p class="text-muted mb-3">View your votes and all proposed dates in the calendar below. Current quest dates are highlighted.</p>
+
+                            @* Calendar views for each month with proposed dates *@
+                            @foreach (var calendarMonth in ViewBag.CalendarMonths as List<CalendarViewModel> ?? new List<CalendarViewModel>())
+                            {
+                                <div class="card modern-card mb-3">
+                                    <div class="card-header modern-card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calendar-alt text-info me-2"></i>
+                                            @calendarMonth.MonthName
+                                        </h6>
+                                    </div>
+                                    <div class="card-body modern-card-body p-0">
+                                        @await Html.PartialAsync("_Calendar", calendarMonth)
+                                    </div>
                                 </div>
-                                <div class="card-body modern-card-body p-0">
-                                    @await Html.PartialAsync("_Calendar", calendarMonth)
-                                </div>
-                            </div>
+                            }
                         }
-                    }
-                    
+                    </div>
+
                     @* Update signup form - hidden by default *@
                     <div class="card modern-card mb-4" id="updateSignupForm" style="display: none;">
                         <div class="card-header modern-card-header">
@@ -452,68 +454,44 @@
                         <div class="card-body modern-card-body">
                             <form asp-action="UpdateSignup" method="post">
                                 <input type="hidden" name="questId" value="@Model.Quest?.Id" />
-                                
+
                                 <h6>Update Your Date Preferences:</h6>
+                                <p class="text-muted mb-3">Click on the Yes/Maybe/No buttons for each proposed date in the calendar below.</p>
+
+                                @* Hidden form fields for the DateVotes - these will be populated by the calendar vote buttons *@
                                 @{
-                                    var sortedProposedDates = Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).ToList() ?? [];
+                                    var sortedUpdateDateVotes = Model.Quest?.ProposedDates.OrderBy(pd => pd.Date).Select(pd => new { ProposedDateId = pd.Id, Vote = userVotes.GetValueOrDefault(pd.Id) }).ToList() ?? [];
+                                    var updateVoteIndexLookup = new Dictionary<int, int>();
+                                    for (var i = 0; i < sortedUpdateDateVotes.Count; i++)
+                                    {
+                                        updateVoteIndexLookup[sortedUpdateDateVotes[i].ProposedDateId] = i;
+                                    }
                                 }
-                                @for (var i = 0; i < sortedProposedDates.Count; i++)
+                                @for (var i = 0; i < sortedUpdateDateVotes.Count; i++)
                                 {
-                                    var proposedDate = sortedProposedDates[i];
-                                    var currentVote = userVotes.GetValueOrDefault(proposedDate?.Id ?? 0);
-                                    
-                                    <div class="date-option">
-                                        <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@proposedDate?.Id" />
-                                        
-                                        @{
-                                            // Check if this date is new for the current user (no vote from this user)
-                                            var currentUserId = Model.Player?.Id;
-                                            var isNewDateForUpdate = currentUserId.HasValue && !(proposedDate?.PlayerVotes.Any(v => v.PlayerSignup?.Player?.Id == currentUserId) ?? false);
-                                        }
-                                        <div class="d-flex justify-content-between align-items-center @(isNewDateForUpdate ? "border-start border-info border-3 ps-2" : "")">
-                                            <strong>
-                                                @proposedDate?.Date.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")
-                                                @if (isNewDateForUpdate)
-                                                {
-                                                    <span class="badge bg-info text-dark ms-2">NEW</span>
-                                                }
-                                            </strong>
-                                            <div class="vote-summary">
-                                                @{
-                                                    var votes = proposedDate?.PlayerVotes.Where(v => v.Vote.HasValue).GroupBy(v => v.Vote!.Value).ToDictionary(g => g.Key, g => g.Count()) ?? [];
-                                                    var yesCount = votes.GetValueOrDefault(VoteType.Yes, 0);
-                                                    var maybeCount = votes.GetValueOrDefault(VoteType.Maybe, 0);
-                                                    var noCount = votes.GetValueOrDefault(VoteType.No, 0);
-                                                }
-                                                <span class="text-success">✓ @yesCount</span>
-                                                <span class="text-warning">? @maybeCount</span>
-                                                <span class="text-danger">✗ @noCount</span>
-                                            </div>
+                                    var vote = sortedUpdateDateVotes[i];
+                                    <input type="hidden" name="DateVotes[@i].ProposedDateId" value="@vote.ProposedDateId" />
+                                }
+
+                                @* Calendar views for each month with proposed dates - IN UPDATE MODE *@
+                                @foreach (var calendarMonth in ViewBag.CalendarMonths as List<CalendarViewModel> ?? new List<CalendarViewModel>())
+                                {
+                                    <div class="card modern-card mb-3">
+                                        <div class="card-header modern-card-header">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-calendar-alt text-info me-2"></i>
+                                                @calendarMonth.MonthName
+                                            </h6>
                                         </div>
-                                        <div class="mt-2">
-                                            <div class="custom-radio-group">
-                                                <input type="radio" name="DateVotes[@i].Vote" value="2" id="update_yes_[@i]" @(currentVote == VoteType.Yes ? "checked" : "") style="display: none;">
-                                                <label class="custom-radio-label" for="update_yes_[@i]" data-vote="yes">
-                                                    <i class="fas fa-square-check"></i>
-                                                    <span>Yes</span>
-                                                </label>
-                                                
-                                                <input type="radio" name="DateVotes[@i].Vote" value="1" id="update_maybe_[@i]" @(currentVote == VoteType.Maybe ? "checked" : "") style="display: none;">
-                                                <label class="custom-radio-label" for="update_maybe_[@i]" data-vote="maybe">
-                                                    <i class="fas fa-square-minus"></i>
-                                                    <span>Maybe</span>
-                                                </label>
-                                                
-                                                <input type="radio" name="DateVotes[@i].Vote" value="0" id="update_no_[@i]" @(currentVote == VoteType.No ? "checked" : "") style="display: none;">
-                                                <label class="custom-radio-label" for="update_no_[@i]" data-vote="no">
-                                                    <i class="fas fa-square-xmark"></i>
-                                                    <span>No</span>
-                                                </label>
-                                            </div>
+                                        <div class="card-body modern-card-body p-0">
+                                            @{
+                                                ViewData["UpdateVoteIndexLookup"] = updateVoteIndexLookup;
+                                            }
+                                            @await Html.PartialAsync("_Calendar", calendarMonth)
                                         </div>
                                     </div>
                                 }
-                                
+
                                 <div class="mt-3">
                                     <button type="submit" class="btn btn-primary me-2">
                                         <i class="fas fa-check me-2"></i>Update Signup
@@ -777,12 +755,14 @@
     }
     
     function showUpdateForm() {
+        document.getElementById('viewSignupCalendar').style.display = 'none';
         document.getElementById('updateSignupForm').style.display = 'block';
         document.querySelector('[onclick="showUpdateForm()"]').style.display = 'none';
     }
-    
+
     function hideUpdateForm() {
         document.getElementById('updateSignupForm').style.display = 'none';
+        document.getElementById('viewSignupCalendar').style.display = 'block';
         document.querySelector('[onclick="showUpdateForm()"]').style.display = 'inline-block';
     }
     
