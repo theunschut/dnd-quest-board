@@ -77,6 +77,8 @@
                                     @if (isDetailsPage && questOnDay.Quest.Id == currentQuestId)
                                     {
                                         var isPlayerSignedUp = ViewBag.IsPlayerSignedUp;
+                                        var updateVoteIndexLookup = ViewData["UpdateVoteIndexLookup"] as Dictionary<int, int>;
+                                        var isUpdateMode = updateVoteIndexLookup != null;
 
                                         @if (!questOnDay.IsFinalized && !(bool)isPlayerSignedUp)
                                         {
@@ -108,7 +110,40 @@
                                                 </div>
                                             }
                                         }
-                                        else if ((bool)isPlayerSignedUp && userVote.HasValue)
+                                        else if ((bool)isPlayerSignedUp && isUpdateMode)
+                                        {
+                                            @* Vote buttons for updating votes *@
+                                            var updateVoteIndex = updateVoteIndexLookup?.ContainsKey(questOnDay.ProposedDate.Id) == true
+                                                ? updateVoteIndexLookup[questOnDay.ProposedDate.Id]
+                                                : -1;
+
+                                            @if (updateVoteIndex >= 0)
+                                            {
+                                                var isCheckedYes = userVote.HasValue && userVote == VoteType.Yes;
+                                                var isCheckedMaybe = userVote.HasValue && userVote == VoteType.Maybe;
+                                                var isCheckedNo = userVote.HasValue && userVote == VoteType.No;
+
+                                                <div class="vote-buttons">
+                                                    <div class="btn-group-vertical" role="group">
+                                                        <input type="radio" class="btn-check" name="DateVotes[@updateVoteIndex].Vote" id="update_vote_@(updateVoteIndex)_yes" value="2" autocomplete="off" @(isCheckedYes ? "checked" : "")>
+                                                        <label class="btn btn-sm btn-outline-success" for="update_vote_@(updateVoteIndex)_yes">
+                                                            <i class="fas fa-check"></i>
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check" name="DateVotes[@updateVoteIndex].Vote" id="update_vote_@(updateVoteIndex)_maybe" value="1" autocomplete="off" @(isCheckedMaybe ? "checked" : "")>
+                                                        <label class="btn btn-sm btn-outline-warning" for="update_vote_@(updateVoteIndex)_maybe">
+                                                            <i class="fas fa-question"></i>
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check" name="DateVotes[@updateVoteIndex].Vote" id="update_vote_@(updateVoteIndex)_no" value="0" autocomplete="off" @(isCheckedNo ? "checked" : "")>
+                                                        <label class="btn btn-sm btn-outline-danger" for="update_vote_@(updateVoteIndex)_no">
+                                                            <i class="fas fa-times"></i>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else if ((bool)isPlayerSignedUp)
                                         {
                                             @* Show user's vote for signed up users on details page *@
                                             <div class="user-vote-display">
