@@ -510,6 +510,24 @@ public class QuestController(
         return Ok();
     }
 
+    [HttpDelete("Quest/RemovePlayerSignup/{id}")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> RemovePlayerSignup(int id)
+    {
+        // Get the signup
+        var signup = await playerSignupService.GetByIdAsync(id);
+        if (signup == null)
+        {
+            return NotFound();
+        }
+
+        // Remove the player signup (this will cascade delete all associated votes)
+        await playerSignupService.RemoveAsync(signup);
+
+        return Ok();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Policy = "DungeonMasterOnly")]
@@ -639,6 +657,7 @@ public class QuestController(
         var isQuestDm = currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
         var isAdmin = await userService.IsInRoleAsync(User, "Admin");
         ViewBag.IsAuthorized = isQuestDm || isAdmin;
+        ViewBag.IsAdmin = isAdmin;
 
         return View(quest);
     }
