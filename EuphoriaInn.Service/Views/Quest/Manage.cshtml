@@ -227,22 +227,30 @@ else
                                             var player = playerSignups[i];
                                             var isInTopPlayers = i < Model.TotalPlayerCount && availablePlayers.Contains(player);
 
-                                            <div class="form-check player-item" data-player-id="@player.Id" data-role="player">
-                                                <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
-                                                       value="@player.Id" id="player_@player.Id"
-                                                       @(isInTopPlayers ? "checked" : "") />
-                                                <label class="form-check-label" for="player_@player.Id">
-                                                    @player.Player.Name
-                                                    <small class="text-muted">
-                                                        (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
-                                                        <span class="availability-status">
-                                                            @if (availablePlayers.Contains(player))
-                                                            {
-                                                                <span class="text-success">- Available for recommended date</span>
-                                                            }
-                                                        </span>
-                                                    </small>
-                                                </label>
+                                            <div class="form-check player-item d-flex justify-content-between align-items-center" data-player-id="@player.Id" data-role="player">
+                                                <div class="flex-grow-1">
+                                                    <input class="form-check-input player-checkbox" type="checkbox" name="SelectedPlayerIds"
+                                                           value="@player.Id" id="player_@player.Id"
+                                                           @(isInTopPlayers ? "checked" : "") />
+                                                    <label class="form-check-label" for="player_@player.Id">
+                                                        @player.Player.Name
+                                                        <small class="text-muted">
+                                                            (Signed up: @player.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                            <span class="availability-status">
+                                                                @if (availablePlayers.Contains(player))
+                                                                {
+                                                                    <span class="text-success">- Available for recommended date</span>
+                                                                }
+                                                            </span>
+                                                        </small>
+                                                    </label>
+                                                </div>
+                                                @if ((bool)ViewBag.IsAdmin)
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm ms-2" onclick="removePlayerSignup(@player.Id, '@player.Player.Name')" title="Remove player">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -262,20 +270,28 @@ else
                                         @foreach (var assistant in assistantDMs)
                                         {
                                             var isAvailable = availablePlayers.Contains(assistant);
-                                            <div class="form-check player-item" data-player-id="@assistant.Id" data-role="assistant">
-                                                <input class="form-check-input assistant-checkbox" type="checkbox" name="SelectedPlayerIds"
-                                                       value="@assistant.Id" id="assistant_@assistant.Id"
-                                                       checked />
-                                                <label class="form-check-label" for="assistant_@assistant.Id">
-                                                    @assistant.Player.Name
-                                                    <small class="text-muted">
-                                                        (Signed up: @assistant.SignupTime.ToString("MMM dd, h:mm tt"))
-                                                        @if (isAvailable)
-                                                        {
-                                                            <span class="text-success">- Available</span>
-                                                        }
-                                                    </small>
-                                                </label>
+                                            <div class="form-check player-item d-flex justify-content-between align-items-center" data-player-id="@assistant.Id" data-role="assistant">
+                                                <div class="flex-grow-1">
+                                                    <input class="form-check-input assistant-checkbox" type="checkbox" name="SelectedPlayerIds"
+                                                           value="@assistant.Id" id="assistant_@assistant.Id"
+                                                           checked />
+                                                    <label class="form-check-label" for="assistant_@assistant.Id">
+                                                        @assistant.Player.Name
+                                                        <small class="text-muted">
+                                                            (Signed up: @assistant.SignupTime.ToString("MMM dd, h:mm tt"))
+                                                            @if (isAvailable)
+                                                            {
+                                                                <span class="text-success">- Available</span>
+                                                            }
+                                                        </small>
+                                                    </label>
+                                                </div>
+                                                @if ((bool)ViewBag.IsAdmin)
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm ms-2" onclick="removePlayerSignup(@assistant.Id, '@assistant.Player.Name')" title="Remove player">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -294,10 +310,18 @@ else
                                         </div>
                                         @foreach (var spectator in spectators)
                                         {
-                                            <div class="player-item text-muted">
-                                                <i class="fas fa-check-circle text-success me-2"></i>
-                                                @spectator.Player.Name
-                                                <small>(Signed up: @spectator.SignupTime.ToString("MMM dd, h:mm tt"))</small>
+                                            <div class="player-item text-muted d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                                    @spectator.Player.Name
+                                                    <small>(Signed up: @spectator.SignupTime.ToString("MMM dd, h:mm tt"))</small>
+                                                </div>
+                                                @if ((bool)ViewBag.IsAdmin)
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm ms-2" onclick="removePlayerSignup(@spectator.Id, '@spectator.Player.Name')" title="Remove spectator">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -354,6 +378,10 @@ else
                                             <th>Character</th>
                                             <th>Role</th>
                                             <th>Signup Time</th>
+                                            @if ((bool)ViewBag.IsAdmin)
+                                            {
+                                                <th>Actions</th>
+                                            }
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -367,9 +395,9 @@ else
                                                         <div class="d-flex align-items-center">
                                                             @if (participant.Character.ProfilePicture != null)
                                                             {
-                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })" 
-                                                                     alt="@participant.Character.Name" 
-                                                                     class="character-mini-avatar me-2" 
+                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })"
+                                                                     alt="@participant.Character.Name"
+                                                                     class="character-mini-avatar me-2"
                                                                      style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
                                                             }
                                                             else
@@ -407,6 +435,14 @@ else
                                                     }
                                                 </td>
                                                 <td><small class="text-muted">@participant.SignupTime.ToString("MMM dd, h:mm tt")</small></td>
+                                                @if ((bool)ViewBag.IsAdmin)
+                                                {
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="removePlayerSignup(@participant.Id, '@participant.Player.Name')" title="Remove participant">
+                                                            <i class="fas fa-trash me-1"></i>Remove
+                                                        </button>
+                                                    </td>
+                                                }
                                             </tr>
                                         }
                                     </tbody>
@@ -545,6 +581,31 @@ else
                 } else {
                     alert("Delete failed.");
                 }
+            });
+        }
+    }
+
+    function removePlayerSignup(signupId, playerName) {
+        if (confirm(`Are you sure you want to remove ${playerName} from this quest? This will delete their signup and all associated votes.`)) {
+            fetch(`/Quest/RemovePlayerSignup/${signupId}`, {
+                method: "DELETE",
+                headers: {
+                    'RequestVerificationToken': '@tokens.RequestToken'
+                }
+            }).then(async res => {
+                if (res.ok) {
+                    // Reload the page to show updated data
+                    window.location.reload();
+                } else {
+                    // Log the response for debugging
+                    const responseText = await res.text();
+                    console.error("Response status:", res.status);
+                    console.error("Response body:", responseText);
+                    alert(`Failed to remove player. Status: ${res.status}. Check console for details.`);
+                }
+            }).catch(err => {
+                console.error("Error removing player:", err);
+                alert("An error occurred while removing the player.");
             });
         }
     }
