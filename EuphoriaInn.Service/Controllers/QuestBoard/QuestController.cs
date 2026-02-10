@@ -483,6 +483,58 @@ public class QuestController(
         return RedirectToAction("Details", new { id = questId });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> ChangeVoteToYes(int id)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(id);
+        if (quest == null || !quest.IsFinalized || quest.FinalizedDate == null)
+            return BadRequest("Quest not found or not finalized.");
+
+        // Get current authenticated user
+        var user = await userService.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        // Find the user's signup for this quest
+        var playerSignup = quest.PlayerSignups.FirstOrDefault(ps => ps.Player.Id == user.Id);
+        if (playerSignup == null)
+        {
+            return BadRequest("You are not signed up for this quest.");
+        }
+
+        // Check if already selected
+        if (playerSignup.IsSelected)
+        {
+            return BadRequest("You are already selected for this quest.");
+        }
+
+        // Check if there are available spots for players
+        var selectedPlayersCount = quest.PlayerSignups
+            .Where(ps => ps.IsSelected && ps.Role == SignupRole.Player)
+            .Count();
+
+        if (selectedPlayersCount >= quest.TotalPlayerCount)
+        {
+            return BadRequest("No available spots in this quest.");
+        }
+
+        // Find the finalized date's corresponding proposed date
+        var finalizedProposedDate = quest.ProposedDates
+            .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
+
+        if (finalizedProposedDate == null)
+        {
+            return BadRequest("Could not find the finalized date information.");
+        }
+
+        // Use the specialized service method to update vote and mark as selected
+        await playerSignupService.ChangeVoteToYesAndSelectAsync(playerSignup.Id, finalizedProposedDate.Id);
+
+        return Ok();
+    }
+
     [HttpDelete]
     [ValidateAntiForgeryToken]
     [Authorize]

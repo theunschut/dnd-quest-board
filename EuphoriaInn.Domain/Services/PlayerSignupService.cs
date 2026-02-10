@@ -58,5 +58,10 @@ namespace EuphoriaInn.Domain.Services
             // Update the entity
             await repository.UpdateAsync(playerSignupEntity, cancellationToken);
         }
+
+        public async Task ChangeVoteToYesAndSelectAsync(int playerSignupId, int proposedDateId, CancellationToken cancellationToken = default)
+        {
+            await repository.ChangeVoteToYesAndSelectAsync(playerSignupId, proposedDateId, cancellationToken);
+        }
     }
 }
