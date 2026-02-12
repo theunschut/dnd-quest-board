@@ -7,25 +7,27 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution file and all project files for proper dependency resolution
-COPY ["EuphoriaInn.sln", "./"]
+# Copy only production project files (exclude test projects)
 COPY ["EuphoriaInn.Domain/EuphoriaInn.Domain.csproj", "EuphoriaInn.Domain/"]
 COPY ["EuphoriaInn.Repository/EuphoriaInn.Repository.csproj", "EuphoriaInn.Repository/"]
 COPY ["EuphoriaInn.Service/EuphoriaInn.Service.csproj", "EuphoriaInn.Service/"]
-COPY ["EuphoriaInn.UnitTests/EuphoriaInn.UnitTests.csproj", "EuphoriaInn.UnitTests/"]
-COPY ["EuphoriaInn.IntegrationTests/EuphoriaInn.IntegrationTests.csproj", "EuphoriaInn.IntegrationTests/"]
 
-# Restore packages for the entire solution
-RUN dotnet restore "EuphoriaInn.sln"
+# Restore packages with BuildKit cache mount for faster rebuilds
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet restore "EuphoriaInn.Service/EuphoriaInn.Service.csproj"
 
-# Copy all source code
-COPY . .
+# Copy source code for production projects only
+COPY ["EuphoriaInn.Domain/", "EuphoriaInn.Domain/"]
+COPY ["EuphoriaInn.Repository/", "EuphoriaInn.Repository/"]
+COPY ["EuphoriaInn.Service/", "EuphoriaInn.Service/"]
 
-# Build the entire solution
-RUN dotnet build "EuphoriaInn.sln" -c Release --no-restore
+# Build only the Service project (which transitively builds Domain and Repository)
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet build "EuphoriaInn.Service/EuphoriaInn.Service.csproj" -c Release --no-restore
 
 FROM build AS publish
-RUN dotnet publish "EuphoriaInn.Service/EuphoriaInn.Service.csproj" -c Release -o /app/publish --no-build
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet publish "EuphoriaInn.Service/EuphoriaInn.Service.csproj" -c Release -o /app/publish --no-build
 
 # Build runtime image
 FROM base AS final
