@@ -1,6 +1,6 @@
 services:
   questboard:
-    image: ghcr.io/theunschut/quest-board:latest
+    image: ghcr.io/theunschut/dnd-quest-board:latest
     container_name: dnd-questboard
     networks:
       - net-dnd
