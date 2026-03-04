@@ -71,7 +71,7 @@ internal class CharacterService(ICharacterRepository repository, IMapper mapper)
         return Task.FromResult(sumOfClassLevels == totalLevel);
     }
 
-    public async Task UpdateAsync(Character model, CancellationToken token = default)
+    public override async Task UpdateAsync(Character model, CancellationToken token = default)
     {
         var entity = await _repository.GetCharacterWithDetailsAsync(model.Id, token);
         if (entity == null) return;
