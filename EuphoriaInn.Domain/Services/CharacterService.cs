@@ -11,6 +11,12 @@ internal class CharacterService(ICharacterRepository repository, IMapper mapper)
 {
     private readonly ICharacterRepository _repository = repository;
 
+    public override async Task AddAsync(Character model, CancellationToken token = default)
+    {
+        var entity = Mapper.Map<CharacterEntity>(model);
+        await _repository.AddAsync(entity, token);
+    }
+
     public async Task<IList<Character>> GetAllCharactersWithDetailsAsync(CancellationToken token = default)
     {
         var entities = await _repository.GetAllCharactersWithDetailsAsync(token);
@@ -63,5 +69,37 @@ internal class CharacterService(ICharacterRepository repository, IMapper mapper)
 
         var sumOfClassLevels = classes.Sum(c => c.ClassLevel);
         return Task.FromResult(sumOfClassLevels == totalLevel);
+    }
+
+    public override async Task UpdateAsync(Character model, CancellationToken token = default)
+    {
+        var entity = await _repository.GetCharacterWithDetailsAsync(model.Id, token);
+        if (entity == null) return;
+
+        Mapper.Map(model, entity);
+
+        if (model.ProfilePicture == null)
+        {
+            entity.ProfileImage = null;
+        }
+        else if (entity.ProfileImage == null)
+        {
+            entity.ProfileImage = new CharacterImageEntity
+            {
+                Id = entity.Id,
+                ImageData = model.ProfilePicture
+            };
+        }
+        else
+        {
+            entity.ProfileImage.ImageData = model.ProfilePicture;
+        }
+
+        await _repository.SaveChangesAsync(token);
+    }
+
+    public Task<byte[]?> GetCharacterProfilePictureAsync(int id, CancellationToken token = default)
+    {
+        return _repository.GetCharacterProfilePictureAsync(id, token);
     }
 }

@@ -9,6 +9,8 @@ public interface IQuestService : IBaseService<Quest>
 
     Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default);
 
+    Task<IList<Quest>> GetQuestsForCalendarAsync(CancellationToken token = default);
+
     Task<IList<Quest>> GetQuestsWithSignupsAsync(CancellationToken token = default);
 
     Task<IList<Quest>> GetQuestsWithSignupsForRoleAsync(bool isAdminOrDm, CancellationToken token = default);
@@ -16,6 +18,8 @@ public interface IQuestService : IBaseService<Quest>
     Task<Quest?> GetQuestWithDetailsAsync(int id, CancellationToken token = default);
 
     Task<Quest?> GetQuestWithManageDetailsAsync(int id, CancellationToken token = default);
+
+    Task<Quest?> GetQuestWithManageViewDetailsAsync(int id, CancellationToken token = default);
 
     Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default);
     Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default);

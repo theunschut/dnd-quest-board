@@ -12,6 +12,7 @@ internal class CharacterRepository(QuestBoardContext context) : BaseRepository<C
     {
         return await _context.Characters
             .Include(c => c.Owner)
+            .Include(c => c.ProfileImage)
             .Include(c => c.Classes)
             .OrderByDescending(c => c.Status == 0) // 0 = Active
             .ThenBy(c => c.Owner.Name)
@@ -23,6 +24,7 @@ internal class CharacterRepository(QuestBoardContext context) : BaseRepository<C
     {
         return await _context.Characters
             .Include(c => c.Owner)
+            .Include(c => c.ProfileImage)
             .Include(c => c.Classes)
             .Where(c => c.OwnerId == ownerId)
             .OrderByDescending(c => c.Role == 0) // 0 = Main
@@ -35,6 +37,7 @@ internal class CharacterRepository(QuestBoardContext context) : BaseRepository<C
     {
         return await _context.Characters
             .Include(c => c.Owner)
+            .Include(c => c.ProfileImage)
             .Include(c => c.Classes)
             .FirstOrDefaultAsync(c => c.Id == id, token);
     }
@@ -42,7 +45,16 @@ internal class CharacterRepository(QuestBoardContext context) : BaseRepository<C
     public async Task<CharacterEntity?> GetMainCharacterForUserAsync(int userId, CancellationToken token = default)
     {
         return await _context.Characters
+            .Include(c => c.ProfileImage)
             .Include(c => c.Classes)
             .FirstOrDefaultAsync(c => c.OwnerId == userId && c.Role == 0, token); // 0 = Main
+    }
+
+    public async Task<byte[]?> GetCharacterProfilePictureAsync(int id, CancellationToken token = default)
+    {
+        return await _context.CharacterImages
+            .Where(c => c.Id == id)
+            .Select(c => c.ImageData)
+            .FirstOrDefaultAsync(token);
     }
 }

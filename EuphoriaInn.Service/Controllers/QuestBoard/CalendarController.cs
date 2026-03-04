@@ -27,7 +27,7 @@ public class CalendarController(IQuestService questService) : Controller
         }
 
         // Get all quests with their proposed dates
-        var allQuests = await questService.GetQuestsWithDetailsAsync(token);
+        var allQuests = await questService.GetQuestsForCalendarAsync(token);
 
         // Create calendar model
         var calendarModel = new CalendarViewModel

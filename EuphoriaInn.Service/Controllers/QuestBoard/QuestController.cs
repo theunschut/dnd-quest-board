@@ -264,7 +264,7 @@ public class QuestController(
         ViewBag.CanManage = isQuestDm || isAdmin;
 
         // Get all quests for calendar context
-        var allQuests = await questService.GetQuestsWithDetailsAsync(token);
+        var allQuests = await questService.GetQuestsForCalendarAsync(token);
 
         // Get unique months that have proposed dates for this quest
         var monthsWithProposedDates = quest.ProposedDates
@@ -692,7 +692,7 @@ public class QuestController(
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Manage(int id)
     {
-        var quest = await questService.GetQuestWithManageDetailsAsync(id);
+        var quest = await questService.GetQuestWithManageViewDetailsAsync(id);
 
         if (quest == null)
         {
