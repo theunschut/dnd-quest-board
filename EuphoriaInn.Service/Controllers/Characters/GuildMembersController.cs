@@ -261,13 +261,13 @@ namespace EuphoriaInn.Service.Controllers.Characters
         [HttpGet]
         public async Task<IActionResult> GetProfilePicture(int id, CancellationToken token = default)
         {
-            var character = await characterService.GetCharacterWithDetailsAsync(id, token);
-            if (character == null || character.ProfilePicture == null)
+            var profilePicture = await characterService.GetCharacterProfilePictureAsync(id, token);
+            if (profilePicture == null)
             {
                 return NotFound();
             }
 
-            return File(character.ProfilePicture, "image/jpeg");
+            return File(profilePicture, "image/jpeg");
         }
     }
 }

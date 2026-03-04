@@ -20,6 +20,8 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<CharacterEntity> Characters { get; set; }
 
+    public DbSet<CharacterImageEntity> CharacterImages { get; set; }
+
     public DbSet<CharacterClassEntity> CharacterClasses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -106,6 +108,12 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasMany(c => c.Classes)
             .WithOne(cc => cc.Character)
             .HasForeignKey(cc => cc.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterEntity>()
+            .HasOne(c => c.ProfileImage)
+            .WithOne(pi => pi.Character)
+            .HasForeignKey<CharacterImageEntity>(pi => pi.Id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterEntity>()

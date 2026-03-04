@@ -48,6 +48,12 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
         return Mapper.Map<IList<Quest>>(questEntities);
     }
 
+    public async Task<IList<Quest>> GetQuestsForCalendarAsync(CancellationToken token = default)
+    {
+        var questEntities = await repository.GetQuestsForCalendarAsync(token);
+        return Mapper.Map<IList<Quest>>(questEntities);
+    }
+
     public async Task<IList<Quest>> GetQuestsWithSignupsAsync(CancellationToken token = default)
     {
         var questEntities = await repository.GetQuestsWithSignupsAsync(token);
@@ -73,6 +79,16 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
     public async Task<Quest?> GetQuestWithManageDetailsAsync(int id, CancellationToken token = default)
     {
         if (await repository.GetQuestWithManageDetailsAsync(id, token) is not QuestEntity entity)
+        {
+            return null;
+        }
+
+        return Mapper.Map<Quest>(entity);
+    }
+
+    public async Task<Quest?> GetQuestWithManageViewDetailsAsync(int id, CancellationToken token = default)
+    {
+        if (await repository.GetQuestWithManageViewDetailsAsync(id, token) is not QuestEntity entity)
         {
             return null;
         }
@@ -327,7 +343,7 @@ internal class QuestService(IQuestRepository repository, IPlayerSignupRepository
 
     public async Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default)
     {
-        var entity = await repository.GetQuestWithDetailsAsync(questId, token);
+        var entity = await repository.GetQuestWithManageDetailsAsync(questId, token);
         if (entity == null) return;
 
         entity.Recap = recap;

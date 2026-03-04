@@ -14,8 +14,6 @@ public class CharacterEntity : IEntity
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    public byte[]? ProfilePicture { get; set; }
-
     [Range(1, 20)]
     public int Level { get; set; } = 1;
 
@@ -39,6 +37,8 @@ public class CharacterEntity : IEntity
     public virtual UserEntity Owner { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public virtual CharacterImageEntity? ProfileImage { get; set; }
 
     public virtual ICollection<CharacterClassEntity> Classes { get; set; } = [];
 

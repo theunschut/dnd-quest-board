@@ -15,13 +15,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
 
     public async Task<IList<QuestEntity>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
     {
-        return await DbContext.Quests
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Character)
-                    .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
             .Where(q => q.DungeonMaster!.Name == dmName)
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);
@@ -29,17 +23,13 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
 
     public async Task<IList<QuestEntity>> GetQuestsWithDetailsAsync(CancellationToken token = default)
     {
-        return await DbContext.Quests
-            .Include(q => q.ProposedDates)
-                .ThenInclude(pd => pd.PlayerVotes)
-                    .ThenInclude(pv => pv.PlayerSignup)
-                        .ThenInclude(ps => ps!.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Character)
-                    .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
+            .ToListAsync(cancellationToken: token);
+    }
+
+    public async Task<IList<QuestEntity>> GetQuestsForCalendarAsync(CancellationToken token = default)
+    {
+        return await ProjectForCalendar(DbContext.Quests)
             .ToListAsync(cancellationToken: token);
     }
 
@@ -47,13 +37,7 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
     {
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
 
-        return await DbContext.Quests
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Character)
-                    .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
             .Where(q => !q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo))
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);
@@ -63,30 +47,16 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
     {
         var oneDayAgo = DateTime.UtcNow.AddDays(-1);
 
-        return await DbContext.Quests
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Character)
-                    .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
             .Where(q => (!q.IsFinalized || (q.IsFinalized && q.FinalizedDate > oneDayAgo)) &&
-                       (!q.DungeonMasterSession || isAdminOrDm))
+                        (!q.DungeonMasterSession || isAdminOrDm))
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync(cancellationToken: token);
     }
 
     public async Task<QuestEntity?> GetQuestWithDetailsAsync(int id, CancellationToken token = default)
     {
-        return await DbContext.Quests
-            .Include(q => q.ProposedDates)
-                .ThenInclude(pd => pd.PlayerVotes)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Player)
-            .Include(q => q.PlayerSignups)
-                .ThenInclude(ps => ps.Character)
-                    .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
             .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
     }
 
@@ -99,10 +69,46 @@ internal class QuestRepository(QuestBoardContext dbContext) : BaseRepository<Que
                         .ThenInclude(ps => ps!.Player)
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
+            .Include(q => q.DungeonMaster)
+            .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
+    }
+
+    public async Task<QuestEntity?> GetQuestWithManageViewDetailsAsync(int id, CancellationToken token = default)
+    {
+        return await ProjectWithoutCharacterImages(DbContext.Quests)
+            .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
+    }
+
+    private static IQueryable<QuestEntity> ProjectForCalendar(IQueryable<QuestEntity> query)
+    {
+        return query
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(q => q.DungeonMaster)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Player)
+            .Include(q => q.ProposedDates)
+                .ThenInclude(pd => pd.PlayerVotes)
+                    .ThenInclude(pv => pv.PlayerSignup)
+                        .ThenInclude(ps => ps!.Player);
+    }
+
+    private static IQueryable<QuestEntity> ProjectWithoutCharacterImages(IQueryable<QuestEntity> query)
+    {
+        return query
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(q => q.ProposedDates)
+                .ThenInclude(pd => pd.PlayerVotes)
+                    .ThenInclude(pv => pv.PlayerSignup)
+                        .ThenInclude(ps => ps!.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.Player)
+            .Include(q => q.PlayerSignups)
+                .ThenInclude(ps => ps.DateVotes)
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Character)
                     .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster)
-            .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
+            .Include(q => q.DungeonMaster);
     }
 }

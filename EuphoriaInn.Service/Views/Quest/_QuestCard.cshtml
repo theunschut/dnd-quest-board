@@ -58,18 +58,13 @@
                                     @if (player.Character != null)
                                     {
                                         <td class="character-avatar-cell">
-                                            @if (player.Character.ProfilePicture != null)
-                                            {
-                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })" 
-                                                     alt="@player.Character.Name" 
-                                                     class="character-table-avatar" />
-                                            }
-                                            else
-                                            {
-                                                <span class="character-table-avatar-placeholder">
-                                                    <i class="fas fa-user"></i>
-                                                </span>
-                                            }
+                                            <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })"
+                                                 alt="@player.Character.Name"
+                                                 class="character-table-avatar"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                            <span class="character-table-avatar-placeholder" style="display: none;">
+                                                <i class="fas fa-user"></i>
+                                            </span>
                                         </td>
                                         <td class="character-name-cell">@player.Character.Name</td>
                                     }

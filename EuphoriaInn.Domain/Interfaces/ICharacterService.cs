@@ -10,4 +10,5 @@ public interface ICharacterService : IBaseService<Character>
     Task<Character?> GetMainCharacterForUserAsync(int userId, CancellationToken token = default);
     Task SetAsMainCharacterAsync(int characterId, int userId, CancellationToken token = default);
     Task<bool> ValidateCharacterClassLevelsAsync(int totalLevel, IList<CharacterClass> classes);
+    Task<byte[]?> GetCharacterProfilePictureAsync(int id, CancellationToken token = default);
 }

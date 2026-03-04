@@ -71,11 +71,20 @@ public class EntityProfile : Profile
         // Character mapping
         CreateMap<Character, CharacterEntity>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status))
-            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (int)src.Role));
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (int)src.Role))
+            .ForMember(dest => dest.ProfileImage, opt => opt.MapFrom(src => src.ProfilePicture == null
+                ? null
+                : new CharacterImageEntity
+                {
+                    ImageData = src.ProfilePicture
+                }));
 
         CreateMap<CharacterEntity, Character>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (CharacterStatus)src.Status))
-            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (CharacterRole)src.Role));
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (CharacterRole)src.Role))
+            .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom(src => src.ProfileImage != null
+                ? src.ProfileImage.ImageData
+                : null));
 
         // CharacterClass mapping with enum conversions
         CreateMap<CharacterClass, CharacterClassEntity>()

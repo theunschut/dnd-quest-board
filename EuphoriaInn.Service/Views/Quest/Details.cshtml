@@ -88,19 +88,14 @@
                                                     @if (participant.Character != null)
                                                     {
                                                         <div class="d-flex align-items-center">
-                                                            @if (participant.Character.ProfilePicture != null)
-                                                            {
-                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })" 
-                                                                     alt="@participant.Character.Name" 
-                                                                     class="character-mini-avatar me-2" 
-                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
-                                                                    <i class="fas fa-user"></i>
-                                                                </span>
-                                                            }
+                                                            <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = participant.Character.Id })"
+                                                                 alt="@participant.Character.Name"
+                                                                 class="character-mini-avatar me-2"
+                                                                 style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"
+                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                            <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: none; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                <i class="fas fa-user"></i>
+                                                            </span>
                                                             <span>@participant.Character.Name</span>
                                                         </div>
                                                     }
@@ -182,19 +177,14 @@
                                                     @if (player.Character != null)
                                                     {
                                                         <div class="d-flex align-items-center">
-                                                            @if (player.Character.ProfilePicture != null)
-                                                            {
-                                                                <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })"
-                                                                     alt="@player.Character.Name"
-                                                                     class="character-mini-avatar me-2"
-                                                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
-                                                                    <i class="fas fa-user"></i>
-                                                                </span>
-                                                            }
+                                                            <img src="@Url.Action("GetProfilePicture", "GuildMembers", new { id = player.Character.Id })"
+                                                                 alt="@player.Character.Name"
+                                                                 class="character-mini-avatar me-2"
+                                                                 style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"
+                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                            <span class="character-mini-avatar-placeholder me-2" style="width: 32px; height: 32px; display: none; align-items: center; justify-content: center; background-color: #6c757d; color: white; border-radius: 50%;">
+                                                                <i class="fas fa-user"></i>
+                                                            </span>
                                                             <span>@player.Character.Name</span>
                                                         </div>
                                                     }
