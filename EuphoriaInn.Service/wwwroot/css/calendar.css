@@ -403,7 +403,7 @@
 }
 
 .details-page .calendar-body {
-    grid-auto-rows: 120px;
+    grid-auto-rows: minmax(120px, auto);
 }
 
 .quest-details-page .calendar-grid {
@@ -411,7 +411,7 @@
 }
 
 .quest-details-page .calendar-body {
-    grid-auto-rows: 120px;
+    grid-auto-rows: minmax(120px, auto);
 }
 
 /* Calendar container styling for details page */
