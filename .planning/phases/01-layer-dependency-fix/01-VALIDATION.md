@@ -2,7 +2,7 @@
 phase: 1
 slug: layer-dependency-fix
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-04-15
 ---
@@ -39,7 +39,7 @@ created: 2026-04-15
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
 | 1-01-01 | 01 | 1 | ARCH-01 | build | `dotnet build` | ✅ | ⬜ pending |
 | 1-01-02 | 01 | 1 | ARCH-01 | build | `dotnet build` | ✅ | ⬜ pending |
-| 1-02-01 | 02 | 2 | ARCH-02, ARCH-03 | build | `dotnet build EuphoriaInn.Domain/` | ✅ | ⬜ pending |
+| 1-02-01 | 02 | 2 | ARCH-02, ARCH-03 | build | `dotnet build C:/Repos/quest-board/EuphoriaInn.Domain/EuphoriaInn.Domain.csproj` | ✅ | ⬜ pending |
 | 1-02-02 | 02 | 2 | ARCH-04 | build | `dotnet build` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
