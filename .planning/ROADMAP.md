@@ -32,7 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `EntityProfile.cs` (AutoMapper Entity↔DomainModel mappings) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
   3. `dotnet build` on the solution succeeds with zero errors
   4. `Program.cs` registers AutoMapper profiles by explicit type reference — no assembly scanning
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 2: Email & Service Consolidation
 **Goal**: Quest finalization and date-change notifications are fully handled inside services; controllers receive a `ServiceResult` and render; email configuration uses the typed options pattern
@@ -44,7 +47,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `QuestController`'s finalize action is 20 lines or fewer
   4. `ShopController.Index` contains no remaining-quantity calculation logic
   5. `EmailService` reads all SMTP settings from a single `IOptions<EmailSettings>` injection point
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 3: Code Quality & Dead Code
 **Goal**: The codebase contains no dead methods, no magic numbers in signup logic, and no misleading file or class names
@@ -56,7 +62,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. No `SignupRole == 1` literal appears anywhere in service code; the named enum reference is used throughout
   4. The 30-minute `IsSameDateTime` comparison window is a named constant with an explanatory comment
   5. `CharacterViewModels/GuildMembersIndexViewModel.cs` has been renamed to `CharactersIndexViewModel.cs`
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 4: Security Hardening
 **Goal**: Failed login attempts are rate-limited with lockout, the minimum password length meets the 8-character standard, HasKey is admin-only, the Password property is removed from the domain model, and .env is not tracked by git
@@ -69,7 +78,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The `Account/Edit` page does not show or accept a HasKey field; editing HasKey requires the Admin panel
   5. The `User` domain model has no `Password` property
   6. `.env` is listed in `.gitignore`; only `.env.example` with placeholder values is tracked
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 5: Shop Filter & Sort
 **Goal**: Players can narrow the shop to items of specific rarities and reorder by price without any client-side JavaScript dependency
@@ -80,7 +92,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A player can sort items by price ascending or price descending
   3. After applying a filter or sort, the URL reflects the chosen parameters so the page can be bookmarked or shared
   4. Filtering and sorting work correctly with JavaScript disabled in the browser
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 **UI hint**: yes
 
 ### Phase 6: Follow-Up Quest
@@ -93,7 +108,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The follow-up quest cannot be saved without a new date selected
   4. The original quest's detail page shows a link to the follow-up quest, and the follow-up links back to the original
   5. An EF Core migration adds a nullable `OriginalQuestId` self-referential foreign key to `QuestEntity`
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 **UI hint**: yes
 
 ### Phase 7: DM Profile Page
@@ -106,7 +124,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. An admin can edit any DM's bio and photo from the admin panel
   4. The DM directory page links to each DM's individual profile
   5. An EF Core migration adds `Bio` (varchar 2000, nullable) and a `DungeonMasterProfileImage` table
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 **UI hint**: yes
 
 ### Phase 8: Profile Picture Avatar Crop
@@ -119,7 +140,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The `GetAvatarPicture` endpoint returns the server-side cropped version; `GetProfilePicture` continues to return the original
   4. The guild member directory uses the avatar (cropped) endpoint; the character detail page uses the original endpoint
   5. An EF Core migration adds the four crop coordinate columns to `CharacterImages`
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 **UI hint**: yes
 
 ## Progress
@@ -130,7 +154,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Layer Dependency Fix | 0/? | Not started | - |
+| 1. Layer Dependency Fix | 0/2 | Planned | - |
 | 2. Email & Service Consolidation | 0/? | Not started | - |
 | 3. Code Quality & Dead Code | 0/? | Not started | - |
 | 4. Security Hardening | 0/? | Not started | - |
