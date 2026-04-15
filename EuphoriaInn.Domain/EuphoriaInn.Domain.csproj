@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.3" />
     <ProjectReference Include="..\EuphoriaInn.Repository\EuphoriaInn.Repository.csproj" />
   </ItemGroup>
 
