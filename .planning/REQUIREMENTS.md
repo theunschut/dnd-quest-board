@@ -112,58 +112,56 @@
 
 ## Traceability
 
-*Populated during roadmap creation.*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | — | Pending |
-| ARCH-02 | — | Pending |
-| ARCH-03 | — | Pending |
-| ARCH-04 | — | Pending |
-| CTRL-01 | — | Pending |
-| CTRL-02 | — | Pending |
-| CTRL-03 | — | Pending |
-| CTRL-04 | — | Pending |
-| EMAIL-01 | — | Pending |
-| EMAIL-02 | — | Pending |
-| EMAIL-03 | — | Pending |
-| EMAIL-04 | — | Pending |
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| SEC-03 | — | Pending |
-| SEC-04 | — | Pending |
-| SEC-05 | — | Pending |
-| SEC-06 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
-| QUAL-03 | — | Pending |
-| QUAL-04 | — | Pending |
-| QUAL-05 | — | Pending |
-| SHOP-01 | — | Pending |
-| SHOP-02 | — | Pending |
-| SHOP-03 | — | Pending |
-| SHOP-04 | — | Pending |
-| FOLLOW-01 | — | Pending |
-| FOLLOW-02 | — | Pending |
-| FOLLOW-03 | — | Pending |
-| FOLLOW-04 | — | Pending |
-| FOLLOW-05 | — | Pending |
-| DMPRO-01 | — | Pending |
-| DMPRO-02 | — | Pending |
-| DMPRO-03 | — | Pending |
-| DMPRO-04 | — | Pending |
-| DMPRO-05 | — | Pending |
-| CROP-01 | — | Pending |
-| CROP-02 | — | Pending |
-| CROP-03 | — | Pending |
-| CROP-04 | — | Pending |
-| CROP-05 | — | Pending |
+| ARCH-01 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Pending |
+| ARCH-03 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Pending |
+| CTRL-01 | Phase 2 | Pending |
+| CTRL-02 | Phase 2 | Pending |
+| CTRL-03 | Phase 2 | Pending |
+| CTRL-04 | Phase 2 | Pending |
+| EMAIL-01 | Phase 2 | Pending |
+| EMAIL-02 | Phase 2 | Pending |
+| EMAIL-03 | Phase 2 | Pending |
+| EMAIL-04 | Phase 2 | Pending |
+| SEC-01 | Phase 4 | Pending |
+| SEC-02 | Phase 4 | Pending |
+| SEC-03 | Phase 4 | Pending |
+| SEC-04 | Phase 4 | Pending |
+| SEC-05 | Phase 4 | Pending |
+| SEC-06 | Phase 4 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Pending |
+| QUAL-04 | Phase 3 | Pending |
+| QUAL-05 | Phase 3 | Pending |
+| SHOP-01 | Phase 5 | Pending |
+| SHOP-02 | Phase 5 | Pending |
+| SHOP-03 | Phase 5 | Pending |
+| SHOP-04 | Phase 5 | Pending |
+| FOLLOW-01 | Phase 6 | Pending |
+| FOLLOW-02 | Phase 6 | Pending |
+| FOLLOW-03 | Phase 6 | Pending |
+| FOLLOW-04 | Phase 6 | Pending |
+| FOLLOW-05 | Phase 6 | Pending |
+| DMPRO-01 | Phase 7 | Pending |
+| DMPRO-02 | Phase 7 | Pending |
+| DMPRO-03 | Phase 7 | Pending |
+| DMPRO-04 | Phase 7 | Pending |
+| DMPRO-05 | Phase 7 | Pending |
+| CROP-01 | Phase 8 | Pending |
+| CROP-02 | Phase 8 | Pending |
+| CROP-03 | Phase 8 | Pending |
+| CROP-04 | Phase 8 | Pending |
+| CROP-05 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 40 ⚠️
+- v1 requirements: 42 total (note: REQUIREMENTS.md initially listed 40; actual count per requirement IDs is 42)
+- Mapped to phases: 42/42
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-15*
-*Last updated: 2026-04-15 after initial definition*
+*Last updated: 2026-04-15 after roadmap creation — all requirements mapped to phases*
