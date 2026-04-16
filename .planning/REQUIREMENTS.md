@@ -7,7 +7,7 @@
 
 ### Architecture Refactor
 
-- [ ] **ARCH-01**: `EntityProfile.cs` (AutoMapper Entity↔DomainModel) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
+- [x] **ARCH-01**: `EntityProfile.cs` (AutoMapper Entity↔DomainModel) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
 - [ ] **ARCH-02**: `EuphoriaInn.Domain.csproj` has no `<ProjectReference>` to `EuphoriaInn.Repository`
 - [ ] **ARCH-03**: Dependency direction is `Service → Domain ← Repository`; Domain compiles without Repository
 - [ ] **ARCH-04**: AutoMapper registration in `Program.cs` explicitly references both profile types by assembly anchor (no `AppDomain` scanning)
@@ -114,7 +114,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | Phase 1 | Pending |
+| ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Pending |
 | ARCH-03 | Phase 1 | Pending |
 | ARCH-04 | Phase 1 | Pending |

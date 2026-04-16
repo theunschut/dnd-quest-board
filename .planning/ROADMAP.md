@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. `Program.cs` registers AutoMapper profiles by explicit type reference — no assembly scanning
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
+- [x] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
 - [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 2: Email & Service Consolidation
