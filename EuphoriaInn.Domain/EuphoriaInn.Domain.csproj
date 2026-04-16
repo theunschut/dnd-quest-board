@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.3" />
-    <ProjectReference Include="..\EuphoriaInn.Repository\EuphoriaInn.Repository.csproj" />
   </ItemGroup>
 
 </Project>

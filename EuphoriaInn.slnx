@@ -4,6 +4,7 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/.planning/" />
   <Folder Name="/Tests/">
     <Project Path="EuphoriaInn.IntegrationTests/EuphoriaInn.IntegrationTests.csproj" />
     <Project Path="EuphoriaInn.UnitTests/EuphoriaInn.UnitTests.csproj" />

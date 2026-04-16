@@ -43,7 +43,7 @@
 **Build/Dev:**
 - .NET SDK 8.0 (dotnet CLI)
 - Entity Framework Core Tools 9.0.6 (`Microsoft.EntityFrameworkCore.Tools`) — migration tooling
-- Visual Studio solution format (`EuphoriaInn.sln`, VS version 18.2)
+- Visual Studio solution format (`EuphoriaInn.slnx`, VS version 18.2)
 
 ## Key Dependencies
 

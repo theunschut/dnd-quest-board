@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
 using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Repository.Entities;
 
-namespace EuphoriaInn.Domain.Automapper;
+namespace EuphoriaInn.Repository.Automapper;
 
 public class EntityProfile : Profile
 {

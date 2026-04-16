@@ -1,4 +1,4 @@
-using EuphoriaInn.Domain.Automapper;
+using EuphoriaInn.Repository.Automapper;
 using EuphoriaInn.Domain.Extensions;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Extensions;

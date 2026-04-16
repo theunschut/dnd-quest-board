@@ -11,7 +11,7 @@ quest-board/
 ├── EuphoriaInn.Service/         # ASP.NET Core MVC web app (entry point)
 ├── EuphoriaInn.UnitTests/       # xUnit unit tests for domain models and view models
 ├── EuphoriaInn.IntegrationTests/# Integration tests using WebApplicationFactory
-├── EuphoriaInn.sln              # Visual Studio solution file
+├── EuphoriaInn.slnx             # Visual Studio solution file
 ├── Dockerfile                   # Container image for EuphoriaInn.Service
 ├── docker-compose.yml           # Compose config (app + SQL Server)
 ├── create-migration.sh          # Helper shell script for EF migrations
