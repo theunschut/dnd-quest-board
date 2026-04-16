@@ -26,7 +26,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 ### Active
 
 #### Architecture Refactor
-- [ ] Domain layer must not depend directly on Repository entities — fix dependency direction
+- [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
 - [ ] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers
 - [ ] Controllers reduced to: validate input → call service → return view/redirect
 
@@ -103,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-15 after initialization*
+*Last updated: 2026-04-16 after Phase 01: layer-dependency-fix*
