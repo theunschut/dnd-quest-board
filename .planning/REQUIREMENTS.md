@@ -17,7 +17,7 @@
 - [ ] **CTRL-01**: Quest finalization (email dispatch included) is fully handled inside `QuestService.FinalizeQuestAsync`; controller action is ≤ 20 lines
 - [ ] **CTRL-02**: `QuestController` does not inject `IEmailService` directly (all email goes through `QuestService`)
 - [ ] **CTRL-03**: Date-change email dispatch is handled inside `QuestService.UpdateQuestPropertiesWithNotificationsAsync`; controller receives `ServiceResult` not a user list
-- [ ] **CTRL-04**: Shop remaining-quantity calculation is handled inside `ShopService`; `ShopController.Index` only maps and renders
+- [x] **CTRL-04**: Shop remaining-quantity calculation is handled inside `ShopService`; `ShopController.Index` only maps and renders
 
 ### Email & Configuration
 
@@ -121,7 +121,7 @@
 | CTRL-01 | Phase 2 | Pending |
 | CTRL-02 | Phase 2 | Pending |
 | CTRL-03 | Phase 2 | Pending |
-| CTRL-04 | Phase 2 | Pending |
+| CTRL-04 | Phase 2 | Complete |
 | EMAIL-01 | Phase 2 | Complete |
 | EMAIL-02 | Phase 2 | Complete |
 | EMAIL-03 | Phase 2 | Complete |
