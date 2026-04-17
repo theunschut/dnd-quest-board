@@ -65,8 +65,8 @@ Plans:
   5. `CharacterViewModels/GuildMembersIndexViewModel.cs` has been renamed to `CharactersIndexViewModel.cs`
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- [ ] 03-01-PLAN.md — Remove dead SecurityConfiguration + Security appsettings block (QUAL-01); remove dead UpdateQuestPropertiesAsync from 4 layers (QUAL-02)
+- [ ] 03-02-PLAN.md — Replace SignupRole magic number + extract 30-min IsSameDateTime constant (QUAL-03+04); rename GuildMembersIndexViewModel.cs to CharactersIndexViewModel.cs (QUAL-05)
 
 ### Phase 4: Security Hardening
 **Goal**: Failed login attempts are rate-limited with lockout, the minimum password length meets the 8-character standard, HasKey is admin-only, the Password property is removed from the domain model, and .env is not tracked by git
