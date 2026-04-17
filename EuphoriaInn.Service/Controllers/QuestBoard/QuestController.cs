@@ -12,7 +12,6 @@ namespace EuphoriaInn.Service.Controllers.QuestBoard;
 
 public class QuestController(
     IUserService userService,
-    IEmailService emailService,
     IMapper mapper,
     IPlayerSignupService playerSignupService,
     IQuestService questService,
@@ -162,36 +161,17 @@ public class QuestController(
             return View(viewModel);
         }
 
-        // Use the specialized service method to update quest properties and get affected players
-        var affectedPlayers = await questService.UpdateQuestPropertiesWithNotificationsAsync(
+        await questService.UpdateQuestPropertiesWithNotificationsAsync(
             id,
             viewModel.Quest.Title,
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
             viewModel.Quest.TotalPlayerCount,
             viewModel.Quest.DungeonMasterSession,
-            true, // Always allow date updates - service will handle intelligently
+            true,
             viewModel.Quest.ProposedDates,
             token
         );
-
-        // Send email notifications to affected players
-        if (affectedPlayers.Any())
-        {
-            var quest = await questService.GetQuestWithDetailsAsync(id, token);
-            if (quest != null)
-            {
-                foreach (var player in affectedPlayers.Where(p => !string.IsNullOrEmpty(p.Email)))
-                {
-                    await emailService.SendQuestDateChangedEmailAsync(
-                        player.Email!,
-                        player.Name,
-                        quest.Title,
-                        quest.DungeonMaster?.Name ?? "Unknown DM"
-                    );
-                }
-            }
-        }
 
         return RedirectToAction("Manage", new { id });
     }
@@ -586,77 +566,26 @@ public class QuestController(
     public async Task<IActionResult> Finalize(int id)
     {
         var quest = await questService.GetQuestWithDetailsAsync(id);
-
-        if (quest == null || quest.IsFinalized)
-        {
-            return NotFound();
-        }
-
+        if (quest == null || quest.IsFinalized) return NotFound();
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null)
-        {
-            return Challenge();
-        }
-
-        // Verify DM authorization
-        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
-        {
-            return Forbid();
-        }
-
-        // Get selected date
+        if (currentUser == null) return Challenge();
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin")) return Forbid();
         if (!int.TryParse(Request.Form["SelectedDateId"], out var selectedDateId))
-        {
-            TempData["Error"] = "Please select a date.";
-            return RedirectToAction("Manage", new { id });
-        }
-
+        { TempData["Error"] = "Please select a date."; return RedirectToAction("Manage", new { id }); }
         var selectedDate = quest.ProposedDates.FirstOrDefault(pd => pd.Id == selectedDateId);
-
         if (selectedDate == null)
-        {
-            TempData["Error"] = "Please select a date.";
-            return RedirectToAction("Manage", new { id });
-        }
-
-        // Get selected players
-        var selectedPlayerIds = Request.Form["SelectedPlayerIds"]
-            .Where(idStr => !string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out _))
-            .Select(idStr => int.Parse(idStr!))
-            .ToList();
-
-        // Validate: Only count Player roles against the limit
-        var selectedPlayerRoleCount = quest.PlayerSignups
-            .Where(ps => selectedPlayerIds.Contains(ps.Id) && ps.Role == SignupRole.Player)
-            .Count();
-
-        if (selectedPlayerRoleCount > quest.TotalPlayerCount)
-        {
-            TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players.";
-            return RedirectToAction("Manage", new { id });
-        }
-
-        // Finalize the quest using the specialized service method
+        { TempData["Error"] = "Please select a date."; return RedirectToAction("Manage", new { id }); }
+        var selectedPlayerIds = ParseSelectedPlayerIds(Request.Form["SelectedPlayerIds"]);
+        var playerRoleCount = quest.PlayerSignups.Where(ps => selectedPlayerIds.Contains(ps.Id) && ps.Role == SignupRole.Player).Count();
+        if (playerRoleCount > quest.TotalPlayerCount)
+        { TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players."; return RedirectToAction("Manage", new { id }); }
         await questService.FinalizeQuestAsync(id, selectedDate.Date, selectedPlayerIds);
-
-        // Send email notifications to ALL selected roles (Players, AssistantDMs, AND Spectators)
-        var selectedSignups = quest.PlayerSignups
-            .Where(ps => (selectedPlayerIds.Contains(ps.Id) || ps.Role == SignupRole.Spectator)
-                         && !string.IsNullOrEmpty(ps.Player.Email));
-
-        foreach (var signup in selectedSignups)
-        {
-            await emailService.SendQuestFinalizedEmailAsync(
-                signup.Player.Email!,
-                signup.Player.Name,
-                quest.Title,
-                quest.DungeonMaster?.Name ?? "Unknown DM",
-                selectedDate.Date
-            );
-        }
-
         return RedirectToAction("Details", new { id });
     }
+
+    private static List<int> ParseSelectedPlayerIds(Microsoft.Extensions.Primitives.StringValues raw) =>
+        raw.Where(s => !string.IsNullOrEmpty(s) && int.TryParse(s, out _))
+           .Select(s => int.Parse(s!)).ToList();
 
     [HttpPost]
     [ValidateAntiForgeryToken]
