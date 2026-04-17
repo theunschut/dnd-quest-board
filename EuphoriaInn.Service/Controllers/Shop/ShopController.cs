@@ -23,28 +23,21 @@ public class ShopController(IShopService shopService, IUserService userService, 
             SelectedType = type
         };
 
-        // Load user purchase history if authenticated
         if (User.Identity?.IsAuthenticated == true)
         {
             var currentUser = await userService.GetUserAsync(User);
             if (currentUser != null)
             {
-                var userTransactions = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
-                var mappedTransactions = mapper.Map<IList<UserTransactionViewModel>>(userTransactions.OrderByDescending(t => t.TransactionDate));
-
-                // Calculate remaining quantities for purchase transactions
-                foreach (var transaction in mappedTransactions.Where(t => t.TransactionType == Domain.Enums.TransactionType.Purchase))
-                {
-                    // Find how much has been returned/sold from this transaction
-                    var existingReturns = userTransactions
-                        .Where(t => t.TransactionType == Domain.Enums.TransactionType.Sell &&
-                                   t.OriginalTransactionId == transaction.Id)
-                        .Sum(t => t.Quantity);
-
-                    transaction.RemainingQuantity = transaction.Quantity - existingReturns;
-                }
-
-                viewModel.UserPurchases = mappedTransactions;
+                var enriched = await shopService.GetUserTransactionsWithRemainingAsync(currentUser.Id, token);
+                viewModel.UserPurchases = enriched
+                    .OrderByDescending(e => e.Transaction.TransactionDate)
+                    .Select(e =>
+                    {
+                        var vm = mapper.Map<UserTransactionViewModel>(e.Transaction);
+                        vm.RemainingQuantity = e.RemainingQuantity;
+                        return vm;
+                    })
+                    .ToList();
             }
         }
 
