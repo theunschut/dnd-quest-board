@@ -1,38 +1,44 @@
 using EuphoriaInn.Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
+using EuphoriaInn.Domain.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
 namespace EuphoriaInn.Domain.Services;
 
-public class EmailService(IConfiguration configuration, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger) : IEmailService
 {
+    private readonly EmailSettings _settings = options.Value;
+
+    private SmtpClient? CreateSmtpClient()
+    {
+        if (string.IsNullOrEmpty(_settings.SmtpUsername) ||
+            string.IsNullOrEmpty(_settings.SmtpPassword) ||
+            string.IsNullOrEmpty(_settings.FromEmail))
+        {
+            logger.LogWarning("Email settings not configured. Skipping email notification.");
+            return null;
+        }
+
+        var client = new SmtpClient(_settings.SmtpServer, _settings.SmtpPort)
+        {
+            EnableSsl = true,
+            Credentials = new NetworkCredential(_settings.SmtpUsername, _settings.SmtpPassword)
+        };
+        return client;
+    }
+
     public async Task SendQuestFinalizedEmailAsync(string toEmail, string playerName, string questTitle, string dmName, DateTime questDate)
     {
         try
         {
-            var smtpSettings = configuration.GetSection("EmailSettings");
-            var smtpServer = smtpSettings["SmtpServer"];
-            var smtpPort = int.Parse(smtpSettings["SmtpPort"] ?? "587");
-            var smtpUsername = smtpSettings["SmtpUsername"];
-            var smtpPassword = smtpSettings["SmtpPassword"];
-            var fromEmail = smtpSettings["FromEmail"];
-            var fromName = smtpSettings["FromName"];
-
-            if (string.IsNullOrEmpty(smtpUsername) || string.IsNullOrEmpty(smtpPassword) || string.IsNullOrEmpty(fromEmail))
-            {
-                logger.LogWarning("Email settings not configured. Skipping email notification.");
-                return;
-            }
-
-            using var client = new SmtpClient(smtpServer, smtpPort);
-            client.EnableSsl = true;
-            client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+            using var client = CreateSmtpClient();
+            if (client == null) return;
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(fromEmail, fromName),
+                From = new MailAddress(_settings.FromEmail, _settings.FromName),
                 Subject = $"Quest Finalized: {questTitle}",
                 Body = $@"
 Hello {playerName},
@@ -54,7 +60,6 @@ See you at the table!
             };
 
             mailMessage.To.Add(toEmail);
-
             await client.SendMailAsync(mailMessage);
         }
         catch (Exception ex)
@@ -67,27 +72,14 @@ See you at the table!
     {
         try
         {
-            var smtpSettings = configuration.GetSection("EmailSettings");
-            var smtpServer = smtpSettings["SmtpServer"];
-            var smtpPort = int.Parse(smtpSettings["SmtpPort"] ?? "587");
-            var smtpUsername = smtpSettings["SmtpUsername"];
-            var smtpPassword = smtpSettings["SmtpPassword"];
-            var fromEmail = smtpSettings["FromEmail"];
-            var fromName = smtpSettings["FromName"];
+            using var client = CreateSmtpClient();
+            if (client == null) return;
 
-            if (string.IsNullOrEmpty(smtpUsername) || string.IsNullOrEmpty(smtpPassword) || string.IsNullOrEmpty(fromEmail))
-            {
-                logger.LogWarning("Email settings not configured. Skipping email notification.");
-                return;
-            }
-
-            using var client = new SmtpClient(smtpServer, smtpPort);
-            client.EnableSsl = true;
-            client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+            var appUrl = string.IsNullOrEmpty(_settings.AppUrl) ? "[Quest Board URL]" : _settings.AppUrl;
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(fromEmail, fromName),
+                From = new MailAddress(_settings.FromEmail, _settings.FromName),
                 Subject = $"Quest Dates Updated: {questTitle}",
                 Body = $@"
 Hello {playerName},
@@ -100,7 +92,7 @@ Quest Details:
 
 Some of your previously selected date preferences may have been removed. Please visit the quest page to review the new available dates and update your preferences if needed.
 
-You can view and update your signup at: [Quest Board URL]
+You can view and update your signup at: {appUrl}
 
 Thanks for your understanding!
 
@@ -110,7 +102,6 @@ Thanks for your understanding!
             };
 
             mailMessage.To.Add(toEmail);
-
             await client.SendMailAsync(mailMessage);
         }
         catch (Exception ex)

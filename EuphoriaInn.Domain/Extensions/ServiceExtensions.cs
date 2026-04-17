@@ -1,4 +1,5 @@
 using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +10,8 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddOptions<EmailSettings>().BindConfiguration("EmailSettings");
+
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IPlayerSignupService, PlayerSignupService>();
