@@ -49,7 +49,7 @@ Plans:
   5. `EmailService` reads all SMTP settings from a single `IOptions<EmailSettings>` injection point
 **Plans**: 3 plans
 Plans:
-- [ ] 02-01-PLAN.md — Foundation types: EmailSettings record, ServiceResult<T>, AppUrl config, EmailService IOptions refactor
+- [x] 02-01-PLAN.md — Foundation types: EmailSettings record, ServiceResult<T>, AppUrl config, EmailService IOptions refactor
 - [ ] 02-02-PLAN.md — QuestService email consolidation: inject IEmailService, slim QuestController, post-save re-fetch
 - [ ] 02-03-PLAN.md — ShopService remaining-quantity extraction: slim ShopController.Index
 
@@ -156,7 +156,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Layer Dependency Fix | 0/2 | Planned | - |
-| 2. Email & Service Consolidation | 0/3 | Planned | - |
+| 2. Email & Service Consolidation | 1/3 | In Progress|  |
 | 3. Code Quality & Dead Code | 0/? | Not started | - |
 | 4. Security Hardening | 0/? | Not started | - |
 | 5. Shop Filter & Sort | 0/? | Not started | - |

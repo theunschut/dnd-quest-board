@@ -21,9 +21,9 @@
 
 ### Email & Configuration
 
-- [ ] **EMAIL-01**: `EmailSettings` typed options record exists and is registered with `AddOptions<EmailSettings>().BindConfiguration()` in `ServiceExtensions`
-- [ ] **EMAIL-02**: `EmailService` injects `IOptions<EmailSettings>` instead of `IConfiguration`; SMTP setup is not duplicated across methods
-- [ ] **EMAIL-03**: The `[Quest Board URL]` placeholder in the date-changed email body is replaced with the real application URL
+- [x] **EMAIL-01**: `EmailSettings` typed options record exists and is registered with `AddOptions<EmailSettings>().BindConfiguration()` in `ServiceExtensions`
+- [x] **EMAIL-02**: `EmailService` injects `IOptions<EmailSettings>` instead of `IConfiguration`; SMTP setup is not duplicated across methods
+- [x] **EMAIL-03**: The `[Quest Board URL]` placeholder in the date-changed email body is replaced with the real application URL
 - [ ] **EMAIL-04**: Email finalize dispatch builds its recipient list from post-save entity state (not pre-finalize fetched `quest` object)
 
 ### Security
@@ -122,9 +122,9 @@
 | CTRL-02 | Phase 2 | Pending |
 | CTRL-03 | Phase 2 | Pending |
 | CTRL-04 | Phase 2 | Pending |
-| EMAIL-01 | Phase 2 | Pending |
-| EMAIL-02 | Phase 2 | Pending |
-| EMAIL-03 | Phase 2 | Pending |
+| EMAIL-01 | Phase 2 | Complete |
+| EMAIL-02 | Phase 2 | Complete |
+| EMAIL-03 | Phase 2 | Complete |
 | EMAIL-04 | Phase 2 | Pending |
 | SEC-01 | Phase 4 | Pending |
 | SEC-02 | Phase 4 | Pending |

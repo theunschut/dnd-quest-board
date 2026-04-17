@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 2 context gathered
-last_updated: "2026-04-17T08:54:33.941Z"
+status: Ready to execute
+stopped_at: Completed 02-email-service-consolidation-01-PLAN.md
+last_updated: "2026-04-17T11:09:09.424Z"
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 5
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 01 — layer-dependency-fix
+**Current focus:** Phase 02 — email-service-consolidation
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (email-service-consolidation) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: Not started
 
 *Updated after each plan completion*
 | Phase 01-layer-dependency-fix P01 | 45 | 2 tasks | 31 files |
+| Phase 02-email-service-consolidation P01 | 139 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,9 @@ Recent decisions affecting current work:
 - [Phase 01-layer-dependency-fix]: Plans 01-01 and 01-02 merged: circular project reference made sequential execution impossible; both plans completed in one execution
 - [Phase 01-layer-dependency-fix]: IIdentityService pattern: Domain defines interface, Repository implements with UserEntity -- keeps Identity coupling out of Domain layer
 - [Phase 01-layer-dependency-fix]: BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> -- all CRUD methods return domain models via AutoMapper
+- [Phase 02-email-service-consolidation]: Use IOptions<EmailSettings> pattern (not IOptionsSnapshot) — EmailService is Scoped, settings are static at startup
+- [Phase 02-email-service-consolidation]: AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
+- [Phase 02-email-service-consolidation]: Added Microsoft.Extensions.Options.ConfigurationExtensions 9.0.6 to Domain project — BindConfiguration() extension method is in this package
 
 ### Pending Todos
 
@@ -72,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T08:54:33.937Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-email-service-consolidation/02-CONTEXT.md
+Last session: 2026-04-17T11:09:09.415Z
+Stopped at: Completed 02-email-service-consolidation-01-PLAN.md
+Resume file: None
