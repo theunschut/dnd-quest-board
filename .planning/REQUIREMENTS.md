@@ -14,9 +14,9 @@
 
 ### Controller Slimming
 
-- [ ] **CTRL-01**: Quest finalization (email dispatch included) is fully handled inside `QuestService.FinalizeQuestAsync`; controller action is ≤ 20 lines
-- [ ] **CTRL-02**: `QuestController` does not inject `IEmailService` directly (all email goes through `QuestService`)
-- [ ] **CTRL-03**: Date-change email dispatch is handled inside `QuestService.UpdateQuestPropertiesWithNotificationsAsync`; controller receives `ServiceResult` not a user list
+- [x] **CTRL-01**: Quest finalization (email dispatch included) is fully handled inside `QuestService.FinalizeQuestAsync`; controller action is ≤ 20 lines
+- [x] **CTRL-02**: `QuestController` does not inject `IEmailService` directly (all email goes through `QuestService`)
+- [x] **CTRL-03**: Date-change email dispatch is handled inside `QuestService.UpdateQuestPropertiesWithNotificationsAsync`; controller receives `ServiceResult` not a user list
 - [x] **CTRL-04**: Shop remaining-quantity calculation is handled inside `ShopService`; `ShopController.Index` only maps and renders
 
 ### Email & Configuration
@@ -24,7 +24,7 @@
 - [x] **EMAIL-01**: `EmailSettings` typed options record exists and is registered with `AddOptions<EmailSettings>().BindConfiguration()` in `ServiceExtensions`
 - [x] **EMAIL-02**: `EmailService` injects `IOptions<EmailSettings>` instead of `IConfiguration`; SMTP setup is not duplicated across methods
 - [x] **EMAIL-03**: The `[Quest Board URL]` placeholder in the date-changed email body is replaced with the real application URL
-- [ ] **EMAIL-04**: Email finalize dispatch builds its recipient list from post-save entity state (not pre-finalize fetched `quest` object)
+- [x] **EMAIL-04**: Email finalize dispatch builds its recipient list from post-save entity state (not pre-finalize fetched `quest` object)
 
 ### Security
 
@@ -118,14 +118,14 @@
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
-| CTRL-01 | Phase 2 | Pending |
-| CTRL-02 | Phase 2 | Pending |
-| CTRL-03 | Phase 2 | Pending |
+| CTRL-01 | Phase 2 | Complete |
+| CTRL-02 | Phase 2 | Complete |
+| CTRL-03 | Phase 2 | Complete |
 | CTRL-04 | Phase 2 | Complete |
 | EMAIL-01 | Phase 2 | Complete |
 | EMAIL-02 | Phase 2 | Complete |
 | EMAIL-03 | Phase 2 | Complete |
-| EMAIL-04 | Phase 2 | Pending |
+| EMAIL-04 | Phase 2 | Complete |
 | SEC-01 | Phase 4 | Pending |
 | SEC-02 | Phase 4 | Pending |
 | SEC-03 | Phase 4 | Pending |

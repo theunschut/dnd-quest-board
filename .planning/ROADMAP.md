@@ -50,7 +50,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 02-01-PLAN.md — Foundation types: EmailSettings record, ServiceResult<T>, AppUrl config, EmailService IOptions refactor
-- [ ] 02-02-PLAN.md — QuestService email consolidation: inject IEmailService, slim QuestController, post-save re-fetch
+- [x] 02-02-PLAN.md — QuestService email consolidation: inject IEmailService, slim QuestController, post-save re-fetch
 - [x] 02-03-PLAN.md — ShopService remaining-quantity extraction: slim ShopController.Index
 
 ### Phase 3: Code Quality & Dead Code
