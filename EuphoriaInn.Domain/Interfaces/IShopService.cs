@@ -24,5 +24,6 @@ public interface IShopService : IBaseService<ShopItem>
 
     // Transaction methods
     Task<IList<UserTransaction>> GetUserTransactionsAsync(int userId, CancellationToken token = default);
+    Task<IReadOnlyList<TransactionWithRemaining>> GetUserTransactionsWithRemainingAsync(int userId, CancellationToken token = default);
     Task<IList<UserTransaction>> GetAllTransactionsAsync(CancellationToken token = default);
 }

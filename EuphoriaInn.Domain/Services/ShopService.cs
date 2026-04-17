@@ -117,12 +117,7 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
 
         // Check how much has already been returned/sold for this original purchase
         var allUserTransactions = await transactionRepository.GetTransactionsByUserAsync(user.Id, token);
-        var existingReturns = allUserTransactions
-            .Where(t => t.TransactionType == TransactionType.Sell &&
-                       t.OriginalTransactionId == transactionId)
-            .Sum(t => t.Quantity);
-
-        var remainingQuantity = originalTransaction.Quantity - existingReturns;
+        var remainingQuantity = CalculateRemainingQuantity(originalTransaction, allUserTransactions);
 
         if (remainingQuantity <= 0)
         {
@@ -231,8 +226,26 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         return await transactionRepository.GetTransactionsByUserAsync(userId, token);
     }
 
+    public async Task<IReadOnlyList<TransactionWithRemaining>> GetUserTransactionsWithRemainingAsync(int userId, CancellationToken token = default)
+    {
+        var all = await transactionRepository.GetTransactionsByUserAsync(userId, token);
+        return all
+            .Where(t => t.TransactionType == TransactionType.Purchase)
+            .Select(t => new TransactionWithRemaining(t, CalculateRemainingQuantity(t, all)))
+            .ToList();
+    }
+
     public async Task<IList<UserTransaction>> GetAllTransactionsAsync(CancellationToken token = default)
     {
         return await transactionRepository.GetAllAsync(token);
+    }
+
+    private static int CalculateRemainingQuantity(UserTransaction purchase, IList<UserTransaction> allTransactions)
+    {
+        var returned = allTransactions
+            .Where(t => t.TransactionType == TransactionType.Sell &&
+                        t.OriginalTransactionId == purchase.Id)
+            .Sum(t => t.Quantity);
+        return purchase.Quantity - returned;
     }
 }
