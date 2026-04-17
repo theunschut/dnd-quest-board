@@ -8,9 +8,9 @@
 ### Architecture Refactor
 
 - [x] **ARCH-01**: `EntityProfile.cs` (AutoMapper Entity↔DomainModel) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
-- [ ] **ARCH-02**: `EuphoriaInn.Domain.csproj` has no `<ProjectReference>` to `EuphoriaInn.Repository`
-- [ ] **ARCH-03**: Dependency direction is `Service → Domain ← Repository`; Domain compiles without Repository
-- [ ] **ARCH-04**: AutoMapper registration in `Program.cs` explicitly references both profile types by assembly anchor (no `AppDomain` scanning)
+- [x] **ARCH-02**: `EuphoriaInn.Domain.csproj` has no `<ProjectReference>` to `EuphoriaInn.Repository`
+- [x] **ARCH-03**: Dependency direction is `Service → Domain ← Repository`; Domain compiles without Repository
+- [x] **ARCH-04**: AutoMapper registration in `Program.cs` explicitly references both profile types by assembly anchor (no `AppDomain` scanning)
 
 ### Controller Slimming
 
@@ -115,9 +115,9 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ARCH-01 | Phase 1 | Complete |
-| ARCH-02 | Phase 1 | Pending |
-| ARCH-03 | Phase 1 | Pending |
-| ARCH-04 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Complete |
+| ARCH-03 | Phase 1 | Complete |
+| ARCH-04 | Phase 1 | Complete |
 | CTRL-01 | Phase 2 | Pending |
 | CTRL-02 | Phase 2 | Pending |
 | CTRL-03 | Phase 2 | Pending |
@@ -164,4 +164,4 @@
 
 ---
 *Requirements defined: 2026-04-15*
-*Last updated: 2026-04-15 after roadmap creation — all requirements mapped to phases*
+*Last updated: 2026-04-17 — marked ARCH-02, ARCH-03, ARCH-04 complete after Phase 1 execution*
