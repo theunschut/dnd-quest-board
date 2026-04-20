@@ -133,28 +133,6 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         await DbContext.SaveChangesAsync(token);
     }
 
-    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
-    {
-        var entity = await DbContext.Quests
-            .Include(q => q.ProposedDates)
-                .ThenInclude(pd => pd.PlayerVotes)
-            .FirstOrDefaultAsync(q => q.Id == questId, cancellationToken: token);
-        if (entity == null) return;
-
-        entity.Title = title;
-        entity.Description = description;
-        entity.ChallengeRating = challengeRating;
-        entity.TotalPlayerCount = totalPlayerCount;
-        entity.DungeonMasterSession = dungeonMasterSession;
-
-        if (updateProposedDates && proposedDates != null)
-        {
-            UpdateProposedDatesIntelligently(entity, proposedDates);
-        }
-
-        await DbContext.SaveChangesAsync(token);
-    }
-
     public async Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
     {
         var entity = await DbContext.Quests

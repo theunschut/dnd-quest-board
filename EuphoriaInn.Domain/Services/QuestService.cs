@@ -102,11 +102,6 @@ internal class QuestService(
         await repository.UpdateAsync(model, token);
     }
 
-    public async Task UpdateQuestPropertiesAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default)
-    {
-        await repository.UpdateQuestPropertiesAsync(questId, title, description, challengeRating, totalPlayerCount, dungeonMasterSession, updateProposedDates, proposedDates, token);
-    }
-
     public async Task<ServiceResult<int>> UpdateQuestPropertiesWithNotificationsAsync(
         int questId, string title, string description, int challengeRating, int totalPlayerCount,
         bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null,
