@@ -65,7 +65,7 @@ Plans:
   5. `CharacterViewModels/GuildMembersIndexViewModel.cs` has been renamed to `CharactersIndexViewModel.cs`
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Remove dead SecurityConfiguration + Security appsettings block (QUAL-01); remove dead UpdateQuestPropertiesAsync from 4 layers (QUAL-02)
+- [x] 03-01-PLAN.md — Remove dead SecurityConfiguration + Security appsettings block (QUAL-01); remove dead UpdateQuestPropertiesAsync from 4 layers (QUAL-02)
 - [ ] 03-02-PLAN.md — Replace SignupRole magic number + extract 30-min IsSameDateTime constant (QUAL-03+04); rename GuildMembersIndexViewModel.cs to CharactersIndexViewModel.cs (QUAL-05)
 
 ### Phase 4: Security Hardening
