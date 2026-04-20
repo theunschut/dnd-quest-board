@@ -12,9 +12,9 @@ Milestone 2 fixes the codebase's accumulated architectural drift before adding n
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Layer Dependency Fix** - Restore correct compile-time dependency direction: Domain compiles without referencing Repository
-- [ ] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
-- [ ] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
+- [x] **Phase 1: Layer Dependency Fix** - Restore correct compile-time dependency direction: Domain compiles without referencing Repository
+- [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
+- [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
 - [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
 - [ ] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
 - [ ] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved
@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 Plans:
 - [x] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- [x] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
 
 ### Phase 2: Email & Service Consolidation
 **Goal**: Quest finalization and date-change notifications are fully handled inside services; controllers receive a `ServiceResult` and render; email configuration uses the typed options pattern
@@ -66,7 +66,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 03-01-PLAN.md — Remove dead SecurityConfiguration + Security appsettings block (QUAL-01); remove dead UpdateQuestPropertiesAsync from 4 layers (QUAL-02)
-- [ ] 03-02-PLAN.md — Replace SignupRole magic number + extract 30-min IsSameDateTime constant (QUAL-03+04); rename GuildMembersIndexViewModel.cs to CharactersIndexViewModel.cs (QUAL-05)
+- [x] 03-02-PLAN.md — Replace SignupRole magic number + extract 30-min IsSameDateTime constant (QUAL-03+04); rename GuildMembersIndexViewModel.cs to CharactersIndexViewModel.cs (QUAL-05)
 
 ### Phase 4: Security Hardening
 **Goal**: Failed login attempts are rate-limited with lockout, the minimum password length meets the 8-character standard, HasKey is admin-only, the Password property is removed from the domain model, and .env is not tracked by git
@@ -81,8 +81,7 @@ Plans:
   6. `.env` is listed in `.gitignore`; only `.env.example` with placeholder values is tracked
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- TBD (phase not yet planned)
 
 ### Phase 5: Shop Filter & Sort
 **Goal**: Players can narrow the shop to items of specific rarities and reorder by price without any client-side JavaScript dependency
@@ -95,8 +94,7 @@ Plans:
   4. Filtering and sorting work correctly with JavaScript disabled in the browser
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- TBD (phase not yet planned)
 **UI hint**: yes
 
 ### Phase 6: Follow-Up Quest
@@ -111,8 +109,7 @@ Plans:
   5. An EF Core migration adds a nullable `OriginalQuestId` self-referential foreign key to `QuestEntity`
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- TBD (phase not yet planned)
 **UI hint**: yes
 
 ### Phase 7: DM Profile Page
@@ -127,8 +124,7 @@ Plans:
   5. An EF Core migration adds `Bio` (varchar 2000, nullable) and a `DungeonMasterProfileImage` table
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- TBD (phase not yet planned)
 **UI hint**: yes
 
 ### Phase 8: Profile Picture Avatar Crop
@@ -143,8 +139,7 @@ Plans:
   5. An EF Core migration adds the four crop coordinate columns to `CharacterImages`
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [ ] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
+- TBD (phase not yet planned)
 **UI hint**: yes
 
 ## Progress
@@ -155,9 +150,9 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Layer Dependency Fix | 0/2 | Planned | - |
-| 2. Email & Service Consolidation | 2/3 | In Progress|  |
-| 3. Code Quality & Dead Code | 0/? | Not started | - |
+| 1. Layer Dependency Fix | 2/2 | Complete | 2026-04-20 |
+| 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
+| 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 0/? | Not started | - |
 | 5. Shop Filter & Sort | 0/? | Not started | - |
 | 6. Follow-Up Quest | 0/? | Not started | - |
