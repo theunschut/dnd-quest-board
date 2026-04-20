@@ -37,10 +37,15 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 8;
 
     // User settings
     options.User.RequireUniqueEmail = true;
+
+    // Lockout settings
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<QuestBoardContext>()
 .AddDefaultTokenProviders();
