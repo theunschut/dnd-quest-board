@@ -39,9 +39,9 @@
 
 - [x] **QUAL-01**: `SecurityConfiguration.cs` deleted; `Security` section removed from `appsettings.json`
 - [x] **QUAL-02**: Dead `UpdateQuestPropertiesAsync` (non-notification variant) removed from `IQuestService` and `QuestService`
-- [ ] **QUAL-03**: `SignupRole == 1` magic number replaced with `(SignupRole)playerSignup.SignupRole == SignupRole.Spectator` cast throughout service code
-- [ ] **QUAL-04**: `IsSameDateTime` 30-minute window extracted as a named constant with explanatory comment
-- [ ] **QUAL-05**: `CharacterViewModels/GuildMembersIndexViewModel.cs` renamed to `CharactersIndexViewModel.cs` to match its class name
+- [x] **QUAL-03**: `SignupRole == 1` magic number replaced with `(SignupRole)playerSignup.SignupRole == SignupRole.Spectator` cast throughout service code
+- [x] **QUAL-04**: `IsSameDateTime` 30-minute window extracted as a named constant with explanatory comment
+- [x] **QUAL-05**: `CharacterViewModels/GuildMembersIndexViewModel.cs` renamed to `CharactersIndexViewModel.cs` to match its class name
 
 ### Feature: Shop Filter/Sort (GitHub #96)
 
@@ -134,9 +134,9 @@
 | SEC-06 | Phase 4 | Pending |
 | QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Complete |
-| QUAL-03 | Phase 3 | Pending |
-| QUAL-04 | Phase 3 | Pending |
-| QUAL-05 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Complete |
+| QUAL-04 | Phase 3 | Complete |
+| QUAL-05 | Phase 3 | Complete |
 | SHOP-01 | Phase 5 | Pending |
 | SHOP-02 | Phase 5 | Pending |
 | SHOP-03 | Phase 5 | Pending |
