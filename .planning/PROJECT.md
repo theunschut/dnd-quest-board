@@ -37,12 +37,12 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - [x] Extract 30-minute `IsSameDateTime` window as a named constant with comment
 - [x] Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` to match its actual class name
 
-#### Security
-- [ ] Enable account lockout on login (`lockoutOnFailure: true`, 5 attempts, 15-min lock)
-- [ ] Increase minimum password length to 8 characters
-- [ ] Remove `HasKey` from user-facing profile edit — make it admin-only
-- [ ] Remove `Password` property from `User` domain model
-- [ ] Add `.env` to `.gitignore`; keep only `.env.example` tracked
+#### Security — Validated in Phase 04: security-hardening
+- [x] Enable account lockout on login (`lockoutOnFailure: true`, 5 attempts, 15-min lock)
+- [x] Increase minimum password length to 8 characters
+- [x] Remove `Password` property from `User` domain model
+- [x] Add `.env` to `.gitignore`; keep only `.env.example` tracked
+- Note: `HasKey` remains on user-facing edit — it is informational (who holds a physical building key), not a permission
 
 #### New Features
 - [ ] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style
@@ -103,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-16 after Phase 01: layer-dependency-fix*
+*Last updated: 2026-04-20 after Phase 04: security-hardening*
