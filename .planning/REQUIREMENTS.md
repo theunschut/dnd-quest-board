@@ -31,8 +31,8 @@
 - [x] **SEC-01**: `lockoutOnFailure: true` is passed to `PasswordSignInAsync` and `LockoutOptions` configured (5 attempts, 15-min lock)
 - [x] **SEC-02**: EF Core migration sets `LockoutEnabled = 1` for all existing users in `AspNetUsers`
 - [x] **SEC-03**: Minimum password length is 8 characters (up from 6)
-- [ ] **SEC-04**: `HasKey` checkbox is removed from `Account/Edit.cshtml` and `EditProfileViewModel`; it can only be set via `Admin/EditUser`
-- [ ] **SEC-05**: `Password` property removed from `User` domain model, `Equals`, and `GetHashCode`; AutoMapper ignore is explicit on both mapping directions
+- [x] **SEC-04**: `HasKey` checkbox is removed from `Account/Edit.cshtml` and `EditProfileViewModel`; it can only be set via `Admin/EditUser`
+- [x] **SEC-05**: `Password` property removed from `User` domain model, `Equals`, and `GetHashCode`; AutoMapper ignore is explicit on both mapping directions
 - [x] **SEC-06**: `.env` added to `.gitignore`; `.env.example` with placeholder values is the only tracked env file
 
 ### Code Quality & Dead Code
@@ -129,8 +129,8 @@
 | SEC-01 | Phase 4 | Complete |
 | SEC-02 | Phase 4 | Complete |
 | SEC-03 | Phase 4 | Complete |
-| SEC-04 | Phase 4 | Pending |
-| SEC-05 | Phase 4 | Pending |
+| SEC-04 | Phase 4 | Complete |
+| SEC-05 | Phase 4 | Complete |
 | SEC-06 | Phase 4 | Complete |
 | QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Complete |
