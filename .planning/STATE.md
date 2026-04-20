@@ -81,12 +81,18 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
+
 ### Blockers/Concerns
 
 - **Phase 8 (avatar crop):** Verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm) before starting Phase 8. Fallback: CSS `object-position` crop-display without server-side crop.
 
 ## Session Continuity
 
-Last session: 2026-04-20T05:59:57.892Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-04-20T06:27:03.552Z
+Stopped at: Completed quick task 260420-bqj: Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md
 Resume file: None
