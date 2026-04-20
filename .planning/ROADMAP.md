@@ -97,7 +97,8 @@ Plans:
   4. Filtering and sorting work correctly with JavaScript disabled in the browser
 **Plans**: 2 plans
 Plans:
-- TBD (phase not yet planned)
+- [ ] 05-01-PLAN.md — Wave 0 test scaffolding + backend: extend TestDataHelper + Shop integration tests, extend ShopIndexViewModel and ShopController.Index with rarity filter and price sort (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
+- [ ] 05-02-PLAN.md — View wiring: filter-row form, BuildTabUrl helper on category tabs, filter-aware empty state, shop.css additions, render-assertion integration test (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
 **UI hint**: yes
 
 ### Phase 6: Follow-Up Quest
@@ -157,7 +158,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 3/4 | In Progress|  |
-| 5. Shop Filter & Sort | 0/? | Not started | - |
+| 5. Shop Filter & Sort | 0/2 | Not started | - |
 | 6. Follow-Up Quest | 0/? | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
