@@ -1,0 +1,78 @@
+---
+phase: 5
+slug: shop-filter-sort
+status: draft
+nyquist_compliant: false
+wave_0_complete: false
+created: 2026-04-20
+---
+
+# Phase 5 — Validation Strategy
+
+> Per-phase validation contract for feedback sampling during execution.
+
+---
+
+## Test Infrastructure
+
+| Property | Value |
+|----------|-------|
+| **Framework** | xUnit 2.5.3 |
+| **Config file** | `EuphoriaInn.IntegrationTests/EuphoriaInn.IntegrationTests.csproj` |
+| **Quick run command** | `dotnet test EuphoriaInn.IntegrationTests --filter "Category=Shop" --no-build` |
+| **Full suite command** | `dotnet test` |
+| **Estimated runtime** | ~30 seconds |
+
+---
+
+## Sampling Rate
+
+- **After every task commit:** Run `dotnet test EuphoriaInn.IntegrationTests --filter "Category=Shop" --no-build`
+- **After every plan wave:** Run `dotnet test`
+- **Before `/gsd:verify-work`:** Full suite must be green
+- **Max feedback latency:** 30 seconds
+
+---
+
+## Per-Task Verification Map
+
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
+|---------|------|------|-------------|-----------|-------------------|-------------|--------|
+| 5-01-01 | 01 | 1 | SHOP-01 | integration | `dotnet test --filter "DisplayName~ShopController_Index_FilterByRarity"` | ❌ W0 | ⬜ pending |
+| 5-01-02 | 01 | 1 | SHOP-02 | integration | `dotnet test --filter "DisplayName~ShopController_Index_SortByPrice"` | ❌ W0 | ⬜ pending |
+| 5-01-03 | 01 | 1 | SHOP-03 | integration | `dotnet test --filter "DisplayName~ShopController_Index_UrlReflectsParams"` | ❌ W0 | ⬜ pending |
+| 5-01-04 | 01 | 1 | SHOP-04 | integration | `dotnet test --filter "DisplayName~ShopController_Index_NoJavaScript"` | ❌ W0 | ⬜ pending |
+| 5-02-01 | 02 | 2 | SHOP-01 | integration | `dotnet test --filter "DisplayName~Shop_FilterForm"` | ❌ W0 | ⬜ pending |
+
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+
+---
+
+## Wave 0 Requirements
+
+- [ ] `EuphoriaInn.IntegrationTests/Tests/ShopFilterSortTests.cs` — stubs for SHOP-01 through SHOP-04
+- [ ] Extend `TestDataHelper.CreateShopItemAsync` with optional `rarity` parameter for multi-rarity test data
+
+*Existing xUnit + SQLite infrastructure covers the test framework; only new test stubs needed.*
+
+---
+
+## Manual-Only Verifications
+
+| Behavior | Requirement | Why Manual | Test Instructions |
+|----------|-------------|------------|-------------------|
+| Filter form submits with JS disabled | SHOP-04 | Browser JS toggle required | Disable JS in DevTools → Network tab → apply rarity filter → confirm page reloads with filtered results |
+| Bookmarked URL restores filter+sort state | SHOP-03 | Visual/browser verification | Copy URL with `?rarity=Rare&sort=price_asc` → open in new tab → confirm correct items shown |
+
+---
+
+## Validation Sign-Off
+
+- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
+- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
+- [ ] Wave 0 covers all MISSING references
+- [ ] No watch-mode flags
+- [ ] Feedback latency < 30s
+- [ ] `nyquist_compliant: true` set in frontmatter
+
+**Approval:** pending
