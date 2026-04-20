@@ -33,7 +33,7 @@
 - [ ] **SEC-03**: Minimum password length is 8 characters (up from 6)
 - [ ] **SEC-04**: `HasKey` checkbox is removed from `Account/Edit.cshtml` and `EditProfileViewModel`; it can only be set via `Admin/EditUser`
 - [ ] **SEC-05**: `Password` property removed from `User` domain model, `Equals`, and `GetHashCode`; AutoMapper ignore is explicit on both mapping directions
-- [ ] **SEC-06**: `.env` added to `.gitignore`; `.env.example` with placeholder values is the only tracked env file
+- [x] **SEC-06**: `.env` added to `.gitignore`; `.env.example` with placeholder values is the only tracked env file
 
 ### Code Quality & Dead Code
 
@@ -131,7 +131,7 @@
 | SEC-03 | Phase 4 | Pending |
 | SEC-04 | Phase 4 | Pending |
 | SEC-05 | Phase 4 | Pending |
-| SEC-06 | Phase 4 | Pending |
+| SEC-06 | Phase 4 | Complete |
 | QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Complete |
 | QUAL-03 | Phase 3 | Complete |

@@ -84,7 +84,7 @@ Plans:
 - [ ] 04-01-PLAN.md — Identity lockout config + raise password minimum to 8 (SEC-01, SEC-03)
 - [ ] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
 - [ ] 04-03-PLAN.md — EF Core migration backfilling LockoutEnabled = 1 for existing users (SEC-02)
-- [ ] 04-04-PLAN.md — Add .env to .gitignore and untrack (SEC-06)
+- [x] 04-04-PLAN.md — Add .env to .gitignore and untrack (SEC-06)
 
 ### Phase 5: Shop Filter & Sort
 **Goal**: Players can narrow the shop to items of specific rarities and reorder by price without any client-side JavaScript dependency
@@ -156,7 +156,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 1. Layer Dependency Fix | 2/2 | Complete | 2026-04-20 |
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
-| 4. Security Hardening | 0/4 | Not started | - |
+| 4. Security Hardening | 1/4 | In Progress|  |
 | 5. Shop Filter & Sort | 0/? | Not started | - |
 | 6. Follow-Up Quest | 0/? | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
