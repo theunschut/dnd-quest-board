@@ -1,4 +1,5 @@
 using AutoMapper;
+using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
@@ -9,6 +10,10 @@ namespace EuphoriaInn.Repository;
 
 internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : BaseRepository<Quest, QuestEntity>(dbContext, mapper), IQuestRepository
 {
+    // Tolerance window for treating two proposed dates as the same slot;
+    // accommodates minor timezone rounding when users resubmit dates.
+    private const int DateMatchWindowMinutes = 30;
+
     public override async Task<IList<Quest>> GetAllAsync(CancellationToken token = default)
     {
         var entities = await DbContext.Quests
@@ -101,8 +106,8 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
 
         foreach (var playerSignup in entity.PlayerSignups)
         {
-            // Auto-approve spectators (SignupRole = 1)
-            if (playerSignup.SignupRole == 1)
+            // Auto-approve spectators
+            if ((SignupRole)playerSignup.SignupRole == SignupRole.Spectator)
             {
                 playerSignup.IsSelected = true;
             }
@@ -173,7 +178,7 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
 
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
     {
-        return Math.Abs((date1 - date2).TotalMinutes) <= 30;
+        return Math.Abs((date1 - date2).TotalMinutes) <= DateMatchWindowMinutes;
     }
 
     private static void UpdateProposedDatesIntelligently(QuestEntity entity, IList<DateTime> newProposedDates)
