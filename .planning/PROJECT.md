@@ -30,12 +30,12 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - [ ] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers
 - [ ] Controllers reduced to: validate input → call service → return view/redirect
 
-#### Code Quality & Dead Code
-- [ ] Remove `SecurityConfiguration` class and its unused `appsettings.json` section
-- [ ] Remove dead `UpdateQuestPropertiesAsync` (non-notification variant) from interface and service
-- [ ] Replace `SignupRole == 1` magic number with named enum reference throughout
-- [ ] Extract 30-minute `IsSameDateTime` window as a named constant with comment
-- [ ] Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` to match its actual class name
+#### Code Quality & Dead Code — Validated in Phase 03: code-quality-dead-code
+- [x] Remove `SecurityConfiguration` class and its unused `appsettings.json` section
+- [x] Remove dead `UpdateQuestPropertiesAsync` (non-notification variant) from interface and service
+- [x] Replace `SignupRole == 1` magic number with named enum reference throughout
+- [x] Extract 30-minute `IsSameDateTime` window as a named constant with comment
+- [x] Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` to match its actual class name
 
 #### Security
 - [ ] Enable account lockout on login (`lockoutOnFailure: true`, 5 attempts, 15-min lock)
