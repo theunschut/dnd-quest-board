@@ -36,6 +36,8 @@ Bootstrap utility classes map: `me-1` = 4px, `me-2` = 8px, `p-2` = 8px, `p-3` = 
 
 No exceptions for touch targets in this phase — all controls are standard Bootstrap form elements with default heights (38px inputs, 24px checkboxes).
 
+**Primary visual anchor:** Item card grid. Secondary focal point: amber active category tab.
+
 ---
 
 ## 3. Typography
@@ -44,14 +46,15 @@ No exceptions for touch targets in this phase — all controls are standard Boot
 
 | Role | Size | Weight | Line-height | Element |
 |------|------|--------|-------------|---------|
-| Section label | 14px (0.875rem) | 500 (medium) | 1.4 | Filter row labels, checkbox labels |
-| Body / control text | 16px (1rem) | 400 (regular) | 1.5 | Select dropdown text, button text |
-| Button label | 14px (0.875rem) | 500 (medium) | 1 | "Apply Filters" button, "Clear filters" link |
+| Section label / Button label | 14px (0.875rem) | 400 (regular) | 1.4 | Filter row labels, checkbox labels, "Apply Filters" button, "Clear Filters" link |
+| Body / control text | 16px (1rem) | 400 (regular) | 1.5 | Select dropdown text |
 | Empty state heading | 20px (1.25rem) | 600 (semibold) | 1.3 | `<h3>` inside `.empty-shop` |
+
+**Declared weights: 2 — 400 (regular) and 600 (semibold) only.** Bootstrap's default 500-weight rendering for certain elements is acceptable as a browser rendering artifact; do not set `font-weight: 500` explicitly in any new CSS rules for this phase.
 
 **Fonts:** Cinzel for section labels only if the filter row uses a heading element. All other filter row text uses the default Bootstrap sans-serif stack (system-ui / Segoe UI).
 
-Maximum 4 sizes in use; maximum 2 weights (400 regular, 600 semibold). The 500-weight buttons are Bootstrap's default and should remain; do not introduce a third custom weight.
+Maximum 3 sizes in use; exactly 2 explicit weights (400 regular, 600 semibold).
 
 ---
 
@@ -131,7 +134,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
 
   <!-- Submit -->
   <button type="submit" class="btn btn-sm filter-apply-btn">
-    <i class="fas fa-filter me-1"></i>Apply
+    <i class="fas fa-filter me-1"></i>Apply Filters
   </button>
 
   <!-- Clear (only rendered when active filters exist) -->
@@ -139,7 +142,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
   {
     <a href="@Url.Action("Index", "Shop", Model.SelectedType != null ? new { type = Model.SelectedType } : null)"
        class="btn btn-sm filter-clear-btn">
-      <i class="fas fa-times me-1"></i>Clear
+      <i class="fas fa-times me-1"></i>Clear Filters
     </a>
   }
 </form>
@@ -163,7 +166,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
 .filter-label {
     color: #F4E4BC;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
     white-space: nowrap;
     margin-right: 4px;
 }
@@ -223,7 +226,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
     padding: 0.375rem 0.75rem;
     border-radius: 6px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
     transition: all 0.3s ease;
 }
 
@@ -299,7 +302,7 @@ When the shop is globally empty (no items at all, no filters active), use existi
 
 - Mechanism: Standard HTML `<form method="get">` — no JavaScript required.
 - All filter and sort state lives in query parameters: `?type=Equipment&rarity=Rare&rarity=VeryRare&sort=price_asc`.
-- The form is submitted by clicking "Apply". No per-checkbox or per-select auto-submit.
+- The form is submitted by clicking "Apply Filters". No per-checkbox or per-select auto-submit.
 - On submit the page performs a full GET request — no partial updates.
 - The URL after submission is bookmarkable and shareable (SHOP-03).
 - JavaScript disabled: works identically. The form submits with native browser behavior.
@@ -325,8 +328,8 @@ Default sort order (when `sort` is absent): original insertion order (database I
 
 | State | Condition | UI |
 |-------|-----------|-----|
-| No filters active | No rarity selected, no sort chosen | Filter row visible; all checkboxes unchecked; sort shows "Default"; "Clear" button hidden |
-| Filters active | Any rarity checked OR sort non-default | "Clear" button visible; matching checkboxes checked; sort shows selected value |
+| No filters active | No rarity selected, no sort chosen | Filter row visible; all checkboxes unchecked; sort shows "Default"; "Clear Filters" button hidden |
+| Filters active | Any rarity checked OR sort non-default | "Clear Filters" button visible; matching checkboxes checked; sort shows selected value |
 | Results exist | `Model.Items.Any()` | Normal inventory grid |
 | Filtered empty | `!Model.Items.Any()` AND filters active | Filter-specific empty state with "Clear filters" link |
 | Shop globally empty | `!Model.Items.Any()` AND no filters | Generic empty state: "The shop is currently empty" |
@@ -342,8 +345,8 @@ Default sort order (when `sort` is absent): original insertion order (database I
 | Sort option — default | "Default" |
 | Sort option — ascending | "Price ↑" |
 | Sort option — descending | "Price ↓" |
-| Apply button | "Apply" (with `fa-filter` icon) |
-| Clear button | "Clear" (with `fa-times` icon) |
+| Apply button | "Apply Filters" (with `fa-filter` icon) |
+| Clear button | "Clear Filters" (with `fa-times` icon) |
 | Filtered empty heading | "No items match your filters" |
 | Filtered empty subtext | "Try removing some rarity filters or changing the sort order." |
 | Filtered empty CTA | "Clear filters" (plain `<a>` link, not a button) |
@@ -358,7 +361,7 @@ No destructive actions in this phase.
 
 - All checkboxes have visible `<label>` elements with `for` / `id` association OR wrap the input (implicit label pattern used above).
 - The sort `<select>` has an explicit `<label for="sortSelect">`.
-- "Clear" link is an `<a href>` (not a button) so it is navigable without JavaScript.
+- "Clear Filters" link is an `<a href>` (not a button) so it is navigable without JavaScript.
 - Rarity badge spans inside checkbox labels are decorative — they do not replace the label text; the rarity name appears in the badge text itself.
 - Filter form uses `method="get"` so browser back navigation restores filter state correctly.
 - Color is not the only differentiator for rarity — the rarity name text is always present inside the badge.
@@ -398,11 +401,11 @@ The `flex-wrap: wrap` on `.shop-filter-row` handles wrapping automatically. No J
 | Typography sizes | Detected from `shop.css` and Bootstrap defaults |
 | Category tab structure and class names | Detected from `Views/Shop/Index.cshtml` |
 | Filter row placement | CONTEXT.md D-01 (above item grid, below category tabs) |
-| Submit mechanism | CONTEXT.md D-02 (single "Apply" button, no per-checkbox auto-submit) |
+| Submit mechanism | CONTEXT.md D-02 (single "Apply Filters" button, no per-checkbox auto-submit) |
 | Sort control type | CONTEXT.md D-03 (`<select>` dropdown, same form as checkboxes) |
 | URL parameter stacking | CONTEXT.md D-04 (type + rarity + sort all in one URL) |
 | Empty state approach | CONTEXT.md D-05 ("No items match your filters" + "Clear filters" link) |
 | Rarity enum values | `EuphoriaInn.Domain/Enums/ItemRarity.cs` |
 | Default sort definition | Discretion — insertion order (Id ASC), matching existing `GetPublishedItemsAsync` behavior |
 | Query parameter names | Discretion — `rarity`, `sort` (consistent with existing `type` convention) |
-| "Clear" button visibility | Discretion — hidden when no filters active; shown when any filter active |
+| "Clear Filters" button visibility | Discretion — hidden when no filters active; shown when any filter active |
