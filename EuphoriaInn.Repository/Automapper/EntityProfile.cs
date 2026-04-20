@@ -22,8 +22,7 @@ public class EntityProfile : Profile
             .ForMember(dest => dest.SecurityStamp, opt => opt.Ignore())
             .ForMember(dest => dest.ConcurrencyStamp, opt => opt.Ignore());
 
-        CreateMap<UserEntity, User>()
-            .ForMember(dest => dest.Password, opt => opt.Ignore()); // Don't map password back
+        CreateMap<UserEntity, User>();
 
         // PlayerSignup mapping
         CreateMap<PlayerSignup, PlayerSignupEntity>()

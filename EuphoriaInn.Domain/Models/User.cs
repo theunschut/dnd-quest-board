@@ -15,10 +15,6 @@ public class User : IModel
     [StringLength(200)]
     public string? Email { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string Password { get; set; } = string.Empty;
-
     public bool HasKey { get; set; }
 
     public IList<Quest> Quests { get; set; } = [];
@@ -31,12 +27,11 @@ public class User : IModel
                Id==user.Id&&
                Name==user.Name&&
                Email==user.Email&&
-               Password==user.Password&&
                HasKey==user.HasKey;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, Name, Email, Password, HasKey);
+        return HashCode.Combine(Id, Name, Email, HasKey);
     }
 }
