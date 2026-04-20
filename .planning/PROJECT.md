@@ -27,8 +27,8 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 
 #### Architecture Refactor
 - [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
-- [ ] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers
-- [ ] Controllers reduced to: validate input → call service → return view/redirect
+- [x] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers — Validated in Phase 02: email-service-consolidation
+- [x] Controllers reduced to: validate input → call service → return view/redirect — Validated in Phase 02: email-service-consolidation
 
 #### Code Quality & Dead Code — Validated in Phase 03: code-quality-dead-code
 - [x] Remove `SecurityConfiguration` class and its unused `appsettings.json` section
