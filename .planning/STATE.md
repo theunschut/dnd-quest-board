@@ -95,6 +95,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
+| 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
 
 ### Blockers/Concerns
 
@@ -102,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-20T14:25:40.544Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-20T16:06:07Z
+Stopped at: Completed quick-260420-n5f
 Resume file: None
