@@ -223,7 +223,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid #444;
     color: #fff;
-    padding: 0.375rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 400;
@@ -240,7 +240,7 @@ These rarity colors must be reused on the checkbox labels in the filter row (as 
     background: transparent;
     border: 1px solid #6c757d;
     color: rgba(244, 228, 188, 0.7);
-    padding: 0.375rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.3s ease;
@@ -409,3 +409,4 @@ The `flex-wrap: wrap` on `.shop-filter-row` handles wrapping automatically. No J
 | Default sort definition | Discretion — insertion order (Id ASC), matching existing `GetPublishedItemsAsync` behavior |
 | Query parameter names | Discretion — `rarity`, `sort` (consistent with existing `type` convention) |
 | "Clear Filters" button visibility | Discretion — hidden when no filters active; shown when any filter active |
+| Button padding (spacing fix) | Checker revision — replaced `0.375rem 0.75rem` (6px/12px, off-grid) with `0.5rem 1rem` (8px/16px, 4px grid) |
