@@ -113,8 +113,7 @@ public class AccountController(IUserService userService) : Controller
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            IsDungeonMaster = isDungeonMaster || isAdmin,
-            HasKey = user.HasKey
+            IsDungeonMaster = isDungeonMaster || isAdmin
         };
 
         return View(model);
@@ -131,7 +130,6 @@ public class AccountController(IUserService userService) : Controller
 
             user.Name = model.Name;
             user.Email = model.Email;
-            user.HasKey = model.HasKey;
 
             // Role changes are now handled only through Admin User Management
 

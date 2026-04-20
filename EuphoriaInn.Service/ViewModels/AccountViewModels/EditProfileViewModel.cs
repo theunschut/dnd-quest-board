@@ -18,7 +18,4 @@ public class EditProfileViewModel
 
     [Display(Name = "Account Type")]
     public bool IsDungeonMaster { get; set; }
-
-    [Display(Name = "Has Building Key")]
-    public bool HasKey { get; set; }
 }
