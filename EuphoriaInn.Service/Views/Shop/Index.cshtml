@@ -1,7 +1,24 @@
 @using EuphoriaInn.Service.ViewModels.ShopViewModels
+@using EuphoriaInn.Domain.Enums
+@using Microsoft.AspNetCore.Http
 @model ShopIndexViewModel
 @{
     ViewData["Title"] = "The Mystical Merchant's Emporium";
+}
+
+@functions {
+    string BuildTabUrl(ItemType? tabType, IList<ItemRarity> rarities, string? sort)
+    {
+        var pairs = new List<KeyValuePair<string, string?>>();
+        if (tabType.HasValue)
+            pairs.Add(new("type", tabType.Value.ToString()));
+        foreach (var r in rarities)
+            pairs.Add(new("rarity", r.ToString()));
+        if (!string.IsNullOrEmpty(sort))
+            pairs.Add(new("sort", sort));
+        var qs = Microsoft.AspNetCore.Http.QueryString.Create(pairs);
+        return Url.Action("Index", "Shop") + qs.Value;
+    }
 }
 
 <!-- Purchase History Side Panel -->
@@ -24,7 +41,7 @@
                             var timeSincePurchase = DateTime.UtcNow - purchase.TransactionDate;
                             var canReturn = timeSincePurchase.TotalHours <= 24;
                             var hasRemainingItems = purchase.RemainingQuantity > 0;
-                            
+
                             <div class="purchase-item mb-2 p-2 position-relative @(!hasRemainingItems ? "sold-returned" : "")">
                                 <div class="purchase-name fw-bold text-truncate" title="@purchase.ItemName">
                                     @purchase.ItemName
@@ -52,7 +69,7 @@
                                 <small class="text-muted d-block">
                                     <i class="fas fa-clock me-1"></i>@purchase.TransactionDate.ToString("MMM dd")
                                 </small>
-                                
+
                                 <!-- Return/Sell buttons (shown on hover, only if items remaining) -->
                                 @if (hasRemainingItems)
                                 {
@@ -128,50 +145,95 @@
         <p class="mb-0 text-light">"Welcome, adventurer! Browse my wares and find what you seek..."</p>
     </div>
 
-    <!-- Filter state form (SHOP-03: URL state round-trips into form; full UI in Plan 02) -->
-    <form method="get" action="@Url.Action("Index", "Shop")" id="shopFilterForm" style="display:none">
-        @foreach (var selectedRarity in Model.SelectedRarities)
-        {
-            <input type="checkbox" name="rarity" value="@selectedRarity" checked="checked" />
-        }
-        <select name="sort">
-            @if (Model.SelectedSort == "price_asc")
-            {
-                <option value="price_asc" selected="selected">Price: Low to High</option>
-            }
-            else
-            {
-                <option value="price_asc">Price: Low to High</option>
-            }
-            @if (Model.SelectedSort == "price_desc")
-            {
-                <option value="price_desc" selected="selected">Price: High to Low</option>
-            }
-            else
-            {
-                <option value="price_desc">Price: High to Low</option>
-            }
-        </select>
-    </form>
-
     <!-- Category Filter -->
     <div class="shop-categories text-center">
-        <a href="@Url.Action("Index", "Shop")" class="category-btn @(Model.SelectedType == null ? "active" : "")">
+        <a href="@BuildTabUrl(null, Model.SelectedRarities, Model.SelectedSort)" class="category-btn @(Model.SelectedType == null ? "active" : "")">
             <i class="fas fa-list me-2"></i>All Items
         </a>
-        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.Equipment })" 
-           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.Equipment ? "active" : "")">
+        <a href="@BuildTabUrl(ItemType.Equipment, Model.SelectedRarities, Model.SelectedSort)"
+           class="category-btn @(Model.SelectedType == ItemType.Equipment ? "active" : "")">
             <i class="fas fa-shield-alt me-2"></i>Equipment
         </a>
-        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.MagicItem })" 
-           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.MagicItem ? "active" : "")">
+        <a href="@BuildTabUrl(ItemType.MagicItem, Model.SelectedRarities, Model.SelectedSort)"
+           class="category-btn @(Model.SelectedType == ItemType.MagicItem ? "active" : "")">
             <i class="fas fa-magic me-2"></i>Magic Items
         </a>
-        <a href="@Url.Action("Index", "Shop", new { type = EuphoriaInn.Domain.Enums.ItemType.QuestItems })" 
-           class="category-btn @(Model.SelectedType == EuphoriaInn.Domain.Enums.ItemType.QuestItems ? "active" : "")">
+        <a href="@BuildTabUrl(ItemType.QuestItems, Model.SelectedRarities, Model.SelectedSort)"
+           class="category-btn @(Model.SelectedType == ItemType.QuestItems ? "active" : "")">
             <i class="fas fa-magic me-2"></i>Quest Items
         </a>
     </div>
+
+    <!-- Filter Row -->
+    @{
+        var allRarities = Enum.GetValues<ItemRarity>();
+    }
+    <form method="get" action="@Url.Action("Index", "Shop")" class="shop-filter-row mb-3">
+        @if (Model.SelectedType != null)
+        {
+            <input type="hidden" name="type" value="@Model.SelectedType" />
+        }
+
+        <!-- Rarity checkboxes -->
+        <div class="filter-rarity-group">
+            <span class="filter-label">Rarity:</span>
+            @foreach (var r in allRarities)
+            {
+                <label class="filter-check-label">
+                    <input type="checkbox" name="rarity" value="@r"
+                           @(Model.SelectedRarities.Contains(r) ? "checked" : "") />
+                    <span class="item-rarity rarity-@r.ToString().ToLower()">
+                        @r.ToString().Replace("VeryRare", "Very Rare")
+                    </span>
+                </label>
+            }
+        </div>
+
+        <!-- Sort select -->
+        <div class="filter-sort-group">
+            <label for="sortSelect" class="filter-label">Sort:</label>
+            <select id="sortSelect" name="sort" class="form-select form-select-sm filter-sort-select">
+                @if (Model.SelectedSort == null || Model.SelectedSort == "")
+                {
+                    <option value="" selected="selected">Default</option>
+                }
+                else
+                {
+                    <option value="">Default</option>
+                }
+                @if (Model.SelectedSort == "price_asc")
+                {
+                    <option value="price_asc" selected="selected">Price &#8593;</option>
+                }
+                else
+                {
+                    <option value="price_asc">Price &#8593;</option>
+                }
+                @if (Model.SelectedSort == "price_desc")
+                {
+                    <option value="price_desc" selected="selected">Price &#8595;</option>
+                }
+                else
+                {
+                    <option value="price_desc">Price &#8595;</option>
+                }
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-sm filter-apply-btn">
+            <i class="fas fa-filter me-1"></i>Apply Filters
+        </button>
+
+        <!-- Clear (only rendered when active filters exist) -->
+        @if (Model.SelectedRarities.Any() || Model.SelectedSort != null)
+        {
+            <a href="@Url.Action("Index", "Shop", Model.SelectedType != null ? new { type = Model.SelectedType } : null)"
+               class="btn btn-sm filter-clear-btn">
+                <i class="fas fa-times me-1"></i>Clear Filters
+            </a>
+        }
+    </form>
 
     <!-- Shop Search Bar -->
     <div class="shop-search mb-3 text-center">
@@ -189,10 +251,6 @@
         </div>
     </div>
 
-
-
-
-
     <!-- Shop Inventory -->
     <div class="shop-inventory">
         @if (Model.Items?.Any() == true)
@@ -205,7 +263,7 @@
                          data-item-description="@item.Description.ToLowerInvariant()"
                          data-bs-toggle="modal" data-bs-target="#itemDetailsModal"
                          data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })">
-                        
+
                         <!-- Item Header -->
                         <div class="item-header">
                             <h5 class="item-name text-light">@item.Name</h5>
@@ -217,8 +275,8 @@
                         <!-- Item Description -->
                         <div class="item-description">
                             @{
-                                var shortDescription = item.Description.Length > 120 
-                                    ? item.Description.Substring(0, 120) + "..." 
+                                var shortDescription = item.Description.Length > 120
+                                    ? item.Description.Substring(0, 120) + "..."
                                     : item.Description;
                             }
                             @shortDescription
@@ -251,8 +309,8 @@
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <button type="button" class="purchase-btn" 
-                                    data-bs-toggle="modal" data-bs-target="#itemDetailsModal" 
+                            <button type="button" class="purchase-btn"
+                                    data-bs-toggle="modal" data-bs-target="#itemDetailsModal"
                                     data-item-url="@Url.Action("Details", "Shop", new { id = item.Id, isModal = true })"
                                     onclick="event.stopPropagation()"
                                     @(item.Status != EuphoriaInn.Domain.Enums.ItemStatus.Published || item.Quantity == 0 ? "disabled" : "")>
@@ -275,6 +333,19 @@
                 <p>Try a different name or check your spelling.</p>
             </div>
 
+        }
+        else if (Model.HasActiveFilters)
+        {
+            <!-- Filtered empty state (D-05) -->
+            <div class="empty-shop">
+                <i class="fas fa-filter fa-3x mb-3 text-muted"></i>
+                <h3>No items match your filters</h3>
+                <p>Try removing some rarity filters or changing the sort order.</p>
+                <a href="@Url.Action("Index", "Shop", Model.SelectedType != null ? new { type = Model.SelectedType } : null)"
+                   class="btn btn-sm filter-clear-btn mt-2">
+                    <i class="fas fa-times me-1"></i>Clear filters
+                </a>
+            </div>
         }
         else
         {
@@ -393,7 +464,7 @@
                 "Between you and me, that sword over there might be haunted.",
                 "No returns after 24 hours - unless it tries to eat you, then we'll talk."
             ];
-            
+
             const randomMessage = messages[Math.floor(Math.random() * messages.length)];
             showMerchantToast(randomMessage);
         }
