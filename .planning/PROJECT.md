@@ -57,7 +57,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - 5etools integration (#82) — large standalone feature, future milestone
 - Miniature request page (#59) — large standalone feature, future milestone
 - Email verification on registration — deferred; small group, trust is assumed
-- Pagination on list views — deferred; group is small enough that unbounded lists are fine now
+- ~~Pagination on list views — deferred; group is small enough that unbounded lists are fine now~~ — Shop pagination implemented in Phase 09 with server-side EF Core paging (12 items/page) and search
 - Image blob storage migration — deferred; performance acceptable at current scale
 
 ## Context
