@@ -162,3 +162,13 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 6. Follow-Up Quest | 0/? | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
+
+### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 8
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 9 to break down)
