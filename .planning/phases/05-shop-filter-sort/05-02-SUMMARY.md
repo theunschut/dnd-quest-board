@@ -96,6 +96,15 @@ All UI-SPEC contracts honored:
 
 None — filter form is fully wired to ShopController.Index backend from Plan 01.
 
+## Self-Check: PASSED
+
+- FOUND: `EuphoriaInn.Service/Views/Shop/Index.cshtml`
+- FOUND: `EuphoriaInn.Service/wwwroot/css/shop.css`
+- FOUND: `EuphoriaInn.IntegrationTests/Controllers/ShopControllerIntegrationTests.cs`
+- FOUND: `.planning/phases/05-shop-filter-sort/05-02-SUMMARY.md`
+- FOUND: commit `a698e46` (feat task 1)
+- FOUND: commit `7e8113a` (test task 2)
+
 ---
 *Phase: 05-shop-filter-sort*
 *Completed: 2026-04-21*
