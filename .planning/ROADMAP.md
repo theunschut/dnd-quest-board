@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
 - [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
 - [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
-- [ ] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
+- [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency (completed 2026-04-21)
 - [ ] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved
 - [ ] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile
 - [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
@@ -97,8 +97,8 @@ Plans:
   4. Filtering and sorting work correctly with JavaScript disabled in the browser
 **Plans**: 2 plans
 Plans:
-- [ ] 05-01-PLAN.md — Wave 0 test scaffolding + backend: extend TestDataHelper + Shop integration tests, extend ShopIndexViewModel and ShopController.Index with rarity filter and price sort (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
-- [ ] 05-02-PLAN.md — View wiring: filter-row form, BuildTabUrl helper on category tabs, filter-aware empty state, shop.css additions, render-assertion integration test (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
+- [x] 05-01-PLAN.md — Wave 0 test scaffolding + backend: extend TestDataHelper + Shop integration tests, extend ShopIndexViewModel and ShopController.Index with rarity filter and price sort (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
+- [x] 05-02-PLAN.md — View wiring: filter-row form, BuildTabUrl helper on category tabs, filter-aware empty state, shop.css additions, render-assertion integration test (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
 **UI hint**: yes
 
 ### Phase 6: Follow-Up Quest
@@ -158,7 +158,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 3/4 | In Progress|  |
-| 5. Shop Filter & Sort | 0/2 | Planned    |  |
+| 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
 | 6. Follow-Up Quest | 0/? | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |

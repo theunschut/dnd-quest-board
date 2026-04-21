@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-21T06:13:42.173Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-04-21T06:21:02.843Z"
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 13
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 2 of 2
 | Phase 04-security-hardening P03 | 5 | 1 tasks | 2 files |
 | Phase 04-security-hardening P02 | 12 | 2 tasks | 5 files |
 | Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
+| Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 04-security-hardening]: SEC-05: Password removed from User domain model; Identity UserEntity.PasswordHash is the authoritative store; EntityProfile reverse map simplified
 - [Phase 05-shop-filter-sort]: Filter/sort as post-fetch LINQ in controller — IShopService interface unchanged per plan anti-pattern D-04
 - [Phase 05-shop-filter-sort]: Hidden filter state form added to view for SHOP-03 URL round-trip test; Plan 02 will make it visible
+- [Phase 05-shop-filter-sort]: BuildTabUrl uses QueryString.Create(List<KeyValuePair>) — Url.Action does not serialize IList<T> as repeated query keys
+- [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
 
 ### Pending Todos
 
@@ -106,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T06:13:42.168Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-21T06:21:02.835Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
