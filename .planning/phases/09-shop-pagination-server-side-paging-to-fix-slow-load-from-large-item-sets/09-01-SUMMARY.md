@@ -127,6 +127,14 @@ None beyond the auto-fixed deviations above.
 - `ShopIndexViewModel` carries all fields Plan 02 needs (`CurrentPage`, `TotalPages`, etc.)
 - Plan 02 can update `ShopController.Index` to call the paged method and render the pagination UI
 
+## Self-Check: PASSED
+
+- `EuphoriaInn.UnitTests/Services/ShopServiceTests.cs` — FOUND
+- `EuphoriaInn.Repository/ShopRepository.cs` — FOUND
+- `EuphoriaInn.Service/ViewModels/ShopViewModels/ShopIndexViewModel.cs` — FOUND
+- Commit `be5169a` (test RED) — FOUND
+- Commit `42d7350` (feat GREEN) — FOUND
+
 ---
 *Phase: 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets*
 *Completed: 2026-04-21*

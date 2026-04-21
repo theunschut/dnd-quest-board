@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-04-21T21:10:18.100Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-04-21T21:26:17.172Z"
 progress:
   total_phases: 9
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Plan: 2 of 2
 | Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
 | Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
 | Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P01 | 20 | 2 tasks | 6 files |
+| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P02 | 35 | 1 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,8 @@ Recent decisions affecting current work:
 - [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
 - [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Repository GetPagedPublishedItemsAsync uses int primitives (not enums) to avoid circular Domain<->Repository project reference
 - [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Obsolete stubs kept for EquipmentItems/MagicItems in ShopIndexViewModel so Razor views compile until Plan 02 updates Index.cshtml
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: ShopController drops post-fetch LINQ filter/sort — all filtering now delegated to GetPagedPublishedItemsAsync
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: IShopRepository in Domain extended with GetPagedPublishedItemsAsync returning domain models; repo maps entities internally
 
 ### Pending Todos
 
@@ -116,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T21:10:18.095Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-04-21T21:26:17.167Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
