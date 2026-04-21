@@ -95,14 +95,17 @@ internal class ShopRepository(QuestBoardContext dbContext, IMapper mapper) : Bas
             query = query.Where(si => rarityInts.Contains(si.Rarity));
 
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(si => si.Name.Contains(search) || si.Description.Contains(search));
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(si => si.Name.ToLower().Contains(searchLower) || si.Description.ToLower().Contains(searchLower));
+        }
 
         var totalCount = await query.CountAsync(cancellationToken: token);
 
         query = sort switch
         {
-            "price_asc" => query.OrderBy(si => si.Price),
-            "price_desc" => query.OrderByDescending(si => si.Price),
+            "price_asc" => query.OrderBy(si => (double)si.Price),
+            "price_desc" => query.OrderByDescending(si => (double)si.Price),
             _ => query.OrderBy(si => si.Name)
         };
 
