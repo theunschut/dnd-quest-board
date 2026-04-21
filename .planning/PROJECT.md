@@ -103,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-20 after Phase 04: security-hardening*
+*Last updated: 2026-04-21 after Phase 05: shop-filter-sort*
