@@ -1,3 +1,4 @@
+using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.IntegrationTests.Helpers;
 using System.Net;
 
@@ -223,5 +224,144 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("Iron Sword");
         content.Should().Contain("Steel Sword");
+    }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task ShopController_Index_FilterByRarity_ReturnsOnlyMatchingItems()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "rarityshop1", "rarityshop1@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Common Item", 10.0m, 5, ItemRarity.Common);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Item", 20.0m, 5, ItemRarity.Rare);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Legendary Item", 30.0m, 5, ItemRarity.Legendary);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?rarity=Rare");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Rare Item");
+        html.Should().NotContain("Common Item");
+        html.Should().NotContain("Legendary Item");
+    }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task ShopController_Index_FilterByRarity_MultiValue_ReturnsUnion()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "rarityshop2", "rarityshop2@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Common Item", 10.0m, 5, ItemRarity.Common);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Item", 20.0m, 5, ItemRarity.Rare);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Legendary Item", 30.0m, 5, ItemRarity.Legendary);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?rarity=Rare&rarity=Legendary");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Rare Item");
+        html.Should().Contain("Legendary Item");
+        html.Should().NotContain("Common Item");
+    }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task ShopController_Index_SortByPrice_Ascending_OrdersItemsByPriceAsc()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "sortshop1", "sortshop1@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item50", 50.0m);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item10", 10.0m);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item30", 30.0m);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?sort=price_asc");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Item10");
+        html.Should().Contain("Item30");
+        html.Should().Contain("Item50");
+        html.IndexOf("Item10").Should().BeLessThan(html.IndexOf("Item30"));
+        html.IndexOf("Item30").Should().BeLessThan(html.IndexOf("Item50"));
+    }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task ShopController_Index_SortByPrice_Descending_OrdersItemsByPriceDesc()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "sortshop2", "sortshop2@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item50", 50.0m);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item10", 10.0m);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item30", 30.0m);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?sort=price_desc");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Item10");
+        html.Should().Contain("Item30");
+        html.Should().Contain("Item50");
+        html.IndexOf("Item50").Should().BeLessThan(html.IndexOf("Item30"));
+        html.IndexOf("Item30").Should().BeLessThan(html.IndexOf("Item10"));
+    }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task ShopController_Index_UrlReflectsParams_PreservesFilterAndSortInForm()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "stateshop", "stateshop@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item A", 10.0m, 5, ItemRarity.Rare);
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item B", 20.0m, 5, ItemRarity.Common);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?rarity=Rare&sort=price_asc");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        // SHOP-03: URL state must round-trip into form (rarity checkbox and sort option reflect selection)
+        html.Should().Contain("name=\"rarity\"");
+        html.Should().Contain("value=\"Rare\"");
+        html.Should().Contain("price_asc");
     }
 }

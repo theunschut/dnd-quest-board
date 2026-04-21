@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Repository;
 using EuphoriaInn.Repository.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -85,7 +86,9 @@ public static class TestDataHelper
         int createdByDmId,
         string name = "Test Item",
         decimal price = 10.0m,
-        int quantity = 5)
+        int quantity = 5,
+        ItemRarity rarity = ItemRarity.Common,
+        ItemType type = ItemType.Equipment)
     {
         using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
@@ -96,8 +99,8 @@ public static class TestDataHelper
             Description = "Test item description",
             Price = price,
             Quantity = quantity,
-            Type = 0, // Weapon type
-            Rarity = 0, // Common rarity
+            Type = (int)type,
+            Rarity = (int)rarity,
             Status = 1, // Published status (required for items to show in shop)
             CreatedByDmId = createdByDmId,
             CreatedAt = DateTime.UtcNow
