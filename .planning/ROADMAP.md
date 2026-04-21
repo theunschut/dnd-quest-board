@@ -158,7 +158,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 3/4 | In Progress|  |
-| 5. Shop Filter & Sort | 0/2 | Not started | - |
+| 5. Shop Filter & Sort | 0/2 | Planned    |  |
 | 6. Follow-Up Quest | 0/? | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |

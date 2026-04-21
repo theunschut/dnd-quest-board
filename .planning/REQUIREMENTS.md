@@ -45,10 +45,10 @@
 
 ### Feature: Shop Filter/Sort (GitHub #96)
 
-- [ ] **SHOP-01**: User can filter shop items by item rarity (one or more rarity values)
-- [ ] **SHOP-02**: User can sort shop items by price ascending or descending
-- [ ] **SHOP-03**: Filter and sort state persists in the URL as query parameters (bookmarkable)
-- [ ] **SHOP-04**: Applying filter/sort does not require a page reload beyond the initial request (server-side, no JS dependency)
+- [x] **SHOP-01**: User can filter shop items by item rarity (one or more rarity values)
+- [x] **SHOP-02**: User can sort shop items by price ascending or descending
+- [x] **SHOP-03**: Filter and sort state persists in the URL as query parameters (bookmarkable)
+- [x] **SHOP-04**: Applying filter/sort does not require a page reload beyond the initial request (server-side, no JS dependency)
 
 ### Feature: Follow-Up Quest (GitHub #49)
 
@@ -137,10 +137,10 @@
 | QUAL-03 | Phase 3 | Complete |
 | QUAL-04 | Phase 3 | Complete |
 | QUAL-05 | Phase 3 | Complete |
-| SHOP-01 | Phase 5 | Pending |
-| SHOP-02 | Phase 5 | Pending |
-| SHOP-03 | Phase 5 | Pending |
-| SHOP-04 | Phase 5 | Pending |
+| SHOP-01 | Phase 5 | Complete |
+| SHOP-02 | Phase 5 | Complete |
+| SHOP-03 | Phase 5 | Complete |
+| SHOP-04 | Phase 5 | Complete |
 | FOLLOW-01 | Phase 6 | Pending |
 | FOLLOW-02 | Phase 6 | Pending |
 | FOLLOW-03 | Phase 6 | Pending |
