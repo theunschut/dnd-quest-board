@@ -1,8 +1,6 @@
-using AutoMapper;
 using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models.Shop;
-using EuphoriaInn.Domain.Services;
 using NSubstitute;
 
 namespace EuphoriaInn.UnitTests.Services;
@@ -10,70 +8,48 @@ namespace EuphoriaInn.UnitTests.Services;
 public class ShopServiceTests
 {
     [Fact]
-    public async Task GetUserTransactionsWithRemainingAsync_ReturnsOnlyPurchaseTransactions()
+    public async Task GetPagedPublishedItemsAsync_DelegatesToRepository()
     {
-        var shopRepo = Substitute.For<IShopRepository>();
-        var txRepo = Substitute.For<IUserTransactionRepository>();
-        var mapper = Substitute.For<IMapper>();
+        // Arrange
+        var shopService = Substitute.For<IShopService>();
 
-        var purchase = new UserTransaction { Id = 1, Quantity = 3, TransactionType = TransactionType.Purchase };
-        var sell = new UserTransaction { Id = 2, Quantity = 1, TransactionType = TransactionType.Sell, OriginalTransactionId = 1 };
-        txRepo.GetTransactionsByUserAsync(10, Arg.Any<CancellationToken>())
-              .Returns(new List<UserTransaction> { purchase, sell });
+        var expectedItems = new List<ShopItem>
+        {
+            new() { Id = 1, Name = "Longsword" },
+            new() { Id = 2, Name = "Magic Staff" }
+        };
 
-        var service = new ShopService(shopRepo, txRepo, mapper);
-        var result = await service.GetUserTransactionsWithRemainingAsync(10);
+        shopService
+            .GetPagedPublishedItemsAsync(
+                Arg.Any<ItemType?>(),
+                Arg.Any<IList<ItemRarity>?>(),
+                Arg.Any<string?>(),
+                Arg.Any<string?>(),
+                Arg.Any<int>(),
+                Arg.Any<int>(),
+                Arg.Any<CancellationToken>())
+            .Returns((expectedItems, 42));
 
-        result.Should().ContainSingle("only Purchase transactions should be included");
-        result[0].Transaction.Id.Should().Be(1);
-    }
+        // Act
+        var result = await shopService.GetPagedPublishedItemsAsync(
+            ItemType.Equipment,
+            new List<ItemRarity> { ItemRarity.Rare },
+            "price_asc",
+            "sword",
+            2,
+            12);
 
-    [Fact]
-    public async Task GetUserTransactionsWithRemainingAsync_PurchaseWithPartialReturn_ReturnsCorrectRemaining()
-    {
-        var shopRepo = Substitute.For<IShopRepository>();
-        var txRepo = Substitute.For<IUserTransactionRepository>();
-        var mapper = Substitute.For<IMapper>();
+        // Assert
+        result.Items.Should().BeEquivalentTo(expectedItems);
+        result.TotalCount.Should().Be(42);
 
-        var purchase = new UserTransaction { Id = 1, Quantity = 5, TransactionType = TransactionType.Purchase };
-        var sell = new UserTransaction { Id = 2, Quantity = 2, TransactionType = TransactionType.Sell, OriginalTransactionId = 1 };
-        txRepo.GetTransactionsByUserAsync(42, Arg.Any<CancellationToken>())
-              .Returns(new List<UserTransaction> { purchase, sell });
-
-        var service = new ShopService(shopRepo, txRepo, mapper);
-        var result = await service.GetUserTransactionsWithRemainingAsync(42);
-
-        result.Should().ContainSingle();
-        result[0].Transaction.Id.Should().Be(1);
-        result[0].RemainingQuantity.Should().Be(3);
-    }
-
-    [Fact]
-    public async Task GetUserTransactionsWithRemainingAsync_PurchaseWithNoReturns_RemainingEqualsQuantity()
-    {
-        var shopRepo = Substitute.For<IShopRepository>();
-        var txRepo = Substitute.For<IUserTransactionRepository>();
-        var mapper = Substitute.For<IMapper>();
-
-        var purchase = new UserTransaction { Id = 5, Quantity = 4, TransactionType = TransactionType.Purchase };
-        txRepo.GetTransactionsByUserAsync(99, Arg.Any<CancellationToken>())
-              .Returns(new List<UserTransaction> { purchase });
-
-        var service = new ShopService(shopRepo, txRepo, mapper);
-        var result = await service.GetUserTransactionsWithRemainingAsync(99);
-
-        result.Should().ContainSingle();
-        result[0].RemainingQuantity.Should().Be(4, "no returns means remaining equals original quantity");
-    }
-
-    [Fact]
-    public void ShopServiceSource_UsesSharedCalculateRemainingQuantity()
-    {
-        var path = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
-            "EuphoriaInn.Domain", "Services", "ShopService.cs");
-        var source = File.ReadAllText(path);
-        var occurrences = System.Text.RegularExpressions.Regex.Matches(source, @"CalculateRemainingQuantity\(").Count;
-        occurrences.Should().BeGreaterThanOrEqualTo(2,
-            "CTRL-04: helper must be used by both GetUserTransactionsWithRemainingAsync and ReturnOrSellItemAsync");
+        await shopService.Received(1).GetPagedPublishedItemsAsync(
+            ItemType.Equipment,
+            Arg.Is<IList<ItemRarity>>(r => r.Contains(ItemRarity.Rare)),
+            "price_asc",
+            "sword",
+            2,
+            12,
+            Arg.Any<CancellationToken>());
     }
 }

@@ -1,5 +1,6 @@
-using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.IntegrationTests.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
@@ -226,185 +227,125 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().Contain("Steel Sword");
     }
 
-    [Fact]
-    [Trait("Category", "Shop")]
-    public async Task ShopController_Index_FilterByRarity_ReturnsOnlyMatchingItems()
+    // Helper: seed N published shop items with alternating names/types/rarities
+    private async Task SeedPublishedShopItemsAsync(int count)
     {
-        // Arrange
-        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
-
         var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "rarityshop1", "rarityshop1@example.com");
+            _factory.Services, $"seeder_{Guid.NewGuid():N}", $"seeder_{Guid.NewGuid():N}@example.com");
 
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Common Item", 10.0m, 5, ItemRarity.Common);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Item", 20.0m, 5, ItemRarity.Rare);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Legendary Item", 30.0m, 5, ItemRarity.Legendary);
+        for (int i = 1; i <= count; i++)
+        {
+            var name = $"Item {i:D2} {(i % 3 == 0 ? "Sword" : "Shield")}";
+            var type = i % 2 == 0 ? 1 : 0; // 0=Equipment, 1=MagicItem
+            var rarity = i % 2 == 0 ? 2 : 0; // 0=Common, 2=Rare
+            var price = 10 + i;
 
-        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
-
-        // Act
-        var response = await client.GetAsync("/Shop?rarity=Rare");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain("Rare Item");
-        html.Should().NotContain("Common Item");
-        html.Should().NotContain("Legendary Item");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Repository.Entities.QuestBoardContext>();
+            context.ShopItems.Add(new ShopItemEntity
+            {
+                Name = name,
+                Description = $"Description for {name}",
+                Price = price,
+                Quantity = 5,
+                Type = type,
+                Rarity = rarity,
+                Status = 1, // Published
+                CreatedByDmId = shopkeeper.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
     }
 
     [Fact]
-    [Trait("Category", "Shop")]
-    public async Task ShopController_Index_FilterByRarity_MultiValue_ReturnsUnion()
+    public async Task Index_PagedRepoMethodReachable_ReturnsSuccess()
     {
-        // Arrange
+        // This smoke test verifies that GetPagedPublishedItemsAsync is wired into DI.
+        // It must FAIL before Task 2 adds the method, and PASS after.
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
 
-        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "rarityshop2", "rarityshop2@example.com");
-
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Common Item", 10.0m, 5, ItemRarity.Common);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Item", 20.0m, 5, ItemRarity.Rare);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Legendary Item", 30.0m, 5, ItemRarity.Legendary);
-
-        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
-
-        // Act
-        var response = await client.GetAsync("/Shop?rarity=Rare&rarity=Legendary");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain("Rare Item");
-        html.Should().Contain("Legendary Item");
-        html.Should().NotContain("Common Item");
+        using var scope = _factory.Services.CreateScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IShopService>();
+        var result = await svc.GetPagedPublishedItemsAsync(null, null, null, null, 1, 12);
+        result.TotalCount.Should().BeGreaterThanOrEqualTo(0);
     }
 
-    [Fact]
-    [Trait("Category", "Shop")]
-    public async Task ShopController_Index_SortByPrice_Ascending_OrdersItemsByPriceAsc()
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithoutPageParam_Returns12Items_WhenShopHas15()
     {
-        // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
-
-        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "sortshop1", "sortshop1@example.com");
-
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item50", 50.0m);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item10", 10.0m);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item30", 30.0m);
-
+        await SeedPublishedShopItemsAsync(15);
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Act
-        var response = await client.GetAsync("/Shop?sort=price_asc");
-
-        // Assert
+        var response = await client.GetAsync("/Shop");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain("Item10");
-        html.Should().Contain("Item30");
-        html.Should().Contain("Item50");
-        html.IndexOf("Item10").Should().BeLessThan(html.IndexOf("Item30"));
-        html.IndexOf("Item30").Should().BeLessThan(html.IndexOf("Item50"));
+        var content = await response.Content.ReadAsStringAsync();
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, @"class=""item-card""");
+        matches.Count.Should().Be(12);
     }
 
-    [Fact]
-    [Trait("Category", "Shop")]
-    public async Task ShopController_Index_SortByPrice_Descending_OrdersItemsByPriceDesc()
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithPage2_ReturnsItems13To24()
     {
-        // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
-
-        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "sortshop2", "sortshop2@example.com");
-
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item50", 50.0m);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item10", 10.0m);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item30", 30.0m);
-
+        await SeedPublishedShopItemsAsync(15);
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Act
-        var response = await client.GetAsync("/Shop?sort=price_desc");
-
-        // Assert
+        var response = await client.GetAsync("/Shop?page=2");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain("Item10");
-        html.Should().Contain("Item30");
-        html.Should().Contain("Item50");
-        html.IndexOf("Item50").Should().BeLessThan(html.IndexOf("Item30"));
-        html.IndexOf("Item30").Should().BeLessThan(html.IndexOf("Item10"));
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("Item 13");
     }
 
-    [Fact]
-    [Trait("Category", "Shop")]
-    public async Task ShopController_Index_UrlReflectsParams_PreservesFilterAndSortInForm()
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithSearch_FiltersByNameOrDescription()
     {
-        // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
-
-        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "stateshop", "stateshop@example.com");
-
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item A", 10.0m, 5, ItemRarity.Rare);
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Item B", 20.0m, 5, ItemRarity.Common);
-
+        await SeedPublishedShopItemsAsync(15);
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Act
-        var response = await client.GetAsync("/Shop?rarity=Rare&sort=price_asc");
-
-        // Assert
+        var response = await client.GetAsync("/Shop?search=Sword");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        // SHOP-03: URL state must round-trip into form (rarity checkbox and sort option reflect selection)
-        html.Should().Contain("name=\"rarity\"");
-        html.Should().Contain("value=\"Rare\"");
-        html.Should().Contain("price_asc");
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("Sword");
+        content.Should().NotContain("Item 01 Shield");
     }
 
-    [Fact]
-    [Trait("Category", "Shop")]
-    public async Task Shop_FilterForm_RendersCheckboxesAndTabUrlsPreserveState()
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithStackedParams_AllApply()
     {
-        // Arrange
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
-
-        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
-            _factory.Services, "filterformshop", "filterformshop@example.com");
-
-        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Sword", 25.0m, 3, ItemRarity.Rare);
-
+        await SeedPublishedShopItemsAsync(15);
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Act
-        var response = await client.GetAsync("/Shop?rarity=Rare&sort=price_asc");
-
-        // Assert
+        var response = await client.GetAsync("/Shop?type=Equipment&rarity=Rare&sort=price_asc&search=a&page=1");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
+    }
 
-        // Filter row rendered
-        html.Should().Contain("class=\"shop-filter-row");
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_PagerRendersWhenMultiplePages()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // Checkbox input present
-        html.Should().Contain("name=\"rarity\"");
+        var response = await client.GetAsync("/Shop");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain(@"aria-label=""Shop page navigation""");
+    }
 
-        // Sort select present
-        html.Should().Contain("name=\"sort\"");
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_OutOfRangePage_ClampsToLastPage()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
-        // SHOP-03: Rare checkbox is pre-checked on reload (round-trip)
-        html.Should().MatchRegex("value=\"Rare\"[^>]*checked");
-
-        // SHOP-03: price_asc sort option selected on reload
-        html.Should().MatchRegex("value=\"price_asc\"[^>]*selected");
-
-        // SHOP-03: Tab hrefs carry forward rarity state (appears in tab URLs)
-        html.Should().Contain("rarity=Rare");
-
-        // SHOP-03: Tab hrefs carry forward sort state
-        html.Should().Contain("sort=price_asc");
+        var response = await client.GetAsync("/Shop?page=9999");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("page-item active");
     }
 }

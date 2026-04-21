@@ -26,4 +26,14 @@ public interface IShopService : IBaseService<ShopItem>
     Task<IList<UserTransaction>> GetUserTransactionsAsync(int userId, CancellationToken token = default);
     Task<IReadOnlyList<TransactionWithRemaining>> GetUserTransactionsWithRemainingAsync(int userId, CancellationToken token = default);
     Task<IList<UserTransaction>> GetAllTransactionsAsync(CancellationToken token = default);
+
+    // Pagination + search
+    Task<(IList<ShopItem> Items, int TotalCount)> GetPagedPublishedItemsAsync(
+        ItemType? type,
+        IList<ItemRarity>? rarities,
+        string? sort,
+        string? search,
+        int page,
+        int pageSize,
+        CancellationToken token = default);
 }

@@ -8,12 +8,17 @@ public class ShopIndexViewModel
     public ItemType? SelectedType { get; set; }
     public IList<ItemRarity> SelectedRarities { get; set; } = [];
     public string? SelectedSort { get; set; }
-    public bool HasActiveFilters => SelectedRarities.Count > 0 || SelectedSort != null;
+    public string? SearchQuery { get; set; }
+    public int CurrentPage { get; set; } = 1;
+    public int TotalPages { get; set; } = 1;
+    public int TotalItems { get; set; } = 0;
+    public bool HasActiveSearch => !string.IsNullOrEmpty(SearchQuery);
+    public bool HasActiveFilters => SelectedRarities.Count > 0 || SelectedSort != null || HasActiveSearch;
     public IList<UserTransactionViewModel> UserPurchases { get; set; } = [];
 
-    public IList<ShopItemViewModel> EquipmentItems =>
-        Items.Where(i => i.Type == ItemType.Equipment && i.IsAvailable).ToList();
+    [Obsolete("Removed in Phase 9 — use Items directly; removed fully in Plan 02")]
+    public IList<ShopItemViewModel> EquipmentItems => Items;
 
-    public IList<ShopItemViewModel> MagicItems =>
-        Items.Where(i => i.Type == ItemType.MagicItem && i.IsAvailable).ToList();
+    [Obsolete("Removed in Phase 9 — use Items directly; removed fully in Plan 02")]
+    public IList<ShopItemViewModel> MagicItems => Items;
 }
