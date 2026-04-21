@@ -364,4 +364,47 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         html.Should().Contain("value=\"Rare\"");
         html.Should().Contain("price_asc");
     }
+
+    [Fact]
+    [Trait("Category", "Shop")]
+    public async Task Shop_FilterForm_RendersCheckboxesAndTabUrlsPreserveState()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "filterformshop", "filterformshop@example.com");
+
+        await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Rare Sword", 25.0m, 3, ItemRarity.Rare);
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        // Act
+        var response = await client.GetAsync("/Shop?rarity=Rare&sort=price_asc");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+
+        // Filter row rendered
+        html.Should().Contain("class=\"shop-filter-row");
+
+        // Checkbox input present
+        html.Should().Contain("name=\"rarity\"");
+
+        // Sort select present
+        html.Should().Contain("name=\"sort\"");
+
+        // SHOP-03: Rare checkbox is pre-checked on reload (round-trip)
+        html.Should().MatchRegex("value=\"Rare\"[^>]*checked");
+
+        // SHOP-03: price_asc sort option selected on reload
+        html.Should().MatchRegex("value=\"price_asc\"[^>]*selected");
+
+        // SHOP-03: Tab hrefs carry forward rarity state (appears in tab URLs)
+        html.Should().Contain("rarity=Rare");
+
+        // SHOP-03: Tab hrefs carry forward sort state
+        html.Should().Contain("sort=price_asc");
+    }
 }
