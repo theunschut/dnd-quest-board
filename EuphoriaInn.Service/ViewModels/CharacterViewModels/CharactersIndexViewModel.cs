@@ -1,5 +1,3 @@
-using EuphoriaInn.Domain.Models;
-
 namespace EuphoriaInn.Service.ViewModels.CharacterViewModels;
 
 public class CharactersIndexViewModel

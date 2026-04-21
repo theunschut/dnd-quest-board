@@ -1,47 +1,61 @@
-﻿using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
+using AutoMapper;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
+using EuphoriaInn.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace EuphoriaInn.Repository;
 
-internal abstract class BaseRepository<T>(QuestBoardContext dbContext) : IBaseRepository<T> where T : class, IEntity
+internal abstract class BaseRepository<TModel, TEntity>(QuestBoardContext dbContext, IMapper mapper)
+    : IBaseRepository<TModel>
+    where TModel : class, IModel
+    where TEntity : class, IEntity
 {
     protected QuestBoardContext DbContext { get; } = dbContext;
 
-    protected DbSet<T> DbSet { get; } = dbContext.Set<T>();
+    protected DbSet<TEntity> DbSet { get; } = dbContext.Set<TEntity>();
 
-    public virtual async Task AddAsync(T entity, CancellationToken token = default)
+    protected IMapper Mapper { get; } = mapper;
+
+    public virtual async Task AddAsync(TModel model, CancellationToken token = default)
     {
+        var entity = Mapper.Map<TEntity>(model);
         await DbSet.AddAsync(entity, token);
         await DbContext.SaveChangesAsync(token);
     }
 
     public virtual async Task<bool> ExistsAsync(int id, CancellationToken token = default)
     {
-        return await DbSet.AnyAsync(dm => dm.Id == id, cancellationToken: token);
+        return await DbSet.AnyAsync(e => e.Id == id, cancellationToken: token);
     }
 
-    public virtual async Task<IList<T>> GetAllAsync(CancellationToken token)
+    public virtual async Task<IList<TModel>> GetAllAsync(CancellationToken token = default)
     {
-        return await DbSet.ToListAsync(cancellationToken: token);
+        var entities = await DbSet.ToListAsync(cancellationToken: token);
+        return Mapper.Map<IList<TModel>>(entities);
     }
 
-    public virtual async Task<T?> GetByIdAsync(int id, CancellationToken token)
+    public virtual async Task<TModel?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        return await DbSet.FindAsync([id], cancellationToken: token);
+        var entity = await DbSet.FindAsync([id], cancellationToken: token);
+        return entity == null ? null : Mapper.Map<TModel>(entity);
     }
 
-    public virtual async Task RemoveAsync(T entity, CancellationToken token = default)
+    public virtual async Task RemoveAsync(TModel model, CancellationToken token = default)
     {
+        var entity = await DbSet.FindAsync([model.Id]);
+        if (entity == null) return;
         DbSet.Remove(entity);
         await DbContext.SaveChangesAsync(token);
     }
 
     public Task SaveChangesAsync(CancellationToken token = default) => DbContext.SaveChangesAsync(token);
 
-    public virtual async Task UpdateAsync(T entity, CancellationToken token = default)
+    public virtual async Task UpdateAsync(TModel model, CancellationToken token = default)
     {
-        DbSet.Update(entity);
+        var entity = await DbSet.FindAsync([model.Id]);
+        if (entity == null) return;
+        Mapper.Map(model, entity);
         await DbContext.SaveChangesAsync(token);
     }
 }

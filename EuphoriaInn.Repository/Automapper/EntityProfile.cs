@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
 using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
 using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Repository.Entities;
 
-namespace EuphoriaInn.Domain.Automapper;
+namespace EuphoriaInn.Repository.Automapper;
 
 public class EntityProfile : Profile
 {
@@ -22,8 +22,7 @@ public class EntityProfile : Profile
             .ForMember(dest => dest.SecurityStamp, opt => opt.Ignore())
             .ForMember(dest => dest.ConcurrencyStamp, opt => opt.Ignore());
 
-        CreateMap<UserEntity, User>()
-            .ForMember(dest => dest.Password, opt => opt.Ignore()); // Don't map password back
+        CreateMap<UserEntity, User>();
 
         // PlayerSignup mapping
         CreateMap<PlayerSignup, PlayerSignupEntity>()

@@ -1,0 +1,124 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: Milestone complete
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-04-21T21:39:27.937Z"
+progress:
+  total_phases: 9
+  completed_phases: 6
+  total_plans: 15
+  completed_plans: 15
+---
+
+# Project State
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-04-15)
+
+**Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
+**Current focus:** Phase 09 — shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets
+
+## Current Position
+
+Phase: 09
+Plan: Not started
+
+## Performance Metrics
+
+**Velocity:**
+
+- Total plans completed: 0
+- Average duration: —
+- Total execution time: —
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+**Recent Trend:**
+
+- Last 5 plans: —
+- Trend: —
+
+*Updated after each plan completion*
+| Phase 01-layer-dependency-fix P01 | 45 | 2 tasks | 31 files |
+| Phase 02-email-service-consolidation P01 | 139 | 2 tasks | 7 files |
+| Phase 02-email-service-consolidation P03 | 25 | 2 tasks | 6 files |
+| Phase 02-email-service-consolidation P02 | 540 | 2 tasks | 5 files |
+| Phase 03-code-quality-dead-code P01 | 10 | 2 tasks | 6 files |
+| Phase 03-code-quality-dead-code P02 | 8 | 2 tasks | 3 files |
+| Phase 04-security-hardening P04 | 5 | 1 tasks | 1 files |
+| Phase 04-security-hardening P01 | 10 | 2 tasks | 3 files |
+| Phase 04-security-hardening P03 | 5 | 1 tasks | 2 files |
+| Phase 04-security-hardening P02 | 12 | 2 tasks | 5 files |
+| Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
+| Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
+| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P01 | 20 | 2 tasks | 6 files |
+| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P02 | 35 | 1 tasks | 8 files |
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- Roadmap: Phase 1 (ARCH) must complete before Phase 2 (CTRL+EMAIL) — EntityProfile must move before Domain reference is removed
+- Roadmap: Phases 5-8 are independent of each other; all require Phases 1-4 to be complete first
+- Roadmap: Phase 6 (follow-up quest) additionally depends on Phase 3 (SignupRole enum fix)
+- [Phase 01-layer-dependency-fix]: Plans 01-01 and 01-02 merged: circular project reference made sequential execution impossible; both plans completed in one execution
+- [Phase 01-layer-dependency-fix]: IIdentityService pattern: Domain defines interface, Repository implements with UserEntity -- keeps Identity coupling out of Domain layer
+- [Phase 01-layer-dependency-fix]: BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> -- all CRUD methods return domain models via AutoMapper
+- [Phase 02-email-service-consolidation]: Use IOptions<EmailSettings> pattern (not IOptionsSnapshot) — EmailService is Scoped, settings are static at startup
+- [Phase 02-email-service-consolidation]: AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
+- [Phase 02-email-service-consolidation]: Added Microsoft.Extensions.Options.ConfigurationExtensions 9.0.6 to Domain project — BindConfiguration() extension method is in this package
+- [Phase 02-email-service-consolidation]: CalculateRemainingQuantity helper uses UserTransactionEntity (not domain model) matching the worktree architecture's service layer pattern
+- [Phase 02-email-service-consolidation]: QuestService.FinalizeQuestAsync re-fetches quest post-save for EMAIL-04 compliance
+- [Phase 02-email-service-consolidation]: QuestController no longer injects IEmailService — all email dispatch inside domain service layer
+- [Phase 03-01]: SecurityConfiguration was unreferenced — deleted without replacement; ASP.NET Core Identity manages auth config via built-in mechanisms
+- [Phase 03-01]: Dead method removed from all 4 layers in one atomic commit to avoid intermediate build breaks
+- [Phase 03-code-quality-dead-code]: QUAL-03/04 applied to Domain services (QuestService, PlayerSignupService) not QuestRepository — Phase 01 refactor moved finalize logic to Domain layer
+- [Phase 03-code-quality-dead-code]: DateMatchWindowMinutes const placed in QuestService — private-scoped, no public constants class per D-02
+- [Phase 04-security-hardening]: SEC-06: Literal .env entry in .gitignore (not *.env) to avoid accidentally ignoring .env.example; history not rewritten per D-11
+- [Phase 04-security-hardening]: SEC-01/SEC-03: Identity lockout (5 attempts/15-min) + password minimum 8 configured in Program.cs; lockoutOnFailure: true + IsLockedOut branch in Login POST
+- [Phase 04-security-hardening]: SEC-02: Data-only migration using migrationBuilder.Sql() — no model/schema changes, empty Up/Down generated by EF tooling then filled manually
+- [Phase 04-security-hardening]: SEC-04: HasKey removed from user-facing EditProfileViewModel; retained in admin EditUserViewModel only
+- [Phase 04-security-hardening]: SEC-05: Password removed from User domain model; Identity UserEntity.PasswordHash is the authoritative store; EntityProfile reverse map simplified
+- [Phase 05-shop-filter-sort]: Filter/sort as post-fetch LINQ in controller — IShopService interface unchanged per plan anti-pattern D-04
+- [Phase 05-shop-filter-sort]: Hidden filter state form added to view for SHOP-03 URL round-trip test; Plan 02 will make it visible
+- [Phase 05-shop-filter-sort]: BuildTabUrl uses QueryString.Create(List<KeyValuePair>) — Url.Action does not serialize IList<T> as repeated query keys
+- [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Repository GetPagedPublishedItemsAsync uses int primitives (not enums) to avoid circular Domain<->Repository project reference
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Obsolete stubs kept for EquipmentItems/MagicItems in ShopIndexViewModel so Razor views compile until Plan 02 updates Index.cshtml
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: ShopController drops post-fetch LINQ filter/sort — all filtering now delegated to GetPagedPublishedItemsAsync
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: IShopRepository in Domain extended with GetPagedPublishedItemsAsync returning domain models; repo maps entities internally
+
+### Pending Todos
+
+None yet.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
+| 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
+
+### Roadmap Evolution
+
+- Phase 9 added: Shop pagination — server-side paging to fix slow load from large item sets
+
+### Blockers/Concerns
+
+- **Phase 8 (avatar crop):** Verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm) before starting Phase 8. Fallback: CSS `object-position` crop-display without server-side crop.
+
+## Session Continuity
+
+Last session: 2026-04-21T21:26:17.167Z
+Stopped at: Completed 09-02-PLAN.md
+Resume file: None

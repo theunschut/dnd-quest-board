@@ -1,59 +1,31 @@
-﻿using AutoMapper;
+using AutoMapper;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models;
-using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
 namespace EuphoriaInn.Domain.Services;
 
-internal class UserService(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, IUserRepository repository, IMapper mapper) : BaseService<User, UserEntity>(repository, mapper), IUserService
+internal class UserService(IIdentityService identityService, IUserRepository repository, IMapper mapper) : BaseService<User>(repository, mapper), IUserService
 {
     public async Task<IdentityResult> AddToRoleAsync(User user, string role)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null) return IdentityResult.Failed();
-        return await userManager.AddToRoleAsync(userEntity, role);
+        return await identityService.AddToRoleAsync(user.Id, role);
     }
 
     public async Task<IdentityResult> ChangePasswordAsync(ClaimsPrincipal user, string oldPassword, string newPassword)
     {
-        var userEntity = await userManager.GetUserAsync(user);
-        if (userEntity == null)
-            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
-
-        return await userManager.ChangePasswordAsync(userEntity, oldPassword, newPassword);
+        return await identityService.ChangePasswordAsync(user, oldPassword, newPassword);
     }
 
     public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null)
-            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
-
-        return await userManager.ChangePasswordAsync(userEntity, oldPassword, newPassword);
+        return await identityService.ChangePasswordAsync(user.Id, oldPassword, newPassword);
     }
 
     public async Task<IdentityResult> CreateAsync(string email, string name, string password)
     {
-        var user = new UserEntity
-        {
-            UserName = email,
-            Email = email,
-            Name = name
-        };
-        var result = await userManager.CreateAsync(user, password);
-
-        if (result.Succeeded)
-        {
-            // All new users start as Players by default
-            await userManager.AddToRoleAsync(user, "Player");
-
-            await signInManager.SignInAsync(user, isPersistent: false);
-        }
-
-        return result;
+        return await identityService.CreateUserAsync(email, name, password);
     }
 
     public virtual async Task<bool> ExistsAsync(string name)
@@ -63,74 +35,52 @@ internal class UserService(UserManager<UserEntity> userManager, SignInManager<Us
 
     public async Task<IList<User>> GetAllDungeonMastersAsync(CancellationToken token = default)
     {
-        var dms = await repository.GetAllDungeonMasters(token);
-        return Mapper.Map<IList<User>>(dms);
+        return await repository.GetAllDungeonMasters(token);
     }
 
     public async Task<IList<User>> GetAllPlayersAsync(CancellationToken token = default)
     {
-        var dms = await repository.GetAllPlayers(token);
-        return Mapper.Map<IList<User>>(dms);
+        return await repository.GetAllPlayers(token);
     }
 
     public async Task<IList<string>> GetRolesAsync(User user)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null) return [];
-        return await userManager.GetRolesAsync(userEntity);
+        return await identityService.GetRolesAsync(user.Id);
     }
 
     public async Task<User> GetUserAsync(ClaimsPrincipal user)
     {
-        var userEntity = await userManager.GetUserAsync(user);
-        return Mapper.Map<User>(userEntity);
+        var userId = await identityService.GetUserIdAsync(user);
+        if (userId == null) return new User();
+        return await repository.GetByIdAsync(userId.Value) ?? new User();
     }
 
     public async Task<bool> IsInRoleAsync(User user, string role)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null) return false;
-        return await userManager.IsInRoleAsync(userEntity, role);
+        return await identityService.IsInRoleAsync(user.Id, role);
     }
 
     public async Task<bool> IsInRoleAsync(ClaimsPrincipal user, string role)
     {
-        var userEntity = await userManager.GetUserAsync(user);
-        if (userEntity == null) return false;
-        return await userManager.IsInRoleAsync(userEntity, role);
+        return await identityService.IsInRoleAsync(user, role);
     }
 
-    public Task<SignInResult> PasswordSignInAsync(string email, string password, bool rememberMe, bool lockoutOnFailure) => signInManager.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure);
+    public Task<SignInResult> PasswordSignInAsync(string email, string password, bool rememberMe, bool lockoutOnFailure) => identityService.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure);
 
     public async Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null) return IdentityResult.Failed();
-        return await userManager.RemoveFromRoleAsync(userEntity, role);
+        return await identityService.RemoveFromRoleAsync(user.Id, role);
     }
 
     public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword)
     {
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null)
-            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
-
-        return await userManager.ResetPasswordAsync(userEntity, token, newPassword);
+        return await identityService.ResetPasswordAsync(user.Id, token, newPassword);
     }
 
     public async Task<IdentityResult> ResetPasswordAsync(ClaimsPrincipal adminUser, User user, string newPassword)
     {
-        var adminEntity = await userManager.GetUserAsync(adminUser);
-        if (adminEntity == null || !await userManager.IsInRoleAsync(adminEntity, "Admin"))
-            return IdentityResult.Failed(new IdentityError { Description = "Admin user not found or not authorized." });
-
-        var userEntity = await userManager.FindByIdAsync(user.Id.ToString());
-        if (userEntity == null)
-            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
-
-        var resetToken = await userManager.GeneratePasswordResetTokenAsync(userEntity);
-        return await userManager.ResetPasswordAsync(userEntity, resetToken, newPassword);
+        return await identityService.AdminResetPasswordAsync(adminUser, user.Id, newPassword);
     }
 
-    public Task SignOutAsync() => signInManager.SignOutAsync();
+    public Task SignOutAsync() => identityService.SignOutAsync();
 }

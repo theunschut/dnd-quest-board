@@ -19,7 +19,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
     public async Task Index_WhenNotAuthenticated_ShouldRedirectToLogin()
     {
         // Act - Changed from /Admin to /Admin/Users (actual route name)
-        var response = await _client.GetAsync("/Admin/Users");
+        var response = await _client.GetAsync("/Admin/Users", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
@@ -30,10 +30,10 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
     {
         // Arrange - Create user with Player role (not Admin)
         var (regularClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
-            _factory, "regularuser", "regular@example.com", roles: new[] { "Player" });
+            _factory, "regularuser", "regular@example.com", roles: ["Player"]);
 
         // Act - Changed from /Admin to /Admin/Users (actual route name)
-        var response = await regularClient.GetAsync("/Admin/Users");
+        var response = await regularClient.GetAsync("/Admin/Users", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
@@ -43,7 +43,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
     public async Task ManageUsers_WhenNotAuthenticated_ShouldRedirectToLogin()
     {
         // Act - Changed from /Admin/ManageUsers to /Admin/Users (actual route name)
-        var response = await _client.GetAsync("/Admin/Users");
+        var response = await _client.GetAsync("/Admin/Users", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
@@ -56,7 +56,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
     public async Task AdminActions_WhenNotAuthenticated_ShouldRedirectToLogin(string endpoint)
     {
         // Act
-        var response = await _client.GetAsync(endpoint);
+        var response = await _client.GetAsync(endpoint, TestContext.Current.CancellationToken);
 
         // Assert
         // Note: DeleteUser returns 405 Method Not Allowed since it requires DELETE not GET

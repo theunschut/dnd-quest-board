@@ -2,64 +2,50 @@ using AutoMapper;
 using EuphoriaInn.Domain.Enums;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models;
-using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
 
 namespace EuphoriaInn.Domain.Services;
 
-internal class CharacterService(ICharacterRepository repository, IMapper mapper) : BaseService<Character, CharacterEntity>(repository, mapper), ICharacterService
+internal class CharacterService(ICharacterRepository repository, IMapper mapper) : BaseService<Character>(repository, mapper), ICharacterService
 {
-    private readonly ICharacterRepository _repository = repository;
-
-    public override async Task AddAsync(Character model, CancellationToken token = default)
-    {
-        var entity = Mapper.Map<CharacterEntity>(model);
-        await _repository.AddAsync(entity, token);
-    }
-
     public async Task<IList<Character>> GetAllCharactersWithDetailsAsync(CancellationToken token = default)
     {
-        var entities = await _repository.GetAllCharactersWithDetailsAsync(token);
-        return Mapper.Map<IList<Character>>(entities);
+        return await repository.GetAllCharactersWithDetailsAsync(token);
     }
 
     public async Task<IList<Character>> GetCharactersByOwnerIdAsync(int ownerId, CancellationToken token = default)
     {
-        var entities = await _repository.GetCharactersByOwnerIdAsync(ownerId, token);
-        return Mapper.Map<IList<Character>>(entities);
+        return await repository.GetCharactersByOwnerIdAsync(ownerId, token);
     }
 
     public async Task<Character?> GetCharacterWithDetailsAsync(int id, CancellationToken token = default)
     {
-        var entity = await _repository.GetCharacterWithDetailsAsync(id, token);
-        return entity == null ? null : Mapper.Map<Character>(entity);
+        return await repository.GetCharacterWithDetailsAsync(id, token);
     }
 
     public async Task<Character?> GetMainCharacterForUserAsync(int userId, CancellationToken token = default)
     {
-        var entity = await _repository.GetMainCharacterForUserAsync(userId, token);
-        return entity == null ? null : Mapper.Map<Character>(entity);
+        return await repository.GetMainCharacterForUserAsync(userId, token);
     }
 
     public async Task SetAsMainCharacterAsync(int characterId, int userId, CancellationToken token = default)
     {
         // Get all user's characters
-        var userCharacters = await _repository.GetCharactersByOwnerIdAsync(userId, token);
+        var userCharacters = await repository.GetCharactersByOwnerIdAsync(userId, token);
 
         // Set all to backup
         foreach (var character in userCharacters)
         {
-            character.Role = (int)CharacterRole.Backup;
+            character.Role = CharacterRole.Backup;
+            await repository.UpdateAsync(character, token);
         }
 
         // Set the selected one to main
         var mainCharacter = userCharacters.FirstOrDefault(c => c.Id == characterId);
         if (mainCharacter != null)
         {
-            mainCharacter.Role = (int)CharacterRole.Main;
+            mainCharacter.Role = CharacterRole.Main;
+            await repository.UpdateAsync(mainCharacter, token);
         }
-
-        await _repository.SaveChangesAsync(token);
     }
 
     public Task<bool> ValidateCharacterClassLevelsAsync(int totalLevel, IList<CharacterClass> classes)
@@ -73,33 +59,12 @@ internal class CharacterService(ICharacterRepository repository, IMapper mapper)
 
     public override async Task UpdateAsync(Character model, CancellationToken token = default)
     {
-        var entity = await _repository.GetCharacterWithDetailsAsync(model.Id, token);
-        if (entity == null) return;
-
-        Mapper.Map(model, entity);
-
-        if (model.ProfilePicture == null)
-        {
-            entity.ProfileImage = null;
-        }
-        else if (entity.ProfileImage == null)
-        {
-            entity.ProfileImage = new CharacterImageEntity
-            {
-                Id = entity.Id,
-                ImageData = model.ProfilePicture
-            };
-        }
-        else
-        {
-            entity.ProfileImage.ImageData = model.ProfilePicture;
-        }
-
-        await _repository.SaveChangesAsync(token);
+        await repository.UpdateProfileImageAsync(model.Id, model.ProfilePicture, token);
+        await repository.UpdateAsync(model, token);
     }
 
     public Task<byte[]?> GetCharacterProfilePictureAsync(int id, CancellationToken token = default)
     {
-        return _repository.GetCharacterProfilePictureAsync(id, token);
+        return repository.GetCharacterProfilePictureAsync(id, token);
     }
 }

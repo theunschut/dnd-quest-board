@@ -11,40 +11,49 @@ namespace EuphoriaInn.Service.Controllers.Shop;
 public class ShopController(IShopService shopService, IUserService userService, IMapper mapper) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(ItemType? type = null, CancellationToken token = default)
+    public async Task<IActionResult> Index(
+        ItemType? type = null,
+        IList<ItemRarity>? rarity = null,
+        string? sort = null,
+        string? search = null,
+        int page = 1,
+        CancellationToken token = default)
     {
-        var items = type.HasValue
-            ? await shopService.GetItemsByTypeAsync(type.Value, token)
-            : await shopService.GetPublishedItemsAsync(token);
+        const int pageSize = 12;
+
+        var (items, totalCount) = await shopService.GetPagedPublishedItemsAsync(
+            type, rarity, sort, search, page, pageSize, token);
+
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+        page = Math.Max(1, Math.Min(page, totalPages));
 
         var viewModel = new ShopIndexViewModel
         {
-            Items = mapper.Map<IList<ShopItemViewModel>>(items),
-            SelectedType = type
+            Items            = mapper.Map<IList<ShopItemViewModel>>(items),
+            SelectedType     = type,
+            SelectedRarities = rarity ?? [],
+            SelectedSort     = sort,
+            SearchQuery      = search,
+            CurrentPage      = page,
+            TotalPages       = totalPages,
+            TotalItems       = totalCount
         };
 
-        // Load user purchase history if authenticated
         if (User.Identity?.IsAuthenticated == true)
         {
             var currentUser = await userService.GetUserAsync(User);
             if (currentUser != null)
             {
-                var userTransactions = await shopService.GetUserTransactionsAsync(currentUser.Id, token);
-                var mappedTransactions = mapper.Map<IList<UserTransactionViewModel>>(userTransactions.OrderByDescending(t => t.TransactionDate));
-
-                // Calculate remaining quantities for purchase transactions
-                foreach (var transaction in mappedTransactions.Where(t => t.TransactionType == Domain.Enums.TransactionType.Purchase))
-                {
-                    // Find how much has been returned/sold from this transaction
-                    var existingReturns = userTransactions
-                        .Where(t => t.TransactionType == Domain.Enums.TransactionType.Sell &&
-                                   t.OriginalTransactionId == transaction.Id)
-                        .Sum(t => t.Quantity);
-
-                    transaction.RemainingQuantity = transaction.Quantity - existingReturns;
-                }
-
-                viewModel.UserPurchases = mappedTransactions;
+                var enriched = await shopService.GetUserTransactionsWithRemainingAsync(currentUser.Id, token);
+                viewModel.UserPurchases = enriched
+                    .OrderByDescending(e => e.Transaction.TransactionDate)
+                    .Select(e =>
+                    {
+                        var vm = mapper.Map<UserTransactionViewModel>(e.Transaction);
+                        vm.RemainingQuantity = e.RemainingQuantity;
+                        return vm;
+                    })
+                    .ToList();
             }
         }
 
