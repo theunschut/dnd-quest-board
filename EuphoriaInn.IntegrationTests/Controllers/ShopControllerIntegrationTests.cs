@@ -271,7 +271,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         result.TotalCount.Should().BeGreaterThanOrEqualTo(0);
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_WithoutPageParam_Returns12Items_WhenShopHas15()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
@@ -285,7 +285,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         matches.Count.Should().Be(12);
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_WithPage2_ReturnsItems13To24()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
@@ -298,7 +298,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().Contain("Item 13");
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_WithSearch_FiltersByNameOrDescription()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
@@ -312,7 +312,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().NotContain("Item 01 Shield");
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_WithStackedParams_AllApply()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
@@ -323,7 +323,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_PagerRendersWhenMultiplePages()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
@@ -336,7 +336,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().Contain(@"aria-label=""Shop page navigation""");
     }
 
-    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    [Fact]
     public async Task Index_OutOfRangePage_ClampsToLastPage()
     {
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);

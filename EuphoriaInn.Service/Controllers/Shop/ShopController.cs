@@ -15,32 +15,28 @@ public class ShopController(IShopService shopService, IUserService userService, 
         ItemType? type = null,
         IList<ItemRarity>? rarity = null,
         string? sort = null,
+        string? search = null,
+        int page = 1,
         CancellationToken token = default)
     {
-        var items = type.HasValue
-            ? await shopService.GetItemsByTypeAsync(type.Value, token)
-            : await shopService.GetPublishedItemsAsync(token);
+        const int pageSize = 12;
 
-        // SHOP-01: filter by rarity (multi-value union)
-        if (rarity is { Count: > 0 })
-        {
-            items = items.Where(i => rarity.Contains(i.Rarity)).ToList();
-        }
+        var (items, totalCount) = await shopService.GetPagedPublishedItemsAsync(
+            type, rarity, sort, search, page, pageSize, token);
 
-        // SHOP-02: sort by price
-        items = sort switch
-        {
-            "price_asc"  => items.OrderBy(i => i.Price).ToList(),
-            "price_desc" => items.OrderByDescending(i => i.Price).ToList(),
-            _            => items
-        };
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+        page = Math.Max(1, Math.Min(page, totalPages));
 
         var viewModel = new ShopIndexViewModel
         {
-            Items = mapper.Map<IList<ShopItemViewModel>>(items),
-            SelectedType = type,
+            Items            = mapper.Map<IList<ShopItemViewModel>>(items),
+            SelectedType     = type,
             SelectedRarities = rarity ?? [],
-            SelectedSort = sort
+            SelectedSort     = sort,
+            SearchQuery      = search,
+            CurrentPage      = page,
+            TotalPages       = totalPages,
+            TotalItems       = totalCount
         };
 
         if (User.Identity?.IsAuthenticated == true)

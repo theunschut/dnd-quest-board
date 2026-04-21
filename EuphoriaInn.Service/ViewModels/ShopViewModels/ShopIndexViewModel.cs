@@ -15,10 +15,4 @@ public class ShopIndexViewModel
     public bool HasActiveSearch => !string.IsNullOrEmpty(SearchQuery);
     public bool HasActiveFilters => SelectedRarities.Count > 0 || SelectedSort != null || HasActiveSearch;
     public IList<UserTransactionViewModel> UserPurchases { get; set; } = [];
-
-    [Obsolete("Removed in Phase 9 — use Items directly; removed fully in Plan 02")]
-    public IList<ShopItemViewModel> EquipmentItems => Items;
-
-    [Obsolete("Removed in Phase 9 — use Items directly; removed fully in Plan 02")]
-    public IList<ShopItemViewModel> MagicItems => Items;
 }

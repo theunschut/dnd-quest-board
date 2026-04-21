@@ -752,3 +752,45 @@
     border-color: #dc3545;
     color: #dc3545;
 }
+
+/* ========================================
+   PAGINATION
+   ======================================== */
+
+.shop-pagination .page-link.shop-page-link {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #444;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    transition: all 0.3s ease;
+}
+
+.shop-pagination .page-item.active .page-link {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+    font-weight: 600;
+}
+
+.shop-pagination .page-item:not(.disabled) .page-link.shop-page-link:hover {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.shop-pagination .page-item.disabled .page-link {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: #333;
+    color: rgba(244, 228, 188, 0.3);
+    cursor: default;
+}
+
+.shop-pagination-count {
+    color: rgba(244, 228, 188, 0.7);
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
