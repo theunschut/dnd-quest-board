@@ -76,13 +76,13 @@
 
 ### Feature: Shop Pagination & Server-Side Search (GitHub Phase 9)
 
-- [ ] **SHOP-PAG-01**: `ShopController.Index` returns at most 12 items per page via a single unified repository method `GetPagedPublishedItemsAsync` that applies `Skip((page-1)*12).Take(12)` at the database layer (no post-fetch LINQ on the Index path)
-- [ ] **SHOP-PAG-02**: The unified paged method executes all filtering (type, rarity, search, availability window), sorting, and pagination inside one `IQueryable<ShopItemEntity>`; returns `(IList<ShopItem> Items, int TotalCount)`
-- [ ] **SHOP-PAG-03**: A server-side `?search=` query parameter matches against `Name` OR `Description` via EF Core `.Contains()` translation; stacks with `type`, `rarity`, `sort`, `page`
+- [x] **SHOP-PAG-01**: `ShopController.Index` returns at most 12 items per page via a single unified repository method `GetPagedPublishedItemsAsync` that applies `Skip((page-1)*12).Take(12)` at the database layer (no post-fetch LINQ on the Index path)
+- [x] **SHOP-PAG-02**: The unified paged method executes all filtering (type, rarity, search, availability window), sorting, and pagination inside one `IQueryable<ShopItemEntity>`; returns `(IList<ShopItem> Items, int TotalCount)`
+- [x] **SHOP-PAG-03**: A server-side `?search=` query parameter matches against `Name` OR `Description` via EF Core `.Contains()` translation; stacks with `type`, `rarity`, `sort`, `page`
 - [ ] **SHOP-PAG-04**: The client-side `filterShopItems()` JavaScript function is removed from `site.js`; all `data-item-name`, `data-item-description`, `onkeyup`, `onchange`, and `shopEmptyMsg` DOM hooks are removed from `Index.cshtml`
 - [ ] **SHOP-PAG-05**: A Bootstrap 5 numbered pager (Previous / 1 2 … N / Next) renders below the inventory grid when `TotalPages > 1`; always shows first page, last page, and current ±2 with ellipses for gaps; active page rendered as `<span>` (not link); disabled Previous at page 1, disabled Next at last page
 - [ ] **SHOP-PAG-06**: Pager links carry forward all active state (`type`, `rarity`, `sort`, `search`) via a `BuildPageUrl` helper; category tab links via extended `BuildTabUrl` carry `search` forward and always reset to page 1; filter form includes `<input type="hidden" name="page" value="1" />`
-- [ ] **SHOP-PAG-07**: `ShopController.Index` clamps `page` after computing `totalPages`: `page = Math.Max(1, Math.Min(page, totalPages))` with `totalPages = Math.Max(1, Math.Ceiling(totalCount / 12.0))`; `ShopIndexViewModel` gains `SearchQuery`, `CurrentPage`, `TotalPages`, `TotalItems`, `HasActiveSearch` and loses `EquipmentItems` + `MagicItems` computed properties
+- [x] **SHOP-PAG-07**: `ShopController.Index` clamps `page` after computing `totalPages`: `page = Math.Max(1, Math.Min(page, totalPages))` with `totalPages = Math.Max(1, Math.Ceiling(totalCount / 12.0))`; `ShopIndexViewModel` gains `SearchQuery`, `CurrentPage`, `TotalPages`, `TotalItems`, `HasActiveSearch` and loses `EquipmentItems` + `MagicItems` computed properties
 
 ## v2 Requirements
 
@@ -166,13 +166,13 @@
 | CROP-03 | Phase 8 | Pending |
 | CROP-04 | Phase 8 | Pending |
 | CROP-05 | Phase 8 | Pending |
-| SHOP-PAG-01 | Phase 9 | Pending |
-| SHOP-PAG-02 | Phase 9 | Pending |
-| SHOP-PAG-03 | Phase 9 | Pending |
+| SHOP-PAG-01 | Phase 9 | Complete |
+| SHOP-PAG-02 | Phase 9 | Complete |
+| SHOP-PAG-03 | Phase 9 | Complete |
 | SHOP-PAG-04 | Phase 9 | Pending |
 | SHOP-PAG-05 | Phase 9 | Pending |
 | SHOP-PAG-06 | Phase 9 | Pending |
-| SHOP-PAG-07 | Phase 9 | Pending |
+| SHOP-PAG-07 | Phase 9 | Complete |
 
 **Coverage:**
 - v1 requirements: 49 total (42 original + 7 added in Phase 9)

@@ -177,6 +177,6 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
   5. Out-of-range ?page=9999 clamps to the last valid page; ShopIndexViewModel carries SearchQuery/CurrentPage/TotalPages/TotalItems/HasActiveSearch
 **Plans**: 2 plans
 Plans:
-- [ ] 09-01-PLAN.md — Wave 0 tests + paged repository/service method + ViewModel extension (SHOP-PAG-01, 02, 03, 07)
+- [x] 09-01-PLAN.md — Wave 0 tests + paged repository/service method + ViewModel extension (SHOP-PAG-01, 02, 03, 07)
 - [ ] 09-02-PLAN.md — Controller + view wiring, Bootstrap 5 pager, server-side search input, legacy JS removal, enable skipped integration tests (SHOP-PAG-01, 03, 04, 05, 06, 07)
 **UI hint**: yes

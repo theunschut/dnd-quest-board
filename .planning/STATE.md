@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 9 UI-SPEC approved
-last_updated: "2026-04-21T10:02:32.433Z"
+status: Ready to execute
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-04-21T21:10:18.100Z"
 progress:
   total_phases: 9
   completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 15
+  completed_plans: 14
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 05 — shop-filter-sort
+**Current focus:** Phase 09 — shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
+Phase: 09 (shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: Not started
 | Phase 04-security-hardening P02 | 12 | 2 tasks | 5 files |
 | Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
 | Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
+| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P01 | 20 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 05-shop-filter-sort]: Hidden filter state form added to view for SHOP-03 URL round-trip test; Plan 02 will make it visible
 - [Phase 05-shop-filter-sort]: BuildTabUrl uses QueryString.Create(List<KeyValuePair>) — Url.Action does not serialize IList<T> as repeated query keys
 - [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Repository GetPagedPublishedItemsAsync uses int primitives (not enums) to avoid circular Domain<->Repository project reference
+- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Obsolete stubs kept for EquipmentItems/MagicItems in ShopIndexViewModel so Razor views compile until Plan 02 updates Index.cshtml
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:02:32.429Z
-Stopped at: Phase 9 UI-SPEC approved
-Resume file: .planning/phases/09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets/09-UI-SPEC.md
+Last session: 2026-04-21T21:10:18.095Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: None
