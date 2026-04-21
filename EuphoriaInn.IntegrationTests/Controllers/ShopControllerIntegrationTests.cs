@@ -1,4 +1,6 @@
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.IntegrationTests.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
@@ -223,5 +225,127 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("Iron Sword");
         content.Should().Contain("Steel Sword");
+    }
+
+    // Helper: seed N published shop items with alternating names/types/rarities
+    private async Task SeedPublishedShopItemsAsync(int count)
+    {
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, $"seeder_{Guid.NewGuid():N}", $"seeder_{Guid.NewGuid():N}@example.com");
+
+        for (int i = 1; i <= count; i++)
+        {
+            var name = $"Item {i:D2} {(i % 3 == 0 ? "Sword" : "Shield")}";
+            var type = i % 2 == 0 ? 1 : 0; // 0=Equipment, 1=MagicItem
+            var rarity = i % 2 == 0 ? 2 : 0; // 0=Common, 2=Rare
+            var price = 10 + i;
+
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Repository.QuestBoardContext>();
+            context.ShopItems.Add(new ShopItemEntity
+            {
+                Name = name,
+                Description = $"Description for {name}",
+                Price = price,
+                Quantity = 5,
+                Type = type,
+                Rarity = rarity,
+                Status = 1, // Published
+                CreatedByDmId = shopkeeper.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Index_PagedRepoMethodReachable_ReturnsSuccess()
+    {
+        // This smoke test verifies that GetPagedPublishedItemsAsync is wired into DI.
+        // It must FAIL before Task 2 adds the method, and PASS after.
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        using var scope = _factory.Services.CreateScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IShopService>();
+        var result = await svc.GetPagedPublishedItemsAsync(null, null, null, null, 1, 12);
+        result.TotalCount.Should().BeGreaterThanOrEqualTo(0);
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithoutPageParam_Returns12Items_WhenShopHas15()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, @"class=""item-card""");
+        matches.Count.Should().Be(12);
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithPage2_ReturnsItems13To24()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?page=2");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("Item 13");
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithSearch_FiltersByNameOrDescription()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?search=Sword");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("Sword");
+        content.Should().NotContain("Item 01 Shield");
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_WithStackedParams_AllApply()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?type=Equipment&rarity=Rare&sort=price_asc&search=a&page=1");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_PagerRendersWhenMultiplePages()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain(@"aria-label=""Shop page navigation""");
+    }
+
+    [Fact(Skip = "Wave 2 — enabled in Plan 02 when controller+view wiring lands")]
+    public async Task Index_OutOfRangePage_ClampsToLastPage()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?page=9999");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Contain("page-item active");
     }
 }
