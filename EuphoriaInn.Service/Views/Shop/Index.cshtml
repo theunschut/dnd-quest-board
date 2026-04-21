@@ -128,6 +128,32 @@
         <p class="mb-0 text-light">"Welcome, adventurer! Browse my wares and find what you seek..."</p>
     </div>
 
+    <!-- Filter state form (SHOP-03: URL state round-trips into form; full UI in Plan 02) -->
+    <form method="get" action="@Url.Action("Index", "Shop")" id="shopFilterForm" style="display:none">
+        @foreach (var selectedRarity in Model.SelectedRarities)
+        {
+            <input type="checkbox" name="rarity" value="@selectedRarity" checked="checked" />
+        }
+        <select name="sort">
+            @if (Model.SelectedSort == "price_asc")
+            {
+                <option value="price_asc" selected="selected">Price: Low to High</option>
+            }
+            else
+            {
+                <option value="price_asc">Price: Low to High</option>
+            }
+            @if (Model.SelectedSort == "price_desc")
+            {
+                <option value="price_desc" selected="selected">Price: High to Low</option>
+            }
+            else
+            {
+                <option value="price_desc">Price: High to Low</option>
+            }
+        </select>
+    </form>
+
     <!-- Category Filter -->
     <div class="shop-categories text-center">
         <a href="@Url.Action("Index", "Shop")" class="category-btn @(Model.SelectedType == null ? "active" : "")">

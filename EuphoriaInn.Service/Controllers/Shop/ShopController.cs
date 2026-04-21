@@ -11,16 +11,36 @@ namespace EuphoriaInn.Service.Controllers.Shop;
 public class ShopController(IShopService shopService, IUserService userService, IMapper mapper) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(ItemType? type = null, CancellationToken token = default)
+    public async Task<IActionResult> Index(
+        ItemType? type = null,
+        IList<ItemRarity>? rarity = null,
+        string? sort = null,
+        CancellationToken token = default)
     {
         var items = type.HasValue
             ? await shopService.GetItemsByTypeAsync(type.Value, token)
             : await shopService.GetPublishedItemsAsync(token);
 
+        // SHOP-01: filter by rarity (multi-value union)
+        if (rarity is { Count: > 0 })
+        {
+            items = items.Where(i => rarity.Contains(i.Rarity)).ToList();
+        }
+
+        // SHOP-02: sort by price
+        items = sort switch
+        {
+            "price_asc"  => items.OrderBy(i => i.Price).ToList(),
+            "price_desc" => items.OrderByDescending(i => i.Price).ToList(),
+            _            => items
+        };
+
         var viewModel = new ShopIndexViewModel
         {
             Items = mapper.Map<IList<ShopItemViewModel>>(items),
-            SelectedType = type
+            SelectedType = type,
+            SelectedRarities = rarity ?? [],
+            SelectedSort = sort
         };
 
         if (User.Identity?.IsAuthenticated == true)
