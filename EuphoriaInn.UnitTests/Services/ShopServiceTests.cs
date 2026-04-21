@@ -31,17 +31,11 @@ public class ShopServiceTests
             .Returns((expectedItems, 42));
 
         // Act
-        var result = await shopService.GetPagedPublishedItemsAsync(
-            ItemType.Equipment,
-            new List<ItemRarity> { ItemRarity.Rare },
-            "price_asc",
-            "sword",
-            2,
-            12);
+        var (Items, TotalCount) = await shopService.GetPagedPublishedItemsAsync(ItemType.Equipment, new List<ItemRarity> { ItemRarity.Rare }, "price_asc", "sword", 2, 12, TestContext.Current.CancellationToken);
 
         // Assert
-        result.Items.Should().BeEquivalentTo(expectedItems);
-        result.TotalCount.Should().Be(42);
+        Items.Should().BeEquivalentTo(expectedItems);
+        TotalCount.Should().Be(42);
 
         await shopService.Received(1).GetPagedPublishedItemsAsync(
             ItemType.Equipment,

@@ -1,12 +1,11 @@
 using EuphoriaInn.Domain.Interfaces;
-using EuphoriaInn.IntegrationTests.Helpers;
 using EuphoriaInn.Service.Controllers.QuestBoard;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.IO;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 
+#pragma warning disable CS9113 // Parameter is unread.
 public class QuestFinalizeTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+#pragma warning restore CS9113 // Parameter is unread.
 {
     [Fact]
     public void QuestController_ConstructorDoesNotInjectIEmailService()

@@ -62,7 +62,7 @@ public class QuestServiceTests
             .Returns((Quest?)null);
 
         // Act
-        await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, [42]);
+        await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, [42], TestContext.Current.CancellationToken);
 
         // Assert
         await _emailService.DidNotReceive().SendQuestFinalizedEmailAsync(
@@ -89,7 +89,7 @@ public class QuestServiceTests
         var selectedIds = new List<int> { 1 }; // Only signup id=1; spectator id=2 is auto-included
 
         // Act
-        await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, selectedIds);
+        await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, selectedIds, TestContext.Current.CancellationToken);
 
         // Assert: emails sent to signup 1 (selected) and signup 2 (spectator), NOT signup 3
         await _emailService.Received(2).SendQuestFinalizedEmailAsync(
@@ -114,11 +114,10 @@ public class QuestServiceTests
                 Arg.Any<int>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>(),
                 Arg.Any<int>(), Arg.Any<bool>(), Arg.Any<bool>(), Arg.Any<IList<DateTime>?>(),
                 Arg.Any<CancellationToken>())
-            .Returns(new List<User>());
+            .Returns([]);
 
         // Act
-        var result = await _sut.UpdateQuestPropertiesWithNotificationsAsync(
-            1, "Title", "Desc", 5, 4, false);
+        var result = await _sut.UpdateQuestPropertiesWithNotificationsAsync(1, "Title", "Desc", 5, 4, false, token: TestContext.Current.CancellationToken);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -149,8 +148,7 @@ public class QuestServiceTests
             .Returns(quest);
 
         // Act
-        var result = await _sut.UpdateQuestPropertiesWithNotificationsAsync(
-            1, "Title", "Desc", 5, 4, false);
+        var result = await _sut.UpdateQuestPropertiesWithNotificationsAsync(1, "Title", "Desc", 5, 4, false, token: TestContext.Current.CancellationToken);
 
         // Assert: only players with non-empty email get emailed
         result.Success.Should().BeTrue();

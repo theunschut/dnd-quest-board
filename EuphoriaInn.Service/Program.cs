@@ -53,13 +53,11 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 // Add Authorization policies
 builder.Services.AddScoped<IAuthorizationHandler, DungeonMasterHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("DungeonMasterOnly", policy =>
-        policy.Requirements.Add(new DungeonMasterRequirement()));
-    options.AddPolicy("AdminOnly", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("DungeonMasterOnly", policy =>
+        policy.Requirements.Add(new DungeonMasterRequirement()))
+    .AddPolicy("AdminOnly", policy =>
         policy.Requirements.Add(new AdminRequirement()));
-});
 
 // Add session support
 builder.Services.AddSession(options =>
@@ -77,6 +75,7 @@ builder.Services
 // Add automapper
 builder.Services.AddAutoMapper(config =>
 {
+    config.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ikx1Y2t5UGVubnlTb2Z0d2FyZUxpY2Vuc2VLZXkvYmJiMTNhY2I1OTkwNGQ4OWI0Y2IxYzg1ZjA4OGNjZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2x1Y2t5cGVubnlzb2Z0d2FyZS5jb20iLCJhdWQiOiJMdWNreVBlbm55U29mdHdhcmUiLCJleHAiOiIxODA4MjY1NjAwIiwiaWF0IjoiMTc3NjgwNzM1MyIsImFjY291bnRfaWQiOiIwMTlkYjFmODQzMGE3ZTRhYWMzZmU1N2Q5M2ZjMzY3OCIsImN1c3RvbWVyX2lkIjoiY3RtXzAxa3Byemg3ZmdhZnRhOHZkOTU3NXg4dmpqIiwic3ViX2lkIjoiLSIsImVkaXRpb24iOiIwIiwidHlwZSI6IjIifQ.eW0lnu0panAyi5lyjRYbHP1a2q9VDo-QJDrJQqzgXgIcl6lrOzk2Yld7XI_sTyrr-lPtCp8KmsHI5kUMtk_ZEpTxEHyl5rvpDia9cJ9Pj-KPW-hFQU-XphEzNtnbzelCkX9UBTmmZSK9ZYpeQrlfjlbApocIFl-rGuKgTzyJEGlLDN_zo4xNVk_WcMA-YrFL2xOFJ4xtbkXYEZu25LjBg4hYaLGvGoS6sWm0258eU_m1Sd5UAkpkUaoQju6L6yq1G4hCQHFNv6395oezBzC9JV8WCTc6tEXp4GzRgLyBBmI_ZHFblNMEcR_k8xaWqd2LMVXjESSN3SOhhe6_VJCkjw";
     config.AddProfile<ViewModelProfile>();
     config.AddProfile<EntityProfile>();
 });
@@ -138,6 +137,3 @@ static async Task SeedShopDataAsync(WebApplication app)
         logger.LogError(ex, "Error seeding shop data");
     }
 }
-
-// Make Program class accessible to integration tests
-public partial class Program { }
