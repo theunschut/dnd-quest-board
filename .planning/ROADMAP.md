@@ -16,7 +16,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
 - [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
 - [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
-- [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency (completed 2026-04-21)
+- [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
+ (completed 2026-04-21)
 - [ ] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved
 - [ ] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile
 - [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
@@ -165,10 +166,17 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 
 ### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 8
-**Plans:** 0 plans
-
+**Goal**: The player-facing shop returns at most 12 items per database request via a unified paged repository method; URL-stacked server-side search (?search=) replaces the client-side filterShopItems JS; all filter/sort/search/page state carries cleanly across pager, category tabs, and the filter form
+**Depends on**: Phase 5 (Shop Filter & Sort — URL-stacking pattern and BuildTabUrl helper)
+**Requirements**: SHOP-PAG-01, SHOP-PAG-02, SHOP-PAG-03, SHOP-PAG-04, SHOP-PAG-05, SHOP-PAG-06, SHOP-PAG-07
+**Success Criteria** (what must be TRUE):
+  1. ShopController.Index executes exactly one database call via IShopService.GetPagedPublishedItemsAsync returning at most 12 items
+  2. ?search=X filters items by Name OR Description server-side; stacks with type/rarity/sort/page
+  3. The JS function filterShopItems is fully removed from site.js; no onkeyup/onchange/data-item-* hooks remain in Index.cshtml
+  4. A Bootstrap 5 numbered pager renders when TotalPages > 1 with Previous/Next + current ±2 + ellipses
+  5. Out-of-range ?page=9999 clamps to the last valid page; ShopIndexViewModel carries SearchQuery/CurrentPage/TotalPages/TotalItems/HasActiveSearch
+**Plans**: 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 9 to break down)
+- [ ] 09-01-PLAN.md — Wave 0 tests + paged repository/service method + ViewModel extension (SHOP-PAG-01, 02, 03, 07)
+- [ ] 09-02-PLAN.md — Controller + view wiring, Bootstrap 5 pager, server-side search input, legacy JS removal, enable skipped integration tests (SHOP-PAG-01, 03, 04, 05, 06, 07)
+**UI hint**: yes
