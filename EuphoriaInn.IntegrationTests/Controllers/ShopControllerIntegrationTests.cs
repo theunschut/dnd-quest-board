@@ -241,7 +241,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             var price = 10 + i;
 
             using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Repository.QuestBoardContext>();
+            var context = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Repository.Entities.QuestBoardContext>();
             context.ShopItems.Add(new ShopItemEntity
             {
                 Name = name,

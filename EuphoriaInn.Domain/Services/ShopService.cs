@@ -255,4 +255,25 @@ internal class ShopService(IShopRepository repository, IUserTransactionRepositor
         var transactionEntities = await transactionRepository.GetAllAsync(token);
         return Mapper.Map<IList<UserTransaction>>(transactionEntities);
     }
+
+    public async Task<(IList<ShopItem> Items, int TotalCount)> GetPagedPublishedItemsAsync(
+        ItemType? type,
+        IList<ItemRarity>? rarities,
+        string? sort,
+        string? search,
+        int page,
+        int pageSize,
+        CancellationToken token = default)
+    {
+        var rarityInts = rarities?.Select(r => (int)r).ToList();
+        var (entities, totalCount) = await repository.GetPagedPublishedItemsAsync(
+            type.HasValue ? (int?)type.Value : null,
+            rarityInts,
+            sort,
+            search,
+            page,
+            pageSize,
+            token);
+        return (Mapper.Map<IList<ShopItem>>(entities), totalCount);
+    }
 }
