@@ -1,7 +1,8 @@
 ---
 phase: 6
 slug: follow-up-quest
-status: draft
+status: approved
+reviewed_at: 2026-05-04
 shadcn_initialized: false
 preset: none
 created: 2026-05-04
@@ -53,8 +54,8 @@ Inherits the global typography contract already enforced in `site.css` and `ques
 | Role | Size | Weight | Line Height | Font | Used where |
 |------|------|--------|-------------|------|------------|
 | Body | 16px (1rem) | 500 | 1.5 | system sans-serif | Quest Summary sidebar paragraphs (`<p>`) |
-| Label / small | 14px (0.875rem) | 600 | 1.4 | system sans-serif | `<small>` inside sidebar, vote counts |
-| Card heading | 20px (1.25rem) | 600–700 | 1.2 | system sans-serif | Card `<h5>` in Quest Summary sidebar |
+| Label / small | 14px (0.875rem) | 500 | 1.4 | system sans-serif | `<small>` inside sidebar, vote counts |
+| Card heading | 20px (1.25rem) | 700 | 1.2 | system sans-serif | Card `<h5>` in Quest Summary sidebar |
 | Page heading | 24px (1.5rem) | 700 | 1.2 | Cinzel, serif | Follow-up creation form `<h2>` in `modern-card-header` |
 
 All heading text inside `.modern-card-header` inherits the `#F4E4BC` (parchment) color with the drop-shadow applied globally by `.modern-card h1, h2, h3`.
@@ -192,7 +193,7 @@ Add the button to the left side of the `d-flex justify-content-between` row wher
     <a href="@Url.Action("Manage", "Quest", new { id = Model.OriginalQuestId })"
        class="btn btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>
-        Cancel
+        Back to Quest
     </a>
     <button type="submit" class="btn btn-success">
         <i class="fas fa-scroll me-2"></i>
@@ -230,7 +231,7 @@ Add the button to the left side of the `d-flex justify-content-between` row wher
 |---------|------|
 | Primary CTA (Manage page button) | "Create Follow-Up Quest" |
 | Primary CTA (creation form submit) | "Save Follow-Up Quest" |
-| Cancel link (creation form) | "Cancel" |
+| Cancel link (creation form) | "Back to Quest" |
 | Sidebar link — original quest | "Continues in: [Quest Title]" |
 | Sidebar link — follow-up quest | "Continues from: [Quest Title]" |
 | Pre-fill info banner | "This form is pre-filled from the original quest. Update the title, add at least one date, and save to create the follow-up." |
@@ -312,6 +313,8 @@ All design contract values in this document were derived from the following upst
 | `d-flex justify-content-between` button row | CLAUDE.md button guidelines + Manage.cshtml pattern |
 | `btn-success` for save action | Matches existing "Finalize Quest" button on Manage.cshtml |
 | `btn-secondary` for cancel | CLAUDE.md button guidelines |
+| Typography weights consolidated to 500/700 | UI checker revision — removed weight 600 |
+| Cancel label changed to "Back to Quest" | UI checker revision — increased specificity |
 
 ---
 
@@ -320,7 +323,7 @@ All design contract values in this document were derived from the following upst
 - [ ] Dimension 1 Copywriting: PASS
 - [ ] Dimension 2 Visuals: PASS
 - [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
+- [x] Dimension 4 Typography: PASS
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
