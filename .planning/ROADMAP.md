@@ -114,7 +114,8 @@ Plans:
   5. An EF Core migration adds a nullable `OriginalQuestId` self-referential foreign key to `QuestEntity`
 **Plans**: 2 plans
 Plans:
-- TBD (phase not yet planned)
+- [ ] 06-01-PLAN.md — Data + service layer: QuestEntity/Quest OriginalQuestId FK, EntityProfile, QuestBoardContext, EF migration, IQuestService + QuestService CreateFollowUpQuestAsync (FOLLOW-04, FOLLOW-05)
+- [ ] 06-02-PLAN.md — Controller + views: CreateFollowUp GET/POST actions, FollowUpQuestViewModel, CreateFollowUp.cshtml, sidebar links on Details + Manage, Create Follow-Up button on Manage (FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04)
 **UI hint**: yes
 
 ### Phase 7: DM Profile Page
@@ -160,7 +161,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 3/4 | In Progress|  |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
-| 6. Follow-Up Quest | 0/? | Not started | - |
+| 6. Follow-Up Quest | 0/2 | Not started | - |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
 
