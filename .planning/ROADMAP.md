@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
 - [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
  (completed 2026-04-21)
-- [ ] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved
+- [x] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved (completed 2026-06-16)
 - [ ] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile
 - [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
 
@@ -115,10 +115,10 @@ Plans:
 **Plans**: 2 plans
 Plans:
 **Wave 1**
-- [ ] 06-01-PLAN.md — Data + service layer: QuestEntity/Quest OriginalQuestId FK, EntityProfile, QuestBoardContext, EF migration, IQuestService + QuestService CreateFollowUpQuestAsync (FOLLOW-04, FOLLOW-05)
+- [x] 06-01-PLAN.md — Data + service layer: QuestEntity/Quest OriginalQuestId FK, EntityProfile, QuestBoardContext, EF migration, IQuestService + QuestService CreateFollowUpQuestAsync (FOLLOW-04, FOLLOW-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 06-02-PLAN.md — Controller + views: CreateFollowUp GET/POST actions, FollowUpQuestViewModel, CreateFollowUp.cshtml, sidebar links on Details + Manage, Create Follow-Up button on Manage (FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04)
+- [x] 06-02-PLAN.md — Controller + views: CreateFollowUp GET/POST actions, FollowUpQuestViewModel, CreateFollowUp.cshtml, sidebar links on Details + Manage, Create Follow-Up button on Manage (FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04)
 **UI hint**: yes
 
 ### Phase 7: DM Profile Page
@@ -164,7 +164,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
 | 4. Security Hardening | 3/4 | In Progress|  |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
-| 6. Follow-Up Quest | 0/2 | Not started | - |
+| 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
 | 7. DM Profile Page | 0/? | Not started | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
 
