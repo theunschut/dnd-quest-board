@@ -22,6 +22,8 @@ internal abstract class BaseRepository<TModel, TEntity>(QuestBoardContext dbCont
         var entity = Mapper.Map<TEntity>(model);
         await DbSet.AddAsync(entity, token);
         await DbContext.SaveChangesAsync(token);
+        // Propagate DB-generated Id back to the domain model so callers can use it immediately
+        model.Id = entity.Id;
     }
 
     public virtual async Task<bool> ExistsAsync(int id, CancellationToken token = default)
