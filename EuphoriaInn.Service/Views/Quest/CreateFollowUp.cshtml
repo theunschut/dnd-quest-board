@@ -140,6 +140,15 @@
 
         function removeDate(button) {
             button.closest('.proposed-date-entry').remove();
+            renumberDates();
+        }
+
+        function renumberDates() {
+            const entries = document.querySelectorAll('#proposed-dates .proposed-date-entry input[type="datetime-local"]');
+            entries.forEach((input, i) => {
+                input.name = `ProposedDates[${i}]`;
+            });
+            dateCount = entries.length;
         }
     </script>
 }
