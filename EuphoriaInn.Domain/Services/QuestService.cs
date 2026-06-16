@@ -144,4 +144,52 @@ internal class QuestService(
     {
         await repository.UpdateQuestRecapAsync(questId, recap, token);
     }
+
+    public async Task<int> CreateFollowUpQuestAsync(int originalQuestId, CancellationToken token = default)
+    {
+        var original = await repository.GetQuestWithDetailsAsync(originalQuestId, token);
+        if (original == null)
+            throw new InvalidOperationException($"Quest {originalQuestId} not found.");
+
+        // D-11: Enforce at most one direct follow-up (checked via repository to avoid nav property load issues)
+        if (await repository.HasFollowUpQuestAsync(originalQuestId, token))
+            throw new InvalidOperationException("A follow-up quest already exists for this quest.");
+
+        // D-01, D-02, D-03, D-04: Copy fields, append title, clear dates, reset DM session
+        var followUp = new Quest
+        {
+            Title = $"{original.Title} - Part 2",
+            Description = original.Description,
+            ChallengeRating = original.ChallengeRating,
+            TotalPlayerCount = original.TotalPlayerCount,
+            DungeonMasterId = original.DungeonMasterId,
+            DungeonMasterSession = false,          // D-04
+            ProposedDates = [],                    // D-03
+            OriginalQuestId = original.Id,
+        };
+
+        // Persist the quest first to obtain its Id
+        await repository.AddAsync(followUp, token);
+
+        // D-05, D-06, D-07: Import IsSelected=true players as SignupRole.Player immediately on save
+        var selectedSignups = original.PlayerSignups
+            .Where(ps => ps.IsSelected)
+            .ToList();
+
+        foreach (var ps in selectedSignups)
+        {
+            var importedSignup = new PlayerSignup
+            {
+                Player = ps.Player,
+                Quest = followUp,
+                Role = SignupRole.Player,    // D-06: always Player regardless of original role
+                IsSelected = true,
+                SignupTime = DateTime.UtcNow,
+                DateVotes = [],
+            };
+            await playerSignupRepository.AddAsync(importedSignup, token);
+        }
+
+        return followUp.Id;
+    }
 }

@@ -28,4 +28,6 @@ public interface IQuestRepository : IBaseRepository<Quest>
     Task<IList<User>> UpdateQuestPropertiesWithNotificationsAsync(int questId, string title, string description, int challengeRating, int totalPlayerCount, bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null, CancellationToken token = default);
 
     Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default);
+
+    Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default);
 }

@@ -176,6 +176,11 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         await DbContext.SaveChangesAsync(token);
     }
 
+    public async Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default)
+    {
+        return await DbContext.Quests.AnyAsync(q => q.OriginalQuestId == questId, token);
+    }
+
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
     {
         return Math.Abs((date1 - date2).TotalMinutes) <= DateMatchWindowMinutes;
