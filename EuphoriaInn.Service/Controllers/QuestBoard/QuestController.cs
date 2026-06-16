@@ -768,16 +768,28 @@ public class QuestController(
 
         // Apply the proposed dates and title/description edits from the form
         // (CreateFollowUpQuestAsync creates the quest shell without dates; dates come from the form)
-        await questService.UpdateQuestPropertiesWithNotificationsAsync(
-            newQuestId,
-            viewModel.Title,
-            viewModel.Description,
-            viewModel.ChallengeRating,
-            viewModel.TotalPlayerCount,
-            viewModel.DungeonMasterSession,
-            updateProposedDates: true,
-            viewModel.ProposedDates,
-            token);
+        // WR-03: if the update fails, clean up the orphaned shell quest before re-throwing
+        try
+        {
+            await questService.UpdateQuestPropertiesWithNotificationsAsync(
+                newQuestId,
+                viewModel.Title,
+                viewModel.Description,
+                viewModel.ChallengeRating,
+                viewModel.TotalPlayerCount,
+                viewModel.DungeonMasterSession,
+                updateProposedDates: true,
+                viewModel.ProposedDates,
+                token);
+        }
+        catch
+        {
+            // Roll back the shell quest so the unique FK is freed and retries are possible
+            var orphan = await questService.GetQuestWithDetailsAsync(newQuestId, token);
+            if (orphan != null)
+                await questService.RemoveAsync(orphan);
+            throw;
+        }
 
         return RedirectToAction("Manage", new { id = newQuestId });
     }
