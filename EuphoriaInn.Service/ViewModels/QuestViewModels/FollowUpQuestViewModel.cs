@@ -22,6 +22,8 @@ public class FollowUpQuestViewModel
     [Required]
     public int DungeonMasterId { get; set; }
 
+    [Required]
+    [Range(1, 20, ErrorMessage = "Player count must be between 1 and 20.")]
     public int TotalPlayerCount { get; set; } = 6;
 
     /// <summary>Always false for new follow-up quests (D-04).</summary>
@@ -32,6 +34,5 @@ public class FollowUpQuestViewModel
     /// No default date — DM must add dates explicitly.
     /// Custom error message per UI-SPEC copywriting contract.
     /// </summary>
-    [MinLength(1, ErrorMessage = "At least one proposed date is required before saving a follow-up quest.")]
     public IList<DateTime> ProposedDates { get; set; } = [];
 }
