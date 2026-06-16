@@ -645,6 +645,118 @@ public class QuestController(
 
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> CreateFollowUp(int id, CancellationToken token = default)
+    {
+        var original = await questService.GetQuestWithDetailsAsync(id, token);
+        if (original == null)
+            return NotFound();
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+            return Challenge();
+
+        // Guard: only the quest's DM or an admin may create a follow-up
+        var isQuestDm = currentUser.Name.Equals(original.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+        if (!isQuestDm && !isAdmin)
+            return Forbid();
+
+        // Guard D-11: enforce at most one direct follow-up
+        if (original.FollowUpQuest != null)
+        {
+            TempData["Error"] = "A follow-up quest already exists for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // D-01, D-02, D-03, D-04: pre-fill view model
+        var viewModel = new FollowUpQuestViewModel
+        {
+            OriginalQuestId = original.Id,
+            Title = $"{original.Title} - Part 2",
+            Description = original.Description,
+            ChallengeRating = original.ChallengeRating,
+            TotalPlayerCount = original.TotalPlayerCount,
+            DungeonMasterId = original.DungeonMasterId,
+            DungeonMasterSession = false,
+            ProposedDates = [],   // D-03: always empty
+        };
+
+        // D-05: list IsSelected=true players for the sidebar (display only)
+        ViewBag.PreApprovedPlayers = original.PlayerSignups
+            .Where(ps => ps.IsSelected)
+            .Select(ps => new { ps.Player.Name })
+            .ToList();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> CreateFollowUp(int id, FollowUpQuestViewModel viewModel, CancellationToken token = default)
+    {
+        var original = await questService.GetQuestWithDetailsAsync(id, token);
+        if (original == null)
+            return NotFound();
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+            return Challenge();
+
+        // Guard: only the quest's DM or an admin may create a follow-up
+        var isQuestDm = currentUser.Name.Equals(original.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+        if (!isQuestDm && !isAdmin)
+            return Forbid();
+
+        // Guard D-11: enforce at most one direct follow-up
+        if (original.FollowUpQuest != null)
+        {
+            TempData["Error"] = "A follow-up quest already exists for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // FOLLOW-03: require at least one proposed date
+        if (!ModelState.IsValid || viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
+        {
+            if (viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
+            {
+                ModelState.AddModelError("ProposedDates",
+                    "At least one proposed date is required before saving a follow-up quest.");
+            }
+
+            ViewBag.PreApprovedPlayers = original.PlayerSignups
+                .Where(ps => ps.IsSelected)
+                .Select(ps => new { ps.Player.Name })
+                .ToList();
+
+            return View(viewModel);
+        }
+
+        // Override OriginalQuestId from route to prevent form spoofing (T-06-06)
+        viewModel.OriginalQuestId = id;
+
+        // D-07: player import happens at the service layer inside CreateFollowUpQuestAsync
+        var newQuestId = await questService.CreateFollowUpQuestAsync(id, token);
+
+        // Apply the proposed dates and title/description edits from the form
+        // (CreateFollowUpQuestAsync creates the quest shell without dates; dates come from the form)
+        await questService.UpdateQuestPropertiesWithNotificationsAsync(
+            newQuestId,
+            viewModel.Title,
+            viewModel.Description,
+            viewModel.ChallengeRating,
+            viewModel.TotalPlayerCount,
+            viewModel.DungeonMasterSession,
+            updateProposedDates: true,
+            viewModel.ProposedDates,
+            token);
+
+        return RedirectToAction("Manage", new { id = newQuestId });
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> MyQuests()
     {
         var currentUser = await userService.GetUserAsync(User);

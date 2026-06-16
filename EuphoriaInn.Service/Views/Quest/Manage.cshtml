@@ -451,11 +451,20 @@ else
 
                         <hr>
 
-                        <div class="d-flex justify-content-between">
-                            <form asp-action="Open" method="post" style="display: inline;">
-                                <input type="hidden" name="id" value="@Model.Id" />
-                                <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to open this quest? This will reopen it for changes and reset player selections.');">Open Quest</button>
-                            </form>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <form asp-action="Open" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to open this quest? This will reopen it for changes and reset player selections.');">Open Quest</button>
+                                </form>
+                                @if (Model.FollowUpQuest == null)
+                                {
+                                    <a href="@Url.Action("CreateFollowUp", "Quest", new { id = Model.Id })"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-scroll me-2"></i>Create Follow-Up Quest
+                                    </a>
+                                }
+                            </div>
                             <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
                         </div>
                     }
@@ -533,6 +542,27 @@ else
                     <p><strong>Total Signups:</strong> @Model.PlayerSignups?.Count</p>
                     <p><strong>Target Players:</strong> @Model.TotalPlayerCount</p>
                     <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+
+                    @if (Model.FollowUpQuest != null)
+                    {
+                        <p>
+                            <i class="fas fa-scroll text-warning me-2"></i>
+                            <strong>Continues in:</strong>
+                            <a href="@Url.Action("Details", "Quest", new { id = Model.FollowUpQuest.Id })">
+                                @Model.FollowUpQuest.Title
+                            </a>
+                        </p>
+                    }
+                    @if (Model.OriginalQuest != null)
+                    {
+                        <p>
+                            <i class="fas fa-scroll text-warning me-2"></i>
+                            <strong>Continues from:</strong>
+                            <a href="@Url.Action("Details", "Quest", new { id = Model.OriginalQuest.Id })">
+                                @Model.OriginalQuest.Title
+                            </a>
+                        </p>
+                    }
 
                     <hr>
 
