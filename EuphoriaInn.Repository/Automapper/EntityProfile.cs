@@ -12,9 +12,18 @@ public class EntityProfile : Profile
     public EntityProfile()
     {
         // Quest mapping
+        // OriginalQuest/FollowUpQuest are mapped shallowly (Id + Title only) to avoid
+        // circular AutoMapper recursion. The Quest → QuestEntity direction still ignores
+        // them since EF handles the FK (OriginalQuestId) directly.
         CreateMap<QuestEntity, Quest>()
-            .ForMember(dest => dest.OriginalQuest, opt => opt.Ignore())
-            .ForMember(dest => dest.FollowUpQuest, opt => opt.Ignore());
+            .ForMember(dest => dest.OriginalQuest, opt => opt.MapFrom(src =>
+                src.OriginalQuest == null
+                    ? null
+                    : new Quest { Id = src.OriginalQuest.Id, Title = src.OriginalQuest.Title }))
+            .ForMember(dest => dest.FollowUpQuest, opt => opt.MapFrom(src =>
+                src.FollowUpQuest == null
+                    ? null
+                    : new Quest { Id = src.FollowUpQuest.Id, Title = src.FollowUpQuest.Title }));
 
         CreateMap<Quest, QuestEntity>()
             .ForMember(dest => dest.OriginalQuest, opt => opt.Ignore())

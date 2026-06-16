@@ -83,6 +83,8 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Player)
             .Include(q => q.DungeonMaster)
+            .Include(q => q.OriginalQuest)
+            .Include(q => q.FollowUpQuest)
             .FirstOrDefaultAsync(q => q.Id == id, cancellationToken: token);
         return entity == null ? null : Mapper.Map<Quest>(entity);
     }
@@ -290,6 +292,8 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
             .Include(q => q.PlayerSignups)
                 .ThenInclude(ps => ps.Character)
                     .ThenInclude(c => c!.Classes)
-            .Include(q => q.DungeonMaster);
+            .Include(q => q.DungeonMaster)
+            .Include(q => q.OriginalQuest)
+            .Include(q => q.FollowUpQuest);
     }
 }
