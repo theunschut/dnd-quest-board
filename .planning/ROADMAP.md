@@ -114,7 +114,10 @@ Plans:
   5. An EF Core migration adds a nullable `OriginalQuestId` self-referential foreign key to `QuestEntity`
 **Plans**: 2 plans
 Plans:
+**Wave 1**
 - [ ] 06-01-PLAN.md — Data + service layer: QuestEntity/Quest OriginalQuestId FK, EntityProfile, QuestBoardContext, EF migration, IQuestService + QuestService CreateFollowUpQuestAsync (FOLLOW-04, FOLLOW-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 06-02-PLAN.md — Controller + views: CreateFollowUp GET/POST actions, FollowUpQuestViewModel, CreateFollowUp.cshtml, sidebar links on Details + Manage, Create Follow-Up button on Manage (FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04)
 **UI hint**: yes
 
