@@ -668,6 +668,13 @@ public class QuestController(
             return RedirectToAction("Manage", new { id });
         }
 
+        // Guard: only finalized quests can have a follow-up
+        if (!original.IsFinalized)
+        {
+            TempData["Error"] = "Only finalized quests can have a follow-up created.";
+            return RedirectToAction("Manage", new { id });
+        }
+
         // D-01, D-02, D-03, D-04: pre-fill view model
         var viewModel = new FollowUpQuestViewModel
         {
@@ -713,6 +720,13 @@ public class QuestController(
         if (original.FollowUpQuest != null)
         {
             TempData["Error"] = "A follow-up quest already exists for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // Guard: only finalized quests can have a follow-up
+        if (!original.IsFinalized)
+        {
+            TempData["Error"] = "Only finalized quests can have a follow-up created.";
             return RedirectToAction("Manage", new { id });
         }
 

@@ -151,6 +151,10 @@ internal class QuestService(
         if (original == null)
             throw new InvalidOperationException($"Quest {originalQuestId} not found.");
 
+        // Guard: original quest must be finalized before a follow-up can be created
+        if (!original.IsFinalized)
+            throw new InvalidOperationException("Cannot create a follow-up for a quest that has not been finalized.");
+
         // D-11: Enforce at most one direct follow-up (checked via repository to avoid nav property load issues)
         if (await repository.HasFollowUpQuestAsync(originalQuestId, token))
             throw new InvalidOperationException("A follow-up quest already exists for this quest.");
