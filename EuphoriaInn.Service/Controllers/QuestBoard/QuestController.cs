@@ -751,7 +751,20 @@ public class QuestController(
         viewModel.OriginalQuestId = id;
 
         // D-07: player import happens at the service layer inside CreateFollowUpQuestAsync
-        var newQuestId = await questService.CreateFollowUpQuestAsync(id, token);
+        int newQuestId;
+        try
+        {
+            newQuestId = await questService.CreateFollowUpQuestAsync(id, token);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            ViewBag.PreApprovedPlayers = original.PlayerSignups
+                .Where(ps => ps.IsSelected)
+                .Select(ps => new { ps.Player.Name })
+                .ToList();
+            return View(viewModel);
+        }
 
         // Apply the proposed dates and title/description edits from the form
         // (CreateFollowUpQuestAsync creates the quest shell without dates; dates come from the form)

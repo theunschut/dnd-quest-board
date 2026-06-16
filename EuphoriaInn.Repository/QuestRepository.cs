@@ -14,6 +14,19 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
     // accommodates minor timezone rounding when users resubmit dates.
     private const int DateMatchWindowMinutes = 30;
 
+
+    public override async Task AddAsync(Quest model, CancellationToken token = default)
+    {
+        try
+        {
+            await base.AddAsync(model, token);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_Quests_OriginalQuestId") == true
+                                            || ex.InnerException?.Message.Contains("unique") == true)
+        {
+            throw new InvalidOperationException("A follow-up quest already exists for this quest.", ex);
+        }
+    }
     public override async Task<IList<Quest>> GetAllAsync(CancellationToken token = default)
     {
         var entities = await DbContext.Quests
