@@ -12,8 +12,13 @@ public class EntityProfile : Profile
     public EntityProfile()
     {
         // Quest mapping
+        CreateMap<QuestEntity, Quest>()
+            .ForMember(dest => dest.OriginalQuest, opt => opt.Ignore())
+            .ForMember(dest => dest.FollowUpQuest, opt => opt.Ignore());
+
         CreateMap<Quest, QuestEntity>()
-            .ReverseMap();
+            .ForMember(dest => dest.OriginalQuest, opt => opt.Ignore())
+            .ForMember(dest => dest.FollowUpQuest, opt => opt.Ignore());
 
         // User mapping
         CreateMap<User, UserEntity>()

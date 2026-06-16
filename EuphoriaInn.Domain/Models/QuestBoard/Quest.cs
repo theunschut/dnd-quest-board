@@ -31,6 +31,12 @@ public class Quest : IModel
 
     public string? Recap { get; set; }
 
+    public int? OriginalQuestId { get; set; }
+
+    public Quest? OriginalQuest { get; set; }
+
+    public Quest? FollowUpQuest { get; set; }
+
     public IList<ProposedDate> ProposedDates { get; set; } = [];
 
     public IList<PlayerSignup> PlayerSignups { get; set; } = [];

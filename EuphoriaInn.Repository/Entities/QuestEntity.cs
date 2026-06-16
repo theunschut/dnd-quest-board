@@ -34,6 +34,13 @@ public class QuestEntity : IEntity
 
     public string? Recap { get; set; }
 
+    public int? OriginalQuestId { get; set; }
+
+    [ForeignKey(nameof(OriginalQuestId))]
+    public virtual QuestEntity? OriginalQuest { get; set; }
+
+    public virtual QuestEntity? FollowUpQuest { get; set; }
+
     [ForeignKey(nameof(DungeonMasterId))]
     public virtual UserEntity DungeonMaster { get; set; } = null!;
 
