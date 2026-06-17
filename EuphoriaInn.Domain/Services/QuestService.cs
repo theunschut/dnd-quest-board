@@ -130,7 +130,10 @@ internal class QuestService(
         var quests = await repository.GetQuestsWithDetailsAsync(token);
 
         return quests
-            .Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+            .Where(q => q.IsFinalized
+                        && q.FinalizedDate.HasValue
+                        && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date
+                        && !q.DungeonMasterSession)
             .OrderByDescending(q => q.FinalizedDate)
             .ToList();
     }
