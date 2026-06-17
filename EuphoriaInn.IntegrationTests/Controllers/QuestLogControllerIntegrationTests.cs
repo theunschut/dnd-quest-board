@@ -130,4 +130,68 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         content.Should().Contain("Finalized Quest");
         content.Should().NotContain("Active Quest");
     }
+
+    [Fact]
+    public async Task Index_ShouldNotShowFinalizedDmSessions()
+    {
+        // Arrange — #89: DM sessions should be excluded from the quest log even when finalized
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var dm = await AuthenticationHelper.CreateTestUserAsync(
+            factory.Services, "dmsessiondm", "dmsession@example.com");
+
+        var regularQuest = await TestDataHelper.CreateTestQuestAsync(
+            factory.Services, dm.Id, "Regular Finalized Quest", "Desc", 5, isFinalized: true, dungeonMasterSession: false);
+        var dmSession = await TestDataHelper.CreateTestQuestAsync(
+            factory.Services, dm.Id, "DM Session Quest", "Private session", 5, isFinalized: true, dungeonMasterSession: true);
+
+        // Set finalized dates for both
+        using (var scope = factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var q1 = await context.Quests.FindAsync([regularQuest.Id], TestContext.Current.CancellationToken);
+            var q2 = await context.Quests.FindAsync([dmSession.Id], TestContext.Current.CancellationToken);
+            if (q1 != null) q1.FinalizedDate = DateTime.UtcNow.AddDays(-2);
+            if (q2 != null) q2.FinalizedDate = DateTime.UtcNow.AddDays(-2);
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        // Act
+        var response = await _client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("Regular Finalized Quest");
+        content.Should().NotContain("DM Session Quest");
+    }
+
+    [Fact]
+    public async Task Details_WithDmSessionQuestId_ShouldReturn404()
+    {
+        // Arrange — #89: DM session details should not be accessible via quest log
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var dm = await AuthenticationHelper.CreateTestUserAsync(
+            factory.Services, "dmsessiondetailsdm", "dmsessiondetails@example.com");
+
+        var dmSession = await TestDataHelper.CreateTestQuestAsync(
+            factory.Services, dm.Id, "DM Session", "Private", 5, isFinalized: true, dungeonMasterSession: true);
+
+        // Set finalized date
+        using (var scope = factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var questToUpdate = await context.Quests.FindAsync([dmSession.Id], TestContext.Current.CancellationToken);
+            if (questToUpdate != null)
+            {
+                questToUpdate.FinalizedDate = DateTime.UtcNow.AddDays(-2);
+                await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+            }
+        }
+
+        // Act
+        var response = await _client.GetAsync($"/QuestLog/Details/{dmSession.Id}", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
