@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
  (completed 2026-04-21)
 - [x] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved (completed 2026-06-16)
-- [ ] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile
+- [x] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile (completed 2026-06-17)
 - [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
 
 ## Phase Details
