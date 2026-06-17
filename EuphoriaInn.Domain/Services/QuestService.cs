@@ -35,11 +35,6 @@ internal class QuestService(
         }
     }
 
-    public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
-    {
-        return await repository.GetQuestsByDmNameAsync(dmName, token);
-    }
-
     public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
     {
         return await repository.GetQuestsWithDetailsAsync(token);

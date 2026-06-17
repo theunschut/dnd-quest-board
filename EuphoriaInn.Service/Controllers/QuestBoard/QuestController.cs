@@ -794,25 +794,4 @@ public class QuestController(
         return RedirectToAction("Manage", new { id = newQuestId });
     }
 
-    [HttpGet]
-    [Authorize(Policy = "DungeonMasterOnly")]
-    public async Task<IActionResult> MyQuests()
-    {
-        var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null)
-        {
-            return Challenge();
-        }
-
-        var quests = await questService.GetQuestsByDmNameAsync(currentUser.Name);
-
-        var view = new MyQuestsViewModel
-        {
-            Open = quests.Where(q => !q.IsFinalized),
-            Finalized = quests.Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date > DateTime.UtcNow.AddDays(-1).Date),
-            Done = quests.Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
-        };
-
-        return View(view);
-    }
 }

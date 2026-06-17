@@ -35,15 +35,6 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         return Mapper.Map<IList<Quest>>(entities);
     }
 
-    public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
-    {
-        var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
-            .Where(q => q.DungeonMaster!.Name == dmName)
-            .OrderByDescending(q => q.CreatedAt)
-            .ToListAsync(cancellationToken: token);
-        return Mapper.Map<IList<Quest>>(entities);
-    }
-
     public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
     {
         var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
