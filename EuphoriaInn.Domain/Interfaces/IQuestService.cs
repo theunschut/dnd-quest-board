@@ -39,4 +39,10 @@ public interface IQuestService : IBaseService<Quest>
     /// Returns the Id of the newly created follow-up quest.
     /// </summary>
     Task<int> CreateFollowUpQuestAsync(int originalQuestId, CancellationToken token = default);
+
+    /// <summary>
+    /// Returns all quests where DungeonMasterId == dmUserId, ordered by most recent first.
+    /// Includes both finalized and active quests (D-08).
+    /// </summary>
+    Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default);
 }

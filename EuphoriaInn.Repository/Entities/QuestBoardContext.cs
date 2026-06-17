@@ -24,6 +24,10 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<CharacterClassEntity> CharacterClasses { get; set; }
 
+    public DbSet<DungeonMasterProfileEntity> DungeonMasterProfiles { get; set; }
+
+    public DbSet<DungeonMasterProfileImageEntity> DungeonMasterProfileImages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -121,6 +125,25 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .WithOne(ps => ps.Character)
             .HasForeignKey(ps => ps.CharacterId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // DungeonMasterProfile — Id = UserId (no auto-generation)
+        modelBuilder.Entity<DungeonMasterProfileEntity>()
+            .Property(p => p.Id)
+            .ValueGeneratedNever();
+
+        // UserEntity -> DungeonMasterProfileEntity (1:1, Cascade — single path, safe per RESEARCH.md pitfall #1)
+        modelBuilder.Entity<DungeonMasterProfileEntity>()
+            .HasOne<UserEntity>()
+            .WithOne()
+            .HasForeignKey<DungeonMasterProfileEntity>(p => p.Id)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // DungeonMasterProfileEntity -> DungeonMasterProfileImageEntity (1:1, Cascade)
+        modelBuilder.Entity<DungeonMasterProfileEntity>()
+            .HasOne(p => p.ProfileImage)
+            .WithOne(pi => pi.DungeonMasterProfile)
+            .HasForeignKey<DungeonMasterProfileImageEntity>(pi => pi.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Player signup can optionally have a character
         modelBuilder.Entity<PlayerSignupEntity>()

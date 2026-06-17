@@ -196,6 +196,16 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         return await DbContext.Quests.AnyAsync(q => q.OriginalQuestId == questId, token);
     }
 
+    public async Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default)
+    {
+        var entities = await DbContext.Quests
+            .Include(q => q.DungeonMaster)
+            .Where(q => q.DungeonMasterId == dmUserId)
+            .OrderByDescending(q => q.FinalizedDate ?? q.CreatedAt)
+            .ToListAsync(token);
+        return Mapper.Map<IList<Quest>>(entities);
+    }
+
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
     {
         return Math.Abs((date1 - date2).TotalMinutes) <= DateMatchWindowMinutes;
