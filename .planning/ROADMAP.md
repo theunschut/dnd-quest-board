@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Layer Dependency Fix** - Restore correct compile-time dependency direction: Domain compiles without referencing Repository
 - [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
 - [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
-- [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
+- [x] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
 - [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
  (completed 2026-04-21)
 - [x] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved (completed 2026-06-16)
@@ -83,7 +83,7 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 04-01-PLAN.md — Identity lockout config + raise password minimum to 8 (SEC-01, SEC-03)
-- [ ] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
+- [x] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
 - [x] 04-03-PLAN.md — EF Core migration backfilling LockoutEnabled = 1 for existing users (SEC-02)
 - [x] 04-04-PLAN.md — Add .env to .gitignore and untrack (SEC-06)
 
@@ -166,7 +166,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 1. Layer Dependency Fix | 2/2 | Complete | 2026-04-20 |
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
-| 4. Security Hardening | 3/4 | In Progress|  |
+| 4. Security Hardening | 4/4 | Complete | 2026-04-20 |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
 | 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
 | 7. DM Profile Page | 2/2 | Complete | 2026-06-17 |

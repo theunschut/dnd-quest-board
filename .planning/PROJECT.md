@@ -45,10 +45,10 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - Note: `HasKey` remains on user-facing edit — it is informational (who holds a physical building key), not a permission
 
 #### New Features
-- [ ] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style
-- [ ] Shop filter and sort by price/rarity (issue #96)
+- [x] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style — Validated in Phase 07: dm-profile-page
+- [x] Shop filter and sort by price/rarity (issue #96) — Validated in Phase 05: shop-filter-sort
+- [x] Follow-up quest creation (issue #49) — creates part 2 with existing players pre-filled, new date required — Validated in Phase 06: follow-up-quest
 - [ ] Profile picture crop/avatar selection for guild member page (issue #78)
-- [ ] Follow-up quest creation (issue #49) — creates part 2 with existing players pre-filled, new date required
 
 ### Out of Scope
 
@@ -81,9 +81,9 @@ The codebase map is current (analysed 2026-04-15): `.planning/codebase/`.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | — Pending |
-| Bugs deferred to separate milestone | Bugs are isolated fixes; refactor may touch same code and create conflicts | — Pending |
-| No pagination this milestone | Group size makes it a non-issue; adds complexity to every list view | — Pending |
+| Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | — Validated: phases 1-4 refactor complete, features landing on clean arch |
+| Bugs deferred to separate milestone | Bugs are isolated fixes; refactor may touch same code and create conflicts | — Standing |
+| No pagination this milestone | Group size makes it a non-issue; adds complexity to every list view | — Reversed in Phase 09: shop pagination added with server-side EF Core paging |
 
 ## Evolution
 
@@ -103,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 after Phase 05: shop-filter-sort*
+*Last updated: 2026-06-17 after Phase 07: dm-profile-page*
