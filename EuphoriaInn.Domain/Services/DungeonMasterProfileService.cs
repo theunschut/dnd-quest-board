@@ -12,8 +12,11 @@ internal class DungeonMasterProfileService(IDungeonMasterProfileRepository repos
         return await repository.GetProfileByUserIdAsync(userId, token);
     }
 
-    public async Task UpsertProfileAsync(int userId, string? bio, byte[]? imageBytes, CancellationToken token = default)
+    public async Task UpsertProfileAsync(int userId, string? bio, byte[]? imageBytes, bool removeImage = false, CancellationToken token = default)
     {
+        // imageBytes != null  → replace stored image with new bytes
+        // removeImage == true  → explicitly clear the stored image (e.g. "remove photo" button)
+        // both false/null     → keep existing image unchanged (bio-only edit)
         var profile = await repository.GetProfileByUserIdAsync(userId, token);
         if (profile == null)
         {
@@ -27,8 +30,8 @@ internal class DungeonMasterProfileService(IDungeonMasterProfileRepository repos
         {
             profile.Bio = bio;
             await repository.UpdateAsync(profile, token);
-            if (imageBytes != null)
-                await repository.UpsertProfileImageAsync(userId, imageBytes, token);
+            if (imageBytes != null || removeImage)
+                await repository.UpsertProfileImageAsync(userId, removeImage ? null : imageBytes, token);
         }
     }
 
