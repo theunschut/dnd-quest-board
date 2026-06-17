@@ -79,6 +79,13 @@ public class DungeonMasterController(
         byte[]? imageBytes = null;
         if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
         {
+            const long maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+            if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
+            {
+                ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
+                    "Profile picture cannot exceed 5 MB.");
+                return View(viewModel);
+            }
             using var memoryStream = new MemoryStream();
             await viewModel.ProfilePictureFile.CopyToAsync(memoryStream, token);
             imageBytes = memoryStream.ToArray();
