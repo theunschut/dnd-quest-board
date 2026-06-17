@@ -11,9 +11,9 @@ public class PlayersControllerIntegrationTests(WebApplicationFactoryBase factory
     {
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
 
-        var dmUser = await AuthenticationHelper.CreateTestUserAsync(
-            factory.Services, "directorydm", "directorydm@example.com",
-            name: "Directory DM");
+        var (_, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "directorydm", "directorydm@example.com", name: "Directory DM",
+            roles: ["DungeonMaster"]);
 
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(factory);
 

@@ -5,6 +5,7 @@ using EuphoriaInn.Domain.Models.Shop;
 using EuphoriaInn.Service.ViewModels.QuestViewModels;
 using EuphoriaInn.Service.ViewModels.ShopViewModels;
 using EuphoriaInn.Service.ViewModels.CharacterViewModels;
+using EuphoriaInn.Service.ViewModels.DungeonMasterViewModels;
 
 namespace EuphoriaInn.Service.Automapper;
 
@@ -71,5 +72,9 @@ public class ViewModelProfile : Profile
         // CharacterClass mappings
         CreateMap<CharacterClass, CharacterClassViewModel>()
             .ReverseMap();
+
+        // Quest to QuestSummaryViewModel (for DM profile quest history)
+        CreateMap<Quest, QuestSummaryViewModel>()
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.FinalizedDate));
     }
 }
