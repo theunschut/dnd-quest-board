@@ -38,7 +38,7 @@ public class DungeonMasterController(
         return View(viewModel);
     }
 
-    // DMPRO-02 + DMPRO-03: Edit profile (own: no id / admin: with id)
+    // DMPRO-02 + DMPRO-03: Edit profile (own: no id / admin only: with foreign id)
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> EditProfile(int? id, CancellationToken token = default)
@@ -46,9 +46,11 @@ public class DungeonMasterController(
         var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null) return Challenge();
 
-        var targetUserId = id ?? currentUser.Id;
-        if (targetUserId != currentUser.Id && !User.IsInRole("Admin"))
+        // Only admins may supply a foreign id; DMs always edit their own profile.
+        if (id.HasValue && id.Value != currentUser.Id && !User.IsInRole("Admin"))
             return Forbid();
+
+        var targetUserId = id ?? currentUser.Id;
 
         var profile = await dmProfileService.GetProfileByUserIdAsync(targetUserId, token);
         var viewModel = new EditDMProfileViewModel
@@ -69,9 +71,11 @@ public class DungeonMasterController(
         var currentUser = await userService.GetUserAsync(User);
         if (currentUser == null) return Challenge();
 
-        var targetUserId = id ?? currentUser.Id;
-        if (targetUserId != currentUser.Id && !User.IsInRole("Admin"))
+        // Only admins may supply a foreign id; DMs always edit their own profile.
+        if (id.HasValue && id.Value != currentUser.Id && !User.IsInRole("Admin"))
             return Forbid();
+
+        var targetUserId = id ?? currentUser.Id;
 
         if (!ModelState.IsValid)
             return View(viewModel);

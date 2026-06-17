@@ -90,17 +90,7 @@
                                             @quest.Date?.ToString("MMM dd, yyyy")
                                         </td>
                                         <td>
-                                            @{
-                                                var (badgeClass, diffLabel) = quest.ChallengeRating switch
-                                                {
-                                                    1 => ("bg-success", "Easy"),
-                                                    2 => ("bg-warning text-dark", "Medium"),
-                                                    3 => ("bg-danger", "Hard"),
-                                                    4 => ("bg-purple", "Deadly"),
-                                                    _ => ("bg-secondary", $"CR {quest.ChallengeRating}")
-                                                };
-                                            }
-                                            <span class="badge @badgeClass">@diffLabel</span>
+                                            <span class="badge bg-secondary">CR @quest.ChallengeRating</span>
                                         </td>
                                     </tr>
                                 }
