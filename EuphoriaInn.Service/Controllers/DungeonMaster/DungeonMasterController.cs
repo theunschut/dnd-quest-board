@@ -91,7 +91,7 @@ public class DungeonMasterController(
             imageBytes = memoryStream.ToArray();
         }
 
-        await dmProfileService.UpsertProfileAsync(targetUserId, viewModel.Bio, imageBytes, token);
+        await dmProfileService.UpsertProfileAsync(targetUserId, viewModel.Bio, imageBytes, token: token);
 
         return RedirectToAction(nameof(Profile), new { id = targetUserId });
     }
