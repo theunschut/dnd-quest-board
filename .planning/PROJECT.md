@@ -52,7 +52,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 
 ### Out of Scope
 
-- Bug fixes (#94 add dates, #91 file size 413, #89 DM sessions in quest log) — separate bug-fix milestone
+- Bug fixes (#94 add dates, #89 DM sessions in quest log) — separate bug-fix milestone
 - D&D Beyond PDF character sheet parser (#84) — large standalone feature, future milestone
 - 5etools integration (#82) — large standalone feature, future milestone
 - Miniature request page (#59) — large standalone feature, future milestone
