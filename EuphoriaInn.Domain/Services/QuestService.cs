@@ -145,6 +145,11 @@ internal class QuestService(
         await repository.UpdateQuestRecapAsync(questId, recap, token);
     }
 
+    public async Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default)
+    {
+        return await repository.GetQuestsByDungeonMasterAsync(dmUserId, token);
+    }
+
     public async Task<int> CreateFollowUpQuestAsync(int originalQuestId, CancellationToken token = default)
     {
         var original = await repository.GetQuestWithDetailsAsync(originalQuestId, token);

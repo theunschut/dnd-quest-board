@@ -30,4 +30,6 @@ public interface IQuestRepository : IBaseRepository<Quest>
     Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default);
 
     Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default);
+
+    Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default);
 }

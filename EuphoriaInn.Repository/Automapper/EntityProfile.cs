@@ -105,5 +105,15 @@ public class EntityProfile : Profile
 
         CreateMap<CharacterClassEntity, CharacterClass>()
             .ForMember(dest => dest.Class, opt => opt.MapFrom(src => (DndClass)src.Class));
+
+        // DungeonMasterProfile mappings
+        CreateMap<DungeonMasterProfileEntity, DungeonMasterProfile>()
+            .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom(src =>
+                src.ProfileImage != null ? src.ProfileImage.ImageData : null));
+
+        CreateMap<DungeonMasterProfile, DungeonMasterProfileEntity>()
+            .ForMember(dest => dest.ProfileImage, opt => opt.MapFrom(src =>
+                src.ProfilePicture == null ? null
+                : new DungeonMasterProfileImageEntity { ImageData = src.ProfilePicture }));
     }
 }
