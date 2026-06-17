@@ -1,10 +1,11 @@
 ---
 phase: 7
 slug: dm-profile-page
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-17
+reviewed_at: 2026-06-17
 ---
 
 # Phase 7 — UI Design Contract
@@ -54,12 +55,12 @@ Source: detected from `site.css` and `_Layout.cshtml`. No new type styles are in
 
 | Role | Size | Weight | Line Height | Notes |
 |------|------|--------|-------------|-------|
-| Body | 16px (1rem) | 500 | 1.5 | Default Bootstrap body; `.modern-card p` overrides color to `#F4E4BC` |
+| Body | 16px (1rem) | 400 | 1.5 | Default Bootstrap body; `.modern-card p` overrides color to `#F4E4BC` |
 | Label | 14px (0.875rem) | 600 | 1.4 | Bootstrap `.form-label`; color `#F4E4BC` inside `.modern-card` |
 | Heading (card h2) | 20px (1.25rem) | 600 | 1.2 | Used in `modern-card-header h2`; color `#F4E4BC` with dark text-shadow |
-| Display (page h1 fallback) | 24px (1.5rem) | 700 | 1.2 | Profile name on the public profile page; same treatment as card h2 |
+| Display (page h1 fallback) | 24px (1.5rem) | 600 | 1.2 | Profile name on the public profile page; same treatment as card h2 |
 
-Bio textarea: 16px body, 1.5 line-height, `rows="6"` (approximately 150px visible height, scrollable via browser default).
+Bio textarea: 16px body, weight 400, 1.5 line-height, `rows="6"` (approximately 150px visible height, scrollable via browser default).
 
 Quest list title links: 14px, weight 600, inherits `#F4E4BC` from `.modern-card` context.
 
@@ -192,7 +193,7 @@ card.modern-card
       hr
       div.d-flex.justify-content-between
         a.btn.btn-secondary href="Url.Action('Profile', new { id = ... })"
-          i.fas.fa-arrow-left.me-2  "Cancel"
+          i.fas.fa-arrow-left.me-2  "Back to Profile"
         button[type=submit].btn.btn-warning
           i.fas.fa-save.me-2  "Save Profile"
 ```
@@ -265,7 +266,7 @@ Add `<link rel="stylesheet" href="~/css/dm-profile.css" asp-append-version="true
 |---------|------|
 | Primary CTA (edit button on profile page) | "Edit Profile" |
 | Primary CTA (save button on edit form) | "Save Profile" |
-| Cancel button (edit form) | "Cancel" |
+| Cancel button (edit form) | "Back to Profile" |
 | Navbar link | "Edit My Profile" |
 | DM role label (profile page) | "Dungeon Master" |
 | Empty bio state | "No bio provided yet." |
@@ -336,11 +337,11 @@ No third-party registries or external component blocks are introduced in this ph
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS — "Cancel" corrected to "Back to Profile" in copywriting table and edit form layout markup
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS — consolidated to 2 weights: 400 (Body) and 600 (Label, Heading, Display); weight 500 and 700 removed
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-06-17
