@@ -135,6 +135,32 @@
                     </button>
                 </div>`;
             container.appendChild(entry);
+
+            // Pre-fill new input: last filled date + 1 day at 18:00, or today at 18:00
+            const newInput = entry.querySelector('input[type="datetime-local"]');
+            const allInputs = container.querySelectorAll('input[type="datetime-local"]');
+            // allInputs includes the new one; check second-to-last and earlier for a prior value
+            let baseDate = null;
+            for (let i = allInputs.length - 2; i >= 0; i--) {
+                if (allInputs[i].value) {
+                    baseDate = new Date(allInputs[i].value);
+                    break;
+                }
+            }
+            if (baseDate && !isNaN(baseDate.getTime())) {
+                baseDate.setDate(baseDate.getDate() + 1);
+                baseDate.setHours(18, 0, 0, 0);
+            } else {
+                baseDate = new Date();
+                baseDate.setHours(18, 0, 0, 0);
+            }
+            const year = baseDate.getFullYear();
+            const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+            const day = String(baseDate.getDate()).padStart(2, '0');
+            const hours = String(baseDate.getHours()).padStart(2, '0');
+            const minutes = String(baseDate.getMinutes()).padStart(2, '0');
+            newInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
             dateCount++;
         }
 
@@ -150,5 +176,12 @@
             });
             dateCount = entries.length;
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('proposed-dates');
+            if (container && container.querySelectorAll('.proposed-date-entry').length === 0) {
+                addDate();
+            }
+        });
     </script>
 }
