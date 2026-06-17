@@ -169,8 +169,9 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 4. Security Hardening | 3/4 | In Progress|  |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
 | 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
-| 7. DM Profile Page | 0/2 | Planned | - |
+| 7. DM Profile Page | 2/2 | Complete | 2026-06-17 |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
+| 9. Shop Pagination | 2/2 | Complete | 2026-04-21 |
 
 ### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
 
