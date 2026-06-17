@@ -33,8 +33,8 @@ public class QuestLogController(
             return NotFound();
         }
 
-        // Verify this is a completed quest
-        if (!quest.IsFinalized || !quest.FinalizedDate.HasValue || quest.FinalizedDate.Value.Date > DateTime.UtcNow.AddDays(-1).Date)
+        // Verify this is a completed quest (DM-only sessions are not shown in the quest log)
+        if (!quest.IsFinalized || !quest.FinalizedDate.HasValue || quest.FinalizedDate.Value.Date > DateTime.UtcNow.AddDays(-1).Date || quest.DungeonMasterSession)
         {
             return NotFound();
         }
