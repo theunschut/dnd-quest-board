@@ -7,7 +7,8 @@ function addProposedDate() {
     
     // Determine the correct field name prefix based on the form context
     // Check if we're in the edit form (has Quest. prefix) or create form (direct ProposedDates)
-    const existingInput = container.querySelector('input[type="datetime-local"]');
+    // Also check hidden inputs — Edit.cshtml renders existing dates as hidden inputs, not datetime-local
+    const existingInput = container.querySelector('input[type="datetime-local"], input[type="hidden"][name*="ProposedDates"]');
     const isEditForm = existingInput && existingInput.name.includes('Quest.ProposedDates');
     const fieldPrefix = isEditForm ? 'Quest.ProposedDates' : 'ProposedDates';
     
