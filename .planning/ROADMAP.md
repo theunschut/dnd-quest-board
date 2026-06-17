@@ -133,7 +133,11 @@ Plans:
   5. An EF Core migration adds `Bio` (varchar 2000, nullable) and a `DungeonMasterProfileImage` table
 **Plans**: 2 plans
 Plans:
-- TBD (phase not yet planned)
+**Wave 1**
+- [ ] 07-01-PLAN.md — Data + service layer: DungeonMasterProfileEntity, DungeonMasterProfileImageEntity, domain model, interfaces, repository, service, AutoMapper profiles, DI registrations, GetQuestsByDungeonMasterAsync, EF migration AddDMProfileSystem (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 07-02-PLAN.md — Web layer: Wave 0 test stubs, DungeonMasterController (Profile/EditProfile/GetDMProfilePicture), ViewModels, Views, dm-profile.css, navbar link, DM directory link (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-04)
 **UI hint**: yes
 
 ### Phase 8: Profile Picture Avatar Crop
@@ -165,7 +169,7 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 4. Security Hardening | 3/4 | In Progress|  |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
 | 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
-| 7. DM Profile Page | 0/? | Not started | - |
+| 7. DM Profile Page | 0/2 | Planned | - |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
 
 ### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
