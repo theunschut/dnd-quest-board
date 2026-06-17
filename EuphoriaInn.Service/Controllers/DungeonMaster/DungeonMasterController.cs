@@ -96,6 +96,15 @@ public class DungeonMasterController(
     {
         var bytes = await dmProfileService.GetProfilePictureAsync(id, token);
         if (bytes == null) return NotFound();
-        return File(bytes, "image/jpeg");
+
+        // Detect MIME type from magic bytes so PNG and GIF are served correctly.
+        // PNG: 89 50 4E 47  GIF: 47 49 46 38  everything else: treat as JPEG.
+        var contentType = bytes.Length >= 4 && bytes[0] == 0x89 && bytes[1] == 0x50
+            ? "image/png"
+            : bytes.Length >= 6 && bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46
+            ? "image/gif"
+            : "image/jpeg";
+
+        return File(bytes, contentType);
     }
 }
