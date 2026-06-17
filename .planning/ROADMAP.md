@@ -134,7 +134,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 **Wave 1**
-- [ ] 07-01-PLAN.md — Data + service layer: DungeonMasterProfileEntity, DungeonMasterProfileImageEntity, domain model, interfaces, repository, service, AutoMapper profiles, DI registrations, GetQuestsByDungeonMasterAsync, EF migration AddDMProfileSystem (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-05)
+- [x] 07-01-PLAN.md — Data + service layer: DungeonMasterProfileEntity, DungeonMasterProfileImageEntity, domain model, interfaces, repository, service, AutoMapper profiles, DI registrations, GetQuestsByDungeonMasterAsync, EF migration AddDMProfileSystem (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 07-02-PLAN.md — Web layer: Wave 0 test stubs, DungeonMasterController (Profile/EditProfile/GetDMProfilePicture), ViewModels, Views, dm-profile.css, navbar link, DM directory link (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-04)
