@@ -112,8 +112,6 @@ public class EntityProfile : Profile
                 src.ProfileImage != null ? src.ProfileImage.ImageData : null));
 
         CreateMap<DungeonMasterProfile, DungeonMasterProfileEntity>()
-            .ForMember(dest => dest.ProfileImage, opt => opt.MapFrom(src =>
-                src.ProfilePicture == null ? null
-                : new DungeonMasterProfileImageEntity { ImageData = src.ProfilePicture }));
+            .ForMember(dest => dest.ProfileImage, opt => opt.Ignore());
     }
 }

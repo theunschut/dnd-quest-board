@@ -13,7 +13,6 @@ public class DungeonMasterController(
     IQuestService questService,
     IMapper mapper) : Controller
 {
-    // DMPRO-01: Public DM profile page
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Profile(int id, CancellationToken token = default)
@@ -30,32 +29,36 @@ public class DungeonMasterController(
             UserId = id,
             Name = user.Name ?? string.Empty,
             Bio = profile?.Bio,
-            HasProfilePicture = profile?.ProfilePicture != null,
-            CanEdit = currentUser != null && (currentUser.Id == id || User.IsInRole("Admin")),
+            HasProfilePicture = profile?.ProfilePicture?.Length > 0,
+            CanEdit = currentUser != null && (currentUser.Equals(user) || User.IsInRole("Admin")),
             Quests = mapper.Map<List<QuestSummaryViewModel>>(quests)
         };
 
         return View(viewModel);
     }
 
-    // DMPRO-02 + DMPRO-03: Edit profile (own: no id / admin only: with foreign id)
     [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> EditProfile(int? id, CancellationToken token = default)
     {
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null) return Challenge();
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
 
-        // Only admins may supply a foreign id; DMs always edit their own profile.
-        if (id.HasValue && id.Value != currentUser.Id && !User.IsInRole("Admin"))
+        var targetUser = id.HasValue ? await userService.GetByIdAsync(id.Value, token) : currentUser;
+        if (targetUser == null) return NotFound();
+
+        if (!currentUser.Equals(targetUser) && !User.IsInRole("Admin"))
+        {
             return Forbid();
+        }
 
-        var targetUserId = id ?? currentUser.Id;
-
-        var profile = await dmProfileService.GetProfileByUserIdAsync(targetUserId, token);
+        var profile = await dmProfileService.GetProfileByUserIdAsync(targetUser.Id, token);
         var viewModel = new EditDMProfileViewModel
         {
-            DungeonMasterId = targetUserId,
+            DungeonMasterId = targetUser.Id,
             Bio = profile?.Bio,
             ProfilePicture = profile?.ProfilePicture
         };
@@ -69,13 +72,18 @@ public class DungeonMasterController(
     public async Task<IActionResult> EditProfile(int? id, EditDMProfileViewModel viewModel, CancellationToken token = default)
     {
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null) return Challenge();
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
 
-        // Only admins may supply a foreign id; DMs always edit their own profile.
-        if (id.HasValue && id.Value != currentUser.Id && !User.IsInRole("Admin"))
+        var targetUser = id.HasValue ? await userService.GetByIdAsync(id.Value, token) : currentUser;
+        if (targetUser == null) return NotFound();
+
+        if (!currentUser.Equals(targetUser) && !User.IsInRole("Admin"))
+        {
             return Forbid();
-
-        var targetUserId = id ?? currentUser.Id;
+        }
 
         if (!ModelState.IsValid)
             return View(viewModel);
@@ -83,7 +91,7 @@ public class DungeonMasterController(
         byte[]? imageBytes = null;
         if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
         {
-            const long maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+            const long maxFileSizeBytes = 5 * 1024 * 1024;
             if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
             {
                 ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
@@ -95,21 +103,18 @@ public class DungeonMasterController(
             imageBytes = memoryStream.ToArray();
         }
 
-        await dmProfileService.UpsertProfileAsync(targetUserId, viewModel.Bio, imageBytes, token: token);
+        await dmProfileService.UpsertProfileAsync(targetUser.Id, viewModel.Bio, imageBytes, token: token);
 
-        return RedirectToAction(nameof(Profile), new { id = targetUserId });
+        return RedirectToAction(nameof(Profile), new { id = targetUser.Id });
     }
 
-    // Image serving endpoint — mirrors GuildMembersController.GetProfilePicture
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetDMProfilePicture(int id, CancellationToken token = default)
     {
         var bytes = await dmProfileService.GetProfilePictureAsync(id, token);
-        if (bytes == null) return NotFound();
+        if (bytes == null || bytes.Length == 0) return NotFound();
 
-        // Detect MIME type from magic bytes so PNG and GIF are served correctly.
-        // PNG: 89 50 4E 47  GIF: 47 49 46 38  everything else: treat as JPEG.
         var contentType = bytes.Length >= 4 && bytes[0] == 0x89 && bytes[1] == 0x50
             ? "image/png"
             : bytes.Length >= 6 && bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46
