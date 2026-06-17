@@ -110,6 +110,7 @@ None yet.
 | 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
 | 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
 | 260617-d8u | Proposed dates UX improvement — default to today at 18:00 and auto-advance by 1 day per addition | 2026-06-17 | dd290ab | [260617-d8u-proposed-dates-ux-today-and-next-day](./quick/260617-d8u-proposed-dates-ux-today-and-next-day/) |
+| 260617-w1w | Fix #89: Quest Log page shows DM session quests — filter them out | 2026-06-17 | b424fef | [260617-w1w-fix-89-quest-log-page-shows-dm-session-q](./quick/260617-w1w-fix-89-quest-log-page-shows-dm-session-q/) |
 
 ### Roadmap Evolution
 
