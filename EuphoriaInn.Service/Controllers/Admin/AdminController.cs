@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EuphoriaInn.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IAdminSettingService adminSettingService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -235,5 +235,35 @@ public class AdminController(IUserService userService, IQuestService questServic
 
         await questService.RemoveAsync(quest);
         return Ok();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Settings()
+    {
+        var settings = await adminSettingService.GetSettingsAsync();
+        var model = new SettingsViewModel
+        {
+            OmphalosUrl = settings.OmphalosUrl,
+            // DO NOT populate OmphalosSharedSecret — password fields must load empty (D-09)
+            // Populating it would cause a blank string to overwrite the secret on unedited saves
+            IsEnabled = settings.IsEnabled
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Settings(SettingsViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        await adminSettingService.SaveSettingsAsync(
+            model.OmphalosUrl,
+            model.OmphalosSharedSecret,   // null/empty = preserve existing secret (D-08)
+            model.IsEnabled);
+
+        TempData["SuccessMessage"] = "Integration settings saved successfully.";
+        return RedirectToAction(nameof(Settings));
     }
 }

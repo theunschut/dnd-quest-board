@@ -53,6 +53,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
     [InlineData("/Admin/EditUser/1")]
     [InlineData("/Admin/DeleteUser/1")]
     [InlineData("/Admin/ResetPassword/1")]
+    [InlineData("/Admin/Settings")]
     public async Task AdminActions_WhenNotAuthenticated_ShouldRedirectToLogin(string endpoint)
     {
         // Act
@@ -61,5 +62,19 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         // Assert
         // Note: DeleteUser returns 405 Method Not Allowed since it requires DELETE not GET
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized, HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed);
+    }
+
+    [Fact]
+    public async Task Settings_WhenNotAdmin_ShouldReturnForbiddenOrRedirect()
+    {
+        // Arrange - Create user with Player role (not Admin)
+        var (playerClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "playeruser", "player@example.com", roles: ["Player"]);
+
+        // Act
+        var response = await playerClient.GetAsync("/Admin/Settings", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
     }
 }
