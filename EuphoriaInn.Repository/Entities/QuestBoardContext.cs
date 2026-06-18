@@ -28,6 +28,8 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<DungeonMasterProfileImageEntity> DungeonMasterProfileImages { get; set; }
 
+    public DbSet<AdminSettingEntity> AdminSettings { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
