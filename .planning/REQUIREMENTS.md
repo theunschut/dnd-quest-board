@@ -20,11 +20,11 @@
 
 ### Navigation + Token Generation (Phase 11 — Quest Board)
 
-- [ ] **NAV-01**: `_Layout.cshtml` renders an `OmphalosNavItem` View Component in the DM navbar dropdown; shows an "Open Omphalos" link only when integration is enabled and `OmphalosUrl` is configured
-- [ ] **NAV-02**: "Open Omphalos" navbar link opens the Omphalos base URL in a new tab (plain navigation link — no SSO token)
-- [ ] **NAV-03**: Quest Detail page shows an "Open Session Notes" button when integration is enabled, `OmphalosUrl` is set, and the current user is a DM or Admin
-- [ ] **NAV-04**: Quest Manage page shows the same "Open Session Notes" button under the same conditions as NAV-03
-- [ ] **NAV-05**: When integration is disabled or `OmphalosUrl` is not configured, neither the navbar link nor the quest page buttons appear
+- [x] **NAV-01**: `_Layout.cshtml` renders an `OmphalosNavItem` View Component in the DM navbar dropdown; shows an "Open Omphalos" link only when integration is enabled and `OmphalosUrl` is configured
+- [x] **NAV-02**: "Open Omphalos" navbar link opens the Omphalos base URL in a new tab (plain navigation link — no SSO token)
+- [x] **NAV-03**: Quest Detail page shows an "Open Session Notes" button when integration is enabled, `OmphalosUrl` is set, and the current user is a DM or Admin
+- [x] **NAV-04**: Quest Manage page shows the same "Open Session Notes" button under the same conditions as NAV-03
+- [x] **NAV-05**: When integration is disabled or `OmphalosUrl` is not configured, neither the navbar link nor the quest page buttons appear
 - [x] **TOKEN-01**: `IIntegrationTokenService` (Domain layer) generates a signed redirect URL given quest ID, quest title, and DM username
 - [x] **TOKEN-02**: The HMAC-SHA256 canonical message is the query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` with keys in alphabetical order — questId must be in the MAC to prevent token substitution across quests
 - [x] **TOKEN-03**: Tokens expire after 300 seconds (5 minutes) from generation time
@@ -85,11 +85,11 @@
 | SETT-06 | Phase 10 | Quest Board | Pending |
 | SETT-07 | Phase 10 | Quest Board | Pending |
 | SETT-08 | Phase 10 | Quest Board | Pending |
-| NAV-01 | Phase 11 | Quest Board | Pending |
-| NAV-02 | Phase 11 | Quest Board | Pending |
-| NAV-03 | Phase 11 | Quest Board | Pending (backend done in 11-01; view button in 11-02) |
-| NAV-04 | Phase 11 | Quest Board | Pending (backend done in 11-01; view button in 11-02) |
-| NAV-05 | Phase 11 | Quest Board | Pending (LaunchOmphalos 404 done; view gating in 11-02) |
+| NAV-01 | Phase 11 | Quest Board | Complete (11-02) |
+| NAV-02 | Phase 11 | Quest Board | Complete (11-02) |
+| NAV-03 | Phase 11 | Quest Board | Complete (11-01 backend + 11-02 view) |
+| NAV-04 | Phase 11 | Quest Board | Complete (11-01 backend + 11-02 view) |
+| NAV-05 | Phase 11 | Quest Board | Complete (11-01 LaunchOmphalos 404 + 11-02 view gating) |
 | TOKEN-01 | Phase 11 | Quest Board | Complete (11-01) |
 | TOKEN-02 | Phase 11 | Quest Board | Complete (11-01) |
 | TOKEN-03 | Phase 11 | Quest Board | Complete (11-01) |

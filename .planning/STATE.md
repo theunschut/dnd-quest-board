@@ -3,14 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 status: In progress
-stopped_at: Phase 11 Plan 01 complete — Wave 1 backend delivered; Wave 2 (view wiring) next
-last_updated: "2026-06-18T21:02:51Z"
+stopped_at: Phase 11 Plan 02 complete — Wave 2 UI wiring (OmphalosNavItem ViewComponent + Details/Manage buttons)
+last_updated: "2026-06-18T21:09:17Z"
+last_activity: 2026-06-18 — Phase 11 Plan 02 executed (5 files, 2 tasks, build + 114 tests green)
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -25,25 +26,25 @@ See: .planning/PROJECT.md (updated 2026-06-18)
 ## Current Position
 
 Phase: Phase 11 — Navigation + Token Generation
-Plan: 11-02 (Wave 2 — view wiring)
-Status: Phase 11 Plan 01 complete — Wave 1 backend delivered; Wave 2 (view wiring) next
-Last activity: 2026-06-18 — Phase 11 Plan 01 executed (7 unit tests + 6 integration tests green)
+Plan: 11-02 complete — Wave 2 UI wiring delivered; phase gate (human-verify) next
+Status: Phase 11 Plans 01+02 complete — all Omphalos UI wired; awaiting human-verify checkpoint
+Last activity: 2026-06-18 — Phase 11 Plan 02 executed (OmphalosNavItem ViewComponent + Details/Manage buttons)
 
-Progress bar: [████------] 50% (3/6 plans complete)
+Progress bar: [███████---] 67% (4/6 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: 4 min
-- Total execution time: 4 min
+- Total plans completed: 2
+- Average duration: 2.5 min
+- Total execution time: 5 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| Phase 11 | 1 plan | 4 min | 4 min |
+| Phase 11 | 2 plans | 5 min | 2.5 min |
 
 *Updated after each plan completion*
 
@@ -54,12 +55,14 @@ Progress bar: [████------] 50% (3/6 plans complete)
 Decisions are logged in PROJECT.md Key Decisions table.
 
 Milestone 2 decisions carried forward as context:
+
 - IIdentityService pattern: Domain defines interface, Repository implements with UserEntity — keeps Identity coupling out of Domain layer
 - BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> — all CRUD methods return domain models via AutoMapper
 - IOptions<EmailSettings> pattern — EmailService is Scoped, settings are static at startup
 - AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
 
 Milestone 3 decisions:
+
 - HMAC-SHA256 shared secret for cross-app auth — symmetric, supports future bidirectional API calls
 - Username-based user matching between Quest Board and Omphalos — auto-provision on first SSO
 - Phase 8 (avatar crop) deferred from Milestone 2 — no strong user demand, SkiaSharp Docker risk
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-18T21:02:51Z
-Stopped at: Completed 11-01-PLAN.md — Wave 1 backend (IIntegrationTokenService + LaunchOmphalos + ViewBag.ShowOmphalosButton)
-Resume file: .planning/phases/11-navigation-token-generation/11-02-PLAN.md
+Last session: 2026-06-18T21:09:17Z
+Stopped at: Completed 11-02-PLAN.md — Wave 2 UI (OmphalosNavItem ViewComponent + Details/Manage buttons). Phase gate (human-verify) next.
+Resume file: .planning/phases/11-navigation-token-generation/11-03-PLAN.md (phase gate checkpoint)
