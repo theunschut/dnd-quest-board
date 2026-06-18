@@ -12,7 +12,7 @@ internal class AdminSettingRepository(QuestBoardContext dbContext) : IAdminSetti
         return entity?.Value;
     }
 
-    public async Task UpsertAsync(string key, string? value, CancellationToken token = default)
+    public async Task StageUpsertAsync(string key, string? value, CancellationToken token = default)
     {
         var existing = await dbContext.AdminSettings.FindAsync([key], cancellationToken: token);
         if (existing == null)
@@ -29,6 +29,10 @@ internal class AdminSettingRepository(QuestBoardContext dbContext) : IAdminSetti
             existing.Value = value;
             existing.UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    public async Task SaveAsync(CancellationToken token = default)
+    {
         await dbContext.SaveChangesAsync(token);
     }
 }

@@ -22,13 +22,15 @@ internal class AdminSettingService(IAdminSettingRepository repository) : IAdminS
         bool isEnabled,
         CancellationToken token = default)
     {
-        await repository.UpsertAsync("OmphalosUrl", url, token);
-        await repository.UpsertAsync("IsEnabled", isEnabled.ToString(), token);
+        await repository.StageUpsertAsync("OmphalosUrl", url, token);
+        await repository.StageUpsertAsync("IsEnabled", isEnabled.ToString(), token);
 
         // D-08: blank secret = preserve existing — skip upsert entirely
         if (!string.IsNullOrWhiteSpace(secret))
         {
-            await repository.UpsertAsync("OmphalosSharedSecret", secret, token);
+            await repository.StageUpsertAsync("OmphalosSharedSecret", secret, token);
         }
+
+        await repository.SaveAsync(token);
     }
 }
