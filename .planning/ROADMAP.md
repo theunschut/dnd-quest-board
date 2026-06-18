@@ -220,11 +220,14 @@ Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies 
   3. Unchecking "Integration Enabled" causes all Omphalos buttons and links to disappear from the UI immediately; re-enabling makes them reappear
   4. The shared secret field renders as a password input (masked) on the settings page
   5. A non-admin user cannot access the Settings page (redirected or forbidden)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
 
 **Wave 1**
-- TBD — 10-01-PLAN.md: Entity + repository + service + DI (SETT-06, SETT-07, SETT-08 and IAdminSettingService foundation for Phase 11)
-- TBD — 10-02-PLAN.md: AdminController Settings GET/POST + AdminSettingsViewModel + Settings.cshtml view (SETT-01, SETT-02, SETT-03, SETT-04, SETT-05)
+- [ ] 10-01-PLAN.md — Domain model + repository interface/impl + service interface/impl + DI registrations + EF migration + integration tests (SETT-06, SETT-08; IAdminSettingService foundation for Phase 11)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 10-02-PLAN.md — AdminController Settings GET/POST + SettingsViewModel + Settings.cshtml view + navbar link + SETT-07 integration test (SETT-01, SETT-02, SETT-03, SETT-04, SETT-05, SETT-07)
 **UI hint**: yes
 
 ### Phase 11: Navigation + Token Generation
