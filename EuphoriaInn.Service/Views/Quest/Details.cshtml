@@ -581,6 +581,14 @@
                         <i class="fas fa-cog me-2"></i>
                         Manage Quest
                     </a>
+                    @if ((bool)(ViewBag.ShowOmphalosButton ?? false))
+                    {
+                        <a href="@Url.Action("LaunchOmphalos", "Quest", new { id = Model.Quest?.Id })"
+                           class="btn btn-warning w-100 mt-2">
+                            <i class="fas fa-book-open me-2"></i>
+                            Open Session Notes
+                        </a>
+                    }
                 </div>
             </div>
         }
