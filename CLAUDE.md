@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a comprehensive D&D Quest Board web application built with ASP.NET Core 8 MVC following a clean architecture pattern. The application provides a complete solution for D&D campaign management including user authentication, quest creation, calendar scheduling, player coordination, and email notifications. It features a layered architecture with domain, repository, and service layers following SOLID principles and dependency injection patterns.
+This is a comprehensive D&D Quest Board web application built with ASP.NET Core 10 MVC following a clean architecture pattern. The application provides a complete solution for D&D campaign management including user authentication, quest creation, calendar scheduling, player coordination, and email notifications. It features a layered architecture with domain, repository, and service layers following SOLID principles and dependency injection patterns.
 
 ## Development Environment
 
@@ -68,7 +68,7 @@ The application follows a clean architecture pattern with three main layers:
 - **EuphoriaInn.Service**: MVC web application with controllers, views, services, and view models
 
 ### Technology Stack
-- **Backend**: ASP.NET Core 8 MVC with Repository Pattern
+- **Backend**: ASP.NET Core 10 MVC with Repository Pattern
 - **Database**: Microsoft SQL Server with Entity Framework Core
 - **Frontend**: Bootstrap 5 + vanilla JavaScript with D&D theming
 - **Email**: .NET SMTP with Gmail integration
@@ -308,14 +308,14 @@ If you encounter "table already exists" errors when switching from EnsureCreated
 
 **D&D Quest Board — Milestone 2: Refactor + Feature Expansion**
 
-A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 8 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
+A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 10 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
 
 **Core Value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
 
 ### Constraints
 
 - **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work after the refactor
-- **Tech stack:** Stay on ASP.NET Core 8 MVC + SQL Server + EF Core — no framework changes
+- **Tech stack:** Stay on ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes
 - **Deployment:** Must remain deployable via `docker-compose up` with no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
 <!-- GSD:project-end -->
@@ -324,39 +324,36 @@ A D&D campaign management web application for a group of players and Dungeon Mas
 ## Technology Stack
 
 ## Languages
-- C# 12 (implicit via .NET 8 SDK) — all backend logic, domain models, repositories, services, controllers
+- C# 14 (implicit via .NET 10 SDK) — all backend logic, domain models, repositories, services, controllers
 - HTML/Razor — server-side views in `EuphoriaInn.Service/Views/`
 - CSS — custom stylesheets in `EuphoriaInn.Service/wwwroot/css/`
 - JavaScript — vanilla JS in `EuphoriaInn.Service/wwwroot/js/site.js`
 ## Runtime
-- .NET 8.0 (all five projects target `net8.0`)
+- .NET 10.0 (all five projects target `net10.0`)
 - NuGet (dotnet restore)
 - No lockfile committed (no `packages.lock.json` detected)
 ## Frameworks
-- ASP.NET Core 8 MVC (`Microsoft.NET.Sdk.Web`) — web layer in `EuphoriaInn.Service/`
-- ASP.NET Core Identity 8.0.11 — authentication and user management
-- AutoMapper 14.0.0 — entity-to-model and model-to-viewmodel mapping
-- xUnit 2.5.3 — test runner for both `EuphoriaInn.UnitTests` and `EuphoriaInn.IntegrationTests`
-- FluentAssertions 8.8.0 — assertion library in both test projects
+- ASP.NET Core 10 MVC (`Microsoft.NET.Sdk.Web`) — web layer in `EuphoriaInn.Service/`
+- ASP.NET Core Identity 10.0.7 — authentication and user management
+- AutoMapper 16.1.1 — entity-to-model and model-to-viewmodel mapping
+- xunit.v3 3.2.2 — test runner for both `EuphoriaInn.UnitTests` and `EuphoriaInn.IntegrationTests`
+- FluentAssertions 8.9.0 — assertion library in both test projects
 - NSubstitute 5.3.0 — mocking framework (unit tests only)
-- Microsoft.AspNetCore.Mvc.Testing 8.0.11 — integration test host (`EuphoriaInn.IntegrationTests`)
-- coverlet.collector 6.0.0 — code coverage collection
-- .NET SDK 8.0 (dotnet CLI)
-- Entity Framework Core Tools 9.0.6 (`Microsoft.EntityFrameworkCore.Tools`) — migration tooling
+- Microsoft.AspNetCore.Mvc.Testing 10.0.7 — integration test host (`EuphoriaInn.IntegrationTests`)
+- .NET SDK 10.0 (dotnet CLI)
+- Entity Framework Core Tools 10.0.9 (`Microsoft.EntityFrameworkCore.Tools`) — migration tooling
 - Visual Studio solution format (`EuphoriaInn.sln`, VS version 18.2)
 ## Key Dependencies
-- `Microsoft.EntityFrameworkCore` 9.0.6 — ORM base (`EuphoriaInn.Repository`)
-- `Microsoft.EntityFrameworkCore.SqlServer` 9.0.6 — SQL Server provider (`EuphoriaInn.Repository`)
-- `Microsoft.EntityFrameworkCore.Design` 9.0.6 — design-time tools for migrations (`EuphoriaInn.Repository`)
-- `AutoMapper` 14.0.0 — cross-layer object mapping (`EuphoriaInn.Domain`, `EuphoriaInn.Service`)
-- `System.Security.Cryptography.Xml` 8.0.3 — cryptographic support (`EuphoriaInn.Domain`)
-- `Microsoft.EntityFrameworkCore.InMemory` 8.0.11 — in-memory EF provider (integration tests)
-- `Microsoft.EntityFrameworkCore.Sqlite` 9.0.6 — SQLite provider for integration test database (`EuphoriaInn.IntegrationTests`)
+- `Microsoft.EntityFrameworkCore` 10.0.9 — ORM base (`EuphoriaInn.Repository`)
+- `Microsoft.EntityFrameworkCore.SqlServer` 10.0.9 — SQL Server provider (`EuphoriaInn.Repository`)
+- `Microsoft.EntityFrameworkCore.Design` 10.0.9 — design-time tools for migrations (`EuphoriaInn.Repository`)
+- `AutoMapper` 16.1.1 — cross-layer object mapping (`EuphoriaInn.Domain`, `EuphoriaInn.Service`)
+- `System.Security.Cryptography.Xml` 10.0.7 — cryptographic support (`EuphoriaInn.Domain`)
+- `Microsoft.EntityFrameworkCore.InMemory` 10.0.7 — in-memory EF provider (integration tests)
+- `Microsoft.EntityFrameworkCore.Sqlite` 10.0.7 — SQLite provider for integration test database (`EuphoriaInn.IntegrationTests`)
 - `Microsoft.Data.Sqlite` — SQLite connection used by `TestDatabase` helper
-- `Microsoft.NET.Test.Sdk` 17.8.0 — test SDK
-- `Microsoft.Extensions.Configuration.Binder` 9.0.6 — configuration binding (`EuphoriaInn.Domain`)
-- `System.Net.Http` 4.3.4 — HTTP client (both test projects)
-- `System.Text.RegularExpressions` 4.3.1 — regex support (both test projects)
+- `Microsoft.NET.Test.Sdk` 18.4.0 — test SDK
+- `Microsoft.Extensions.Configuration.Binder` 10.0.7 — configuration binding (`EuphoriaInn.Domain`)
 ## Frontend Libraries (CDN)
 - Bootstrap 5.3.0 — CSS framework and JS components
 - Font Awesome 6.4.0 — icon library
@@ -381,10 +378,10 @@ A D&D campaign management web application for a group of players and Dungeon Mas
 - `Security:PasswordIterations` — PBKDF2 iteration count
 - `Security:SaltSize` — salt byte length
 - `Security:HashSize` — hash byte length
-- Multi-stage Dockerfile at `Dockerfile` — base `mcr.microsoft.com/dotnet/aspnet:8.0`, build `mcr.microsoft.com/dotnet/sdk:8.0`
+- Multi-stage Dockerfile at `Dockerfile` — base `mcr.microsoft.com/dotnet/aspnet:10.0`, build `mcr.microsoft.com/dotnet/sdk:10.0`
 - `docker-compose.yml` — orchestrates `questboard` app + `sqlserver` containers
 ## Platform Requirements
-- .NET 8 SDK
+- .NET 10 SDK
 - SQL Server (runs on Windows host when developing in WSL)
 - dotnet-ef global tool for migration management
 - Docker + Docker Compose
