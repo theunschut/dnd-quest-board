@@ -1,5 +1,5 @@
 ---
-status: partial
+status: approved
 phase: 10-admin-settings
 source: [10-VERIFICATION.md]
 started: 2026-06-18T00:00:00.000Z

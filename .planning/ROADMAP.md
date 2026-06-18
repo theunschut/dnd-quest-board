@@ -204,7 +204,7 @@ Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies 
 
 ## Phases
 
-- [ ] **Phase 10: Admin Settings** - Admin can configure Omphalos URL and shared secret; settings persisted in DB and protected by AdminOnly policy
+- [x] **Phase 10: Admin Settings** - Admin can configure Omphalos URL and shared secret; settings persisted in DB and protected by AdminOnly policy (completed 2026-06-18)
 - [ ] **Phase 11: Navigation + Token Generation** - DM navbar and quest pages show Omphalos links; clicking "Open Session Notes" generates a short-lived HMAC-signed deep link and redirects
 - [ ] **Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos repo)** - Omphalos validates Quest Board tokens, auto-provisions DM accounts, finds or creates quest sessions, and issues JWT cookies
 
@@ -224,10 +224,10 @@ Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies 
 Plans:
 
 **Wave 1**
-- [ ] 10-01-PLAN.md — Domain model + repository interface/impl + service interface/impl + DI registrations + EF migration + integration tests (SETT-06, SETT-08; IAdminSettingService foundation for Phase 11)
+- [x] 10-01-PLAN.md — Domain model + repository interface/impl + service interface/impl + DI registrations + EF migration + integration tests (SETT-06, SETT-08; IAdminSettingService foundation for Phase 11)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 10-02-PLAN.md — AdminController Settings GET/POST + SettingsViewModel + Settings.cshtml view + navbar link + SETT-07 integration test (SETT-01, SETT-02, SETT-03, SETT-04, SETT-05, SETT-07)
+- [x] 10-02-PLAN.md — AdminController Settings GET/POST + SettingsViewModel + Settings.cshtml view + navbar link + SETT-07 integration test (SETT-01, SETT-02, SETT-03, SETT-04, SETT-05, SETT-07)
 **UI hint**: yes
 
 ### Phase 11: Navigation + Token Generation
@@ -276,6 +276,6 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 10. Admin Settings | 0/2 | Not started | - |
+| 10. Admin Settings | 2/2 | Complete | 2026-06-18 |
 | 11. Navigation + Token Generation | 0/2 | Not started | - |
 | 12. SSO Endpoint + Quest-Session Linking (Omphalos) | 0/2 | Not started | - |
