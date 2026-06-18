@@ -25,11 +25,11 @@
 - [ ] **NAV-03**: Quest Detail page shows an "Open Session Notes" button when integration is enabled, `OmphalosUrl` is set, and the current user is a DM or Admin
 - [ ] **NAV-04**: Quest Manage page shows the same "Open Session Notes" button under the same conditions as NAV-03
 - [ ] **NAV-05**: When integration is disabled or `OmphalosUrl` is not configured, neither the navbar link nor the quest page buttons appear
-- [ ] **TOKEN-01**: `IIntegrationTokenService` (Domain layer) generates a signed redirect URL given quest ID, quest title, and DM username
-- [ ] **TOKEN-02**: The HMAC-SHA256 canonical message is the query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` with keys in alphabetical order — questId must be in the MAC to prevent token substitution across quests
-- [ ] **TOKEN-03**: Tokens expire after 300 seconds (5 minutes) from generation time
-- [ ] **TOKEN-04**: Username is normalized to lowercase before inclusion in both the MAC message and the URL parameter
-- [ ] **TOKEN-05**: A new `QuestController.LaunchOmphalos(int id)` GET action generates the signed URL and returns `Redirect(signedUrl)`; returns 404 when integration is disabled
+- [x] **TOKEN-01**: `IIntegrationTokenService` (Domain layer) generates a signed redirect URL given quest ID, quest title, and DM username
+- [x] **TOKEN-02**: The HMAC-SHA256 canonical message is the query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` with keys in alphabetical order — questId must be in the MAC to prevent token substitution across quests
+- [x] **TOKEN-03**: Tokens expire after 300 seconds (5 minutes) from generation time
+- [x] **TOKEN-04**: Username is normalized to lowercase before inclusion in both the MAC message and the URL parameter
+- [x] **TOKEN-05**: A new `QuestController.LaunchOmphalos(int id)` GET action generates the signed URL and returns `Redirect(signedUrl)`; returns 404 when integration is disabled
 
 ### SSO Endpoint (Phase 12 — Omphalos)
 
@@ -87,14 +87,14 @@
 | SETT-08 | Phase 10 | Quest Board | Pending |
 | NAV-01 | Phase 11 | Quest Board | Pending |
 | NAV-02 | Phase 11 | Quest Board | Pending |
-| NAV-03 | Phase 11 | Quest Board | Pending |
-| NAV-04 | Phase 11 | Quest Board | Pending |
-| NAV-05 | Phase 11 | Quest Board | Pending |
-| TOKEN-01 | Phase 11 | Quest Board | Pending |
-| TOKEN-02 | Phase 11 | Quest Board | Pending |
-| TOKEN-03 | Phase 11 | Quest Board | Pending |
-| TOKEN-04 | Phase 11 | Quest Board | Pending |
-| TOKEN-05 | Phase 11 | Quest Board | Pending |
+| NAV-03 | Phase 11 | Quest Board | Pending (backend done in 11-01; view button in 11-02) |
+| NAV-04 | Phase 11 | Quest Board | Pending (backend done in 11-01; view button in 11-02) |
+| NAV-05 | Phase 11 | Quest Board | Pending (LaunchOmphalos 404 done; view gating in 11-02) |
+| TOKEN-01 | Phase 11 | Quest Board | Complete (11-01) |
+| TOKEN-02 | Phase 11 | Quest Board | Complete (11-01) |
+| TOKEN-03 | Phase 11 | Quest Board | Complete (11-01) |
+| TOKEN-04 | Phase 11 | Quest Board | Complete (11-01) |
+| TOKEN-05 | Phase 11 | Quest Board | Complete (11-01) |
 | SSO-01 | Phase 12 | Omphalos | Pending |
 | SSO-02 | Phase 12 | Omphalos | Pending |
 | SSO-03 | Phase 12 | Omphalos | Pending |
