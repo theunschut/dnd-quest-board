@@ -1,389 +1,173 @@
-# Technology Stack
+# Stack Research — Omphalos Integration
 
-**Project:** D&D Quest Board — Milestone 2: Refactor + Feature Expansion
-**Researched:** 2026-04-15
-**Scope:** Best practices for the existing ASP.NET Core 8 MVC stack; no framework replacement
-
----
-
-## Current Stack Assessment
-
-The stack itself is sound. The problems are in how the layers are wired together and what libraries
-are used for email. The NuGet package version mix (EF Core 9 on .NET 8, Identity 8) is functional
-but inconsistent — addressed in recommendations below.
+**Researched:** 2026-06-18
+**Scope:** Net-new stack additions for HMAC SSO, admin settings storage, and cross-app HTTP calls.
 
 ---
 
-## Recommendations
+## Important: Both Apps Are Already on .NET 10
 
-### 1. Dependency Direction — Fix the Domain→Repository Violation
-
-**Confidence: HIGH** (verified against official Microsoft architecture guidance and ardalis/CleanArchitecture reference template)
-
-**Current state (wrong):**
-```
-EuphoriaInn.Domain.csproj
-  <ProjectReference Include="..\EuphoriaInn.Repository\..." />
-```
-Domain knows about Repository entities, which makes the dependency arrow point outward from the core.
-
-**Correct state:**
-```
-Service    → Domain  (Service references Domain)
-Repository → Domain  (Repository references Domain for interfaces)
-Domain     → nothing (Domain has zero project references)
-```
-
-**What this means concretely:**
-
-- Repository interfaces (`IQuestRepository`, `IUserRepository`, etc.) must live in `EuphoriaInn.Domain/Interfaces/` — they already do, which is correct.
-- `EuphoriaInn.Domain.csproj` must remove `<ProjectReference>` to `EuphoriaInn.Repository`.
-- `EuphoriaInn.Repository.csproj` must add `<ProjectReference>` to `EuphoriaInn.Domain` — Repository implements Domain interfaces.
-- `EntityProfile.cs` currently lives in Domain and maps Repository entities (`*Entity` types) to Domain models. After the fix it must move to Repository, because Domain cannot reference entity types.
-- `BaseService<TModel, TEntity>` in Domain uses the generic `TEntity` type parameter that comes from Repository — this coupling must be broken. Services in Domain should operate on Domain models only; mapping is the Repository layer's responsibility.
-
-**Why it matters:** As long as Domain references Repository, you cannot test Domain services in isolation (every test drags in EF Core), and you cannot swap the persistence layer without touching Domain code.
-
-**References:**
-- [Microsoft ISE Clean Architecture boilerplate](https://devblogs.microsoft.com/ise/next-level-clean-architecture-boilerplate/)
-- [ardalis/CleanArchitecture reference template](https://github.com/ardalis/CleanArchitecture)
-- [Microsoft common web app architectures](https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures)
+The `.csproj` files show `<TargetFramework>net10.0</TargetFramework>` in all four Quest Board projects and all four Omphalos projects. CLAUDE.md says "ASP.NET Core 8" but the actual code has been upgraded. This matters for one item (see HTTP Client section). All BCL and ASP.NET Core APIs referenced below are available on .NET 10.
 
 ---
 
-### 2. Options Pattern — Replace IConfiguration.GetSection() with IOptions\<T\>
+## HMAC Signing (Quest Board)
 
-**Confidence: HIGH** (verified against official Microsoft docs, updated March 2026)
+**Verdict: No NuGet package needed. `HMACSHA256` is in the BCL.**
 
-**Current state (wrong):**
+`System.Security.Cryptography.HMACSHA256` has been in the .NET BCL since .NET 1.1 and is part of `System.Security.Cryptography`, which ships in the runtime itself — not a separate NuGet package. On .NET 10 it is in `System.Runtime` (the umbrella pack that all SDK projects reference implicitly).
 
-`EmailService` reads configuration by calling `configuration.GetSection("EmailSettings")["SmtpServer"]`
-on every method invocation — six string lookups per email send, repeated across two methods, with
-no validation.
+Quest Board's Domain project already references `System.Security.Cryptography.Xml` (version 10.0.7 in `EuphoriaInn.Domain.csproj`) — but that package is for XML digital signature operations (the `SignedXml` class). **HMACSHA256 is not from that package.** It is from the core runtime. The existing `System.Security.Cryptography.Xml` package is unrelated and not needed for HMAC signing; if it has no other use it could be removed, but that is not a concern for this milestone.
 
-**Correct approach — IOptions\<T\>:**
+**Implementation location:** A new `OmphalosDeepLinkService` in `EuphoriaInn.Domain/Services/` is the correct home. It takes the shared secret (loaded from the DB-backed admin settings) and produces a signed URL.
+
+**Token design recommendation:** The signed payload should be a URL query string containing `username`, `questId` (optional), `exp` (Unix epoch seconds, 5-minute window), and `sig` (hex-encoded HMACSHA256 of the canonical payload string using the shared secret). This is a MAC over a string, not a full JWT — simpler, no library needed, no key-wrapping overhead.
 
 ```csharp
-// EmailSettings.cs (new file in Domain or Service)
-public class EmailSettings
-{
-    public const string Section = "EmailSettings";
+// All in BCL — zero packages
+using System.Security.Cryptography;
+using System.Text;
 
-    [Required] public string SmtpServer { get; set; } = string.Empty;
-    public int SmtpPort { get; set; } = 587;
-    [Required] public string SmtpUsername { get; set; } = string.Empty;
-    [Required] public string SmtpPassword { get; set; } = string.Empty;
-    [Required] public string FromEmail { get; set; } = string.Empty;
-    public string FromName { get; set; } = "D&D Quest Board";
-}
-
-// Program.cs registration
-builder.Services.AddOptions<EmailSettings>()
-    .BindConfiguration(EmailSettings.Section)
-    .ValidateDataAnnotations()
-    .ValidateOnStart();  // fails fast at startup if config is missing
-
-// EmailService.cs — inject IOptions<EmailSettings>
-public class EmailService(IOptions<EmailSettings> emailOptions, ILogger<EmailService> logger)
-{
-    private readonly EmailSettings _settings = emailOptions.Value;
-    // ...
-}
+var key = Encoding.UTF8.GetBytes(sharedSecret);
+var payload = $"username={username}&questId={questId}&exp={exp}";
+var sig = Convert.ToHexString(HMACSHA256.HashData(key, Encoding.UTF8.GetBytes(payload)));
 ```
 
-**Which IOptions interface to use:**
-
-| Interface | Lifetime | Reloads at runtime | Use when |
-|-----------|----------|-------------------|----------|
-| `IOptions<T>` | Singleton | No | Default. Static config like SMTP credentials. |
-| `IOptionsSnapshot<T>` | Scoped | Yes (per request) | Config that changes, consumed by scoped/transient services |
-| `IOptionsMonitor<T>` | Singleton | Yes (continuous) | Singleton services that need live reloads |
-
-For `EmailService`, `IOptions<T>` is correct — SMTP credentials do not change at runtime.
-
-**Apply the same pattern to `SecurityConfiguration`** — but per the project requirements, `SecurityConfiguration` is dead code that should be removed entirely. Do not convert it; delete it.
-
-**References:**
-- [Options pattern in ASP.NET Core — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options?view=aspnetcore-8.0)
-- [Options pattern in .NET — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/core/extensions/options)
+`HMACSHA256.HashData` (static, allocation-free) is available from .NET 6+, confirmed available on .NET 10. Confidence: HIGH.
 
 ---
 
-### 3. Identity Lockout Configuration
+## Token Validation (Omphalos)
 
-**Confidence: HIGH** (verified against official Microsoft LockoutOptions API docs)
+**Verdict: Same BCL crypto stack. No new NuGet package needed. One structural addition required.**
 
-**Current state:** The project does not pass `lockoutOnFailure: true` to `PasswordSignInAsync`, so the
-`AccessFailedCount` column is never incremented and lockout never triggers regardless of how many
-failed attempts occur.
-
-**What needs to change:**
-
-**Step 1 — Configure LockoutOptions in Program.cs (or via AddIdentity lambda):**
+Omphalos already uses `System.Security.Cryptography` implicitly (it is part of the runtime) and already has `Microsoft.IdentityModel.Tokens` 8.19.1 and `System.IdentityModel.Tokens.Jwt` 8.19.1 in `Omphalos.Services.csproj` for its existing JWT auth. The HMAC validation for Quest Board deep links does **not** require `Microsoft.IdentityModel` — it is a raw HMAC-over-string check, same BCL call:
 
 ```csharp
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    // Lockout
-    options.Lockout.AllowedForNewUsers = true;       // default: true
-    options.Lockout.MaxFailedAccessAttempts = 5;     // default: 5 — requirement says 5
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); // default: 5 min; requirement says 15
-
-    // Password
-    options.Password.RequiredLength = 8;             // default: 6 — requirement says 8
-});
+// Validation in Omphalos SSO endpoint
+var expectedSig = Convert.ToHexString(HMACSHA256.HashData(keyBytes, Encoding.UTF8.GetBytes(payload)));
+var valid = CryptographicOperations.FixedTimeEquals(
+    Convert.FromHexString(receivedSig),
+    Convert.FromHexString(expectedSig));
 ```
 
-**Step 2 — Enable lockout at the call site:**
+`CryptographicOperations.FixedTimeEquals` (BCL since .NET Core 2.1) prevents timing attacks on the comparison. Confidence: HIGH.
+
+**What needs to be added to Omphalos:**
+
+1. A new `GET /api/auth/sso` endpoint in `AuthEndpoints.cs`. It receives the signed token parameters from Quest Board via query string, validates the HMAC, auto-provisions a user if needed, and issues the standard `omphalos_token` JWT cookie then redirects.
+2. The shared secret must be injected via configuration (`QuestBoardSecret` env var) — **not stored in Omphalos's DB**. The constraint from PROJECT.md is "env var for Omphalos."
+3. The SSO endpoint must be `AllowAnonymous()` — it performs its own HMAC authentication, not cookie auth.
+
+**No new NuGet packages required in Omphalos.**
+
+---
+
+## Admin Settings Storage (Quest Board)
+
+**Verdict: Plain EF Core entity. No standard package exists or is needed.**
+
+There is no NuGet package for "DB-backed key-value config" that is worth pulling in. The existing ASP.NET Core `IConfiguration` system is file/env-var backed; making it DB-backed requires either a custom `IConfigurationProvider` (complex, loaded at startup before DI is ready) or a plain service that reads a settings table on demand.
+
+**The correct pattern for this use case is a plain EF Core entity + service**, consistent with how the rest of Quest Board's configuration works (typed `EmailSettings` record bound from `IOptions<EmailSettings>`).
+
+**Proposed structure:**
+
+```
+EuphoriaInn.Repository/Entities/AppSettingEntity.cs   — { Key (PK, string), Value (string) }
+EuphoriaInn.Domain/Models/AppSetting.cs               — { Key, Value }
+EuphoriaInn.Domain/Interfaces/IAppSettingService.cs   — GetAsync(key), SetAsync(key, value)
+EuphoriaInn.Domain/Services/AppSettingService.cs      — implementation
+```
+
+The `AppSettingEntity` table acts as a key-value store. Two keys are needed for this milestone: `Omphalos:Url` and `Omphalos:SharedSecret`. The service exposes typed helpers (`GetOmphalosUrlAsync`, `GetOmphalosSecretAsync`) wrapping the generic `GetAsync`.
+
+**Why not `IConfiguration` custom provider?** It initializes before DI and requires a database connection at startup, which causes issues if the DB is not yet migrated. The service approach is readable at any point in a request, consistent with how `EmailService` reads `EmailSettings`, and lazily loaded (avoids startup brittleness).
+
+**Why not a dictionary-in-JSON column?** The table approach lets migrations add new keys with defaults; a JSON column requires manual JSON manipulation and loses EF change tracking clarity.
+
+**Migration:** A new EF Core migration adds `AppSettings` table. No seed data needed — the admin configures values via the new Settings page. The app must gracefully handle missing keys (Omphalos URL absent = hide the "Open DM Tool" link).
+
+---
+
+## HTTP Client (Quest Board to Omphalos)
+
+**Verdict: Use `IHttpClientFactory` via `AddHttpClient()`. One line in Program.cs. No new package.**
+
+`System.Net.Http.IHttpClientFactory` ships in `Microsoft.Extensions.Http`, which is included in the `Microsoft.NET.Sdk.Web` SDK (i.e., in `EuphoriaInn.Service`). The Quest Board service project targets `net10.0` with `Sdk="Microsoft.NET.Sdk.Web"`. `AddHttpClient()` is available without any additional NuGet reference.
+
+Currently Quest Board has **no** `AddHttpClient()` call in `Program.cs` and no `IHttpClientFactory` injection anywhere in production code (confirmed by grep — zero matches). This means the DI registration is missing — it must be added.
+
+**Registration (one line in Program.cs):**
 
 ```csharp
-// AccountController.cs or wherever PasswordSignInAsync is called
-var result = await _signInManager.PasswordSignInAsync(
-    email,
-    password,
-    isPersistent: false,
-    lockoutOnFailure: true);   // THIS is what wires lockout to failed attempts
+builder.Services.AddHttpClient("omphalos");
 ```
 
-Without `lockoutOnFailure: true`, the `LockoutOptions` configuration has no effect.
+Or a typed client `OmphalosHttpClient` that wraps `IHttpClientFactory.CreateClient("omphalos")` and configures the base URL per-call from `IAppSettingService`.
 
-**LockoutOptions defaults (official):**
+**Why `IHttpClientFactory` over `new HttpClient()`?**
+- `new HttpClient()` per-request causes socket exhaustion (well-documented .NET anti-pattern).
+- `IHttpClientFactory` manages handler lifetimes (default 2-minute DNS refresh) and is the standard ASP.NET Core recommendation since .NET Core 2.1.
+- Named or typed clients allow the base URL to be set from DB settings without threading issues.
 
-| Property | Default | Requirement |
-|----------|---------|-------------|
-| `AllowedForNewUsers` | `true` | `true` |
-| `MaxFailedAccessAttempts` | `5` | `5` |
-| `DefaultLockoutTimeSpan` | `5 minutes` | `15 minutes` |
-
-Only `DefaultLockoutTimeSpan` requires a non-default value. `MaxFailedAccessAttempts` is already 5
-by default — still set it explicitly for clarity and auditability.
-
-**References:**
-- [LockoutOptions Class — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.lockoutoptions?view=aspnetcore-8.0)
-- [Configure ASP.NET Core Identity — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-9.0)
+**Scope of use in Milestone 3:** The actual SSO flow is a **browser redirect** — Quest Board generates a signed URL and redirects the browser to Omphalos (`RedirectResult`). No server-to-server HTTP call is required for the SSO itself. `IHttpClientFactory` is registered now as the foundation for future bidirectional calls (Omphalos → Quest Board is listed in PROJECT.md as a future milestone feature). If nothing calls it in M3 it costs nothing at runtime.
 
 ---
 
-### 4. Image Cropping — Client-Side Crop with Cropper.js, Base64 Upload
+## Omphalos JWT/CORS Changes
 
-**Confidence: MEDIUM** (Cropper.js well-established; version confirmed from official site; pattern verified from multiple sources)
+**Verdict: CORS needs no changes for Milestone 3. JWT config needs no changes. A new SSO endpoint must be added.**
 
-**Recommendation: Cropper.js 2.x — client-side crop, base64 POST to server**
+### CORS
 
-This is the right approach for this codebase because:
-- No server-side image manipulation library needed (no SixLabors.ImageSharp, no System.Drawing)
-- Works with the existing vanilla JS + Bootstrap 5 stack — no new frontend framework
-- Stays consistent with the project's no-npm / CDN-loaded philosophy
-
-**Cropper.js version situation:**
-
-The official Cropper.js site (fengyuanchen.github.io/cropperjs/) currently shows **v2.1.1**, which
-is a major rewrite with a different API. However, most existing ASP.NET Core tutorials and CDN
-packages reference **v1.5.13** (still maintained, still widely deployed). Version 1.5.13 has the
-more documented integration pattern for MVC.
-
-**Recommendation: Use Cropper.js 1.6.2** — the last stable 1.x release, available on cdnjs, with
-the battle-tested API. The 2.x rewrite has limited documentation for the specific "crop then upload
-base64" pattern this feature needs. Re-evaluate 2.x when documentation matures.
-
-**Integration pattern:**
-
-```html
-<!-- In view — add to _Layout or page-specific scripts section -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-```
-
-```javascript
-// JS: initialize cropper when user selects a file
-const input = document.getElementById('avatarInput');
-input.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (evt) {
-        document.getElementById('cropImage').src = evt.target.result;
-        // open Bootstrap modal, then init cropper on the <img>
-        const cropper = new Cropper(document.getElementById('cropImage'), {
-            aspectRatio: 1,
-            viewMode: 1
-        });
-        document.getElementById('confirmCrop').addEventListener('click', function () {
-            const canvas = cropper.getCroppedCanvas({ width: 256, height: 256 });
-            document.getElementById('croppedImageData').value = canvas.toDataURL('image/jpeg', 0.85);
-        });
-    };
-    reader.readAsDataURL(file);
-});
-```
+Current config in `Program.cs`:
 
 ```csharp
-// Controller action — receive base64, decode, save
-[HttpPost]
-public async Task<IActionResult> UpdateAvatar(string croppedImageData)
-{
-    // Strip "data:image/jpeg;base64," prefix
-    var base64 = croppedImageData.Split(',')[1];
-    var bytes = Convert.FromBase64String(base64);
-    var fileName = $"{Guid.NewGuid()}.jpg";
-    var path = Path.Combine(_env.WebRootPath, "uploads", "avatars", fileName);
-    await System.IO.File.WriteAllBytesAsync(path, bytes);
-    // save fileName to user record
-}
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 ```
 
-**No server-side image library needed** — the crop and resize happen entirely in the browser via
-HTML5 Canvas before the bytes are sent. The server just stores the already-cropped JPEG.
+The deep-link SSO flow is a **browser redirect**, not an XHR/fetch call. The browser navigates to Omphalos's SSO URL directly (`window.location.href = signedUrl`). Browser navigations (302 redirect → GET) are **not subject to CORS preflight**. Therefore, the SSO endpoint itself does not require CORS changes.
 
-**File size:** A 256×256 JPEG at 0.85 quality is typically 15–40 KB — well within normal form POST
-limits. No changes to Kestrel `MaxRequestBodySize` required.
+After the SSO endpoint issues the JWT cookie and redirects to the React SPA, the React app makes subsequent XHR calls. Those already work under the existing `AllowedOrigins` config as long as Quest Board's origin is listed there. Quest Board must be added to `AllowedOrigins` in Omphalos's config — not a code change, a deployment config change.
 
-**References:**
-- [Cropper.js official site](https://fengyuanchen.github.io/cropperjs/)
-- [Image Cropping with Cropper.js in ASP.NET Core — Medium](https://karaoz-onr.medium.com/image-cropping-and-uploading-to-server-with-cropper-js-in-asp-net-core-56afb0ed1b6f)
-- [CropperUploadDemo — GitHub](https://github.com/lampo1024/CropperUploadDemo)
+**No CORS code changes required for Milestone 3.**
 
----
+### JWT Config
 
-### 5. Email Library — Migrate from System.Net.Mail.SmtpClient to MailKit
+The existing JWT validation in `Program.cs` reads `omphalos_token` from a cookie and validates issuer/audience/lifetime/signing key. The SSO endpoint will **issue** a new `omphalos_token` cookie using the same `GenerateToken(user)` path already in `AuthService`. No changes to `TokenValidationParameters` or the `OnMessageReceived` event are needed.
 
-**Confidence: HIGH** (Microsoft explicitly marks SmtpClient as not recommended; MailKit is Microsoft's stated alternative)
+**SameSite cookie concern:** `AuthEndpoints.cs` sets `SameSite = SameSiteMode.Lax` on the `omphalos_token` cookie. `Lax` allows the cookie to be sent on top-level GET navigations (which is what a redirect produces), and allows it to be included in subsequent same-site requests. The SSO flow navigates the browser to Omphalos, Omphalos sets the cookie, then Omphalos serves the SPA. No cross-site cookie sending is required. `Lax` is correct. No change needed.
 
-**Current state (problematic):**
+### What does need to change in Omphalos
 
-`EmailService.cs` uses `System.Net.Mail.SmtpClient`, which Microsoft documents as:
+1. **New `GET /api/auth/sso` endpoint** in `AuthEndpoints.cs` (or a new `SsoEndpoints.cs`):
+   - Reads `username`, `questId` (optional), `exp`, `sig` from query string
+   - Recomputes HMAC using `QuestBoardSecret` config value
+   - Validates expiry (reject if `exp < DateTimeOffset.UtcNow.ToUnixTimeSeconds()`)
+   - Finds user by `username`; if not found, creates one with `UserRole.Player` (auto-provision)
+   - Issues `omphalos_token` cookie via existing `GenerateToken(user)` path in `AuthService`
+   - Redirects to `/sessions/{questId}` or `/` if no questId
 
-> "We don't recommend using SmtpClient for new development because SmtpClient doesn't support many modern protocols."
+2. **New `QuestBoardSecret` config key** read in `Program.cs` (env var, not DB). Fail-fast if missing at startup (same pattern as `Jwt:Secret`).
 
-Additionally, the current implementation:
-- Re-reads configuration on every call (resolved by IOptions pattern above)
-- Uses deprecated `SmtpClient` with known async issues (async method wraps blocking I/O)
-- Duplicates connection setup across two methods
-
-**Recommended replacement: MailKit 4.15.1**
-
-MailKit is Microsoft's officially stated alternative. It:
-- Has proper async SMTP (no thread pool blocking)
-- Supports OAUTH2, DKIM, and modern auth requirements (relevant for Gmail)
-- Is the standard in the .NET ecosystem (80M+ NuGet downloads)
-- Works identically against Gmail's SMTP with App Passwords
-
-**Package:** `MailKit` 4.15.1 — install in `EuphoriaInn.Domain` (where EmailService lives currently)
-
-Note: After the dependency direction fix, `EmailService` should move to `EuphoriaInn.Service` or
-stay in Domain depending on whether it needs repository access. It does not — it is a pure
-outbound notification service — so it can stay in Domain or move to Service. Either is acceptable;
-Service is the more conventional placement for infrastructure concerns.
-
-**Replacement implementation pattern:**
-
-```csharp
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
-
-public class EmailService(IOptions<EmailSettings> emailOptions, ILogger<EmailService> logger) : IEmailService
-{
-    private readonly EmailSettings _settings = emailOptions.Value;
-
-    private async Task SendAsync(MimeMessage message)
-    {
-        using var client = new SmtpClient();
-        await client.ConnectAsync(_settings.SmtpServer, _settings.SmtpPort, SecureSocketOptions.StartTls);
-        await client.AuthenticateAsync(_settings.SmtpUsername, _settings.SmtpPassword);
-        await client.SendAsync(message);
-        await client.DisconnectAsync(true);
-    }
-
-    public async Task SendQuestFinalizedEmailAsync(string toEmail, string playerName,
-        string questTitle, string dmName, DateTime questDate)
-    {
-        if (string.IsNullOrEmpty(_settings.SmtpUsername)) { /* log and return */ return; }
-
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
-        message.To.Add(new MailboxAddress(playerName, toEmail));
-        message.Subject = $"Quest Finalized: {questTitle}";
-        message.Body = new TextPart("plain") { Text = BuildFinalizedBody(playerName, questTitle, dmName, questDate) };
-
-        try { await SendAsync(message); }
-        catch (Exception ex) { logger.LogError(ex, "Failed to send finalized email for {Quest}", questTitle); }
-    }
-}
-```
-
-**Migration effort:** Low. The email body strings are unchanged. The only code change is swapping
-`System.Net.Mail` types for MailKit/MimeKit types and consolidating connection setup into one
-private method.
-
-**References:**
-- [Microsoft SmtpClient docs — "not recommended"](https://learn.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient?view=net-9.0)
-- [MailKit GitHub](https://github.com/jstedfast/MailKit)
-- [MailKit NuGet — 4.15.1](https://www.nuget.org/packages/mailkit/)
-- [SmtpClient is obsolete — Jonathan Crozier](https://jonathancrozier.com/blog/smtpclient-is-obsolete-the-new-way-to-send-emails-from-your-net-app)
+3. **`GameSession` quest-board linking** — currently `GameSession.Id` is a `string` (user-defined title slug) and `SessionMetadata` has no `QuestBoardQuestId` field. A nullable `QuestBoardQuestId` int column is needed on `GameSession` to find/create the session for a given quest. This requires a new Omphalos migration.
 
 ---
 
-## Package Version Summary
+## Summary: Net New Dependencies
 
-Current packages that need attention:
+| Package / API | Layer | Already Present | Action Needed |
+|---|---|---|---|
+| `System.Security.Cryptography.HMACSHA256` | Quest Board: Domain | Yes — BCL, part of runtime | None — use directly |
+| `System.Security.Cryptography.HMACSHA256` | Omphalos: Services | Yes — BCL, part of runtime | None — use directly |
+| `System.Security.Cryptography.Xml` (NuGet) | Quest Board: Domain | Yes (v10.0.7) | Unrelated to HMAC; no change |
+| `Microsoft.Extensions.Http` (`IHttpClientFactory`) | Quest Board: Service | Included in `Microsoft.NET.Sdk.Web` | Add `builder.Services.AddHttpClient()` to `Program.cs` |
+| `Microsoft.IdentityModel.Tokens` | Omphalos: Services | Yes (v8.19.1) | No change — HMAC validation uses BCL only |
+| `AppSettingEntity` (EF Core table) | Quest Board: Repository | No | New entity + migration + service (Domain + Repository) |
+| `QuestBoardSecret` config key | Omphalos | No | Add to env vars and `Program.cs` startup validation |
+| `QuestBoardQuestId` column on `GameSession` | Omphalos: Repository | No | New nullable int column + Omphalos EF migration |
+| CORS policy code change | Omphalos | N/A | None required; Quest Board origin added to `AllowedOrigins` config only |
+| New `/api/auth/sso` endpoint | Omphalos: Web | No | New endpoint in `AuthEndpoints.cs` |
 
-| Package | Current | Recommended | Reason |
-|---------|---------|-------------|--------|
-| `System.Net.Mail.SmtpClient` (built-in) | n/a | Remove — use MailKit | Marked not recommended by Microsoft |
-| `MailKit` | not installed | 4.15.1 | Official SmtpClient replacement |
-| `Microsoft.AspNetCore.Identity` | 2.3.1 (Domain) | Remove from Domain | After dependency fix, Domain won't need this directly |
-| `Microsoft.Extensions.Configuration.Binder` | 9.0.6 (Domain) | Remove from Domain | Replace IConfiguration with IOptions<T>; binder not needed in Domain |
-| EF Core (`Microsoft.EntityFrameworkCore`) | 9.0.6 | No change | EF Core 9 on .NET 8 is supported and correct |
-| Identity EF (`Microsoft.AspNetCore.Identity.EntityFrameworkCore`) | 8.0.11 | No change | Stays in Repository |
-| `AutoMapper` | 14.0.0 | No change | Current stable |
-
-**Note on EF Core 9 + .NET 8:** This is intentional and supported. EF Core 9 targets .NET 8+ as its
-minimum runtime. The version mismatch vs. `Identity.EntityFrameworkCore` 8.0.11 is cosmetically
-inconsistent but functionally fine — they target different package lines.
-
----
-
-## What Stays the Same
-
-- ASP.NET Core 8 MVC — no change
-- SQL Server + EF Core 9 — no change
-- ASP.NET Core Identity 8 — no change
-- AutoMapper 14 — no change
-- Bootstrap 5.3 / jQuery 3.6 / Font Awesome 6.4 via CDN — no change
-- Docker deployment — no change
-
----
-
-## Installation
-
-```bash
-# Add MailKit to the project that hosts EmailService (Domain currently; Service after refactor)
-dotnet add EuphoriaInn.Domain package MailKit --version 4.15.1
-
-# OR if EmailService moves to Service project:
-dotnet add EuphoriaInn.Service package MailKit --version 4.15.1
-```
-
-No additional packages are required for:
-- IOptions<T> — in `Microsoft.Extensions.Options`, included transitively via ASP.NET Core
-- Identity lockout — already in `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
-- Cropper.js — loaded via CDN, no NuGet package
-
----
-
-## Sources
-
-- [ardalis/CleanArchitecture](https://github.com/ardalis/CleanArchitecture)
-- [Microsoft ISE Clean Architecture Boilerplate](https://devblogs.microsoft.com/ise/next-level-clean-architecture-boilerplate/)
-- [Options pattern in ASP.NET Core — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options?view=aspnetcore-8.0)
-- [LockoutOptions — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.lockoutoptions?view=aspnetcore-8.0)
-- [Configure ASP.NET Core Identity — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration)
-- [System.Net.Mail.SmtpClient — Microsoft Learn (not recommended notice)](https://learn.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient?view=net-9.0)
-- [MailKit on NuGet — 4.15.1](https://www.nuget.org/packages/mailkit/)
-- [MailKit GitHub](https://github.com/jstedfast/MailKit)
-- [Cropper.js official site](https://fengyuanchen.github.io/cropperjs/)
-- [SmtpClient is obsolete — Jonathan Crozier](https://jonathancrozier.com/blog/smtpclient-is-obsolete-the-new-way-to-send-emails-from-your-net-app)
-
----
-
-*Research: 2026-04-15*
+**Net-new NuGet packages: zero.** All cryptographic primitives are BCL. `IHttpClientFactory` is in the SDK. The only code additions are: a new EF entity + migration in Quest Board, a new service + interface in Quest Board Domain, one `AddHttpClient()` line in Quest Board's `Program.cs`, a new Omphalos SSO endpoint, a config key in Omphalos's env vars, and a new nullable column + migration in Omphalos.

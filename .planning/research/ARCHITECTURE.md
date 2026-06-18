@@ -1,411 +1,351 @@
-# Architecture Patterns
+# Architecture Research — Omphalos Integration
 
-**Domain:** ASP.NET Core 8 MVC — Clean Architecture refactor of existing app
-**Researched:** 2026-04-15
-**Confidence:** HIGH — authoritative Microsoft docs + cross-validated with multiple sources
-
----
-
-## The Core Problem, Stated Precisely
-
-The codebase has a **compile-time dependency inversion violation**: `EuphoriaInn.Domain` holds a `<ProjectReference>` to `EuphoriaInn.Repository`. This means the Domain assembly cannot compile without the Repository assembly. The intended arrow is Domain ← Repository; the actual arrow is Domain → Repository. Everything else (AutoMapper boundary confusion, controller bloat) follows from this single root cause.
+**Researched:** 2026-06-18
+**Confidence:** HIGH — direct codebase inspection of both repos
 
 ---
 
-## Q1: Where Should EntityProfile Live?
+## Quest Board New Components
 
-**Answer: In `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`.**
+### Phase 10: Admin Settings
 
-### Why this is definitively correct
+**Goal:** Admin can save and load Omphalos URL and shared HMAC secret via a new /Admin/Settings page.
 
-EntityProfile maps between `*Entity` types (EF Core classes that live in Repository) and domain `Model` classes (that live in Domain). For EntityProfile to compile, it must reference both assembly types. The two possible placements are:
+#### Layer Placement
 
-| Placement | Required references | Dependency arrow |
-|-----------|--------------------|-----------------:|
-| Domain (current) | Domain refs Repository to see `*Entity` types | Domain → Repository (WRONG) |
-| Repository | Repository refs Domain to see domain `Model` types | Repository → Domain (CORRECT) |
+AdminSetting is a simple key-value configuration store. It follows the same full-stack pattern as every other entity in the codebase: entity in Repository, domain model + interface + service in Domain, controller action in Service layer. There is no shortcut here — putting settings logic in the controller would violate the "thin controller" principle that the Milestone 2 refactor established.
 
-The correct dependency direction is **Repository → Domain** — infrastructure knows about the domain, not the reverse. Microsoft's .NET Microservices Architecture Guide states this explicitly: "The IBuyerRepository interface comes from the domain model layer as a contract. However, the repository implementation is done at the persistence and infrastructure layer."
+#### New Files
 
-The article *EF Core: Effectively Decouple the Data and Domain Model* (thecodewrapper.com) states: "Data entities and any persistence-related code should be kept ONLY in the Infrastructure layer and never be allowed to leave." The mapping profile that translates EF entities into domain models is persistence-related code — it knows about `QuestEntity.PlayerSignups` navigation properties, `CharacterImageEntity` blob structure, int-to-enum coercions required by EF's column storage. That knowledge belongs in the infrastructure layer.
+**Repository layer — `EuphoriaInn.Repository/`**
 
-### What this looks like after the move
+- `Entities/AdminSettingEntity.cs` — EF entity implementing `IEntity`. Properties: `int Id` (identity PK, satisfies `IEntity` contract), `string Key` (unique), `string Value`, `DateTime UpdatedAt`. Uses data annotation `[Table("AdminSettings")]`, `[Key]`, `[DatabaseGenerated(DatabaseGeneratedOption.Identity)]`, `[Required]`, `[StringLength(200)]` on Key, consistent with `ShopItemEntity` style.
+- `Interfaces/IAdminSettingRepository.cs` — placed in `EuphoriaInn.Repository/Interfaces/` (not Domain, because this is a concrete infrastructure interface); note: repository interfaces go in `EuphoriaInn.Domain/Interfaces/` per the existing pattern — see `IQuestRepository`, `IShopRepository` etc. Therefore this file goes to `EuphoriaInn.Domain/Interfaces/IAdminSettingRepository.cs`. Extends `IBaseRepository<AdminSetting>` and adds `Task<AdminSetting?> GetByKeyAsync(string key, CancellationToken ct)` and `Task UpsertByKeyAsync(string key, string value, CancellationToken ct)`.
+- `AdminSettingRepository.cs` — placed at root of `EuphoriaInn.Repository/` (same level as `ShopRepository.cs`, `QuestRepository.cs`). Extends `BaseRepository<AdminSetting, AdminSettingEntity>`, implements `GetByKeyAsync` via `DbSet.FirstOrDefaultAsync(e => e.Key == key)` and `UpsertByKeyAsync` via find-then-add-or-update pattern, calls `DbContext.SaveChangesAsync`.
 
-```
-EuphoriaInn.Domain
-  ├── Models/          (Quest, User, PlayerSignup, etc.)
-  ├── Interfaces/      (IQuestService, IQuestRepository, IEmailService, etc.)
-  ├── Enums/
-  └── Extensions/ServiceExtensions.cs
-  [NO reference to EuphoriaInn.Repository]
+**QuestBoardContext modification** — `EuphoriaInn.Repository/Entities/QuestBoardContext.cs`
 
-EuphoriaInn.Repository
-  ├── Entities/        (*Entity classes, QuestBoardContext)
-  ├── Automapper/EntityProfile.cs   ← MOVED HERE
-  ├── Interfaces/      (IBaseRepository<T>, IQuestRepository, etc.)
-  ├── Repositories/    (concrete implementations)
-  ├── Migrations/
-  └── Extensions/ServiceExtensions.cs
-  [References EuphoriaInn.Domain for Model types]
+- Add `public DbSet<AdminSettingEntity> AdminSettings { get; set; }` — one line, follows the pattern of every other `DbSet` already present.
+- Add a unique index on `Key` in `OnModelCreating`: `modelBuilder.Entity<AdminSettingEntity>().HasIndex(a => a.Key).IsUnique()` — prevents duplicate keys at the DB level.
 
-EuphoriaInn.Service
-  ├── Controllers/
-  ├── Automapper/ViewModelProfile.cs   (stays here)
-  ├── ViewModels/
-  └── Program.cs
-  [References EuphoriaInn.Domain only]
-```
+**Domain layer — `EuphoriaInn.Domain/`**
 
-### Registering AutoMapper after the move
+- `Models/AdminSetting.cs` — domain model with `int Id`, `string Key`, `string Value`, `DateTime UpdatedAt`; implements `IModel`. Placed in `EuphoriaInn.Domain/Models/` alongside `Quest.cs`, `User.cs` etc.
+- `Interfaces/IAdminSettingRepository.cs` — (see above — repository interfaces live in Domain per existing pattern)
+- `Interfaces/IAdminSettingService.cs` — extends `IBaseService<AdminSetting>` with two extra methods: `Task<string?> GetValueAsync(string key, CancellationToken ct = default)` and `Task SetValueAsync(string key, string value, CancellationToken ct = default)`.
+- `Services/AdminSettingService.cs` — `internal class AdminSettingService` extends `BaseService<AdminSetting>` (note: `BaseService<TModel>` does not have a TEntity parameter visible to callers — the concrete class signature is `internal class AdminSettingService(IAdminSettingRepository repository, IMapper mapper) : BaseService<AdminSetting>(repository, mapper), IAdminSettingService`). Implements `GetValueAsync` by calling `repository.GetByKeyAsync(key, ct)` and returning `result?.Value`. Implements `SetValueAsync` by calling `repository.UpsertByKeyAsync(key, value, ct)`.
 
-AutoMapper profile scanning must be told to include the Repository assembly. In `Program.cs`:
+**AutoMapper** — `EuphoriaInn.Repository/Automapper/EntityProfile.cs` (modified)
+
+- Add `CreateMap<AdminSetting, AdminSettingEntity>().ReverseMap()` — both sides are flat primitives, no enum conversions needed. One line.
+
+**Service layer — `EuphoriaInn.Service/`**
+
+- `Controllers/Admin/AdminController.cs` (modified) — inject `IAdminSettingService` into the existing primary constructor alongside `IUserService` and `IQuestService`. Add two actions: `[HttpGet] public async Task<IActionResult> Settings()` that loads OmphalosUrl and OmphalosSecret keys and maps to `AdminSettingsViewModel`; `[HttpPost] [ValidateAntiForgeryToken] public async Task<IActionResult> Settings(AdminSettingsViewModel model)` that calls `SetValueAsync` for each key.
+- `ViewModels/AdminViewModels/AdminSettingsViewModel.cs` (new) — two string properties: `OmphalosUrl` (`[DataType(DataType.Url)]`, `[StringLength(500)]`) and `OmphalosSharedSecret` (`[StringLength(500)]`); neither is `[Required]` since the admin may want to clear them.
+- `Views/Admin/Settings.cshtml` (new) — follows `modern-card` pattern mandated in CLAUDE.md. Two inputs: URL as text, secret as password (type="password" to prevent shoulder-surfing). Save button with `fa-save` icon. Back link to `/Admin/Users`.
+
+#### Modified Files (Phase 10)
+
+| File | Change |
+|------|--------|
+| `EuphoriaInn.Repository/Entities/QuestBoardContext.cs` | Add `DbSet<AdminSettingEntity>` + unique index on Key |
+| `EuphoriaInn.Repository/Automapper/EntityProfile.cs` | Add AdminSetting↔AdminSettingEntity map |
+| `EuphoriaInn.Repository/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IAdminSettingRepository, AdminSettingRepository>()` |
+| `EuphoriaInn.Domain/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IAdminSettingService, AdminSettingService>()` |
+| `EuphoriaInn.Service/Controllers/Admin/AdminController.cs` | Inject `IAdminSettingService`; add Settings GET/POST actions |
+
+#### EF Migration
+
+One migration: `AddAdminSettings`. Adds `AdminSettings` table with `Id int identity PK`, `Key nvarchar(200) not null unique`, `Value nvarchar(max) not null`, `UpdatedAt datetime2 not null`. Created by running `dotnet ef migrations add AddAdminSettings --project ../EuphoriaInn.Repository` from the Service project directory. Auto-applied on startup.
+
+---
+
+### Phase 11: Navigation + Token Generation
+
+**Goal:** DM navbar shows "Open DM Tool" when Omphalos URL is configured; Quest Detail and Manage pages show "Open Session Notes" button that generates a short-lived HMAC-signed redirect URL.
+
+#### Where HMAC Token Generation Lives
+
+**Decision: a dedicated `IIntegrationTokenService` in the Domain layer, not inline in the controller.**
+
+Rationale:
+- Token generation reads the shared secret from `IAdminSettingService` — that is a service call, which is business logic, not presentation logic.
+- Controllers in this codebase do not contain business logic; they coordinate services and produce HTTP responses. Adding `HMACSHA256` calls to a controller action violates the pattern established in Milestone 2.
+- The service will be reusable: future Omphalos → Quest Board API calls will need the same HMAC validation logic, and a service behind an interface can be tested in isolation.
+- All Domain services are already `internal class` implementations behind `I*Service` interfaces — this is the established pattern.
+
+#### New Files (Phase 11)
+
+**Domain layer — `EuphoriaInn.Domain/`**
+
+- `Interfaces/IIntegrationTokenService.cs` — public interface:
+
+  ```csharp
+  public interface IIntegrationTokenService
+  {
+      Task<string?> GenerateQuestDeepLinkAsync(int questId, string username, CancellationToken ct = default);
+  }
+  ```
+
+  Returns `null` when Omphalos URL or secret is not configured; callers must handle gracefully (do not show button, do not redirect).
+
+- `Services/IntegrationTokenService.cs` — `internal class IntegrationTokenService(IAdminSettingService settings) : IIntegrationTokenService`. Reads `OmphalosUrl` and `OmphalosSharedSecret` keys via `settings.GetValueAsync`. Constructs payload string `"{questId}|{username}|{unixTimestampUtc}"`. Computes `HMACSHA256(payload, sharedSecret)` using `System.Security.Cryptography.HMACSHA256` — this namespace is already available in the Domain project via `System.Security.Cryptography.Xml` 8.0.3. Sets expiry to `DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds()`. Returns full URL: `{omphalosUrl}/api/sso/quest-board?questId={questId}&user={username}&expires={unix}&sig={hmacHex}`.
+
+**Service layer — `EuphoriaInn.Service/`**
+
+- `ViewComponents/OmphalosNavItemViewComponent.cs` (new) — `public class OmphalosNavItemViewComponent(IAdminSettingService settings) : ViewComponent`. Reads `OmphalosUrl` in `InvokeAsync`; passes a bool `IsConfigured` to the Default view.
+- `Views/Shared/Components/OmphalosNavItem/Default.cshtml` (new) — renders a single `<li>` dropdown item `<a href="/Quest/LaunchOmphalos">Open DM Tool</a>` when `IsConfigured` is true.
+
+No new controller files for Phase 11. Token generation and redirect are a new action on the existing `QuestController`.
+
+#### Modified Files (Phase 11)
+
+| File | Change |
+|------|--------|
+| `EuphoriaInn.Domain/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IIntegrationTokenService, IntegrationTokenService>()` |
+| `EuphoriaInn.Service/Controllers/QuestBoard/QuestController.cs` | Inject `IAdminSettingService` and `IIntegrationTokenService`; add `LaunchOmphalos(int id)` GET action; set `ViewBag.OmphalosConfigured` in Details and Manage actions |
+| `EuphoriaInn.Service/Views/Quest/Details.cshtml` | Add conditional "Open Session Notes" button (shown if `ViewBag.OmphalosConfigured && ViewBag.CanManage`) |
+| `EuphoriaInn.Service/Views/Quest/Manage.cshtml` | Add conditional "Open Session Notes" button (shown if `ViewBag.OmphalosConfigured`) |
+| `EuphoriaInn.Service/Views/Shared/_Layout.cshtml` | Add `@await Component.InvokeAsync("OmphalosNavItem")` in DM dropdown section |
+
+#### ViewModel vs ViewBag decision for quest pages
+
+The Details and Manage actions already use `ViewBag` heavily: `ViewBag.CanManage`, `ViewBag.IsAuthorized`, `ViewBag.IsAdmin`, `ViewBag.CalendarMonths`, `ViewBag.CurrentQuestId`. Adding `ViewBag.OmphalosConfigured = true/false` is one more boolean in an existing `ViewBag` pattern — no ViewModel wrapper needed. Introducing a strongly-typed ViewModel for the Manage action (which currently passes a raw `Quest` domain model via `return View(quest)`) would require wrapping the domain model, which is a larger refactor outside this milestone's scope.
+
+#### Navbar View Component decision
+
+The shared `_Layout.cshtml` cannot receive controller-specific `ViewBag` values injected from one specific controller — every page shares the layout. Options:
+
+1. **View Component** — `OmphalosNavItemViewComponent` injects `IAdminSettingService` via DI, reads the URL, renders conditionally. This is the standard ASP.NET Core pattern for layout-level data requiring a service call. No controller modification needed for the navbar.
+2. **Base controller with `OnActionExecutionAsync`** — sets `ViewBag.OmphalosUrl` for every action across all controllers. Introduces an inheritance coupling that does not exist in this codebase today (all controllers inherit directly from `Controller`). Avoid.
+
+**Decision: View Component.** It is self-contained, follows the ASP.NET Core recommended pattern, and requires no changes to existing controllers.
+
+---
+
+## Omphalos New Components
+
+### Phase 12: SSO Endpoint + Session Linking
+
+**Goal:** Omphalos validates a Quest Board HMAC token, auto-provisions the DM account on first use, finds or creates the quest's `GameSession`, issues a JWT cookie, and redirects the user into the correct session.
+
+#### Omphalos Architecture Recap (from reading)
+
+Omphalos is a .NET 10 Minimal API + PostgreSQL app with a flat domain structure: entities in `Omphalos.Domain/Entities/`, interfaces in `Omphalos.Domain/Interfaces/`, DTOs in `Omphalos.Domain/DTOs/`, service implementations in `Omphalos.Services/Implementations/`, repositories in `Omphalos.Repository/Repositories/`, entity configurations via `IEntityTypeConfiguration<T>` in `Omphalos.Repository/Configurations/`, and endpoint groups in `Omphalos.Web/Endpoints/`. `Program.cs` registers everything directly — no extension method wrappers.
+
+`GameSession.Id` is a client-provided `string` (not auto-generated). `User.Id` is a `Guid`. There are no base repository or base service classes — each service and repository is standalone.
+
+#### ExternalQuestId on GameSession
+
+`GameSession` needs a nullable `int? ExternalQuestId` to record which Quest Board quest it corresponds to. This allows the SSO endpoint to find-or-create the session for a given quest.
+
+**Domain entity** — `Omphalos.Domain/Entities/GameSession.cs` (modified)
+- Add `public int? ExternalQuestId { get; set; }` — nullable, so existing sessions without a Quest Board link continue to work unchanged.
+
+**Repository configuration** — `Omphalos.Repository/Configurations/GameSessionConfiguration.cs` (modified)
+- Add `builder.Property(s => s.ExternalQuestId).IsRequired(false)` — nullable column.
+- Add `builder.HasIndex(s => s.ExternalQuestId)` — non-unique index for fast lookup by external ID (one DM can theoretically have multiple sessions for the same quest over time, so unique is wrong here).
+
+**Repository interface** — `Omphalos.Domain/Interfaces/ISessionRepository.cs` (modified)
+- Add `Task<GameSession?> GetByExternalQuestIdAsync(Guid userId, int questId, CancellationToken ct = default)`.
+
+**Repository implementation** — `Omphalos.Repository/Repositories/SessionRepository.cs` (modified)
+- Implement `GetByExternalQuestIdAsync`: `.Where(s => s.UserId == userId && s.ExternalQuestId == questId).OrderByDescending(s => s.DateModified).FirstOrDefaultAsync(ct)` — returns the most recently modified session for this quest/user combination.
+
+**EF Migration** — `AddExternalQuestIdToGameSession`
+- Adds nullable `external_quest_id int` column to `game_sessions` table (Npgsql snake_cases the property name automatically unless overridden in config).
+- Adds the index.
+- Run `dotnet ef migrations add AddExternalQuestIdToGameSession` from the Omphalos.Web or appropriate project; auto-applied on startup via existing `db.Database.MigrateAsync()` in Program.cs.
+
+#### SsoEndpoints.cs
+
+**New file** — `Omphalos.Web/Endpoints/SsoEndpoints.cs`
+
+Pattern matches `AuthEndpoints.cs` exactly: a static class with a `MapSsoEndpoints(this IEndpointRouteBuilder app)` extension method.
+
+Endpoint: `POST /api/sso/quest-board`, `AllowAnonymous`.
+
+Request body (JSON): `{ questId: int, user: string, expires: long, sig: string }` — maps to a new `SsoRequest` DTO.
+
+The endpoint:
+1. Passes the request to `ISsoService.ValidateAndProvisionAsync` — validates HMAC signature and expiry, provisions user if not found, finds or creates session.
+2. On failure (invalid sig, expired token, missing secret config), returns `Results.Unauthorized()` or `Results.BadRequest("message")`.
+3. On success, calls `IAuthService` to generate a JWT for the provisioned user.
+4. Sets the `omphalos_token` cookie using the same `TokenCookieOptions` already defined in `AuthEndpoints.cs` — these options should be extracted to a shared constant in the `Endpoints` namespace or a shared `CookieConfig` static class to avoid duplication.
+5. Returns `Results.Ok(new { sessionId, redirectUrl })` — the React SPA uses the `sessionId` to navigate to the correct session.
+
+#### ISsoService (new interface and implementation)
+
+HMAC validation and find-or-create session logic belongs in a service (Domain layer), not in the endpoint (Web layer). This keeps business logic testable and keeps the endpoint thin.
+
+**New file** — `Omphalos.Domain/Interfaces/ISsoService.cs`
 
 ```csharp
-// Before (scans only executing assembly / Domain):
-builder.Services.AddAutoMapper(typeof(EntityProfile), typeof(ViewModelProfile));
-
-// After (EntityProfile is now in Repository assembly):
-builder.Services.AddAutoMapper(
-    typeof(EuphoriaInn.Repository.Automapper.EntityProfile),
-    typeof(EuphoriaInn.Service.Automapper.ViewModelProfile));
-```
-
-The Service project already references Domain; Domain no longer references Repository; Repository references Domain. The dependency graph becomes a strict DAG pointing inward toward Domain.
-
-### What to do about `BaseService<TModel, TEntity>`
-
-`BaseService` is the trickiest piece. It currently holds a generic `IMapper mapper` and calls `mapper.Map<TEntity>(model)` and `mapper.Map<TModel>(entity)`. After the move, Domain no longer knows `TEntity` is an EF entity type — but `BaseService` never imports any EF namespace directly; it only holds `IMapper` (which is an AutoMapper abstraction that lives in the `AutoMapper` NuGet package, independent of Repository). This means `BaseService` can stay in Domain as-is. The `IMapper` contract is resolved at runtime from DI; the actual profile registrations happen in Service's `Program.cs`. The generic constraint `TEntity` in `BaseService<TModel, TEntity>` is just a C# type parameter — it does not create a compile-time project reference.
-
-**The only change needed in Domain**: remove `using EuphoriaInn.Repository.Entities;` from `EntityProfile.cs` (which moves to Repository) and from any other Domain file that imports Repository entity types.
-
----
-
-## Q2: Moving Email Dispatch and Finalization Out of Controllers
-
-### The concrete pattern: Service method returns an enriched result
-
-The current controller `Finalize` action does three things:
-1. Validates form input and authorization — belongs in controller
-2. Calls `questService.FinalizeQuestAsync(...)` — already in service (good)
-3. Builds email recipient list from pre-fetch `quest` object, calls `emailService` per player — belongs in service
-
-The fix is to make `FinalizeQuestAsync` responsible for dispatching emails itself, by injecting `IEmailService` into `QuestService`. The controller becomes:
-
-```csharp
-[HttpPost]
-[ValidateAntiForgeryToken]
-[Authorize(Policy = "DungeonMasterOnly")]
-public async Task<IActionResult> Finalize(int id, CancellationToken token)
+public interface ISsoService
 {
-    // 1. Validate input
-    if (!int.TryParse(Request.Form["SelectedDateId"], out var selectedDateId))
-    {
-        TempData["Error"] = "Please select a date.";
-        return RedirectToAction("Manage", new { id });
-    }
-
-    var selectedPlayerIds = /* parse from form */;
-
-    // 2. Delegate entirely to service
-    var result = await questService.FinalizeQuestAsync(id, selectedDateId, selectedPlayerIds, token);
-
-    if (!result.Success)
-    {
-        TempData["Error"] = result.ErrorMessage;
-        return RedirectToAction("Manage", new { id });
-    }
-
-    // 3. Redirect
-    return RedirectToAction("Details", new { id });
+    Task<SsoResult> ValidateAndProvisionAsync(SsoRequest request, CancellationToken ct = default);
 }
 ```
 
-The `FinalizeQuestAsync` service method:
-- Loads the quest with all required player data
-- Validates the selected date exists on this quest (moves the domain-level guard out of the controller)
-- Validates player count against `TotalPlayerCount`
-- Marks the entity finalized
-- Saves changes
-- Sends emails to eligible players (using injected `IEmailService`)
-- Returns a result object indicating success/failure with optional message
+**New file** — `Omphalos.Services/Implementations/SsoService.cs`
 
-### Service result object pattern
+`SsoService(IUserRepository users, ISessionRepository sessions, IConfiguration config) : ISsoService`
 
-Rather than `void` or throwing exceptions for business-rule failures, use a lightweight result type:
+`ValidateAndProvisionAsync` logic:
+1. Read `QuestBoard:Secret` from config — if absent, return failure result (Omphalos is misconfigured).
+2. Validate `request.Expires > DateTimeOffset.UtcNow.ToUnixTimeSeconds()` — token not expired.
+3. Recompute HMAC: `HMACSHA256("{questId}|{user}|{expires}", secret)` — compare constant-time with `CryptographicOperations.FixedTimeEquals`.
+4. Look up user by username via `users.GetByUsernameAsync(request.User)` — if not found, auto-provision with `BCrypt`-hashed random password (same as `AuthService.SeedAdminAsync` pattern; role = `UserRole.Player` initially).
+5. Call `sessions.GetByExternalQuestIdAsync(user.Id, request.QuestId)` — if null, create a stub `GameSession` with `Id = Guid.NewGuid().ToString()`, `Title = $"Quest #{request.QuestId}"`, `ExternalQuestId = request.QuestId`, `UserId = user.Id`, `DateCreated = DateModified = DateTimeOffset.UtcNow.ToUnixTimeSeconds()`.
+6. Return `SsoResult(User: user, SessionId: session.Id, IsNewSession: wasCreated)`.
 
+**IAuthService modification** — `Omphalos.Domain/Interfaces/IAuthService.cs` (modified)
+
+`GenerateToken(User user)` is currently `private` in `AuthService`. The SSO endpoint needs to issue a JWT after provisioning. Add `string GenerateToken(User user)` to `IAuthService` (make it `internal` in the interface if desired, but `public` is simpler and consistent). `AuthService` makes its existing private `GenerateToken` method the public implementation.
+
+Alternatively, add `Task<LoginResponse> ExchangeForTokenAsync(User user, CancellationToken ct)` to keep the interface at the LoginResponse abstraction level. Either works — the simpler change is exposing `GenerateToken` directly, since `AuthService` already has the full implementation.
+
+#### New DTOs
+
+- `Omphalos.Domain/DTOs/SsoRequest.cs` — `public record SsoRequest(int QuestId, string User, long Expires, string Sig)`
+- `Omphalos.Domain/DTOs/SsoResult.cs` — `public record SsoResult(bool Success, Domain.Entities.User? User, string? SessionId, bool IsNewSession, string? ErrorMessage = null)`
+
+#### Program.cs modifications
+
+Two additions in `Program.cs`:
+
+In the services registration section (after `IGlobalCharacterService`):
 ```csharp
-public record ServiceResult(bool Success, string? ErrorMessage = null)
-{
-    public static ServiceResult Ok() => new(true);
-    public static ServiceResult Fail(string message) => new(false, message);
-}
+builder.Services.AddScoped<ISsoService, SsoService>();
 ```
 
-This keeps HTTP concern (what status to return, what TempData to set) in the controller while business logic (is the selected player count valid?) lives in the service.
-
-### Injecting IEmailService into QuestService
-
-`QuestService` constructor becomes:
-
+In the endpoint registration section (after `app.MapGlobalCharacterEndpoints()`):
 ```csharp
-internal class QuestService(
-    IQuestRepository repository,
-    IPlayerSignupRepository playerSignupRepository,
-    IEmailService emailService,
-    IMapper mapper) : BaseService<Quest, QuestEntity>(repository, mapper), IQuestService
+app.MapSsoEndpoints();
 ```
 
-Both `IQuestService` and `IEmailService` are Domain interfaces. `QuestService` calling `IEmailService` is a Domain-to-Domain call — it does not introduce any new layer violation.
+#### HMAC secret configuration
 
-### Concern #28 (stale quest state in email loop) is resolved automatically
+Omphalos reads the shared secret from config key `QuestBoard:Secret`. In Docker Compose, this maps to env var `QuestBoard__Secret` (double-underscore convention, consistent with how Omphalos already handles `Jwt__Secret`, `Admin__Username` etc.). The value must match the `OmphalosSharedSecret` stored in Quest Board's `AdminSettings` table. This is a deployment concern, not an architectural one.
 
-The current controller builds the email list from a `quest` object fetched before `FinalizeQuestAsync` runs, then sends to all spectators regardless. When email dispatch moves into `FinalizeQuestAsync`, the service has access to the entity it just mutated and can build the correct recipient list from fresh data before returning.
+#### Modified Files (Phase 12 — Omphalos)
 
-### UpdateQuestPropertiesWithNotificationsAsync already shows the pattern
+| File | Change |
+|------|--------|
+| `Omphalos.Domain/Entities/GameSession.cs` | Add `int? ExternalQuestId` |
+| `Omphalos.Domain/Interfaces/ISessionRepository.cs` | Add `GetByExternalQuestIdAsync` |
+| `Omphalos.Domain/Interfaces/IAuthService.cs` | Expose `GenerateToken(User user)` |
+| `Omphalos.Repository/Configurations/GameSessionConfiguration.cs` | Add nullable column config + index |
+| `Omphalos.Repository/Repositories/SessionRepository.cs` | Implement `GetByExternalQuestIdAsync` |
+| `Omphalos.Services/Implementations/AuthService.cs` | Make `GenerateToken` public to satisfy interface |
+| `Omphalos.Web/Program.cs` | Register `ISsoService`; call `app.MapSsoEndpoints()` |
 
-`IQuestService.UpdateQuestPropertiesWithNotificationsAsync` returns `IList<User>` — the list of players who need notification emails. The controller then calls `emailService` once per user. This is the half-way-house pattern: the service decides who gets emails but the controller still dispatches them. For the refactor, push the dispatch into the service and return `ServiceResult` instead of the user list.
+#### New Files (Phase 12 — Omphalos)
+
+| File | Purpose |
+|------|---------|
+| `Omphalos.Domain/Interfaces/ISsoService.cs` | Interface for SSO validation and provisioning |
+| `Omphalos.Domain/DTOs/SsoRequest.cs` | Inbound token payload DTO |
+| `Omphalos.Domain/DTOs/SsoResult.cs` | Result of validation/provisioning |
+| `Omphalos.Services/Implementations/SsoService.cs` | HMAC validation, user provisioning, session find-or-create |
+| `Omphalos.Web/Endpoints/SsoEndpoints.cs` | `POST /api/sso/quest-board` HTTP endpoint |
 
 ---
 
-## Q3: Service Layer Structure — Preventing Controller Knowledge of Persistence
+## Integration Points
 
-### Repository interfaces stay in Domain (already correct)
+### Phase 10 is the sole blocker for Phase 11
 
-`IQuestRepository` is already in `EuphoriaInn.Domain/Interfaces/`. Controllers only see `IQuestService`. This part of the architecture is already correct — the service is the sole gate to persistence from the controller's perspective.
+Phase 11 has a hard compile-time dependency on Phase 10. `IIntegrationTokenService` calls `IAdminSettingService.GetValueAsync` — the service interface and entity must exist before Phase 11 compiles. The View Component for the navbar also calls `IAdminSettingService`. Phase 11 cannot start until the `AdminSetting` entity, migration, and service registration from Phase 10 are complete and merged.
 
-### What "thin controller" means in this codebase
+### Phase 12 is independent of Phases 10 and 11
 
-A controller action in this app should be reducible to this skeleton:
+Phase 12 (Omphalos SSO endpoint) has no compile-time dependency on any Quest Board code. Both repos are independent deployments. Phase 12 can be developed and deployed to the Omphalos repo entirely in parallel with Quest Board Phase 10 work, provided the token format contract is agreed before either side begins implementation.
+
+**Token format contract — must be agreed before any implementation begins:**
 
 ```
-1. Resolve the current user (GetUserAsync) — 2–4 lines
-2. Check authorization beyond the policy attribute — 1–3 lines
-3. Call one service method, passing validated form inputs — 1 line
-4. Handle the result: set TempData, return View/Redirect — 2–6 lines
+Payload:    "{questId}|{username}|{unixTimestampUtc}"
+Algorithm:  HMAC-SHA256
+Key:        the shared secret string, UTF-8 encoded bytes
+Signature:  lowercase hex string of the HMAC bytes
+URL params: questId (int), user (string), expires (unix timestamp seconds), sig (hex string)
+Expiry:     5 minutes from generation time
 ```
 
-Any logic that answers "what business rules apply here?" (player count cap, spectator auto-approval, owned-item validation before sell) must move into the service. Any logic that answers "what HTTP response do I send?" stays in the controller.
+This contract is the sole coupling point between Phase 11 and Phase 12. Write it as a comment at the top of both `IntegrationTokenService.cs` and `SsoService.cs`.
 
-### ShopController.Index remaining quantity calculation
+### End-to-end test dependency
 
-The `ShopController.Index` action currently computes remaining quantities for purchase transactions in a nested loop (Concerns #26 concern about missing logger, but also a thin-controller issue). This should move to a `GetUserInventoryAsync` method on `IShopService` that returns `UserTransactionViewModel`-like data (or a domain model with `RemainingQuantity` already set). The controller maps and passes to view.
-
-### ViewBag usage
-
-`ViewBag.IsAuthorized` and `ViewBag.IsAdmin` in `QuestController.Manage` should be either a property on the ViewModel or eliminated — the Razor view should derive authorization display state from the ViewModel rather than weakly-typed ViewBag.
+The first end-to-end test requires both apps running and the shared secret configured in both. This is the only point where the two development streams converge. It cannot be tested until Phase 11 generates valid tokens and Phase 12 validates them in a shared environment.
 
 ---
 
-## Q4: ASP.NET Core 8 / .NET 8 Features That Help This Refactor
-
-### IOptions<T> with ValidateOnStart (HIGH confidence — official Microsoft docs)
-
-The current `EmailService` reads `IConfiguration` by string key inside every send method. .NET 6+ introduced `ValidateOnStart()` which surfaces missing config at app startup rather than at first email send. In .NET 8, compile-time source generation for options validation is available via `[OptionsValidator]`.
-
-Recommended pattern for `EmailSettings`:
-
-```csharp
-// In EuphoriaInn.Domain (or a shared config namespace)
-public record EmailSettings
-{
-    public string SmtpServer { get; init; } = "";
-    public int SmtpPort { get; init; } = 587;
-    public string SmtpUsername { get; init; } = "";
-    public string SmtpPassword { get; init; } = "";
-    public string FromEmail { get; init; } = "";
-    public string FromName { get; init; } = "";
-}
-
-// In Program.cs
-builder.Services
-    .AddOptions<EmailSettings>()
-    .BindConfiguration("EmailSettings")
-    .ValidateOnStart();  // fails fast if config section is absent
-```
-
-`EmailService` constructor becomes `IOptions<EmailSettings> emailOptions` instead of `IConfiguration`. The duplicated SMTP setup block collapses to a single field.
-
-### Primary constructors (C# 12, .NET 8)
-
-The codebase already uses primary constructors throughout (e.g., `class QuestService(...) : BaseService<Quest, QuestEntity>(...)`). Continue using them. No change needed.
-
-### Rate limiting middleware (Concerns #6)
-
-ASP.NET Core 7+ includes `Microsoft.AspNetCore.RateLimiting`. Apply a fixed-window policy in `Program.cs` — no third-party library needed. This is a cross-cutting concern that belongs in the Service project's `Program.cs`.
-
-### Result types with `record` structs
-
-`record ServiceResult(bool Success, string? ErrorMessage = null)` as shown above works well with C# 12 primary record syntax. No additional framework is needed.
-
----
-
-## Component Location After Refactor
-
-| Component | Current location | Target location | Reason |
-|-----------|-----------------|-----------------|--------|
-| `EntityProfile.cs` | `EuphoriaInn.Domain/Automapper/` | `EuphoriaInn.Repository/Automapper/` | References EF entity types; belongs in infrastructure |
-| `EmailSettings` typed options class | Does not exist | `EuphoriaInn.Domain/Configuration/` | Shared between Domain (EmailService) and Service (Program.cs registration) |
-| Email dispatch on finalize | `QuestController.Finalize()` | `QuestService.FinalizeQuestAsync()` | Business operation; controller should not orchestrate |
-| Email dispatch on date change | `QuestController` (UpdateQuestProperties flow) | `QuestService.UpdateQuestPropertiesWithNotificationsAsync()` | Completes the half-done move |
-| Remaining-quantity calculation | `ShopController.Index()` loop | `ShopService.GetUserInventoryAsync()` | Business calculation; not presentation logic |
-| `SecurityConfiguration.cs` | `EuphoriaInn.Domain/Configuration/` | Delete | Dead code (Concerns #15) |
-| `IQuestRepository` interface | `EuphoriaInn.Domain/Interfaces/` | Stays | Correct location |
-| Repository implementations | `EuphoriaInn.Repository/` | Stays | Correct location |
-| `ViewModelProfile.cs` | `EuphoriaInn.Service/Automapper/` | Stays | Presentation layer mapping, correct location |
-
----
-
-## Recommended Refactor Order
-
-Order matters because changes to the dependency graph must not break the build at any intermediate step.
-
-### Step 1: Move EntityProfile to Repository (unblocks everything)
-
-**Why first:** This is the single change that fixes the dependency direction. Until it is done, Domain still holds a compile-time reference to Repository and no other architectural move changes that fundamental fact.
-
-**How to do it without breaking the build:**
-1. Add `AutoMapper` NuGet to `EuphoriaInn.Repository.csproj`
-2. Create `EuphoriaInn.Repository/Automapper/EntityProfile.cs` with the same content
-3. Update `Program.cs` AutoMapper registration to reference `typeof(EuphoriaInn.Repository.Automapper.EntityProfile)`
-4. Remove the `using EuphoriaInn.Repository.Entities;` imports from Domain files
-5. Remove `<ProjectReference Include="..\EuphoriaInn.Repository\EuphoriaInn.Repository.csproj" />` from `EuphoriaInn.Domain.csproj`
-6. Build and verify Domain no longer references Repository
-
-**Risk:** Low. AutoMapper profiles are pure configuration classes — moving the file is the entire change. The only failure mode is forgetting to update the `AddAutoMapper` registration in `Program.cs`.
-
-### Step 2: Introduce `EmailSettings` options class and update `EmailService`
-
-**Why second:** Independent of Step 1 but small and isolated. Resolves Concerns #19 and #30. No interface changes. No controller changes.
-
-**How:**
-1. Add `EmailSettings` record to `EuphoriaInn.Domain/Configuration/`
-2. Replace `IConfiguration` constructor parameter in `EmailService` with `IOptions<EmailSettings>`
-3. Extract SMTP client creation to a private helper method inside `EmailService`
-4. Register with `AddOptions<EmailSettings>().BindConfiguration("EmailSettings")` in `ServiceExtensions` or `Program.cs`
-
-### Step 3: Move finalize email dispatch into `QuestService`
-
-**Why third:** Requires Step 1 to be done first (Domain must not reference Repository; `QuestService` already satisfies this after Step 1). Inject `IEmailService` into `QuestService` constructor. Move email loop from `QuestController.Finalize` into `QuestService.FinalizeQuestAsync`. Add `ServiceResult` return type.
-
-**Controller change:** `Finalize` action drops from ~60 lines to ~20. `IEmailService` can be removed from `QuestController` constructor injection entirely once Step 4 is also done.
-
-### Step 4: Complete the date-change email move
-
-`UpdateQuestPropertiesWithNotificationsAsync` currently returns `IList<User>` to the controller, which calls `emailService` per user. After Step 2 (EmailService using IOptions), move the dispatch into the service method. Return `ServiceResult` instead of user list. Remove `IEmailService` from `QuestController` constructor.
-
-### Step 5: Move ShopController remaining-quantity calculation into ShopService
-
-Add `GetUserInventoryAsync(int userId)` to `IShopService` returning a domain model (or a list of transaction summaries with `RemainingQuantity`). Controller maps result and renders. This also enables adding the missing logger to `ShopController` (Concerns #26) without adding business logic.
-
-### Step 6: Remove dead code
-
-In any order after Steps 1–5 are green:
-- Delete `SecurityConfiguration.cs` and the `Security` appsettings section (Concerns #15)
-- Remove `UpdateQuestPropertiesAsync` (non-notification variant) from interface and service (Concerns #16)
-- Replace `SignupRole == 1` with enum reference throughout (Concerns #18)
-- Extract 30-minute constant (Concerns #17)
-- Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` (Concerns #20)
-- Remove `Password` from `User` domain model (Concerns #8)
-
----
-
-## Architecture Diagram (After Refactor)
+## Build Order
 
 ```
-EuphoriaInn.Service (Presentation)
-  ├── Controllers/ [thin: validate → call service → respond]
-  ├── ViewModels/
-  ├── Automapper/ViewModelProfile.cs  [DomainModel ↔ ViewModel]
-  └── Program.cs  [DI wiring, AutoMapper registration for both profiles]
-        ↓ references
-EuphoriaInn.Domain (Core)
-  ├── Models/          [pure C# classes, no EF/HTTP dependencies]
-  ├── Interfaces/      [IQuestService, IQuestRepository, IEmailService, ...]
-  ├── Services/        [QuestService, EmailService, UserService, ...]
-  └── Configuration/   [EmailSettings options record]
-        ↑ references (Repository → Domain)
-EuphoriaInn.Repository (Infrastructure)
-  ├── Entities/        [EF entity classes, QuestBoardContext]
-  ├── Automapper/EntityProfile.cs  [*Entity ↔ DomainModel] ← MOVED HERE
-  ├── Repositories/    [concrete EF implementations of IXxxRepository]
-  └── Migrations/
+Phase 10: Admin Settings (Quest Board only)
+    |
+    | Phase 10 merged + migration deployed
+    |
+    +--> Phase 11: Navigation + Token Generation (Quest Board)
+    |       Depends on: IAdminSettingService, AdminSettingEntity migration
+    |       Can start only after Phase 10 is merged
+    |
+    +--> Phase 12: SSO Endpoint + Session Linking (Omphalos)
+            Depends on: agreed token format contract only
+            Can start in PARALLEL with Phase 11 (independent repo)
+                |
+                | Both Phase 11 AND Phase 12 complete
+                |
+            End-to-end integration test (both containers running)
 ```
 
-Dependency arrows: Service → Domain ← Repository. Domain knows nothing about EF or HTTP. Repository knows about Domain models (to map to/from them) but not about HTTP or ViewModels.
+**Practical parallel work:** A developer working on Omphalos (Phase 12) has zero blocked time once the token format contract is written down. Phase 12 work on Omphalos can begin the moment the format is agreed during or immediately after Phase 10 planning. The Quest Board phases (10 then 11) are sequential in the same repo.
 
 ---
 
-## Concerns From CONCERNS.md: Architecture vs Code Quality
+## Key Architectural Decisions
 
-### Architectural concerns (require layer boundary changes)
+### IIntegrationTokenService vs inline controller logic
 
-| # | Concern | Category |
-|---|---------|----------|
-| 15 | `SecurityConfiguration` dead code | Code quality (safe to delete in any step) |
-| 16 | Dead `UpdateQuestPropertiesAsync` | Code quality (safe to delete after Step 4) |
-| 18 | `SignupRole == 1` magic number | Code quality |
-| 19 | SMTP client reconstructed per send | Architecture: EmailService design (fixed in Step 2) |
-| 22 | `[Quest Board URL]` placeholder | Architecture: EmailService contract (fix during Step 2/4) |
-| 23 | Sell-without-ownership validation | Architecture: business logic not in service (fix in Step 5 scope) |
-| 26 | Exception swallowed in ShopController, no logger | Architecture: missing logger in controller (fix in Step 5) |
-| 27 | Race condition in stock decrement | Architecture: needs optimistic concurrency on ShopItemEntity |
-| 28 | Stale quest state in email loop | Architecture: resolved by Step 3 |
-| 30 | IConfiguration access in business logic | Architecture: fix in Step 2 |
+**Decision: dedicated `IIntegrationTokenService` in the Domain layer.**
 
-### Code quality concerns (no layer changes required)
+Inline approach rejected because: (1) reading the shared secret requires calling `IAdminSettingService`, which is a service-layer dependency not appropriate for a controller; (2) putting `HMACSHA256` in a controller action contradicts the thin-controller principle enforced in Milestone 2; (3) the same signing logic will be needed for future bidirectional API authentication. A service behind a public interface is testable, injectable, and reusable.
 
-| # | Concern | Category |
-|---|---------|----------|
-| 3 | Account lockout disabled | Security config in Program.cs |
-| 4 | Password minimum length | Security config in Program.cs |
-| 5 | HasKey user-editable | View + controller guard |
-| 8 | `Password` property on User model | Remove property |
-| 17 | 30-minute magic constant | Named constant |
-| 20 | Filename mismatch | Rename file |
+### ViewModel vs ViewBag for Omphalos URL availability on quest pages
 
-### Out of scope for this milestone
+**Decision: ViewBag boolean flag, consistent with existing pattern.**
 
-| # | Concern | Reason |
-|---|---------|--------|
-| 10 | N+1 on admin users | Performance; separate concern |
-| 11 | In-memory filter on completed quests | Performance; separate concern |
-| 12 | Images as SQL blobs | Infrastructure; large change |
-| 13 | Quest detail loads all quests | Performance; separate concern |
-| 14 | Deep eager loading | Performance; separate concern |
-| 24 | No pagination | Explicitly out of scope in PROJECT.md |
-| 25 | No caching | Performance; not in milestone scope |
+The Details and Manage actions already use `ViewBag` for five different flags. Adding `ViewBag.OmphalosConfigured = true/false` adds no new pattern. Introducing a strongly-typed ViewModel wrapper for the Manage action (which currently passes a raw `Quest` domain model) would require a wider refactor outside this milestone's scope.
 
----
+### View Component for navbar vs base controller inheritance
 
-## Pitfalls Specific to This Refactor
+**Decision: View Component.**
 
-### AutoMapper assembly scanning
+A `BaseController` that sets `ViewBag.OmphalosUrl` in `OnActionExecutionAsync` for every request would introduce inheritance coupling that does not exist in this codebase and would fire a DB read on every request from every controller. A View Component fires once per layout render, is self-contained, follows the ASP.NET Core documented pattern for layout-level service calls, and requires no changes to any existing controller.
 
-`builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly())` or `typeof(Program).Assembly` scans only the Service assembly. After moving `EntityProfile` to Repository, the scan will miss it unless the Repository assembly is explicitly included. Use `typeof(EntityProfile)` (the one in Repository) as the anchor type, not assembly scanning. Verify by running the app and checking that entity-to-model mapping works on the first request.
+### ExternalQuestId as nullable column on GameSession vs join table
 
-### BaseService generic constraint after removing Repository reference from Domain
+**Decision: nullable column on `GameSession`.**
 
-`BaseService<TModel, TEntity>` has a `TEntity` type parameter that was previously implicitly assumed to be a Repository entity. After the refactor, `TEntity` is still an unconstrained type parameter — Domain code never `new`s or imports entity types directly; it only passes them through `IMapper`. This is safe. The C# compiler does not require a project reference to satisfy a generic type parameter that is only instantiated by the caller (Service project or Repository registrations). Build and confirm.
+A join table is warranted only if a `GameSession` could link to multiple Quest Board quests, or if multiple external systems could each add their own quest ID. For this milestone the relationship is 1-per-DM-per-quest. A nullable column is simpler, requires no join on session reads, and is directly indexable. If the relationship becomes many-to-many in a future milestone, a join table migration is a forward step, not a rewrite.
 
-### IQuestRepository still in Domain
+### HMAC secret storage: DB in Quest Board, env var in Omphalos
 
-`IQuestRepository` and `IBaseRepository<T>` are Domain interfaces — this is correct and should not change. Repository implements Domain interfaces; Domain does not know about the concrete Repository classes. The project reference direction (Repository → Domain) satisfies this.
+**Decision: asymmetric storage.**
 
-### Do not move `UserService` to fix identity coupling in this milestone
+Quest Board stores the secret in `AdminSettings` (editable via Admin UI — the same Admin UI that manages users and quests). Omphalos reads it from env var `QuestBoard__Secret` in docker-compose (consistent with how Omphalos already handles `Jwt__Secret` and `Admin__Password`). Omphalos has no admin UI for secret management in this milestone. The operational requirement — that both values must match — is a deployment concern, not an architectural one.
 
-`UserService` wraps `UserManager<UserEntity>` and `SignInManager<UserEntity>` (ASP.NET Core Identity types). Properly fixing this would require introducing an abstraction over Identity in Domain. That is a larger refactor not in scope for this milestone. Leave `UserService` as-is; it depends on Identity infrastructure but the project dependency graph is already Service → Domain → (nothing) once `EntityProfile` moves and the Repository project reference is removed from Domain.csproj. Actually: check whether `UserService` in Domain imports any types from `EuphoriaInn.Repository` directly. If it only imports `Microsoft.AspNetCore.Identity` (a separate NuGet), the project reference removal from Domain.csproj is still safe.
+### Token expiry: 5 minutes, no revocation list
 
----
+**Decision: 5-minute expiry, no revocation.**
 
-## Sources
+Short-lived prevents replay attacks via shared or bookmarked redirect links. The user experience is: click button → fresh token generated → redirected immediately → token consumed. Five minutes is long enough to survive a brief network delay or a browser redirect chain, but short enough that a leaked token is practically useless. No revocation list is needed because the attack window is too narrow to be exploitable in practice for a self-hosted group app.
 
-- Microsoft .NET Microservices Architecture Guide — Infrastructure Persistence Layer: https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-implementation-entity-framework-core
-- The Code Wrapper — EF Core: Effectively Decouple the Data and Domain Model: https://dev.to/thecodewrapper/ef-core-effectively-decouple-the-data-and-domain-model-4h8j
-- The Code Wrapper — Implementing Clean Architecture in ASP.NET Core: https://thecodewrapper.com/dev/implementing-clean-architecture-in-aspnetcore-6/
-- Microsoft Learn — Options pattern in ASP.NET Core: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options
-- Milan Jovanovic — Adding Validation to the Options Pattern: https://www.milanjovanovic.tech/blog/adding-validation-to-the-options-pattern-in-asp-net-core
-- Gunnar Peipman — Moving code from controller action to service layer: https://gunnarpeipman.com/asp-net-mvc-moving-code-from-controller-action-to-service-layer/
+### Auto-provisioning: random password, Player role
 
----
+**Decision: provision with random BCrypt-hashed password, initial role Player.**
 
-*Architecture research: 2026-04-15*
+On first SSO from Quest Board, Omphalos creates a new `User` with a cryptographically random password that the user can never log in with directly (they always use the Quest Board SSO link). Role is `Player` — not `Admin`. If the user needs elevated Omphalos permissions, an Omphalos admin promotes them separately. This keeps the provisioning path minimal and avoids accidental privilege escalation.
