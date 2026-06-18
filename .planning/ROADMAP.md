@@ -240,13 +240,14 @@ Plans:
   3. Clicking "Open Session Notes" redirects the DM's browser to Omphalos with a signed URL containing questId, questTitle, username (lowercase), expiry (Unix timestamp), and HMAC-SHA256 signature
   4. The signed token expires after 300 seconds; a second click generates a new token with a fresh expiry
   5. When integration is disabled or OmphalosUrl is not configured, no Omphalos buttons or navbar links appear anywhere in the UI; the `LaunchOmphalos` endpoint returns 404
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
 
 **Wave 1**
-- TBD — 11-01-PLAN.md: IIntegrationTokenService + IntegrationTokenService (HMAC canonical message per TOKEN-02) + QuestController.LaunchOmphalos action (TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, NAV-05)
+- [ ] 11-01-PLAN.md — Domain token service: IIntegrationTokenService + IntegrationTokenService (HMAC-SHA256) + QuestController constructor extension + LaunchOmphalos action + ViewBag.ShowOmphalosButton + unit + integration tests (TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, NAV-03, NAV-04, NAV-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- TBD — 11-02-PLAN.md: OmphalosNavItemViewComponent + Default.cshtml partial + _Layout.cshtml wiring + Details.cshtml + Manage.cshtml conditional buttons (NAV-01, NAV-02, NAV-03, NAV-04, NAV-05)
+- [ ] 11-02-PLAN.md — View wiring: OmphalosNavItemViewComponent + Default.cshtml + _Layout.cshtml DM dropdown + Details.cshtml DM Controls button + Manage.cshtml Session Notes card (NAV-01, NAV-02, NAV-03, NAV-04, NAV-05)
 **UI hint**: yes
 
 ### Phase 12: SSO Endpoint + Quest-Session Linking
