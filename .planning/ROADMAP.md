@@ -15,11 +15,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Layer Dependency Fix** - Restore correct compile-time dependency direction: Domain compiles without referencing Repository
 - [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
 - [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
-- [ ] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
+- [x] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
 - [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
  (completed 2026-04-21)
 - [x] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved (completed 2026-06-16)
-- [ ] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile
+- [x] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile (completed 2026-06-17)
 - [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
 
 ## Phase Details
@@ -83,7 +83,7 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 04-01-PLAN.md — Identity lockout config + raise password minimum to 8 (SEC-01, SEC-03)
-- [ ] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
+- [x] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
 - [x] 04-03-PLAN.md — EF Core migration backfilling LockoutEnabled = 1 for existing users (SEC-02)
 - [x] 04-04-PLAN.md — Add .env to .gitignore and untrack (SEC-06)
 
@@ -133,7 +133,11 @@ Plans:
   5. An EF Core migration adds `Bio` (varchar 2000, nullable) and a `DungeonMasterProfileImage` table
 **Plans**: 2 plans
 Plans:
-- TBD (phase not yet planned)
+**Wave 1**
+- [x] 07-01-PLAN.md — Data + service layer: DungeonMasterProfileEntity, DungeonMasterProfileImageEntity, domain model, interfaces, repository, service, AutoMapper profiles, DI registrations, GetQuestsByDungeonMasterAsync, EF migration AddDMProfileSystem (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 07-02-PLAN.md — Web layer: Wave 0 test stubs, DungeonMasterController (Profile/EditProfile/GetDMProfilePicture), ViewModels, Views, dm-profile.css, navbar link, DM directory link (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-04)
 **UI hint**: yes
 
 ### Phase 8: Profile Picture Avatar Crop
@@ -162,11 +166,12 @@ Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or 
 | 1. Layer Dependency Fix | 2/2 | Complete | 2026-04-20 |
 | 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
 | 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
-| 4. Security Hardening | 3/4 | In Progress|  |
+| 4. Security Hardening | 4/4 | Complete | 2026-04-20 |
 | 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
 | 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
-| 7. DM Profile Page | 0/? | Not started | - |
+| 7. DM Profile Page | 2/2 | Complete | 2026-06-17 |
 | 8. Profile Picture Avatar Crop | 0/? | Not started | - |
+| 9. Shop Pagination | 2/2 | Complete | 2026-04-21 |
 
 ### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
 

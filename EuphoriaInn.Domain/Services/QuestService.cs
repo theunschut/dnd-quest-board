@@ -35,11 +35,6 @@ internal class QuestService(
         }
     }
 
-    public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
-    {
-        return await repository.GetQuestsByDmNameAsync(dmName, token);
-    }
-
     public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
     {
         return await repository.GetQuestsWithDetailsAsync(token);
@@ -135,7 +130,10 @@ internal class QuestService(
         var quests = await repository.GetQuestsWithDetailsAsync(token);
 
         return quests
-            .Where(q => q.IsFinalized && q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date)
+            .Where(q => q.IsFinalized
+                        && q.FinalizedDate.HasValue
+                        && q.FinalizedDate.Value.Date <= DateTime.UtcNow.AddDays(-1).Date
+                        && !q.DungeonMasterSession)
             .OrderByDescending(q => q.FinalizedDate)
             .ToList();
     }
@@ -143,6 +141,11 @@ internal class QuestService(
     public async Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default)
     {
         await repository.UpdateQuestRecapAsync(questId, recap, token);
+    }
+
+    public async Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default)
+    {
+        return await repository.GetQuestsByDungeonMasterAsync(dmUserId, token);
     }
 
     public async Task<int> CreateFollowUpQuestAsync(int originalQuestId, CancellationToken token = default)

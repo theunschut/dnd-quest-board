@@ -1,0 +1,25 @@
+/* DM Profile Photo */
+.dm-profile-photo {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+/* DM Profile Placeholder (no photo uploaded yet) */
+.dm-profile-placeholder {
+    width: 128px;
+    height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Deadly difficulty badge — Bootstrap does not include purple */
+.badge.bg-purple {
+    background-color: #6f42c1;
+    color: white;
+}

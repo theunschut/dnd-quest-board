@@ -29,7 +29,9 @@
                                 @foreach (var dm in Model.DungeonMasters)
                                 {
                                     <tr>
-                                        <td>@dm.Name</td>
+                                        <td>
+                                            <a asp-controller="DungeonMaster" asp-action="Profile" asp-route-id="@dm.Id">@dm.Name</a>
+                                        </td>
                                         <td>
                                             @if (!string.IsNullOrEmpty(dm.Email))
                                             {

@@ -110,6 +110,13 @@ namespace EuphoriaInn.Service.Controllers.Characters
             // Handle profile picture upload
             if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
             {
+                const long maxFileSizeBytes = 5 * 1024 * 1024;
+                if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
+                {
+                    ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
+                        "Profile picture cannot exceed 5 MB.");
+                    return View(viewModel);
+                }
                 using var memoryStream = new MemoryStream();
                 await viewModel.ProfilePictureFile.CopyToAsync(memoryStream, token);
                 viewModel.ProfilePicture = memoryStream.ToArray();
@@ -189,7 +196,14 @@ namespace EuphoriaInn.Service.Controllers.Characters
             // Handle profile picture upload - clear old picture first if new one is being uploaded
             if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
             {
-                // Upload the new picture
+                const long maxFileSizeBytes = 5 * 1024 * 1024;
+                if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
+                {
+                    ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
+                        "Profile picture cannot exceed 5 MB.");
+                    viewModel.IsOwner = true;
+                    return View(viewModel);
+                }
                 using var memoryStream = new MemoryStream();
                 await viewModel.ProfilePictureFile.CopyToAsync(memoryStream, token);
                 existingCharacter.ProfilePicture = memoryStream.ToArray();

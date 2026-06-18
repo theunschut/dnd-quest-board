@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 6 complete
-stopped_at: Phase 6 verified and complete
-last_updated: "2026-06-16T22:00:00.000Z"
+status: Phase 7 complete
+stopped_at: Phase 7 complete — Phase 8 is next
+last_updated: "2026-06-17T00:00:00.000Z"
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 17
-  completed_plans: 17
-  percent: 94
+  completed_phases: 8
+  total_plans: 19
+  completed_plans: 19
+  percent: 89
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 6 complete — follow-up quest feature delivered
+**Current focus:** Phase 7 complete — Phase 8 (Profile Picture Avatar Crop) is next
 
 ## Current Position
 
-Phase: 09
+Phase: 08
 Plan: Not started
 
 ## Performance Metrics
@@ -110,6 +110,7 @@ None yet.
 | 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
 | 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
 | 260617-d8u | Proposed dates UX improvement — default to today at 18:00 and auto-advance by 1 day per addition | 2026-06-17 | dd290ab | [260617-d8u-proposed-dates-ux-today-and-next-day](./quick/260617-d8u-proposed-dates-ux-today-and-next-day/) |
+| 260617-w1w | Fix #89: Quest Log page shows DM session quests — filter them out | 2026-06-17 | b424fef | [260617-w1w-fix-89-quest-log-page-shows-dm-session-q](./quick/260617-w1w-fix-89-quest-log-page-shows-dm-session-q/) |
 
 ### Roadmap Evolution
 
@@ -121,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-04T18:21:22.369Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-follow-up-quest/06-CONTEXT.md
+Last session: 2026-06-17T00:00:00.000Z
+Stopped at: Phase 7 complete — human UAT approved, post-UAT fixes committed
+Resume file: .planning/phases/08-profile-picture-avatar-crop/

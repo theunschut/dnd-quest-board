@@ -82,26 +82,6 @@ public class QuestControllerIntegrationTests_Comprehensive(WebApplicationFactory
     }
 
     [Fact]
-    public async Task MyQuests_WhenAuthenticatedAsDM_ShouldReturnDMQuests()
-    {
-        // Arrange
-        await TestDataHelper.ClearDatabaseAsync(factory.Services);
-        var (client, dm) = await AuthenticationHelper.CreateAuthenticatedDMClientAsync(factory);
-
-        await TestDataHelper.CreateTestQuestAsync(factory.Services, dm.Id, "My Quest 1");
-        await TestDataHelper.CreateTestQuestAsync(factory.Services, dm.Id, "My Quest 2");
-
-        // Act
-        var response = await client.GetAsync("/Quest/MyQuests", TestContext.Current.CancellationToken);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.Should().Contain("My Quest 1");
-        content.Should().Contain("My Quest 2");
-    }
-
-    [Fact]
     public async Task Signup_Post_WhenAuthenticated_ShouldAddPlayerToQuest()
     {
         // Arrange

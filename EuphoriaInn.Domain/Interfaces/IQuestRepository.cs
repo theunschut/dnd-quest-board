@@ -5,8 +5,6 @@ namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IQuestRepository : IBaseRepository<Quest>
 {
-    Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default);
-
     Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default);
 
     Task<IList<Quest>> GetQuestsForCalendarAsync(CancellationToken token = default);
@@ -30,4 +28,6 @@ public interface IQuestRepository : IBaseRepository<Quest>
     Task UpdateQuestRecapAsync(int questId, string recap, CancellationToken token = default);
 
     Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default);
+
+    Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default);
 }

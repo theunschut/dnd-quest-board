@@ -35,15 +35,6 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         return Mapper.Map<IList<Quest>>(entities);
     }
 
-    public async Task<IList<Quest>> GetQuestsByDmNameAsync(string dmName, CancellationToken token = default)
-    {
-        var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
-            .Where(q => q.DungeonMaster!.Name == dmName)
-            .OrderByDescending(q => q.CreatedAt)
-            .ToListAsync(cancellationToken: token);
-        return Mapper.Map<IList<Quest>>(entities);
-    }
-
     public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
     {
         var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
@@ -194,6 +185,16 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
     public async Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default)
     {
         return await DbContext.Quests.AnyAsync(q => q.OriginalQuestId == questId, token);
+    }
+
+    public async Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default)
+    {
+        var entities = await DbContext.Quests
+            .Include(q => q.DungeonMaster)
+            .Where(q => q.DungeonMasterId == dmUserId)
+            .OrderByDescending(q => q.FinalizedDate ?? q.CreatedAt)
+            .ToListAsync(token);
+        return Mapper.Map<IList<Quest>>(entities);
     }
 
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
