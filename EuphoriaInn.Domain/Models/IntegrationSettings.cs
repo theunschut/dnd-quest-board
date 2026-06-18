@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace EuphoriaInn.Domain.Models;
 
 public record IntegrationSettings
 {
     public string? OmphalosUrl { get; init; }
+    [JsonIgnore]
     public string? OmphalosSharedSecret { get; init; }
     public bool IsEnabled { get; init; }
 
