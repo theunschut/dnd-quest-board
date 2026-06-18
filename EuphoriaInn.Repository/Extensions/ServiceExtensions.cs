@@ -1,5 +1,5 @@
-﻿using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +22,9 @@ public static class ServiceExtensions
         services.AddScoped<IUserTransactionRepository, UserTransactionRepository>();
         services.AddScoped<ITradeItemRepository, TradeItemRepository>();
         services.AddScoped<ICharacterRepository, CharacterRepository>();
+
+        // Register IdentityService (wraps UserManager/SignInManager; depends on UserEntity)
+        services.AddScoped<IIdentityService, IdentityService>();
 
         return services;
     }

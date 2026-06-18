@@ -7,7 +7,8 @@ function addProposedDate() {
     
     // Determine the correct field name prefix based on the form context
     // Check if we're in the edit form (has Quest. prefix) or create form (direct ProposedDates)
-    const existingInput = container.querySelector('input[type="datetime-local"]');
+    // Also check hidden inputs — Edit.cshtml renders existing dates as hidden inputs, not datetime-local
+    const existingInput = container.querySelector('input[type="datetime-local"], input[type="hidden"][name*="ProposedDates"]');
     const isEditForm = existingInput && existingInput.name.includes('Quest.ProposedDates');
     const fieldPrefix = isEditForm ? 'Quest.ProposedDates' : 'ProposedDates';
     
@@ -24,10 +25,31 @@ function addProposedDate() {
     `;
     
     container.appendChild(div);
-    
-    // Set default time to 18:00 for new input
+
+    // Pre-fill new input: last filled date + 1 day at 18:00, or today at 18:00
     const newInput = div.querySelector('input[type="datetime-local"]');
-    setDefaultDateTime(newInput);
+    const allInputs = container.querySelectorAll('input[type="datetime-local"]');
+    // allInputs now includes the new one; look at all but the last for a prior value
+    let baseDate = null;
+    for (let i = allInputs.length - 2; i >= 0; i--) {
+        if (allInputs[i].value) {
+            baseDate = new Date(allInputs[i].value);
+            break;
+        }
+    }
+    if (baseDate && !isNaN(baseDate.getTime())) {
+        baseDate.setDate(baseDate.getDate() + 1);
+        baseDate.setHours(18, 0, 0, 0);
+    } else {
+        baseDate = new Date();
+        baseDate.setHours(18, 0, 0, 0);
+    }
+    const year = baseDate.getFullYear();
+    const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+    const day = String(baseDate.getDate()).padStart(2, '0');
+    const hours = String(baseDate.getHours()).padStart(2, '0');
+    const minutes = String(baseDate.getMinutes()).padStart(2, '0');
+    newInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 // Remove proposed date input
@@ -169,19 +191,17 @@ function handleResize() {
 // Set default date and time to 18:00 for datetime-local inputs
 function setDefaultDateTime(input) {
     if (!input || input.value) return; // Don't override existing values
-    
+
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(18, 0, 0, 0); // Set to 18:00:00
-    
+    now.setHours(18, 0, 0, 0); // Set to 18:00:00 today
+
     // Format as YYYY-MM-DDTHH:MM for datetime-local input
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const hours = String(tomorrow.getHours()).padStart(2, '0');
-    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
-    
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
     input.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 

@@ -1,67 +1,50 @@
-﻿using AutoMapper;
+using AutoMapper;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models.QuestBoard;
-using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
 
-namespace EuphoriaInn.Domain.Services
+namespace EuphoriaInn.Domain.Services;
+
+internal class PlayerSignupService(IPlayerSignupRepository repository, IMapper mapper) : BaseService<PlayerSignup>(repository, mapper), IPlayerSignupService
 {
-    internal class PlayerSignupService(IPlayerSignupRepository repository, IMapper mapper) : BaseService<PlayerSignup, PlayerSignupEntity>(repository, mapper), IPlayerSignupService
+    public async Task UpdatePlayerDateVotesAsync(int playerSignupId, List<PlayerDateVote> dateVotes, CancellationToken cancellationToken = default)
     {
-        public async Task UpdatePlayerDateVotesAsync(int playerSignupId, List<PlayerDateVote> dateVotes, CancellationToken cancellationToken = default)
+        // Get the existing player signup with its date votes
+        var playerSignup = await repository.GetByIdWithDateVotesAsync(playerSignupId, cancellationToken);
+        if (playerSignup == null)
         {
-            // Get the existing player signup with its date votes
-            var playerSignupEntity = await repository.GetByIdWithDateVotesAsync(playerSignupId, cancellationToken);
-            if (playerSignupEntity == null)
-            {
-                throw new ArgumentException("Player signup not found", nameof(playerSignupId));
-            }
-
-            // Validate: Spectators (SignupRole = 1) cannot vote
-            if (playerSignupEntity.SignupRole == 1)
-            {
-                throw new InvalidOperationException("Spectators cannot vote on dates");
-            }
-
-            // Map the new date votes to entities
-            var dateVoteEntities = Mapper.Map<List<PlayerDateVoteEntity>>(dateVotes);
-
-            // Set the player signup ID for all date votes
-            foreach (var vote in dateVoteEntities)
-            {
-                vote.PlayerSignupId = playerSignupId;
-            }
-
-            // Clear existing date votes and add new ones
-            playerSignupEntity.DateVotes.Clear();
-            foreach (var vote in dateVoteEntities)
-            {
-                playerSignupEntity.DateVotes.Add(vote);
-            }
-
-            // Update the entity
-            await repository.UpdateAsync(playerSignupEntity, cancellationToken);
+            throw new ArgumentException("Player signup not found", nameof(playerSignupId));
         }
 
-        public async Task UpdateSignupCharacterAsync(int playerSignupId, int? characterId, CancellationToken cancellationToken = default)
+        // Validate: Spectators cannot vote (SignupRole == Spectator)
+        if (playerSignup.Role == EuphoriaInn.Domain.Enums.SignupRole.Spectator)
         {
-            // Get the existing player signup
-            var playerSignupEntity = await repository.GetByIdAsync(playerSignupId, cancellationToken);
-            if (playerSignupEntity == null)
-            {
-                throw new ArgumentException("Player signup not found", nameof(playerSignupId));
-            }
-
-            // Update the character ID
-            playerSignupEntity.CharacterId = characterId;
-
-            // Update the entity
-            await repository.UpdateAsync(playerSignupEntity, cancellationToken);
+            throw new InvalidOperationException("Spectators cannot vote on dates");
         }
 
-        public async Task ChangeVoteToYesAndSelectAsync(int playerSignupId, int proposedDateId, CancellationToken cancellationToken = default)
+        // Replace date votes on the domain model
+        playerSignup.DateVotes = dateVotes;
+        foreach (var vote in playerSignup.DateVotes)
         {
-            await repository.ChangeVoteToYesAndSelectAsync(playerSignupId, proposedDateId, cancellationToken);
+            vote.PlayerSignupId = playerSignupId;
         }
+
+        await repository.UpdateAsync(playerSignup, cancellationToken);
+    }
+
+    public async Task UpdateSignupCharacterAsync(int playerSignupId, int? characterId, CancellationToken cancellationToken = default)
+    {
+        var playerSignup = await repository.GetByIdAsync(playerSignupId, cancellationToken);
+        if (playerSignup == null)
+        {
+            throw new ArgumentException("Player signup not found", nameof(playerSignupId));
+        }
+
+        playerSignup.CharacterId = characterId;
+        await repository.UpdateAsync(playerSignup, cancellationToken);
+    }
+
+    public async Task ChangeVoteToYesAndSelectAsync(int playerSignupId, int proposedDateId, CancellationToken cancellationToken = default)
+    {
+        await repository.ChangeVoteToYesAndSelectAsync(playerSignupId, proposedDateId, cancellationToken);
     }
 }

@@ -68,7 +68,7 @@ public static class AuthenticationHelper
             {
                 roles = (await userManager.GetRolesAsync(userFromDb)).ToArray();
             }
-            roles ??= new[] { "Player" }; // Default to Player role
+            roles ??= ["Player"]; // Default to Player role
         }
 
         // Create client using the same factory instance (don't create a new one)
@@ -121,7 +121,7 @@ public static class AuthenticationHelper
         {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
             var userFromDb = await userManager.FindByIdAsync(user.Id.ToString());
-            userRoles = userFromDb != null ? (await userManager.GetRolesAsync(userFromDb)).ToArray() : new[] { "Player" };
+            userRoles = userFromDb != null ? (await userManager.GetRolesAsync(userFromDb)).ToArray() : ["Player"];
         }
 
         // Create client using the same factory instance
@@ -144,7 +144,7 @@ public static class AuthenticationHelper
         string password = "Admin123!",
         string name = "Admin User")
     {
-        return await CreateAuthenticatedClientWithUserAsync(factory, userName, email, password, name, new[] { "Admin" });
+        return await CreateAuthenticatedClientWithUserAsync(factory, userName, email, password, name, ["Admin"]);
     }
 
     public static async Task<(HttpClient client, UserEntity user)> CreateAuthenticatedDMClientAsync(
@@ -154,7 +154,7 @@ public static class AuthenticationHelper
         string password = "DMpass123!",
         string name = "DM User")
     {
-        return await CreateAuthenticatedClientWithUserAsync(factory, userName, email, password, name, new[] { "DungeonMaster" });
+        return await CreateAuthenticatedClientWithUserAsync(factory, userName, email, password, name, ["DungeonMaster"]);
     }
 }
 

@@ -17,7 +17,7 @@ namespace EuphoriaInn.Repository.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -227,6 +227,9 @@ namespace EuphoriaInn.Repository.Migrations
                     b.Property<bool>("IsFinalized")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("OriginalQuestId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Recap")
                         .HasColumnType("nvarchar(max)");
 
@@ -241,6 +244,10 @@ namespace EuphoriaInn.Repository.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DungeonMasterId");
+
+                    b.HasIndex("OriginalQuestId")
+                        .IsUnique()
+                        .HasFilter("[OriginalQuestId] IS NOT NULL");
 
                     b.ToTable("Quests");
                 });
@@ -705,7 +712,13 @@ namespace EuphoriaInn.Repository.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("EuphoriaInn.Repository.Entities.QuestEntity", "OriginalQuest")
+                        .WithOne("FollowUpQuest")
+                        .HasForeignKey("EuphoriaInn.Repository.Entities.QuestEntity", "OriginalQuestId");
+
                     b.Navigation("DungeonMaster");
+
+                    b.Navigation("OriginalQuest");
                 });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.ShopItemEntity", b =>
@@ -827,6 +840,8 @@ namespace EuphoriaInn.Repository.Migrations
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.QuestEntity", b =>
                 {
+                    b.Navigation("FollowUpQuest");
+
                     b.Navigation("PlayerSignups");
 
                     b.Navigation("ProposedDates");

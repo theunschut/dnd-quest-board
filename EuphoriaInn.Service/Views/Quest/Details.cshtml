@@ -656,6 +656,27 @@
                 }
                 <p><strong>Created:</strong> @Model.Quest?.CreatedAt.ToString("MMM dd, yyyy")</p>
 
+                @if (Model.Quest?.FollowUpQuest != null)
+                {
+                    <p>
+                        <i class="fas fa-scroll text-warning me-2"></i>
+                        <strong>Continues in:</strong>
+                        <a href="@Url.Action("Details", "Quest", new { id = Model.Quest.FollowUpQuest.Id })">
+                            @Model.Quest.FollowUpQuest.Title
+                        </a>
+                    </p>
+                }
+                @if (Model.Quest?.OriginalQuest != null)
+                {
+                    <p>
+                        <i class="fas fa-scroll text-warning me-2"></i>
+                        <strong>Continues from:</strong>
+                        <a href="@Url.Action("Details", "Quest", new { id = Model.Quest.OriginalQuest.Id })">
+                            @Model.Quest.OriginalQuest.Title
+                        </a>
+                    </p>
+                }
+
                 @if (Model.Quest?.PlayerSignups.Any() == true)
                 {
                     <hr>

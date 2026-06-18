@@ -18,7 +18,7 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task Index_ShouldReturnSuccessStatusCode()
     {
         // Act
-        var response = await _client.GetAsync("/");
+        var response = await _client.GetAsync("/", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -28,8 +28,8 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task Index_ShouldReturnHtmlContent()
     {
         // Act
-        var response = await _client.GetAsync("/");
-        var content = await response.Content.ReadAsStringAsync();
+        var response = await _client.GetAsync("/", TestContext.Current.CancellationToken);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // Assert
         response.Content.Headers.ContentType?.MediaType.Should().Be("text/html");
@@ -48,11 +48,11 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
         await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Home Quest 2");
 
         // Act
-        var response = await _client.GetAsync("/");
+        var response = await _client.GetAsync("/", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Home Quest 1");
         content.Should().Contain("Home Quest 2");
     }
@@ -65,7 +65,7 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
     public async Task NonExistentRoute_ShouldReturn404()
     {
         // Act
-        var response = await _client.GetAsync("/NonExistent/Route");
+        var response = await _client.GetAsync("/NonExistent/Route", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

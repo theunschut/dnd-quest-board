@@ -1,5 +1,4 @@
 using EuphoriaInn.Domain.Enums;
-using EuphoriaInn.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace EuphoriaInn.Service.ViewModels.CharacterViewModels;

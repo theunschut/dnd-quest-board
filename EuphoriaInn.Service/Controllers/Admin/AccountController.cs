@@ -23,11 +23,17 @@ public class AccountController(IUserService userService) : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await userService.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var result = await userService.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
                 return RedirectToLocal(returnUrl);
+            }
+
+            if (result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, "Account locked due to too many failed attempts. Try again in 15 minutes.");
+                return View(model);
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");

@@ -129,5 +129,15 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasForeignKey(ps => ps.CharacterId)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired(false);
+
+        // Self-referential follow-up quest relationship
+        // One quest may have at most one direct follow-up (D-11, D-12)
+        // Delete behaviour: ClientSetNull so deleting a follow-up does not delete the original (D-14)
+        modelBuilder.Entity<QuestEntity>()
+            .HasOne(q => q.OriginalQuest)
+            .WithOne(q => q.FollowUpQuest)
+            .HasForeignKey<QuestEntity>(q => q.OriginalQuestId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .IsRequired(false);
     }
 }

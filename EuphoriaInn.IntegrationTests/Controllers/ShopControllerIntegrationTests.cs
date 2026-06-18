@@ -1,3 +1,4 @@
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.IntegrationTests.Helpers;
 using System.Net;
 
@@ -23,11 +24,11 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
         // Act
-        var response = await client.GetAsync("/Shop");
+        var response = await client.GetAsync("/Shop", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Shop");
     }
 
@@ -50,11 +51,11 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
         // Act
-        var response = await client.GetAsync("/Shop");
+        var response = await client.GetAsync("/Shop", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Longsword");
         content.Should().Contain("Health Potion");
     }
@@ -75,11 +76,11 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             _factory.Services, shopkeeper.Id, "Magic Staff", 50.0m, 1);
 
         // Act
-        var response = await client.GetAsync($"/Shop/Details/{item.Id}");
+        var response = await client.GetAsync($"/Shop/Details/{item.Id}", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Magic Staff");
         content.Should().Contain("50");
     }
@@ -92,7 +93,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
 
         // Act
-        var response = await client.GetAsync("/Shop/Details/99999");
+        var response = await client.GetAsync("/Shop/Details/99999", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -115,7 +116,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         });
 
         // Act
-        var response = await _client.PostAsync("/Shop/Purchase", formContent);
+        var response = await _client.PostAsync("/Shop/Purchase", formContent, TestContext.Current.CancellationToken);
 
         // Assert - Should redirect to login or return unauthorized
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
@@ -136,7 +137,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             _factory.Services, shopkeeper.Id, "Affordable Item", 10.0m, 5);
 
         // Get the shop page to extract anti-forgery token
-        var getResponse = await buyerClient.GetAsync("/Shop");
+        var getResponse = await buyerClient.GetAsync("/Shop", TestContext.Current.CancellationToken);
         var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
 
         // Set the anti-forgery cookie
@@ -154,7 +155,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             token);
 
         // Act
-        var response = await buyerClient.PostAsync("/Shop/Purchase", formContent);
+        var response = await buyerClient.PostAsync("/Shop/Purchase", formContent, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.BadRequest);
@@ -175,7 +176,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             _factory.Services, shopkeeper.Id, "Expensive Item", 100.0m, 5);
 
         // Get the shop page to extract anti-forgery token
-        var getResponse = await buyerClient.GetAsync("/Shop");
+        var getResponse = await buyerClient.GetAsync("/Shop", TestContext.Current.CancellationToken);
         var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
 
         // Set the anti-forgery cookie
@@ -193,7 +194,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
             token);
 
         // Act
-        var response = await buyerClient.PostAsync("/Shop/Purchase", formContent);
+        var response = await buyerClient.PostAsync("/Shop/Purchase", formContent, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.Redirect, HttpStatusCode.Found);
@@ -216,12 +217,134 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
         await TestDataHelper.CreateShopItemAsync(_factory.Services, shopkeeper.Id, "Magic Wand", 30.0m);
 
         // Act
-        var response = await client.GetAsync("/Shop?search=sword");
+        var response = await client.GetAsync("/Shop?search=sword", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Iron Sword");
         content.Should().Contain("Steel Sword");
+    }
+
+    // Helper: seed N published shop items with alternating names/types/rarities
+    private async Task SeedPublishedShopItemsAsync(int count)
+    {
+        var shopkeeper = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, $"seeder_{Guid.NewGuid():N}", $"seeder_{Guid.NewGuid():N}@example.com");
+
+        for (int i = 1; i <= count; i++)
+        {
+            var name = $"Item {i:D2} {(i % 3 == 0 ? "Sword" : "Shield")}";
+            var type = i % 2 == 0 ? 1 : 0; // 0=Equipment, 1=MagicItem
+            var rarity = i % 2 == 0 ? 2 : 0; // 0=Common, 2=Rare
+            var price = 10 + i;
+
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<EuphoriaInn.Repository.Entities.QuestBoardContext>();
+            context.ShopItems.Add(new ShopItemEntity
+            {
+                Name = name,
+                Description = $"Description for {name}",
+                Price = price,
+                Quantity = 5,
+                Type = type,
+                Rarity = rarity,
+                Status = 1, // Published
+                CreatedByDmId = shopkeeper.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Index_PagedRepoMethodReachable_ReturnsSuccess()
+    {
+        // This smoke test verifies that GetPagedPublishedItemsAsync is wired into DI.
+        // It must FAIL before Task 2 adds the method, and PASS after.
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        using var scope = _factory.Services.CreateScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IShopService>();
+        var result = await svc.GetPagedPublishedItemsAsync(null, null, null, null, 1, 12, TestContext.Current.CancellationToken);
+        result.TotalCount.Should().BeGreaterThanOrEqualTo(0);
+    }
+
+    [Fact]
+    public async Task Index_WithoutPageParam_Returns12Items_WhenShopHas15()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, @"class=""item-card""");
+        matches.Count.Should().Be(12);
+    }
+
+    [Fact]
+    public async Task Index_WithPage2_ReturnsItems13To24()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?page=2", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("Item 13");
+    }
+
+    [Fact]
+    public async Task Index_WithSearch_FiltersByNameOrDescription()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?search=Sword", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("Sword");
+        content.Should().NotContain("Item 01 Shield");
+    }
+
+    [Fact]
+    public async Task Index_WithStackedParams_AllApply()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?type=Equipment&rarity=Rare&sort=price_asc&search=a&page=1", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Index_PagerRendersWhenMultiplePages()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain(@"aria-label=""Shop page navigation""");
+    }
+
+    [Fact]
+    public async Task Index_OutOfRangePage_ClampsToLastPage()
+    {
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await SeedPublishedShopItemsAsync(15);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+
+        var response = await client.GetAsync("/Shop?page=9999", TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("page-item active");
     }
 }

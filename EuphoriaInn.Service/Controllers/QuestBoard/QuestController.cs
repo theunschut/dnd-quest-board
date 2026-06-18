@@ -12,7 +12,6 @@ namespace EuphoriaInn.Service.Controllers.QuestBoard;
 
 public class QuestController(
     IUserService userService,
-    IEmailService emailService,
     IMapper mapper,
     IPlayerSignupService playerSignupService,
     IQuestService questService,
@@ -162,36 +161,17 @@ public class QuestController(
             return View(viewModel);
         }
 
-        // Use the specialized service method to update quest properties and get affected players
-        var affectedPlayers = await questService.UpdateQuestPropertiesWithNotificationsAsync(
+        await questService.UpdateQuestPropertiesWithNotificationsAsync(
             id,
             viewModel.Quest.Title,
             viewModel.Quest.Description,
             viewModel.Quest.ChallengeRating,
             viewModel.Quest.TotalPlayerCount,
             viewModel.Quest.DungeonMasterSession,
-            true, // Always allow date updates - service will handle intelligently
+            true,
             viewModel.Quest.ProposedDates,
             token
         );
-
-        // Send email notifications to affected players
-        if (affectedPlayers.Any())
-        {
-            var quest = await questService.GetQuestWithDetailsAsync(id, token);
-            if (quest != null)
-            {
-                foreach (var player in affectedPlayers.Where(p => !string.IsNullOrEmpty(p.Email)))
-                {
-                    await emailService.SendQuestDateChangedEmailAsync(
-                        player.Email!,
-                        player.Name,
-                        quest.Title,
-                        quest.DungeonMaster?.Name ?? "Unknown DM"
-                    );
-                }
-            }
-        }
 
         return RedirectToAction("Manage", new { id });
     }
@@ -586,77 +566,26 @@ public class QuestController(
     public async Task<IActionResult> Finalize(int id)
     {
         var quest = await questService.GetQuestWithDetailsAsync(id);
-
-        if (quest == null || quest.IsFinalized)
-        {
-            return NotFound();
-        }
-
+        if (quest == null || quest.IsFinalized) return NotFound();
         var currentUser = await userService.GetUserAsync(User);
-        if (currentUser == null)
-        {
-            return Challenge();
-        }
-
-        // Verify DM authorization
-        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
-        {
-            return Forbid();
-        }
-
-        // Get selected date
+        if (currentUser == null) return Challenge();
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin")) return Forbid();
         if (!int.TryParse(Request.Form["SelectedDateId"], out var selectedDateId))
-        {
-            TempData["Error"] = "Please select a date.";
-            return RedirectToAction("Manage", new { id });
-        }
-
+        { TempData["Error"] = "Please select a date."; return RedirectToAction("Manage", new { id }); }
         var selectedDate = quest.ProposedDates.FirstOrDefault(pd => pd.Id == selectedDateId);
-
         if (selectedDate == null)
-        {
-            TempData["Error"] = "Please select a date.";
-            return RedirectToAction("Manage", new { id });
-        }
-
-        // Get selected players
-        var selectedPlayerIds = Request.Form["SelectedPlayerIds"]
-            .Where(idStr => !string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out _))
-            .Select(idStr => int.Parse(idStr!))
-            .ToList();
-
-        // Validate: Only count Player roles against the limit
-        var selectedPlayerRoleCount = quest.PlayerSignups
-            .Where(ps => selectedPlayerIds.Contains(ps.Id) && ps.Role == SignupRole.Player)
-            .Count();
-
-        if (selectedPlayerRoleCount > quest.TotalPlayerCount)
-        {
-            TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players.";
-            return RedirectToAction("Manage", new { id });
-        }
-
-        // Finalize the quest using the specialized service method
+        { TempData["Error"] = "Please select a date."; return RedirectToAction("Manage", new { id }); }
+        var selectedPlayerIds = ParseSelectedPlayerIds(Request.Form["SelectedPlayerIds"]);
+        var playerRoleCount = quest.PlayerSignups.Where(ps => selectedPlayerIds.Contains(ps.Id) && ps.Role == SignupRole.Player).Count();
+        if (playerRoleCount > quest.TotalPlayerCount)
+        { TempData["Error"] = $"Cannot select more than {quest.TotalPlayerCount} players."; return RedirectToAction("Manage", new { id }); }
         await questService.FinalizeQuestAsync(id, selectedDate.Date, selectedPlayerIds);
-
-        // Send email notifications to ALL selected roles (Players, AssistantDMs, AND Spectators)
-        var selectedSignups = quest.PlayerSignups
-            .Where(ps => (selectedPlayerIds.Contains(ps.Id) || ps.Role == SignupRole.Spectator)
-                         && !string.IsNullOrEmpty(ps.Player.Email));
-
-        foreach (var signup in selectedSignups)
-        {
-            await emailService.SendQuestFinalizedEmailAsync(
-                signup.Player.Email!,
-                signup.Player.Name,
-                quest.Title,
-                quest.DungeonMaster?.Name ?? "Unknown DM",
-                selectedDate.Date
-            );
-        }
-
         return RedirectToAction("Details", new { id });
     }
+
+    private static List<int> ParseSelectedPlayerIds(Microsoft.Extensions.Primitives.StringValues raw) =>
+        raw.Where(s => !string.IsNullOrEmpty(s) && int.TryParse(s, out _))
+           .Select(s => int.Parse(s!)).ToList();
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -712,6 +641,157 @@ public class QuestController(
         ViewBag.IsAdmin = isAdmin;
 
         return View(quest);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> CreateFollowUp(int id, CancellationToken token = default)
+    {
+        var original = await questService.GetQuestWithDetailsAsync(id, token);
+        if (original == null)
+            return NotFound();
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+            return Challenge();
+
+        // Guard: only the quest's DM or an admin may create a follow-up
+        var isQuestDm = currentUser.Name.Equals(original.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+        if (!isQuestDm && !isAdmin)
+            return Forbid();
+
+        // Guard D-11: enforce at most one direct follow-up
+        if (original.FollowUpQuest != null)
+        {
+            TempData["Error"] = "A follow-up quest already exists for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // Guard: only finalized quests can have a follow-up
+        if (!original.IsFinalized)
+        {
+            TempData["Error"] = "Only finalized quests can have a follow-up created.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // D-01, D-02, D-03, D-04: pre-fill view model
+        var viewModel = new FollowUpQuestViewModel
+        {
+            OriginalQuestId = original.Id,
+            Title = $"{original.Title} - Part 2",
+            Description = original.Description,
+            ChallengeRating = original.ChallengeRating,
+            TotalPlayerCount = original.TotalPlayerCount,
+            DungeonMasterId = original.DungeonMasterId,
+            DungeonMasterSession = false,
+            ProposedDates = [],   // D-03: always empty
+        };
+
+        // D-05: list IsSelected=true players for the sidebar (display only)
+        ViewBag.PreApprovedPlayers = original.PlayerSignups
+            .Where(ps => ps.IsSelected)
+            .Select(ps => new { ps.Player.Name })
+            .ToList();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> CreateFollowUp(int id, FollowUpQuestViewModel viewModel, CancellationToken token = default)
+    {
+        var original = await questService.GetQuestWithDetailsAsync(id, token);
+        if (original == null)
+            return NotFound();
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+            return Challenge();
+
+        // Guard: only the quest's DM or an admin may create a follow-up
+        var isQuestDm = currentUser.Name.Equals(original.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase);
+        var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+        if (!isQuestDm && !isAdmin)
+            return Forbid();
+
+        // Guard D-11: enforce at most one direct follow-up
+        if (original.FollowUpQuest != null)
+        {
+            TempData["Error"] = "A follow-up quest already exists for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // Guard: only finalized quests can have a follow-up
+        if (!original.IsFinalized)
+        {
+            TempData["Error"] = "Only finalized quests can have a follow-up created.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // FOLLOW-03: require at least one proposed date
+        if (!ModelState.IsValid || viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
+        {
+            if (viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
+            {
+                ModelState.AddModelError("ProposedDates",
+                    "At least one proposed date is required before saving a follow-up quest.");
+            }
+
+            ViewBag.PreApprovedPlayers = original.PlayerSignups
+                .Where(ps => ps.IsSelected)
+                .Select(ps => new { ps.Player.Name })
+                .ToList();
+
+            return View(viewModel);
+        }
+
+        // Override OriginalQuestId from route to prevent form spoofing (T-06-06)
+        viewModel.OriginalQuestId = id;
+
+        // D-07: player import happens at the service layer inside CreateFollowUpQuestAsync
+        int newQuestId;
+        try
+        {
+            newQuestId = await questService.CreateFollowUpQuestAsync(id, token);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            ViewBag.PreApprovedPlayers = original.PlayerSignups
+                .Where(ps => ps.IsSelected)
+                .Select(ps => new { ps.Player.Name })
+                .ToList();
+            return View(viewModel);
+        }
+
+        // Apply the proposed dates and title/description edits from the form
+        // (CreateFollowUpQuestAsync creates the quest shell without dates; dates come from the form)
+        // WR-03: if the update fails, clean up the orphaned shell quest before re-throwing
+        try
+        {
+            await questService.UpdateQuestPropertiesWithNotificationsAsync(
+                newQuestId,
+                viewModel.Title,
+                viewModel.Description,
+                viewModel.ChallengeRating,
+                viewModel.TotalPlayerCount,
+                viewModel.DungeonMasterSession,
+                updateProposedDates: true,
+                viewModel.ProposedDates,
+                token);
+        }
+        catch
+        {
+            // Roll back the shell quest so the unique FK is freed and retries are possible
+            var orphan = await questService.GetQuestWithDetailsAsync(newQuestId, token);
+            if (orphan != null)
+                await questService.RemoveAsync(orphan);
+            throw;
+        }
+
+        return RedirectToAction("Manage", new { id = newQuestId });
     }
 
     [HttpGet]

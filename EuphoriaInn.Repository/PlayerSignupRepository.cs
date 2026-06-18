@@ -1,42 +1,41 @@
-﻿using EuphoriaInn.Repository.Entities;
-using EuphoriaInn.Repository.Interfaces;
+using AutoMapper;
+using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models.QuestBoard;
+using EuphoriaInn.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace EuphoriaInn.Repository;
 
-internal class PlayerSignupRepository(QuestBoardContext context) : BaseRepository<PlayerSignupEntity>(context), IPlayerSignupRepository
+internal class PlayerSignupRepository(QuestBoardContext dbContext, IMapper mapper) : BaseRepository<PlayerSignup, PlayerSignupEntity>(dbContext, mapper), IPlayerSignupRepository
 {
-    public async Task<PlayerSignupEntity?> GetByIdWithDateVotesAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<PlayerSignup?> GetByIdWithDateVotesAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        var entity = await DbSet
             .Include(ps => ps.DateVotes)
             .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken);
+        return entity == null ? null : Mapper.Map<PlayerSignup>(entity);
     }
 
     public async Task ChangeVoteToYesAndSelectAsync(int playerSignupId, int proposedDateId, CancellationToken cancellationToken = default)
     {
-        // Get the player signup with its date votes
-        var playerSignup = await DbSet
+        var entity = await DbSet
             .Include(ps => ps.DateVotes)
             .FirstOrDefaultAsync(ps => ps.Id == playerSignupId, cancellationToken);
 
-        if (playerSignup == null)
+        if (entity == null)
         {
             throw new ArgumentException("Player signup not found", nameof(playerSignupId));
         }
 
-        // Find or create the vote for the proposed date
-        var existingVote = playerSignup.DateVotes.FirstOrDefault(dv => dv.ProposedDateId == proposedDateId);
+        var existingVote = entity.DateVotes.FirstOrDefault(dv => dv.ProposedDateId == proposedDateId);
 
         if (existingVote != null)
         {
-            // Update existing vote to Yes
             existingVote.Vote = 0; // VoteType.Yes = 0
         }
         else
         {
-            // Create a new Yes vote
-            playerSignup.DateVotes.Add(new PlayerDateVoteEntity
+            entity.DateVotes.Add(new PlayerDateVoteEntity
             {
                 ProposedDateId = proposedDateId,
                 PlayerSignupId = playerSignupId,
@@ -44,10 +43,30 @@ internal class PlayerSignupRepository(QuestBoardContext context) : BaseRepositor
             });
         }
 
-        // Mark the player as selected
-        playerSignup.IsSelected = true;
-
-        // Save changes
+        entity.IsSelected = true;
         await DbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public override async Task UpdateAsync(PlayerSignup model, CancellationToken token = default)
+    {
+        var entity = await DbSet
+            .Include(ps => ps.DateVotes)
+            .FirstOrDefaultAsync(ps => ps.Id == model.Id, token);
+        if (entity == null) return;
+
+        // Update scalar properties
+        entity.IsSelected = model.IsSelected;
+        entity.CharacterId = model.CharacterId;
+        entity.SignupRole = (int)model.Role;
+
+        // Update date votes
+        entity.DateVotes.Clear();
+        var dateVoteEntities = Mapper.Map<List<PlayerDateVoteEntity>>(model.DateVotes);
+        foreach (var vote in dateVoteEntities)
+        {
+            entity.DateVotes.Add(vote);
+        }
+
+        await DbContext.SaveChangesAsync(token);
     }
 }

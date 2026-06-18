@@ -714,4 +714,7 @@ FodyWeavers.xsd
 # Claude Code configuration
 .claude/
 
+# Environment variables (SEC-06)
+.env
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,csharp,aspnetcore

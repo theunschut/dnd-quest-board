@@ -4,27 +4,19 @@ using System.Net;
 
 namespace EuphoriaInn.IntegrationTests.Controllers;
 
-public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFactoryBase>
+public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    private readonly WebApplicationFactoryBase _factory;
-    private readonly HttpClient _client;
-
-    public AccountControllerIntegrationTests(WebApplicationFactoryBase factory)
-    {
-        _factory = factory;
-        // Use non-redirecting client to properly test authorization redirects
-        _client = factory.CreateNonRedirectingClient();
-    }
+    private readonly HttpClient _client = factory.CreateNonRedirectingClient();
 
     [Fact]
     public async Task Login_Get_ShouldReturnSuccessStatusCode()
     {
         // Act
-        var response = await _client.GetAsync("/Account/Login");
+        var response = await _client.GetAsync("/Account/Login", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Login");
     }
 
@@ -32,11 +24,11 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task Register_Get_ShouldReturnSuccessStatusCode()
     {
         // Act
-        var response = await _client.GetAsync("/Account/Register");
+        var response = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("Register");
     }
 
@@ -44,10 +36,10 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task Register_Post_WithValidData_ShouldCreateUser()
     {
         // Arrange
-        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
 
         // First, GET the register page to obtain the anti-forgery token
-        var getResponse = await _client.GetAsync("/Account/Register");
+        var getResponse = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
         var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
 
         // Set the anti-forgery cookie
@@ -67,13 +59,13 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
             token);
 
         // Act
-        var response = await _client.PostAsync("/Account/Register", formContent);
+        var response = await _client.PostAsync("/Account/Register", formContent, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.Found);
 
         // Verify user was created
-        using var scope = _factory.Services.CreateScope();
+        using var scope = factory.Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
         var user = await userManager.FindByEmailAsync("newuser@example.com");
         user.Should().NotBeNull();
@@ -86,7 +78,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     {
         // Arrange
         // First, GET the register page to obtain the anti-forgery token
-        var getResponse = await _client.GetAsync("/Account/Register");
+        var getResponse = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
         var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
 
         // Set the anti-forgery cookie
@@ -106,11 +98,11 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
             token);
 
         // Act
-        var response = await _client.PostAsync("/Account/Register", formContent);
+        var response = await _client.PostAsync("/Account/Register", formContent, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("password", "");
     }
 
@@ -118,7 +110,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task Profile_Get_WhenNotAuthenticated_ShouldRedirectToLogin()
     {
         // Act
-        var response = await _client.GetAsync("/Account/Profile");
+        var response = await _client.GetAsync("/Account/Profile", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
@@ -128,17 +120,17 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task Profile_Get_WhenAuthenticated_ShouldReturnUserProfile()
     {
         // Arrange
-        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var password = "ProfilePass123!";
         var (client, user) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
-            _factory, "profileuser", "profile@example.com", password, "Profile User");
+            factory, "profileuser", "profile@example.com", password, "Profile User");
 
         // Act
-        var response = await client.GetAsync("/Account/Profile");
+        var response = await client.GetAsync("/Account/Profile", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain(user.Email);
     }
 
@@ -146,10 +138,10 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task Logout_Post_ShouldRedirectToHome()
     {
         // Arrange
-        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(factory);
 
         // First, GET a page to obtain the anti-forgery token (use the home page or profile)
-        var getResponse = await client.GetAsync("/Account/Profile");
+        var getResponse = await client.GetAsync("/Account/Profile", TestContext.Current.CancellationToken);
         var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
 
         // Set the anti-forgery cookie
@@ -159,11 +151,11 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         }
 
         var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
-            new Dictionary<string, string>(),
+            [],
             token);
 
         // Act
-        var response = await client.PostAsync("/Account/Logout", formContent);
+        var response = await client.PostAsync("/Account/Logout", formContent, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.OK);
