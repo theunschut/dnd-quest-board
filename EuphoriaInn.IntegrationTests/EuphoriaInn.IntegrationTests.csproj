@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EuphoriaInn.Service\EuphoriaInn.Service.csproj" />
     <ProjectReference Include="..\EuphoriaInn.Repository\EuphoriaInn.Repository.csproj" />
+    <ProjectReference Include="..\EuphoriaInn.Domain\EuphoriaInn.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
