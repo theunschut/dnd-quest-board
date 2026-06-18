@@ -1,7 +1,7 @@
 ---
 phase: 10
 slug: admin-settings
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-18
@@ -22,7 +22,7 @@ created: 2026-06-18
 | Preset | not applicable |
 | Component library | Bootstrap 5.3.0 (CDN) |
 | Icon library | Font Awesome 6.4.0 (CDN) |
-| Font | Cinzel (Google Fonts, weights 400/500/600/700) — headings only; Bootstrap system-ui stack for body |
+| Font | Cinzel (Google Fonts, weights 400/500/600) — headings only; Bootstrap system-ui stack for body |
 
 **Source:** Detected from `_Layout.cshtml` CDN links and `site.css`. No `components.json` present. shadcn gate: N/A (ASP.NET Core MVC — not React/Next.js/Vite).
 
@@ -50,7 +50,7 @@ All sizes and weights are inherited from Bootstrap 5 defaults and the existing `
 
 | Role | Size | Weight | Line Height | Notes |
 |------|------|--------|-------------|-------|
-| Page heading (`h1`) | 2rem (32px) | 700 | 1.2 | `ViewData["Title"]` div above card — matches other admin pages |
+| Page heading (`h1`) | 2rem (32px) | 600 | 1.2 | `ViewData["Title"]` div above card — matches other admin pages; Cinzel default 700 overridden to align with card-centric admin page |
 | Card title (`h2` in header) | 1.5rem (24px) | 600 | 1.2 | Inside `.modern-card-header`; site.css forces `color: #F4E4BC` and `font-weight: 600` |
 | Form label | 1rem (16px) | 600 | 1.5 | `.form-label` inside `.modern-card` — site.css forces `font-weight: 600; color: #F4E4BC` |
 | Body / hint text | 0.875rem (14px) | 400 | 1.5 | `.form-text` inside `.modern-card` — site.css: `color: rgba(244,228,188,0.7)` |
@@ -324,11 +324,11 @@ No third-party component registries. All components are Bootstrap 5 utilities an
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-06-18
