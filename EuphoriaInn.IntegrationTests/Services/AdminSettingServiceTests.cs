@@ -8,13 +8,14 @@ namespace EuphoriaInn.IntegrationTests.Services;
 public class AdminSettingServiceTests : IDisposable
 {
     private readonly TestDatabase _db;
+    private readonly QuestBoardContext _context;
     private readonly IAdminSettingService _sut;
 
     public AdminSettingServiceTests()
     {
         _db = new TestDatabase($"AdminSettingTest_{Guid.NewGuid():N}");
-        var context = _db.CreateContext();
-        var repo = new AdminSettingRepository(context);
+        _context = _db.CreateContext();
+        var repo = new AdminSettingRepository(_context);
         _sut = new AdminSettingService(repo);
     }
 
@@ -66,5 +67,9 @@ public class AdminSettingServiceTests : IDisposable
         result.IsEnabled.Should().BeTrue();
     }
 
-    public void Dispose() => _db.Dispose();
+    public void Dispose()
+    {
+        _context.Dispose();
+        _db.Dispose();
+    }
 }
