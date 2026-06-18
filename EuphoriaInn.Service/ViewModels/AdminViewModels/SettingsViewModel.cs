@@ -4,6 +4,7 @@ namespace EuphoriaInn.Service.ViewModels.AdminViewModels;
 
 public class SettingsViewModel
 {
+    [DisplayFormat(ConvertEmptyStringToNull = true)]
     [Url]
     [StringLength(2000)]
     [Display(Name = "Omphalos URL")]
