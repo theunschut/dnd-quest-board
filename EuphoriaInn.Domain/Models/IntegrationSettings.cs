@@ -7,5 +7,7 @@ public record IntegrationSettings
     public bool IsEnabled { get; init; }
 
     // Phase 11 checks this before showing any Omphalos UI element
-    public bool IsConfigured => IsEnabled && !string.IsNullOrWhiteSpace(OmphalosUrl);
+    public bool IsConfigured => IsEnabled
+        && !string.IsNullOrWhiteSpace(OmphalosUrl)
+        && !string.IsNullOrWhiteSpace(OmphalosSharedSecret);
 }
