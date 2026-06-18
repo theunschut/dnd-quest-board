@@ -1,0 +1,98 @@
+@model EuphoriaInn.Service.ViewModels.AdminViewModels.SettingsViewModel
+@{
+    ViewData["Title"] = "Integration Settings";
+}
+
+<div class="mb-4">
+    <h1>Integration Settings</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card modern-card">
+            <div class="card-header modern-card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-plug text-warning me-2"></i>
+                    Integration Settings
+                </h2>
+            </div>
+            <div class="card-body modern-card-body">
+
+                @* TempData feedback alerts — above validation summary and form *@
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-action="Settings" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="OmphalosUrl" class="form-label">Omphalos URL</label>
+                        <input asp-for="OmphalosUrl" class="form-control" type="url"
+                               placeholder="https://omphalos.example.com" />
+                        <div class="form-text">
+                            Base URL of the Omphalos application. Used for the navbar link and SSO redirect.
+                        </div>
+                        <span asp-validation-for="OmphalosUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="OmphalosSharedSecret" class="form-label">Shared Secret</label>
+                        <input asp-for="OmphalosSharedSecret" class="form-control" type="password"
+                               autocomplete="off" />
+                        <div class="form-text">
+                            HMAC-SHA256 signing key. Leave blank to keep the existing value.
+                        </div>
+                        <span asp-validation-for="OmphalosSharedSecret" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="IsEnabled" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsEnabled" class="form-check-label">
+                                <i class="fas fa-toggle-on text-success me-2"></i>
+                                Enable Omphalos integration
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            When unchecked, all Omphalos links and buttons are hidden and the SSO redirect returns 404.
+                        </div>
+                        <span asp-validation-for="IsEnabled" class="text-danger"></span>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Admin" asp-action="Users" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Admin
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Save Settings
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
