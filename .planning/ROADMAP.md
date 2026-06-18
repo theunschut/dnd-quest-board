@@ -189,3 +189,90 @@ Plans:
 - [x] 09-01-PLAN.md — Wave 0 tests + paged repository/service method + ViewModel extension (SHOP-PAG-01, 02, 03, 07)
 - [x] 09-02-PLAN.md — Controller + view wiring, Bootstrap 5 pager, server-side search input, legacy JS removal, enable skipped integration tests (SHOP-PAG-01, 03, 04, 05, 06, 07)
 **UI hint**: yes
+
+---
+
+# Roadmap: D&D Quest Board — Milestone 3: Omphalos Integration
+
+## Overview
+
+Milestone 3 connects two independent apps (Quest Board on ASP.NET Core + SQL Server; Omphalos on .NET 10 Minimal API + PostgreSQL) via a browser-redirect SSO flow using a short-lived HMAC-SHA256 signed token. Quest Board generates a signed URL and issues a browser redirect; Omphalos receives and validates that redirect, auto-provisions the DM account on first use, finds or creates the quest session, and issues its JWT cookie. Zero net-new NuGet packages are required in either repo — the entire cryptographic layer uses BCL (System.Security.Cryptography.HMACSHA256).
+
+Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies `IAdminSettingService` which both subsequent Quest Board phases depend on at compile time. Phase 12 (Omphalos SSO) has no code dependency on Quest Board and can begin in parallel once the token format contract is agreed. The two streams converge at end-to-end integration testing.
+
+**NOTE: Phase 12 is implemented in the Omphalos repository at `C:\Repos\omphalos`, not this Quest Board repo.**
+
+## Phases
+
+- [ ] **Phase 10: Admin Settings** - Admin can configure Omphalos URL and shared secret; settings persisted in DB and protected by AdminOnly policy
+- [ ] **Phase 11: Navigation + Token Generation** - DM navbar and quest pages show Omphalos links; clicking "Open Session Notes" generates a short-lived HMAC-signed deep link and redirects
+- [ ] **Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos repo)** - Omphalos validates Quest Board tokens, auto-provisions DM accounts, finds or creates quest sessions, and issues JWT cookies
+
+## Phase Details
+
+### Phase 10: Admin Settings
+**Goal**: Admins can configure the Omphalos integration URL, shared secret, and enabled state from the Admin panel; settings are persisted in the database and take effect immediately without a restart
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: SETT-01, SETT-02, SETT-03, SETT-04, SETT-05, SETT-06, SETT-07, SETT-08
+**Success Criteria** (what must be TRUE):
+  1. An admin can navigate to a Settings page from the Admin navbar dropdown and see input fields for Omphalos URL and shared secret
+  2. Saving the form with the secret field left blank preserves the existing secret — the existing value is not overwritten with an empty string
+  3. Unchecking "Integration Enabled" causes all Omphalos buttons and links to disappear from the UI immediately; re-enabling makes them reappear
+  4. The shared secret field renders as a password input (masked) on the settings page
+  5. A non-admin user cannot access the Settings page (redirected or forbidden)
+**Plans**: TBD
+
+**Wave 1**
+- TBD — 10-01-PLAN.md: Entity + repository + service + DI (SETT-06, SETT-07, SETT-08 and IAdminSettingService foundation for Phase 11)
+- TBD — 10-02-PLAN.md: AdminController Settings GET/POST + AdminSettingsViewModel + Settings.cshtml view (SETT-01, SETT-02, SETT-03, SETT-04, SETT-05)
+**UI hint**: yes
+
+### Phase 11: Navigation + Token Generation
+**Goal**: DMs can open Omphalos from a navbar link (plain navigation) or from any quest page (signed deep link); clicking "Open Session Notes" generates a 5-minute HMAC-SHA256 token and redirects the browser directly to the correct Omphalos session
+**Depends on**: Phase 10 (IAdminSettingService compile-time dependency)
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05
+**Success Criteria** (what must be TRUE):
+  1. A DM sees an "Open Omphalos" link in the navbar dropdown that opens the Omphalos base URL in a new tab — only when integration is enabled and OmphalosUrl is configured
+  2. A DM sees an "Open Session Notes" button on Quest Detail and Quest Manage pages — only when integration is enabled, OmphalosUrl is set, and the current user is a DM or Admin
+  3. Clicking "Open Session Notes" redirects the DM's browser to Omphalos with a signed URL containing questId, questTitle, username (lowercase), expiry (Unix timestamp), and HMAC-SHA256 signature
+  4. The signed token expires after 300 seconds; a second click generates a new token with a fresh expiry
+  5. When integration is disabled or OmphalosUrl is not configured, no Omphalos buttons or navbar links appear anywhere in the UI; the `LaunchOmphalos` endpoint returns 404
+**Plans**: TBD
+
+**Wave 1**
+- TBD — 11-01-PLAN.md: IIntegrationTokenService + IntegrationTokenService (HMAC canonical message per TOKEN-02) + QuestController.LaunchOmphalos action (TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, NAV-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- TBD — 11-02-PLAN.md: OmphalosNavItemViewComponent + Default.cshtml partial + _Layout.cshtml wiring + Details.cshtml + Manage.cshtml conditional buttons (NAV-01, NAV-02, NAV-03, NAV-04, NAV-05)
+**UI hint**: yes
+
+### Phase 12: SSO Endpoint + Quest-Session Linking
+**REPO: Omphalos — `C:\Repos\omphalos` (NOT this Quest Board repo)**
+**Goal**: Omphalos accepts Quest Board SSO redirects, validates the HMAC-signed token, auto-provisions a DM account on first use, finds or creates the quest session, and issues its JWT cookie — Omphalos continues to function as a standalone app when the env var is absent
+**Depends on**: Token format contract agreed (can develop in parallel with Phase 11; converges at end-to-end test)
+**Requirements**: SSO-01, SSO-02, SSO-03, SSO-04, SSO-05, SSO-06, SSO-07, SSO-08, SSO-09, LINK-01, LINK-02, LINK-03
+**Success Criteria** (what must be TRUE):
+  1. Navigating to `GET /api/sso/open-quest` with a valid signed token logs the DM into Omphalos (JWT cookie issued) and redirects to the correct session page in one browser round-trip
+  2. A DM using Omphalos for the first time via SSO gets an account auto-provisioned with the correct role; subsequent SSO clicks use the existing account without modification
+  3. Each Quest Board quest maps to exactly one Omphalos GameSession — a second SSO click for the same quest lands in the same session, not a new one
+  4. A token with an expired `expiry`, an invalid signature, or a missing `QUEST_BOARD_SECRET` env var returns an appropriate HTTP error and does not issue a cookie
+  5. Omphalos starts and operates normally when `QUEST_BOARD_SECRET` is not set in the environment — only the SSO endpoint is affected
+**Plans**: TBD
+
+**Wave 1**
+- TBD — 12-01-PLAN.md: GameSession.ExternalQuestId migration + ISessionRepository.GetByExternalQuestIdAsync + ISsoService + SsoService (token validation, user auto-provision, session find-or-create) + IAuthService.GenerateToken promotion (SSO-04, SSO-05, SSO-06, SSO-07, LINK-01, LINK-02, LINK-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- TBD — 12-02-PLAN.md: SsoEndpoints.cs GET /api/sso/open-quest + Program.cs registration + OMPHALOS_SAMESITE cookie config + QUEST_BOARD_SECRET fail-fast + .env.example entry (SSO-01, SSO-02, SSO-03, SSO-08, SSO-09)
+
+## Progress
+
+**Execution Order:**
+10 → 11 → end-to-end test
+12 runs in parallel with 11 (converges at end-to-end test)
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 10. Admin Settings | 0/2 | Not started | - |
+| 11. Navigation + Token Generation | 0/2 | Not started | - |
+| 12. SSO Endpoint + Quest-Session Linking (Omphalos) | 0/2 | Not started | - |

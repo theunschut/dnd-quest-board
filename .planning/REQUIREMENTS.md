@@ -1,184 +1,117 @@
-# Requirements: D&D Quest Board — Milestone 2
+# Requirements: D&D Quest Board — Milestone 3: Omphalos Integration
 
-**Defined:** 2026-04-15
+**Defined:** 2026-06-18
 **Core Value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
+
+---
 
 ## v1 Requirements
 
-### Architecture Refactor
+### Admin Settings (Phase 10 — Quest Board)
 
-- [x] **ARCH-01**: `EntityProfile.cs` (AutoMapper Entity↔DomainModel) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
-- [x] **ARCH-02**: `EuphoriaInn.Domain.csproj` has no `<ProjectReference>` to `EuphoriaInn.Repository`
-- [x] **ARCH-03**: Dependency direction is `Service → Domain ← Repository`; Domain compiles without Repository
-- [x] **ARCH-04**: AutoMapper registration in `Program.cs` explicitly references both profile types by assembly anchor (no `AppDomain` scanning)
+- [ ] **SETT-01**: Admin can navigate to a Settings page from the Admin navbar dropdown
+- [ ] **SETT-02**: Settings page has input fields for Omphalos URL and shared secret
+- [ ] **SETT-03**: Shared secret field renders as `type="password"` (masked in the UI)
+- [ ] **SETT-04**: Submitting the form with the secret field blank preserves the existing secret — empty input = keep existing value, never overwrite with empty string
+- [ ] **SETT-05**: An "Integration Enabled" checkbox controls whether all Omphalos UI elements are visible and the SSO redirect is active; when unchecked, no Omphalos buttons or links appear and `LaunchOmphalos` returns 404
+- [ ] **SETT-06**: Settings are persisted in an `IntegrationSettingsEntity` table (single-row upsert) with columns `OmphalosUrl`, `OmphalosSharedSecret`, `IsEnabled`
+- [ ] **SETT-07**: Settings page is protected by the `AdminOnly` authorization policy
+- [ ] **SETT-08**: An EF Core migration creates the `IntegrationSettings` table
 
-### Controller Slimming
+### Navigation + Token Generation (Phase 11 — Quest Board)
 
-- [x] **CTRL-01**: Quest finalization (email dispatch included) is fully handled inside `QuestService.FinalizeQuestAsync`; controller action is ≤ 20 lines
-- [x] **CTRL-02**: `QuestController` does not inject `IEmailService` directly (all email goes through `QuestService`)
-- [x] **CTRL-03**: Date-change email dispatch is handled inside `QuestService.UpdateQuestPropertiesWithNotificationsAsync`; controller receives `ServiceResult` not a user list
-- [x] **CTRL-04**: Shop remaining-quantity calculation is handled inside `ShopService`; `ShopController.Index` only maps and renders
+- [ ] **NAV-01**: `_Layout.cshtml` renders an `OmphalosNavItem` View Component in the DM navbar dropdown; shows an "Open Omphalos" link only when integration is enabled and `OmphalosUrl` is configured
+- [ ] **NAV-02**: "Open Omphalos" navbar link opens the Omphalos base URL in a new tab (plain navigation link — no SSO token)
+- [ ] **NAV-03**: Quest Detail page shows an "Open Session Notes" button when integration is enabled, `OmphalosUrl` is set, and the current user is a DM or Admin
+- [ ] **NAV-04**: Quest Manage page shows the same "Open Session Notes" button under the same conditions as NAV-03
+- [ ] **NAV-05**: When integration is disabled or `OmphalosUrl` is not configured, neither the navbar link nor the quest page buttons appear
+- [ ] **TOKEN-01**: `IIntegrationTokenService` (Domain layer) generates a signed redirect URL given quest ID, quest title, and DM username
+- [ ] **TOKEN-02**: The HMAC-SHA256 canonical message is the query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` with keys in alphabetical order — questId must be in the MAC to prevent token substitution across quests
+- [ ] **TOKEN-03**: Tokens expire after 300 seconds (5 minutes) from generation time
+- [ ] **TOKEN-04**: Username is normalized to lowercase before inclusion in both the MAC message and the URL parameter
+- [ ] **TOKEN-05**: A new `QuestController.LaunchOmphalos(int id)` GET action generates the signed URL and returns `Redirect(signedUrl)`; returns 404 when integration is disabled
 
-### Email & Configuration
+### SSO Endpoint (Phase 12 — Omphalos)
 
-- [x] **EMAIL-01**: `EmailSettings` typed options record exists and is registered with `AddOptions<EmailSettings>().BindConfiguration()` in `ServiceExtensions`
-- [x] **EMAIL-02**: `EmailService` injects `IOptions<EmailSettings>` instead of `IConfiguration`; SMTP setup is not duplicated across methods
-- [x] **EMAIL-03**: The `[Quest Board URL]` placeholder in the date-changed email body is replaced with the real application URL
-- [x] **EMAIL-04**: Email finalize dispatch builds its recipient list from post-save entity state (not pre-finalize fetched `quest` object)
+- [ ] **SSO-01**: Omphalos exposes `GET /api/sso/open-quest` accepting query parameters `questId`, `questTitle`, `username`, `expiry`, `sig`
+- [ ] **SSO-02**: Endpoint validates the HMAC-SHA256 signature using the `QUEST_BOARD_SECRET` env var; invalid or missing signature returns HTTP 400
+- [ ] **SSO-03**: Tokens with `expiry` more than 300 seconds in the past are rejected with HTTP 400
+- [ ] **SSO-04**: If no Omphalos user matching the normalised username exists, a `UserRole.Player` account is auto-provisioned with a randomly-generated unusable password; existing accounts are not modified
+- [ ] **SSO-05**: Endpoint finds an existing `GameSession` by `ExternalQuestId` or creates one with `Title = questTitle` from the token and a server-generated session ID
+- [ ] **SSO-06**: On success, the endpoint issues the Omphalos JWT httpOnly cookie and redirects the browser to the session page
+- [ ] **SSO-07**: `IAuthService.GenerateToken(User)` is promoted from private method to the `IAuthService` interface so `SsoService` can call it
+- [ ] **SSO-08**: If `QUEST_BOARD_SECRET` is not set in the environment, the endpoint returns HTTP 503 with a descriptive message — Omphalos remains fully functional as a standalone app
+- [ ] **SSO-09**: The Omphalos JWT cookie `SameSite` attribute is configurable via an `OMPHALOS_SAMESITE` env var (defaults to `Lax`; when set to `None`, `Secure = true` is also applied)
 
-### Security
+### Quest-Session Linking (Phase 12 — Omphalos)
 
-- [x] **SEC-01**: `lockoutOnFailure: true` is passed to `PasswordSignInAsync` and `LockoutOptions` configured (5 attempts, 15-min lock)
-- [x] **SEC-02**: EF Core migration sets `LockoutEnabled = 1` for all existing users in `AspNetUsers`
-- [x] **SEC-03**: Minimum password length is 8 characters (up from 6)
-- [x] **SEC-04**: `HasKey` checkbox is removed from `Account/Edit.cshtml` and `EditProfileViewModel`; it can only be set via `Admin/EditUser`
-- [x] **SEC-05**: `Password` property removed from `User` domain model, `Equals`, and `GetHashCode`; AutoMapper ignore is explicit on both mapping directions
-- [x] **SEC-06**: `.env` added to `.gitignore`; `.env.example` with placeholder values is the only tracked env file
+- [ ] **LINK-01**: `GameSession` entity has a nullable `int? ExternalQuestId` column with a unique partial index (non-null values only)
+- [ ] **LINK-02**: An EF Core migration adds `ExternalQuestId` and its unique index to the `game_sessions` table in PostgreSQL
+- [ ] **LINK-03**: Find-or-create logic in `SsoService` queries by `ExternalQuestId` first; only creates a new session if no match is found
 
-### Code Quality & Dead Code
+---
 
-- [x] **QUAL-01**: `SecurityConfiguration.cs` deleted; `Security` section removed from `appsettings.json`
-- [x] **QUAL-02**: Dead `UpdateQuestPropertiesAsync` (non-notification variant) removed from `IQuestService` and `QuestService`
-- [x] **QUAL-03**: `SignupRole == 1` magic number replaced with `(SignupRole)playerSignup.SignupRole == SignupRole.Spectator` cast throughout service code
-- [x] **QUAL-04**: `IsSameDateTime` 30-minute window extracted as a named constant with explanatory comment
-- [x] **QUAL-05**: `CharacterViewModels/GuildMembersIndexViewModel.cs` renamed to `CharactersIndexViewModel.cs` to match its class name
+## v2 Requirements (Future)
 
-### Feature: Shop Filter/Sort (GitHub #96)
-
-- [x] **SHOP-01**: User can filter shop items by item rarity (one or more rarity values)
-- [x] **SHOP-02**: User can sort shop items by price ascending or descending
-- [x] **SHOP-03**: Filter and sort state persists in the URL as query parameters (bookmarkable)
-- [x] **SHOP-04**: Applying filter/sort does not require a page reload beyond the initial request (server-side, no JS dependency)
-
-### Feature: Follow-Up Quest (GitHub #49)
-
-- [ ] **FOLLOW-01**: A DM can create a follow-up quest from a finalized quest's Manage page
-- [ ] **FOLLOW-02**: The follow-up quest pre-fills all players from the original quest as pre-approved signups
-- [ ] **FOLLOW-03**: The follow-up quest requires a new date to be set before saving
-- [ ] **FOLLOW-04**: The follow-up quest is linked to the original via `OriginalQuestId`; the original quest's detail page shows a link to its follow-up
-- [ ] **FOLLOW-05**: An EF Core migration adds nullable `OriginalQuestId` self-referential FK to `QuestEntity`
-
-### Feature: DM Profile Page (GitHub #98)
-
-- [ ] **DMPRO-01**: A dedicated DM profile page exists at `/DungeonMaster/Profile/{id}` showing the DM's photo, name, and bio
-- [ ] **DMPRO-02**: DMs can edit their own profile bio and upload a profile photo via the existing account area
-- [ ] **DMPRO-03**: Admin can edit any DM's profile
-- [ ] **DMPRO-04**: The DM directory page links to each DM's profile
-- [ ] **DMPRO-05**: An EF Core migration adds `Bio` (varchar 2000, nullable) and a linked `DungeonMasterProfileImage` table (following `CharacterImageEntity` pattern)
-
-### Feature: Profile Picture Avatar Crop (GitHub #78)
-
-- [ ] **CROP-01**: When uploading a character profile picture, the user sees a Cropper.js 1.5.x square crop selector before submitting
-- [ ] **CROP-02**: The selected crop region is stored as four nullable float columns (`CropX`, `CropY`, `CropWidth`, `CropHeight`) on `CharacterImages`; the original full image bytes are never modified
-- [ ] **CROP-03**: A new `GetAvatarPicture` endpoint serves the cropped version using SkiaSharp; the existing `GetProfilePicture` endpoint continues serving the original
-- [ ] **CROP-04**: The guild member directory page uses the avatar (cropped) endpoint; the character detail page uses the original endpoint
-- [ ] **CROP-05**: An EF Core migration adds the four crop coordinate columns to `CharacterImages`
-
-### Feature: Shop Pagination & Server-Side Search (GitHub Phase 9)
-
-- [x] **SHOP-PAG-01**: `ShopController.Index` returns at most 12 items per page via a single unified repository method `GetPagedPublishedItemsAsync` that applies `Skip((page-1)*12).Take(12)` at the database layer (no post-fetch LINQ on the Index path)
-- [x] **SHOP-PAG-02**: The unified paged method executes all filtering (type, rarity, search, availability window), sorting, and pagination inside one `IQueryable<ShopItemEntity>`; returns `(IList<ShopItem> Items, int TotalCount)`
-- [x] **SHOP-PAG-03**: A server-side `?search=` query parameter matches against `Name` OR `Description` via EF Core `.Contains()` translation; stacks with `type`, `rarity`, `sort`, `page`
-- [x] **SHOP-PAG-04**: The client-side `filterShopItems()` JavaScript function is removed from `site.js`; all `data-item-name`, `data-item-description`, `onkeyup`, `onchange`, and `shopEmptyMsg` DOM hooks are removed from `Index.cshtml`
-- [x] **SHOP-PAG-05**: A Bootstrap 5 numbered pager (Previous / 1 2 … N / Next) renders below the inventory grid when `TotalPages > 1`; always shows first page, last page, and current ±2 with ellipses for gaps; active page rendered as `<span>` (not link); disabled Previous at page 1, disabled Next at last page
-- [x] **SHOP-PAG-06**: Pager links carry forward all active state (`type`, `rarity`, `sort`, `search`) via a `BuildPageUrl` helper; category tab links via extended `BuildTabUrl` carry `search` forward and always reset to page 1; filter form includes `<input type="hidden" name="page" value="1" />`
-- [x] **SHOP-PAG-07**: `ShopController.Index` clamps `page` after computing `totalPages`: `page = Math.Max(1, Math.Min(page, totalPages))` with `totalPages = Math.Max(1, Math.Ceiling(totalCount / 12.0))`; `ShopIndexViewModel` gains `SearchQuery`, `CurrentPage`, `TotalPages`, `TotalItems`, `HasActiveSearch` and loses `EquipmentItems` + `MagicItems` computed properties
-
-## v2 Requirements
-
-### Bug Fixes (separate milestone)
-
+- **NAV-EXT-01**: Omphalos → Quest Board reverse API call (e.g., pull quest details into session view) — bidirectional foundation in place; full implementation future milestone
+- **CROP-01–05**: Profile picture avatar crop (deferred from Milestone 2)
 - **BUG-01**: DM can add new dates to an existing quest (issue #94)
 - **BUG-02**: Profile images ≤ 5MB do not return HTTP 413 (issue #91)
-- **BUG-03**: DM sessions are excluded from the Quest Log page (issue #89)
 
-### Large Features (future milestones)
-
-- **FEAT-01**: D&D Beyond PDF character sheet parser (issue #84)
-- **FEAT-02**: 5etools integration (issue #82)
-- **FEAT-03**: Miniature request page (issue #59)
-- **FEAT-04**: Email notifications and password reset (issue #25)
-- **FEAT-05**: Build artifact for non-Docker deployment (issue #64)
-
-### Performance / Polish
-
-- **PERF-01**: Pagination on quest list, shop, and admin user list
-- **PERF-02**: MailKit replacing deprecated `System.Net.Mail.SmtpClient`
-- **PERF-03**: Image blob storage migrated to filesystem/Azure Blob
+---
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Bug fixes (#94, #91, #89) | Separate bug-fix milestone to avoid merge conflicts with refactor |
-| D&D Beyond PDF parser (#84) | Large standalone feature; own milestone |
-| 5etools integration (#82) | Large standalone feature; own milestone |
-| Miniature request page (#59) | Large standalone feature; own milestone |
-| Email verification on registration | Small group, trust assumed; not requested |
-| Pagination | Group size makes unbounded lists acceptable now |
-| MailKit migration | Parallel scope expansion to email refactor; deferred, SmtpClient warning suppressed |
-| Image blob storage migration | Performance acceptable at current scale |
-| Rate limiting middleware | Low risk for private group app; deferred |
+| OAuth / OIDC SSO | Overkill for self-hosted group app; HMAC shared-secret is sufficient |
+| Omphalos → Quest Board API calls | Bidirectional foundation laid in M3; full reverse implementation deferred |
+| User account linking UI (explicit) | Auto-provisioning by username match is sufficient; no manual linking step needed |
+| Nonce store for replay protection | Short 5-minute expiry acceptable for private group app; nonce store adds stateful complexity |
+| Pre-flight Omphalos health check | Adds latency; button visibility gating (IsEnabled + OmphalosUrl) is sufficient for MVP |
+| Admin user management, quest management | Existing Admin panel features; not modified in this milestone |
+
+---
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| ARCH-01 | Phase 1 | Complete |
-| ARCH-02 | Phase 1 | Complete |
-| ARCH-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 1 | Complete |
-| CTRL-01 | Phase 2 | Complete |
-| CTRL-02 | Phase 2 | Complete |
-| CTRL-03 | Phase 2 | Complete |
-| CTRL-04 | Phase 2 | Complete |
-| EMAIL-01 | Phase 2 | Complete |
-| EMAIL-02 | Phase 2 | Complete |
-| EMAIL-03 | Phase 2 | Complete |
-| EMAIL-04 | Phase 2 | Complete |
-| SEC-01 | Phase 4 | Complete |
-| SEC-02 | Phase 4 | Complete |
-| SEC-03 | Phase 4 | Complete |
-| SEC-04 | Phase 4 | Complete |
-| SEC-05 | Phase 4 | Complete |
-| SEC-06 | Phase 4 | Complete |
-| QUAL-01 | Phase 3 | Complete |
-| QUAL-02 | Phase 3 | Complete |
-| QUAL-03 | Phase 3 | Complete |
-| QUAL-04 | Phase 3 | Complete |
-| QUAL-05 | Phase 3 | Complete |
-| SHOP-01 | Phase 5 | Complete |
-| SHOP-02 | Phase 5 | Complete |
-| SHOP-03 | Phase 5 | Complete |
-| SHOP-04 | Phase 5 | Complete |
-| FOLLOW-01 | Phase 6 | Pending |
-| FOLLOW-02 | Phase 6 | Pending |
-| FOLLOW-03 | Phase 6 | Pending |
-| FOLLOW-04 | Phase 6 | Pending |
-| FOLLOW-05 | Phase 6 | Pending |
-| DMPRO-01 | Phase 7 | Pending |
-| DMPRO-02 | Phase 7 | Pending |
-| DMPRO-03 | Phase 7 | Pending |
-| DMPRO-04 | Phase 7 | Pending |
-| DMPRO-05 | Phase 7 | Pending |
-| CROP-01 | Phase 8 | Pending |
-| CROP-02 | Phase 8 | Pending |
-| CROP-03 | Phase 8 | Pending |
-| CROP-04 | Phase 8 | Pending |
-| CROP-05 | Phase 8 | Pending |
-| SHOP-PAG-01 | Phase 9 | Complete |
-| SHOP-PAG-02 | Phase 9 | Complete |
-| SHOP-PAG-03 | Phase 9 | Complete |
-| SHOP-PAG-04 | Phase 9 | Complete |
-| SHOP-PAG-05 | Phase 9 | Complete |
-| SHOP-PAG-06 | Phase 9 | Complete |
-| SHOP-PAG-07 | Phase 9 | Complete |
+| Requirement | Phase | Repo | Status |
+|-------------|-------|------|--------|
+| SETT-01 | Phase 10 | Quest Board | Pending |
+| SETT-02 | Phase 10 | Quest Board | Pending |
+| SETT-03 | Phase 10 | Quest Board | Pending |
+| SETT-04 | Phase 10 | Quest Board | Pending |
+| SETT-05 | Phase 10 | Quest Board | Pending |
+| SETT-06 | Phase 10 | Quest Board | Pending |
+| SETT-07 | Phase 10 | Quest Board | Pending |
+| SETT-08 | Phase 10 | Quest Board | Pending |
+| NAV-01 | Phase 11 | Quest Board | Pending |
+| NAV-02 | Phase 11 | Quest Board | Pending |
+| NAV-03 | Phase 11 | Quest Board | Pending |
+| NAV-04 | Phase 11 | Quest Board | Pending |
+| NAV-05 | Phase 11 | Quest Board | Pending |
+| TOKEN-01 | Phase 11 | Quest Board | Pending |
+| TOKEN-02 | Phase 11 | Quest Board | Pending |
+| TOKEN-03 | Phase 11 | Quest Board | Pending |
+| TOKEN-04 | Phase 11 | Quest Board | Pending |
+| TOKEN-05 | Phase 11 | Quest Board | Pending |
+| SSO-01 | Phase 12 | Omphalos | Pending |
+| SSO-02 | Phase 12 | Omphalos | Pending |
+| SSO-03 | Phase 12 | Omphalos | Pending |
+| SSO-04 | Phase 12 | Omphalos | Pending |
+| SSO-05 | Phase 12 | Omphalos | Pending |
+| SSO-06 | Phase 12 | Omphalos | Pending |
+| SSO-07 | Phase 12 | Omphalos | Pending |
+| SSO-08 | Phase 12 | Omphalos | Pending |
+| SSO-09 | Phase 12 | Omphalos | Pending |
+| LINK-01 | Phase 12 | Omphalos | Pending |
+| LINK-02 | Phase 12 | Omphalos | Pending |
+| LINK-03 | Phase 12 | Omphalos | Pending |
 
 **Coverage:**
-- v1 requirements: 49 total (42 original + 7 added in Phase 9)
-- Mapped to phases: 49/49
+- v1 requirements: 30 total
+- Mapped to phases: 30/30
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-04-15*
-*Last updated: 2026-04-21 — added Phase 9 SHOP-PAG-01 through SHOP-PAG-07*
+*Requirements defined: 2026-06-18*

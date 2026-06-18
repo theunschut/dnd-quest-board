@@ -1,31 +1,35 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Phase 7 complete
-stopped_at: Phase 7 complete — Phase 8 is next
-last_updated: "2026-06-17T00:00:00.000Z"
+milestone: v2.0
+milestone_name: Omphalos Integration
+status: Ready to execute
+stopped_at: Roadmap defined — Phase 10 (Admin Settings) is next
+last_updated: "2026-06-18T00:00:00.000Z"
 progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 19
-  completed_plans: 19
-  percent: 89
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-15)
+See: .planning/PROJECT.md (updated 2026-06-18)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 7 complete — Phase 8 (Profile Picture Avatar Crop) is next
+**Current focus:** Milestone v2.0 — Phase 10: Admin Settings (Quest Board)
 
 ## Current Position
 
-Phase: 08
+Phase: Phase 10 — Admin Settings
 Plan: Not started
+Status: Ready to execute
+Last activity: 2026-06-18 — Milestone v2.0 roadmap defined; Phase 10 is next
+
+Progress bar: [----------] 0% (0/6 plans complete)
 
 ## Performance Metrics
 
@@ -41,63 +45,30 @@ Plan: Not started
 |-------|-------|-------|----------|
 | - | - | - | - |
 
-**Recent Trend:**
-
-- Last 5 plans: —
-- Trend: —
-
 *Updated after each plan completion*
-| Phase 01-layer-dependency-fix P01 | 45 | 2 tasks | 31 files |
-| Phase 02-email-service-consolidation P01 | 139 | 2 tasks | 7 files |
-| Phase 02-email-service-consolidation P03 | 25 | 2 tasks | 6 files |
-| Phase 02-email-service-consolidation P02 | 540 | 2 tasks | 5 files |
-| Phase 03-code-quality-dead-code P01 | 10 | 2 tasks | 6 files |
-| Phase 03-code-quality-dead-code P02 | 8 | 2 tasks | 3 files |
-| Phase 04-security-hardening P04 | 5 | 1 tasks | 1 files |
-| Phase 04-security-hardening P01 | 10 | 2 tasks | 3 files |
-| Phase 04-security-hardening P03 | 5 | 1 tasks | 2 files |
-| Phase 04-security-hardening P02 | 12 | 2 tasks | 5 files |
-| Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
-| Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
-| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P01 | 20 | 2 tasks | 6 files |
-| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P02 | 35 | 1 tasks | 8 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
 
-- Roadmap: Phase 1 (ARCH) must complete before Phase 2 (CTRL+EMAIL) — EntityProfile must move before Domain reference is removed
-- Roadmap: Phases 5-8 are independent of each other; all require Phases 1-4 to be complete first
-- Roadmap: Phase 6 (follow-up quest) additionally depends on Phase 3 (SignupRole enum fix)
-- [Phase 01-layer-dependency-fix]: Plans 01-01 and 01-02 merged: circular project reference made sequential execution impossible; both plans completed in one execution
-- [Phase 01-layer-dependency-fix]: IIdentityService pattern: Domain defines interface, Repository implements with UserEntity -- keeps Identity coupling out of Domain layer
-- [Phase 01-layer-dependency-fix]: BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> -- all CRUD methods return domain models via AutoMapper
-- [Phase 02-email-service-consolidation]: Use IOptions<EmailSettings> pattern (not IOptionsSnapshot) — EmailService is Scoped, settings are static at startup
-- [Phase 02-email-service-consolidation]: AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
-- [Phase 02-email-service-consolidation]: Added Microsoft.Extensions.Options.ConfigurationExtensions 9.0.6 to Domain project — BindConfiguration() extension method is in this package
-- [Phase 02-email-service-consolidation]: CalculateRemainingQuantity helper uses UserTransactionEntity (not domain model) matching the worktree architecture's service layer pattern
-- [Phase 02-email-service-consolidation]: QuestService.FinalizeQuestAsync re-fetches quest post-save for EMAIL-04 compliance
-- [Phase 02-email-service-consolidation]: QuestController no longer injects IEmailService — all email dispatch inside domain service layer
-- [Phase 03-01]: SecurityConfiguration was unreferenced — deleted without replacement; ASP.NET Core Identity manages auth config via built-in mechanisms
-- [Phase 03-01]: Dead method removed from all 4 layers in one atomic commit to avoid intermediate build breaks
-- [Phase 03-code-quality-dead-code]: QUAL-03/04 applied to Domain services (QuestService, PlayerSignupService) not QuestRepository — Phase 01 refactor moved finalize logic to Domain layer
-- [Phase 03-code-quality-dead-code]: DateMatchWindowMinutes const placed in QuestService — private-scoped, no public constants class per D-02
-- [Phase 04-security-hardening]: SEC-06: Literal .env entry in .gitignore (not *.env) to avoid accidentally ignoring .env.example; history not rewritten per D-11
-- [Phase 04-security-hardening]: SEC-01/SEC-03: Identity lockout (5 attempts/15-min) + password minimum 8 configured in Program.cs; lockoutOnFailure: true + IsLockedOut branch in Login POST
-- [Phase 04-security-hardening]: SEC-02: Data-only migration using migrationBuilder.Sql() — no model/schema changes, empty Up/Down generated by EF tooling then filled manually
-- [Phase 04-security-hardening]: SEC-04: HasKey removed from user-facing EditProfileViewModel; retained in admin EditUserViewModel only
-- [Phase 04-security-hardening]: SEC-05: Password removed from User domain model; Identity UserEntity.PasswordHash is the authoritative store; EntityProfile reverse map simplified
-- [Phase 05-shop-filter-sort]: Filter/sort as post-fetch LINQ in controller — IShopService interface unchanged per plan anti-pattern D-04
-- [Phase 05-shop-filter-sort]: Hidden filter state form added to view for SHOP-03 URL round-trip test; Plan 02 will make it visible
-- [Phase 05-shop-filter-sort]: BuildTabUrl uses QueryString.Create(List<KeyValuePair>) — Url.Action does not serialize IList<T> as repeated query keys
-- [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Repository GetPagedPublishedItemsAsync uses int primitives (not enums) to avoid circular Domain<->Repository project reference
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Obsolete stubs kept for EquipmentItems/MagicItems in ShopIndexViewModel so Razor views compile until Plan 02 updates Index.cshtml
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: ShopController drops post-fetch LINQ filter/sort — all filtering now delegated to GetPagedPublishedItemsAsync
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: IShopRepository in Domain extended with GetPagedPublishedItemsAsync returning domain models; repo maps entities internally
+Milestone 2 decisions carried forward as context:
+- IIdentityService pattern: Domain defines interface, Repository implements with UserEntity — keeps Identity coupling out of Domain layer
+- BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> — all CRUD methods return domain models via AutoMapper
+- IOptions<EmailSettings> pattern — EmailService is Scoped, settings are static at startup
+- AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
+
+Milestone 3 decisions:
+- HMAC-SHA256 shared secret for cross-app auth — symmetric, supports future bidirectional API calls
+- Username-based user matching between Quest Board and Omphalos — auto-provision on first SSO
+- Phase 8 (avatar crop) deferred from Milestone 2 — no strong user demand, SkiaSharp Docker risk
+- Admin Settings uses key-value EF entity (AdminSettingEntity: Key nvarchar(200) PK, Value nvarchar(max), UpdatedAt datetime2) — avoids a new migration per settings key in future milestones
+- IAdminSettingService registered as Scoped — secret read from DB per-request so settings changes take effect without restart
+- Token format contract (TOKEN-02): canonical MAC message is alphabetical query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}`; algorithm HMAC-SHA256; signature lowercase hex; username normalised to lowercase both sides; TTL 300 seconds
+- ViewComponent for navbar Omphalos link — injects IAdminSettingService directly, fires once per layout render; avoids base-controller inheritance anti-pattern
+- ViewBag for quest-page Omphalos flag — consistent with existing pattern (five other ViewBag flags already on Details/Manage); no new ViewModel wrapper
+- Asymmetric secret storage by design: Quest Board stores secret in DB (Admin UI editable); Omphalos reads from QUEST_BOARD_SECRET env var (fail-fast on startup)
 
 ### Pending Todos
 
@@ -114,14 +85,15 @@ None yet.
 
 ### Roadmap Evolution
 
-- Phase 9 added: Shop pagination — server-side paging to fix slow load from large item sets
+- Milestone 2 phases 1-9 complete (Phase 8 avatar crop deferred)
+- Milestone 3 roadmap defined 2026-06-18: Phases 10-12
 
 ### Blockers/Concerns
 
-- **Phase 8 (avatar crop):** Verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm) before starting Phase 8. Fallback: CSS `object-position` crop-display without server-side crop.
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-17T00:00:00.000Z
-Stopped at: Phase 7 complete — human UAT approved, post-UAT fixes committed
-Resume file: .planning/phases/08-profile-picture-avatar-crop/
+Last session: 2026-06-18T00:00:00.000Z
+Stopped at: Milestone v2.0 roadmap created — ready to execute Phase 10
+Resume file: .planning/ROADMAP.md
