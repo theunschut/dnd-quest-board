@@ -824,7 +824,7 @@ public class QuestController(
             settings.OmphalosUrl!,
             quest.Id,
             quest.Title,
-            currentUser.Name.ToLower(),
+            currentUser.Name,
             settings.OmphalosSharedSecret!);
 
         return Redirect(signedUrl);
