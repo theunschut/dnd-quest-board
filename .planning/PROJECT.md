@@ -45,15 +45,17 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - ✓ DM profile page with photo and bio; DMs edit own profile; admin edits any — Phase 7
 - ✓ Shop server-side pagination (12 items/page) with stacked search, filter, sort — Phase 9
 
+*From Milestone 3: Omphalos Integration (v2.0 — Quest Board side complete):*
+- ✓ Admin Settings page for Omphalos URL and shared secret; protected by AdminOnly policy — Phase 10
+- ✓ OmphalosNavItem ViewComponent in DM navbar dropdown; "Open Omphalos" link (new tab) — Phase 11
+- ✓ "Open Session Notes" button on Quest Detail and Manage pages for DMs — Phase 11
+- ✓ LaunchOmphalos endpoint generates 300s HMAC-SHA256 signed redirect URL — Phase 11
+
 ### Active
 
-*(Requirements for Milestone 3 — to be defined in REQUIREMENTS.md)*
+*(Requirements for Milestone 3 — Phase 12 Omphalos work remaining)*
 
-- [ ] Admin can configure Omphalos URL and shared secret from an Admin Settings page
-- [ ] DM navbar dropdown shows "Open DM Tool" link when Omphalos URL is configured
-- [ ] Quest Detail and Manage pages show "Open Session Notes" button for DMs
-- [ ] Clicking the button generates a short-lived HMAC-signed deep link and redirects to Omphalos
-- [ ] Omphalos validates the token, auto-provisions DM account on first use, finds/creates quest session, issues JWT cookie
+- [ ] Omphalos validates the Quest Board token, auto-provisions DM account on first use, finds/creates quest session, issues JWT cookie — Phase 12 (Omphalos repo)
 
 ### Out of Scope
 

@@ -205,7 +205,7 @@ Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies 
 ## Phases
 
 - [x] **Phase 10: Admin Settings** - Admin can configure Omphalos URL and shared secret; settings persisted in DB and protected by AdminOnly policy (completed 2026-06-18)
-- [ ] **Phase 11: Navigation + Token Generation** - DM navbar and quest pages show Omphalos links; clicking "Open Session Notes" generates a short-lived HMAC-signed deep link and redirects
+- [x] **Phase 11: Navigation + Token Generation** - DM navbar and quest pages show Omphalos links; clicking "Open Session Notes" generates a short-lived HMAC-signed deep link and redirects (completed 2026-06-19)
 - [ ] **Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos repo)** - Omphalos validates Quest Board tokens, auto-provisions DM accounts, finds or creates quest sessions, and issues JWT cookies
 
 ## Phase Details
