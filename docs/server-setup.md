@@ -1,11 +1,11 @@
 # Self-Hosted Server Setup
 
-Deploys the Quest Board app to Proxmox using 4 LXC containers. GitHub Actions runs on a dedicated deploy CT and SSHes into the app CT to deploy.
+Deploys the Quest Board app to Proxmox using LXC containers. GitHub Actions runs on a dedicated deploy CT and SSHes into the app CT to deploy. Traefik handles SSL and reverse proxying (assumed already running).
 
 ## Architecture
 
 ```
-Internet ──80/443──► [Proxy CT]  Caddy + Let's Encrypt
+Internet ──80/443──► [Traefik]  already running, handles SSL
                           │
                      :5000│
                      [App CT]  .NET 10 + systemd
@@ -23,7 +23,7 @@ GitHub ──HTTPS──► [Deploy CT]  GitHub Actions runner
 ## Prerequisites
 
 - Domain name with an A record pointing to your public IP
-- Router with ports 80 and 443 forwarded to the Proxy CT's internal IP
+- Traefik already running and handling SSL via Let's Encrypt
 - SQL Server CT already running and accessible on the internal network
 - All CTs on the same Proxmox internal bridge (e.g. `vmbr0`)
 
@@ -235,33 +235,33 @@ apt install -y mssql-tools18 unixodbc-dev
 
 ---
 
-## 4. Proxy CT
+## 4. Traefik — Add Route for Quest Board
 
-Create an Ubuntu 22.04 LXC (unprivileged). 1 CPU, 256MB RAM is enough.
-
-### Install Caddy
+No new CT needed. Add a dynamic config file to your existing Traefik file provider directory (commonly `/etc/traefik/dynamic/` or `/etc/traefik/conf.d/` — check your `traefik.yml` for the `directory` path under `providers.file`).
 
 ```bash
-apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
-apt update && apt install -y caddy
-```
+cat > /etc/traefik/dynamic/questboard.yml <<EOF
+http:
+  routers:
+    questboard:
+      rule: "Host(\`yourdomain.com\`)"
+      entryPoints:
+        - websecure
+      service: questboard
+      tls:
+        certResolver: letsencrypt
 
-### Configure
-
-```bash
-cat > /etc/caddy/Caddyfile <<EOF
-yourdomain.com {
-    reverse_proxy <APP_CT_IP>:5000
-}
+  services:
+    questboard:
+      loadBalancer:
+        servers:
+          - url: "http://<APP_CT_IP>:5000"
 EOF
-
-systemctl restart caddy
-systemctl enable caddy
 ```
 
-Caddy automatically provisions and renews a Let's Encrypt certificate. Port 80 and 443 must be reachable from the internet for this to work.
+Traefik picks up file changes automatically — no restart needed. Verify the route appears in the Traefik dashboard.
+
+> **Note:** `entryPoints` and `certResolver` names must match what's defined in your `traefik.yml`. Common names are `websecure` and `letsencrypt` but adjust if yours differ.
 
 ---
 
@@ -270,8 +270,8 @@ Caddy automatically provisions and renews a Let's Encrypt certificate. Port 80 a
 | What | Value |
 |---|---|
 | DNS A record | `yourdomain.com` → your public IP |
-| Router port forward 80 | → Proxy CT IP |
-| Router port forward 443 | → Proxy CT IP |
+| Router port forward 80 | → Traefik host IP |
+| Router port forward 443 | → Traefik host IP |
 
 Do **not** expose port 5000 (app), 1433 (SQL Server), or 22 (SSH) to the internet.
 
@@ -322,6 +322,6 @@ To redeploy an existing release without a new tag: **Actions → Binary Release 
 # App logs
 journalctl -u questboard -f
 
-# Caddy logs
-journalctl -u caddy -f
+# Traefik logs (on Traefik host)
+journalctl -u traefik -f
 ```
