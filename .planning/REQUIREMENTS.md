@@ -68,14 +68,30 @@
 
 ## Traceability
 
-*Filled by roadmapper — maps each REQ-ID to a phase.*
-
-| Requirement | Phase |
-|-------------|-------|
-| INFRA-01 through INFRA-06 | — |
-| HOME-01 through HOME-04 | — |
-| QVIEW-01 through QVIEW-03 | — |
-| CAL-01 through CAL-04 | — |
-| DMVIEW-01 through DMVIEW-03 | — |
-| ACCT-01 through ACCT-03 | — |
-| BROWSE-01 through BROWSE-02 | — |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| INFRA-01 | Phase 12 | Pending |
+| INFRA-02 | Phase 12 | Pending |
+| INFRA-03 | Phase 12 | Pending |
+| INFRA-04 | Phase 12 | Pending |
+| INFRA-05 | Phase 12 | Pending |
+| INFRA-06 | Phase 12 | Pending |
+| HOME-01 | Phase 13 | Pending |
+| HOME-02 | Phase 13 | Pending |
+| HOME-03 | Phase 13 | Pending |
+| HOME-04 | Phase 13 | Pending |
+| QVIEW-01 | Phase 13 | Pending |
+| QVIEW-02 | Phase 13 | Pending |
+| QVIEW-03 | Phase 13 | Pending |
+| CAL-01 | Phase 14 | Pending |
+| CAL-02 | Phase 14 | Pending |
+| CAL-03 | Phase 14 | Pending |
+| CAL-04 | Phase 14 | Pending |
+| DMVIEW-01 | Phase 15 | Pending |
+| DMVIEW-02 | Phase 15 | Pending |
+| DMVIEW-03 | Phase 15 | Pending |
+| ACCT-01 | Phase 16 | Pending |
+| ACCT-02 | Phase 16 | Pending |
+| ACCT-03 | Phase 16 | Pending |
+| BROWSE-01 | Phase 16 | Pending |
+| BROWSE-02 | Phase 16 | Pending |

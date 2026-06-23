@@ -1,191 +1,94 @@
-# Roadmap: D&D Quest Board — Milestone 2: Refactor + Feature Expansion
+# Roadmap: D&D Quest Board — Milestone 3: Mobile Version
 
 ## Overview
 
-Milestone 2 fixes the codebase's accumulated architectural drift before adding new features. The first four phases restore correct layer boundaries, consolidate business logic into services, remove dead code, and close security gaps. The remaining four phases deliver the four backlog features (shop filter/sort, follow-up quest, DM profile page, avatar crop) onto the now-clean architecture.
+Milestone 3 delivers a purpose-built mobile experience by adding `.Mobile.cshtml` view variants alongside all existing desktop views. No controllers, ViewModels, repositories, or domain services are modified — every change is strictly additive to the Service layer's Views directory and static assets. A single middleware + view-expander infrastructure block (Phase 12) must land first; once in place each subsequent phase delivers independently verifiable mobile views.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (1, 2, 3...): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: Milestone 3 Omphalos Integration). Milestone 3 Mobile Version starts at Phase 12.
+- Integer phases (12, 13, 14…): Planned milestone work
+- Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
 
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [x] **Phase 1: Layer Dependency Fix** - Restore correct compile-time dependency direction: Domain compiles without referencing Repository
-- [x] **Phase 2: Email & Service Consolidation** - Move email dispatch and finalization logic into services; introduce typed email options
-- [x] **Phase 3: Code Quality & Dead Code** - Remove dead code, fix naming, replace magic numbers with named references
-- [x] **Phase 4: Security Hardening** - Enable account lockout, raise password minimum, remove HasKey from user-facing edit, clean .env from git
-- [x] **Phase 5: Shop Filter & Sort** - Let players filter and sort shop items by rarity and price without a JS dependency
- (completed 2026-04-21)
-- [x] **Phase 6: Follow-Up Quest** - Let DMs create a part-2 quest from a finalized quest with players pre-approved (completed 2026-06-16)
-- [x] **Phase 7: DM Profile Page** - Give each DM a browsable profile with photo and bio; admin can edit any DM's profile (completed 2026-06-17)
-- [ ] **Phase 8: Profile Picture Avatar Crop** - Let players crop their character portrait to a square avatar used on the guild directory
+- [ ] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added
+- [ ] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log
+- [ ] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone
+- [ ] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input
+- [ ] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens
 
 ## Phase Details
 
-### Phase 1: Layer Dependency Fix
-**Goal**: The Domain project compiles and passes all tests without any reference to the Repository project; the correct dependency direction (Service → Domain ← Repository) is enforced at build time
-**Depends on**: Nothing (first phase)
-**Requirements**: ARCH-01, ARCH-02, ARCH-03, ARCH-04
+### Phase 12: Mobile Infrastructure
+**Goal**: The mobile detection pipeline is live; every mobile request routes through `_Layout.Mobile.cshtml` and can resolve `.Mobile.cshtml` view variants with no action required in individual views or controllers
+**Depends on**: Nothing (first Milestone 3 Mobile phase)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
 **Success Criteria** (what must be TRUE):
-  1. `EuphoriaInn.Domain.csproj` contains no `<ProjectReference>` to `EuphoriaInn.Repository`
-  2. `EntityProfile.cs` (AutoMapper Entity↔DomainModel mappings) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
-  3. `dotnet build` on the solution succeeds with zero errors
-  4. `Program.cs` registers AutoMapper profiles by explicit type reference — no assembly scanning
-**Plans**: 2 plans
-Plans:
-- [x] 01-01-PLAN.md — Repository infrastructure: move EntityProfile, refactor BaseRepository to dual-generic with IMapper
-- [x] 01-02-PLAN.md — Complete dependency inversion: move interfaces to Domain, refactor services, remove ProjectReference
-
-### Phase 2: Email & Service Consolidation
-**Goal**: Quest finalization and date-change notifications are fully handled inside services; controllers receive a `ServiceResult` and render; email configuration uses the typed options pattern
-**Depends on**: Phase 1
-**Requirements**: CTRL-01, CTRL-02, CTRL-03, CTRL-04, EMAIL-01, EMAIL-02, EMAIL-03, EMAIL-04
-**Success Criteria** (what must be TRUE):
-  1. A DM can finalize a quest and all selected players receive the correct notification email — without `QuestController` injecting `IEmailService`
-  2. When a DM changes quest dates, players receive a notification email that contains the real application URL (not a placeholder)
-  3. `QuestController`'s finalize action is 20 lines or fewer
-  4. `ShopController.Index` contains no remaining-quantity calculation logic
-  5. `EmailService` reads all SMTP settings from a single `IOptions<EmailSettings>` injection point
-**Plans**: 3 plans
-Plans:
-- [x] 02-01-PLAN.md — Foundation types: EmailSettings record, ServiceResult<T>, AppUrl config, EmailService IOptions refactor
-- [x] 02-02-PLAN.md — QuestService email consolidation: inject IEmailService, slim QuestController, post-save re-fetch
-- [x] 02-03-PLAN.md — ShopService remaining-quantity extraction: slim ShopController.Index
-
-### Phase 3: Code Quality & Dead Code
-**Goal**: The codebase contains no dead methods, no magic numbers in signup logic, and no misleading file or class names
-**Depends on**: Phase 2
-**Requirements**: QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05
-**Success Criteria** (what must be TRUE):
-  1. `SecurityConfiguration.cs` does not exist; the `Security` key is absent from `appsettings.json`
-  2. `IQuestService` and `QuestService` contain no `UpdateQuestPropertiesAsync` method (non-notification variant)
-  3. No `SignupRole == 1` literal appears anywhere in service code; the named enum reference is used throughout
-  4. The 30-minute `IsSameDateTime` comparison window is a named constant with an explanatory comment
-  5. `CharacterViewModels/GuildMembersIndexViewModel.cs` has been renamed to `CharactersIndexViewModel.cs`
-**Plans**: 2 plans
-Plans:
-- [x] 03-01-PLAN.md — Remove dead SecurityConfiguration + Security appsettings block (QUAL-01); remove dead UpdateQuestPropertiesAsync from 4 layers (QUAL-02)
-- [x] 03-02-PLAN.md — Replace SignupRole magic number + extract 30-min IsSameDateTime constant (QUAL-03+04); rename GuildMembersIndexViewModel.cs to CharactersIndexViewModel.cs (QUAL-05)
-
-### Phase 4: Security Hardening
-**Goal**: Failed login attempts are rate-limited with lockout, the minimum password length meets the 8-character standard, HasKey is admin-only, the Password property is removed from the domain model, and .env is not tracked by git
-**Depends on**: Phase 3
-**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06
-**Success Criteria** (what must be TRUE):
-  1. After 5 consecutive failed login attempts, a user account is locked out for 15 minutes
-  2. All existing users in `AspNetUsers` have `LockoutEnabled = 1` (applied via EF Core migration)
-  3. Registering with a password shorter than 8 characters is rejected with a validation error
-  4. The `Account/Edit` page does not show or accept a HasKey field; editing HasKey requires the Admin panel
-  5. The `User` domain model has no `Password` property
-  6. `.env` is listed in `.gitignore`; only `.env.example` with placeholder values is tracked
-**Plans**: 4 plans
-Plans:
-- [x] 04-01-PLAN.md — Identity lockout config + raise password minimum to 8 (SEC-01, SEC-03)
-- [x] 04-02-PLAN.md — Remove HasKey from user-facing Edit + remove Password from User domain model (SEC-04, SEC-05)
-- [x] 04-03-PLAN.md — EF Core migration backfilling LockoutEnabled = 1 for existing users (SEC-02)
-- [x] 04-04-PLAN.md — Add .env to .gitignore and untrack (SEC-06)
-
-### Phase 5: Shop Filter & Sort
-**Goal**: Players can narrow the shop to items of specific rarities and reorder by price without any client-side JavaScript dependency
-**Depends on**: Phase 4
-**Requirements**: SHOP-01, SHOP-02, SHOP-03, SHOP-04
-**Success Criteria** (what must be TRUE):
-  1. A player can select one or more rarity values and the shop shows only matching items
-  2. A player can sort items by price ascending or price descending
-  3. After applying a filter or sort, the URL reflects the chosen parameters so the page can be bookmarked or shared
-  4. Filtering and sorting work correctly with JavaScript disabled in the browser
-**Plans**: 2 plans
-Plans:
-- [x] 05-01-PLAN.md — Wave 0 test scaffolding + backend: extend TestDataHelper + Shop integration tests, extend ShopIndexViewModel and ShopController.Index with rarity filter and price sort (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
-- [x] 05-02-PLAN.md — View wiring: filter-row form, BuildTabUrl helper on category tabs, filter-aware empty state, shop.css additions, render-assertion integration test (SHOP-01, SHOP-02, SHOP-03, SHOP-04)
+  1. Visiting any page from a mobile User-Agent (e.g. iPhone Safari) returns an HTML response that includes the offcanvas nav element; the same page from a desktop browser does not include that element
+  2. A `.Mobile.cshtml` file placed alongside any existing view is served automatically on mobile requests and never served on desktop requests — without touching the view's controller action
+  3. A desktop browser visiting any route sees no change to layout, markup, or styles compared to before Phase 12
+  4. `mobile.css` is loaded on mobile pages; touch targets in that stylesheet are at minimum 44px in height
+**Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: Follow-Up Quest
-**Goal**: DMs can create a part-2 quest directly from a finalized quest's Manage page, with original players pre-approved and the link visible on both quests
-**Depends on**: Phase 3
-**Requirements**: FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04, FOLLOW-05
+### Phase 13: Core Player Views
+**Goal**: Players browsing the quest board and checking quest details on a phone can read, navigate, and interact without pinching, zooming, or horizontal scrolling
+**Depends on**: Phase 12
+**Requirements**: HOME-01, HOME-02, HOME-03, HOME-04, QVIEW-01, QVIEW-02, QVIEW-03
 **Success Criteria** (what must be TRUE):
-  1. A DM sees a "Create Follow-Up Quest" button on a finalized quest's Manage page
-  2. The follow-up quest creation form pre-fills all players from the original quest as pre-approved signups
-  3. The follow-up quest cannot be saved without a new date selected
-  4. The original quest's detail page shows a link to the follow-up quest, and the follow-up links back to the original
-  5. An EF Core migration adds a nullable `OriginalQuestId` self-referential foreign key to `QuestEntity`
-**Plans**: 2 plans
-Plans:
-**Wave 1**
-- [x] 06-01-PLAN.md — Data + service layer: QuestEntity/Quest OriginalQuestId FK, EntityProfile, QuestBoardContext, EF migration, IQuestService + QuestService CreateFollowUpQuestAsync (FOLLOW-04, FOLLOW-05)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-- [x] 06-02-PLAN.md — Controller + views: CreateFollowUp GET/POST actions, FollowUpQuestViewModel, CreateFollowUp.cshtml, sidebar links on Details + Manage, Create Follow-Up button on Manage (FOLLOW-01, FOLLOW-02, FOLLOW-03, FOLLOW-04)
+  1. The quest board on mobile shows a vertical card list — no poster/parchment images — and each card displays title, challenge rating, DM name, and status
+  2. A quest the logged-in player has signed up for shows a visible indicator (badge or icon) on its card; no wax seal imagery is used
+  3. Tapping a quest card navigates to Quest Details; tapping a DM's own quest navigates to Quest Manage
+  4. Quest Details voting buttons (Yes / No / Maybe) are at least 44px tall and spaced to avoid accidental taps
+  5. The participant list on Quest Details renders as a stacked single-column list (name + character + role per row) rather than a horizontal table
+**Plans**: TBD
 **UI hint**: yes
 
-### Phase 7: DM Profile Page
-**Goal**: Every DM has a browsable profile page with their photo and bio; DMs can update their own profile and admins can edit any DM's profile
-**Depends on**: Phase 4
-**Requirements**: DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-04, DMPRO-05
+### Phase 14: Calendar
+**Goal**: Players can see which quests are scheduled this month on a phone without the 7-column grid overflowing the screen
+**Depends on**: Phase 12
+**Requirements**: CAL-01, CAL-02, CAL-03, CAL-04
 **Success Criteria** (what must be TRUE):
-  1. Navigating to `/DungeonMaster/Profile/{id}` shows the DM's name, photo, and bio
-  2. A DM can update their own bio and upload a profile photo from the account area
-  3. An admin can edit any DM's bio and photo from the admin panel
-  4. The DM directory page links to each DM's individual profile
-  5. An EF Core migration adds `Bio` (varchar 2000, nullable) and a `DungeonMasterProfileImage` table
-**Plans**: 2 plans
-Plans:
-**Wave 1**
-- [x] 07-01-PLAN.md — Data + service layer: DungeonMasterProfileEntity, DungeonMasterProfileImageEntity, domain model, interfaces, repository, service, AutoMapper profiles, DI registrations, GetQuestsByDungeonMasterAsync, EF migration AddDMProfileSystem (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-05)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-- [x] 07-02-PLAN.md — Web layer: Wave 0 test stubs, DungeonMasterController (Profile/EditProfile/GetDMProfilePicture), ViewModels, Views, dm-profile.css, navbar link, DM directory link (DMPRO-01, DMPRO-02, DMPRO-03, DMPRO-04)
+  1. The mobile calendar renders as a vertical agenda list, not a 7-column day grid
+  2. Each agenda entry shows a day label (e.g. SATURDAY, JUNE 14), the quest name, and the time
+  3. Days with no quests are not rendered; only days that have at least one quest appear
+  4. Tapping any quest entry in the agenda navigates to that quest's Details page
+**Plans**: TBD
 **UI hint**: yes
 
-### Phase 8: Profile Picture Avatar Crop
-**Goal**: Players choose a square crop region when uploading a character portrait; the cropped avatar is served on the guild directory while the original is preserved on the character detail page
-**Depends on**: Phase 4
-**Requirements**: CROP-01, CROP-02, CROP-03, CROP-04, CROP-05
+### Phase 15: DM Views
+**Goal**: Dungeon Masters can create quests, manage player selection, and present their profile page entirely from a phone without form controls overflowing or requiring horizontal scroll
+**Depends on**: Phase 12
+**Requirements**: DMVIEW-01, DMVIEW-02, DMVIEW-03
 **Success Criteria** (what must be TRUE):
-  1. When uploading a character portrait, the player sees a Cropper.js square crop selector before the image is submitted
-  2. The original image bytes are never modified; only the four crop coordinates (`CropX`, `CropY`, `CropWidth`, `CropHeight`) are stored
-  3. The `GetAvatarPicture` endpoint returns the server-side cropped version; `GetProfilePicture` continues to return the original
-  4. The guild member directory uses the avatar (cropped) endpoint; the character detail page uses the original endpoint
-  5. An EF Core migration adds the four crop coordinate columns to `CharacterImages`
-**Plans**: 2 plans
-Plans:
-- TBD (phase not yet planned)
+  1. The Quest Create form on mobile is a single-column layout; date/time inputs use native touch pickers and all fields are reachable by vertical scroll only
+  2. Quest Manage on mobile lets a DM select or deselect players and tap Finalize without any horizontal overflow
+  3. The DM Profile page on mobile shows bio text and the profile photo in a single-column layout at a readable font size without requiring zoom
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 16: Account & Browse
+**Goal**: Players can log in, register, edit their profile, browse the shop, and view the guild directory from a phone without layout breakage
+**Depends on**: Phase 12
+**Requirements**: ACCT-01, ACCT-02, ACCT-03, BROWSE-01, BROWSE-02
+**Success Criteria** (what must be TRUE):
+  1. The Login and Register forms on mobile are full-width single-column; input fields and the submit button are clearly tappable (minimum 44px height)
+  2. The User Profile edit page is scrollable and all fields are editable on a small screen
+  3. The Shop index on mobile displays items in a single-column or 2-column list; filter and sort controls are accessible without horizontal scrolling
+  4. The Guild Members directory on mobile displays character cards in a single-column or 2-column layout with no overflow
+**Plans**: TBD
 **UI hint**: yes
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
-Note: Phases 5, 6, 7, 8 are independent of each other (all depend on Phase 4 or Phase 3) and could run in any order.
+Phases execute in numeric order: 12 → 13 → 14 → 15 → 16
+Note: Phases 13, 14, 15, and 16 are all independent of each other — each depends only on Phase 12 and can be executed in any order after Phase 12 completes.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Layer Dependency Fix | 2/2 | Complete | 2026-04-20 |
-| 2. Email & Service Consolidation | 3/3 | Complete | 2026-04-20 |
-| 3. Code Quality & Dead Code | 2/2 | Complete | 2026-04-20 |
-| 4. Security Hardening | 4/4 | Complete | 2026-04-20 |
-| 5. Shop Filter & Sort | 2/2 | Complete   | 2026-04-21 |
-| 6. Follow-Up Quest | 2/2 | Complete | 2026-06-16 |
-| 7. DM Profile Page | 2/2 | Complete | 2026-06-17 |
-| 8. Profile Picture Avatar Crop | 0/? | Not started | - |
-| 9. Shop Pagination | 2/2 | Complete | 2026-04-21 |
-
-### Phase 9: Shop pagination — server-side paging to fix slow load from large item sets
-
-**Goal**: The player-facing shop returns at most 12 items per database request via a unified paged repository method; URL-stacked server-side search (?search=) replaces the client-side filterShopItems JS; all filter/sort/search/page state carries cleanly across pager, category tabs, and the filter form
-**Depends on**: Phase 5 (Shop Filter & Sort — URL-stacking pattern and BuildTabUrl helper)
-**Requirements**: SHOP-PAG-01, SHOP-PAG-02, SHOP-PAG-03, SHOP-PAG-04, SHOP-PAG-05, SHOP-PAG-06, SHOP-PAG-07
-**Success Criteria** (what must be TRUE):
-  1. ShopController.Index executes exactly one database call via IShopService.GetPagedPublishedItemsAsync returning at most 12 items
-  2. ?search=X filters items by Name OR Description server-side; stacks with type/rarity/sort/page
-  3. The JS function filterShopItems is fully removed from site.js; no onkeyup/onchange/data-item-* hooks remain in Index.cshtml
-  4. A Bootstrap 5 numbered pager renders when TotalPages > 1 with Previous/Next + current ±2 + ellipses
-  5. Out-of-range ?page=9999 clamps to the last valid page; ShopIndexViewModel carries SearchQuery/CurrentPage/TotalPages/TotalItems/HasActiveSearch
-**Plans**: 2 plans
-Plans:
-- [x] 09-01-PLAN.md — Wave 0 tests + paged repository/service method + ViewModel extension (SHOP-PAG-01, 02, 03, 07)
-- [x] 09-02-PLAN.md — Controller + view wiring, Bootstrap 5 pager, server-side search input, legacy JS removal, enable skipped integration tests (SHOP-PAG-01, 03, 04, 05, 06, 07)
-**UI hint**: yes
+| 12. Mobile Infrastructure | 0/? | Not started | - |
+| 13. Core Player Views | 0/? | Not started | - |
+| 14. Calendar | 0/? | Not started | - |
+| 15. DM Views | 0/? | Not started | - |
+| 16. Account & Browse | 0/? | Not started | - |

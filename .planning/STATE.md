@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
 status: planning
-stopped_at: Milestone v3.0 started — defining requirements
+stopped_at: Roadmap created — Phase 12 ready to plan
 last_updated: "2026-06-23T00:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v3.0 Mobile Version — defining requirements
+**Current focus:** Milestone v3.0 Mobile Version — Phase 12 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 12 of 16 (Mobile Infrastructure)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-23 — Milestone v3.0 started
+Status: Ready to plan
+Last activity: 2026-06-23 — Roadmap created for Milestone 3 (phases 12–16)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -43,26 +45,7 @@ Last activity: 2026-06-23 — Milestone v3.0 started
 |-------|-------|-------|----------|
 | - | - | - | - |
 
-**Recent Trend:**
-
-- Last 5 plans: —
-- Trend: —
-
 *Updated after each plan completion*
-| Phase 01-layer-dependency-fix P01 | 45 | 2 tasks | 31 files |
-| Phase 02-email-service-consolidation P01 | 139 | 2 tasks | 7 files |
-| Phase 02-email-service-consolidation P03 | 25 | 2 tasks | 6 files |
-| Phase 02-email-service-consolidation P02 | 540 | 2 tasks | 5 files |
-| Phase 03-code-quality-dead-code P01 | 10 | 2 tasks | 6 files |
-| Phase 03-code-quality-dead-code P02 | 8 | 2 tasks | 3 files |
-| Phase 04-security-hardening P04 | 5 | 1 tasks | 1 files |
-| Phase 04-security-hardening P01 | 10 | 2 tasks | 3 files |
-| Phase 04-security-hardening P03 | 5 | 1 tasks | 2 files |
-| Phase 04-security-hardening P02 | 12 | 2 tasks | 5 files |
-| Phase 05-shop-filter-sort P01 | 20 | 2 tasks | 5 files |
-| Phase 05-shop-filter-sort P02 | 4 | 2 tasks | 3 files |
-| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P01 | 20 | 2 tasks | 6 files |
-| Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets P02 | 35 | 1 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -71,59 +54,23 @@ Last activity: 2026-06-23 — Milestone v3.0 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Roadmap: Phase 1 (ARCH) must complete before Phase 2 (CTRL+EMAIL) — EntityProfile must move before Domain reference is removed
-- Roadmap: Phases 5-8 are independent of each other; all require Phases 1-4 to be complete first
-- Roadmap: Phase 6 (follow-up quest) additionally depends on Phase 3 (SignupRole enum fix)
-- [Phase 01-layer-dependency-fix]: Plans 01-01 and 01-02 merged: circular project reference made sequential execution impossible; both plans completed in one execution
-- [Phase 01-layer-dependency-fix]: IIdentityService pattern: Domain defines interface, Repository implements with UserEntity -- keeps Identity coupling out of Domain layer
-- [Phase 01-layer-dependency-fix]: BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> -- all CRUD methods return domain models via AutoMapper
-- [Phase 02-email-service-consolidation]: Use IOptions<EmailSettings> pattern (not IOptionsSnapshot) — EmailService is Scoped, settings are static at startup
-- [Phase 02-email-service-consolidation]: AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
-- [Phase 02-email-service-consolidation]: Added Microsoft.Extensions.Options.ConfigurationExtensions 9.0.6 to Domain project — BindConfiguration() extension method is in this package
-- [Phase 02-email-service-consolidation]: CalculateRemainingQuantity helper uses UserTransactionEntity (not domain model) matching the worktree architecture's service layer pattern
-- [Phase 02-email-service-consolidation]: QuestService.FinalizeQuestAsync re-fetches quest post-save for EMAIL-04 compliance
-- [Phase 02-email-service-consolidation]: QuestController no longer injects IEmailService — all email dispatch inside domain service layer
-- [Phase 03-01]: SecurityConfiguration was unreferenced — deleted without replacement; ASP.NET Core Identity manages auth config via built-in mechanisms
-- [Phase 03-01]: Dead method removed from all 4 layers in one atomic commit to avoid intermediate build breaks
-- [Phase 03-code-quality-dead-code]: QUAL-03/04 applied to Domain services (QuestService, PlayerSignupService) not QuestRepository — Phase 01 refactor moved finalize logic to Domain layer
-- [Phase 03-code-quality-dead-code]: DateMatchWindowMinutes const placed in QuestService — private-scoped, no public constants class per D-02
-- [Phase 04-security-hardening]: SEC-06: Literal .env entry in .gitignore (not *.env) to avoid accidentally ignoring .env.example; history not rewritten per D-11
-- [Phase 04-security-hardening]: SEC-01/SEC-03: Identity lockout (5 attempts/15-min) + password minimum 8 configured in Program.cs; lockoutOnFailure: true + IsLockedOut branch in Login POST
-- [Phase 04-security-hardening]: SEC-02: Data-only migration using migrationBuilder.Sql() — no model/schema changes, empty Up/Down generated by EF tooling then filled manually
-- [Phase 04-security-hardening]: SEC-04: HasKey removed from user-facing EditProfileViewModel; retained in admin EditUserViewModel only
-- [Phase 04-security-hardening]: SEC-05: Password removed from User domain model; Identity UserEntity.PasswordHash is the authoritative store; EntityProfile reverse map simplified
-- [Phase 05-shop-filter-sort]: Filter/sort as post-fetch LINQ in controller — IShopService interface unchanged per plan anti-pattern D-04
-- [Phase 05-shop-filter-sort]: Hidden filter state form added to view for SHOP-03 URL round-trip test; Plan 02 will make it visible
-- [Phase 05-shop-filter-sort]: BuildTabUrl uses QueryString.Create(List<KeyValuePair>) — Url.Action does not serialize IList<T> as repeated query keys
-- [Phase 05-shop-filter-sort]: Sort select uses @if blocks for selected= — inline C# ternary in Razor HTML attributes is not supported
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Repository GetPagedPublishedItemsAsync uses int primitives (not enums) to avoid circular Domain<->Repository project reference
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: Obsolete stubs kept for EquipmentItems/MagicItems in ShopIndexViewModel so Razor views compile until Plan 02 updates Index.cshtml
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: ShopController drops post-fetch LINQ filter/sort — all filtering now delegated to GetPagedPublishedItemsAsync
-- [Phase 09-shop-pagination-server-side-paging-to-fix-slow-load-from-large-item-sets]: IShopRepository in Domain extended with GetPagedPublishedItemsAsync returning domain models; repo maps entities internally
+- Roadmap: Phase 12 (INFRA) must complete before Phases 13–16 — middleware + expander + layout shell are an atomic prerequisite
+- Roadmap: Phases 13, 14, 15, 16 are independent of each other; all depend only on Phase 12
+- Roadmap: Phases renumbered 12–16 to avoid conflict with Omphalos Integration phases 10–11
+- Research: Use hand-rolled IViewLocationExpander (~30 lines, zero new NuGet dependencies) — Wangkanai.Responsive rejected due to session-timeout override trap and middleware reorder requirement
+- Research: Mobile detection must live in PopulateValues (not ExpandViewLocations) — cache-key correctness; ExpandViewLocations only runs on cache miss
 
 ### Pending Todos
 
 None yet.
 
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
-| 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
-| 260617-d8u | Proposed dates UX improvement — default to today at 18:00 and auto-advance by 1 day per addition | 2026-06-17 | dd290ab | [260617-d8u-proposed-dates-ux-today-and-next-day](./quick/260617-d8u-proposed-dates-ux-today-and-next-day/) |
-| 260617-w1w | Fix #89: Quest Log page shows DM session quests — filter them out | 2026-06-17 | b424fef | [260617-w1w-fix-89-quest-log-page-shows-dm-session-q](./quick/260617-w1w-fix-89-quest-log-page-shows-dm-session-q/) |
-
-### Roadmap Evolution
-
-- Phase 9 added: Shop pagination — server-side paging to fix slow load from large item sets
-
 ### Blockers/Concerns
 
 - **Paused from Milestone 2 — Phase 8 (avatar crop):** Deferred to a future milestone. When resuming, verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm). Fallback: CSS `object-position` crop-display without server-side crop.
+- **Phase 12 (Calendar) — agenda layout spike:** CalendarViewModel may need a reshaping helper to group quests by day for the agenda view. Confirm in Phase 12 planning before committing to markup.
 
 ## Session Continuity
 
 Last session: 2026-06-23T00:00:00.000Z
-Stopped at: Milestone v3.0 started — requirements and roadmap defined
+Stopped at: Roadmap created — Phase 12 (Mobile Infrastructure) ready to plan
 Resume file: .planning/ROADMAP.md
