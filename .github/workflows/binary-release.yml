@@ -42,6 +42,5 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Deploy to app server
-        run: |
-          ssh questboard@${{ vars.APP_CT_IP }} "/opt/questboard/deploy.sh ${{ github.event.inputs.tag || github.ref_name }}"
+      - name: Deploy
+        run: /opt/questboard/deploy.sh ${{ github.event.inputs.tag || github.ref_name }}
