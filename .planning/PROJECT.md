@@ -1,4 +1,17 @@
-# D&D Quest Board — Milestone 2: Refactor + Feature Expansion
+# D&D Quest Board — Milestone 3: Mobile Version
+
+## Current Milestone: v2.0 Mobile Version
+
+**Goal:** Give the D&D Quest Board a purpose-built mobile experience using mobile-specific Razor views, keeping all controllers, data, and desktop views unchanged.
+
+**Target features:**
+- Mobile detection middleware + `IViewLocationExpander` (view engine checks `ViewName.Mobile.cshtml` first on mobile requests)
+- Mobile shared layout with hamburger navbar
+- Quest board: clean tap-list replacing the decorative poster/parchment images
+- Calendar: iPhone-style agenda view (day label + quests below, empty days skipped) replacing 7-column grid
+- All other pages: mobile-optimised layouts (Quest Details, Shop, Guild Members, DM Profile, Account, Admin views)
+
+**Paused from Milestone 2:** Phase 8 (Profile Picture Avatar Crop, issue #78) — deferred; resumes in a future milestone.
 
 ## What This Is
 
@@ -48,7 +61,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - [x] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style — Validated in Phase 07: dm-profile-page
 - [x] Shop filter and sort by price/rarity (issue #96) — Validated in Phase 05: shop-filter-sort
 - [x] Follow-up quest creation (issue #49) — creates part 2 with existing players pre-filled, new date required — Validated in Phase 06: follow-up-quest
-- [ ] Profile picture crop/avatar selection for guild member page (issue #78)
+- [ ] Profile picture crop/avatar selection for guild member page (issue #78) — deferred to future milestone
 
 ### Out of Scope
 
@@ -102,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-17 after Phase 07: dm-profile-page*
+*Last updated: 2026-06-23 — Milestone v2.0 Mobile Version started*

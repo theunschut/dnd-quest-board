@@ -1,31 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Phase 7 complete
-stopped_at: Phase 7 complete — Phase 8 is next
-last_updated: "2026-06-17T00:00:00.000Z"
+milestone: v2.0
+milestone_name: Mobile Version
+status: planning
+stopped_at: Milestone v2.0 started — defining requirements
+last_updated: "2026-06-23T00:00:00.000Z"
 progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 19
-  completed_plans: 19
-  percent: 89
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-15)
+See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 7 complete — Phase 8 (Profile Picture Avatar Crop) is next
+**Current focus:** Milestone v2.0 Mobile Version — defining requirements
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-23 — Milestone v2.0 started
 
 ## Performance Metrics
 
@@ -118,10 +120,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- **Phase 8 (avatar crop):** Verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm) before starting Phase 8. Fallback: CSS `object-position` crop-display without server-side crop.
+- **Paused from Milestone 2 — Phase 8 (avatar crop):** Deferred to a future milestone. When resuming, verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm). Fallback: CSS `object-position` crop-display without server-side crop.
 
 ## Session Continuity
 
-Last session: 2026-06-17T00:00:00.000Z
-Stopped at: Phase 7 complete — human UAT approved, post-UAT fixes committed
-Resume file: .planning/phases/08-profile-picture-avatar-crop/
+Last session: 2026-06-23T00:00:00.000Z
+Stopped at: Milestone v2.0 started — requirements and roadmap defined
+Resume file: .planning/ROADMAP.md
