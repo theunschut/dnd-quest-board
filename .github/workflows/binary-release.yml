@@ -40,6 +40,7 @@ jobs:
     if: ${{ always() && (github.event_name == 'workflow_dispatch' || needs.release.result == 'success') }}
     needs: [release]
     runs-on: self-hosted
+    permissions: {}
 
     steps:
       - name: Deploy
