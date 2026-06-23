@@ -29,13 +29,13 @@ GitHub ──HTTPS──► [App CT runner]  outbound only, no inbound ports nee
 
 ## 1. App CT
 
-Create an Ubuntu 22.04 LXC (unprivileged, nesting off). 1–2 CPU, 512MB RAM, 8GB disk.
+Create an Ubuntu 24.04 LXC (unprivileged, nesting off). 1–2 CPU, 512MB RAM, 8GB disk.
 
 ### Install .NET 10 runtime
 
 ```bash
 apt update && apt install -y wget unzip
-wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 apt update && apt install -y aspnetcore-runtime-10.0
