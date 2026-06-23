@@ -2,9 +2,13 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
+current_phase: 12
+current_phase_name: Mobile Infrastructure
 status: planning
-stopped_at: Roadmap created — Phase 12 ready to plan
-last_updated: "2026-06-23T00:00:00.000Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-06-23T21:49:18.249Z"
+last_activity: 2026-06-23
+last_activity_desc: Roadmap created for Milestone 3 (phases 12–16)
 progress:
   total_phases: 5
   completed_phases: 0
@@ -71,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-23T00:00:00.000Z
-Stopped at: Roadmap created — Phase 12 (Mobile Infrastructure) ready to plan
-Resume file: .planning/ROADMAP.md
+Last session: 2026-06-23T21:49:18.237Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-mobile-infrastructure/12-CONTEXT.md
