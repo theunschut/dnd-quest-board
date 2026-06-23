@@ -71,7 +71,7 @@ chown questboard:questboard /etc/questboard/env
 ### Create the deploy script
 
 ```bash
-cat > /opt/questboard/deploy.sh <<'EOF'
+cat > /home/questboard/deploy.sh <<'EOF'
 #!/bin/bash
 set -e
 
@@ -89,18 +89,13 @@ wget -q -O /tmp/questboard.zip "https://github.com/$REPO/releases/download/$TAG/
 sudo systemctl stop questboard
 rm -rf /opt/questboard/*
 unzip -q /tmp/questboard.zip -d /opt/questboard/
-
-# Restore the deploy script (unzip overwrote it)
-cp "$0" /opt/questboard/deploy.sh
-chmod +x /opt/questboard/deploy.sh
-
 rm /tmp/questboard.zip
 sudo systemctl start questboard
 echo "Done: $TAG deployed."
 EOF
 
-chmod +x /opt/questboard/deploy.sh
-chown questboard:questboard /opt/questboard/deploy.sh
+chmod +x /home/questboard/deploy.sh
+chown questboard:questboard /home/questboard/deploy.sh
 ```
 
 ### Allow questboard to restart the service
