@@ -57,7 +57,7 @@ This file holds all secrets. It is never committed to git.
 ```bash
 cat > /etc/questboard/env <<EOF
 ASPNETCORE_ENVIRONMENT=Production
-ASPNETCORE_URLS=http://localhost:5000
+ASPNETCORE_URLS=http://+:5000
 ConnectionStrings__DefaultConnection=Server=<SQL_SERVER_CT_IP>;Database=QuestBoard;User Id=sa;Password=<SA_PASSWORD>;TrustServerCertificate=true;
 EmailSettings__SmtpUsername=<GMAIL_ADDRESS>
 EmailSettings__SmtpPassword=<GMAIL_APP_PASSWORD>
@@ -101,7 +101,7 @@ chown questboard:questboard /home/questboard/deploy.sh
 ### Allow questboard to restart the service
 
 ```bash
-echo "questboard ALL=(ALL) NOPASSWD: /bin/systemctl stop questboard, /bin/systemctl start questboard" \
+echo "questboard ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop questboard, /usr/bin/systemctl start questboard" \
   > /etc/sudoers.d/questboard
 chmod 440 /etc/sudoers.d/questboard
 ```
