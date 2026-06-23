@@ -17,11 +17,6 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB (slightly higher than validation to allow for form overhead)
 });
 
-// Configure IIS server limits (if running on IIS)
-builder.Services.Configure<IISServerOptions>(options =>
-{
-    options.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
-});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
