@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
+milestone: v3.0
 milestone_name: Mobile Version
 status: planning
-stopped_at: Milestone v2.0 started — defining requirements
+stopped_at: Milestone v3.0 started — defining requirements
 last_updated: "2026-06-23T00:00:00.000Z"
 progress:
   total_phases: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v2.0 Mobile Version — defining requirements
+**Current focus:** Milestone v3.0 Mobile Version — defining requirements
 
 ## Current Position
 
 Phase: Not started (defining requirements)
 Plan: —
 Status: Defining requirements
-Last activity: 2026-06-23 — Milestone v2.0 started
+Last activity: 2026-06-23 — Milestone v3.0 started
 
 ## Performance Metrics
 
@@ -125,5 +125,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-23T00:00:00.000Z
-Stopped at: Milestone v2.0 started — requirements and roadmap defined
+Stopped at: Milestone v3.0 started — requirements and roadmap defined
 Resume file: .planning/ROADMAP.md

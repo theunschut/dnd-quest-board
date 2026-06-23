@@ -1,6 +1,6 @@
 # D&D Quest Board — Milestone 3: Mobile Version
 
-## Current Milestone: v2.0 Mobile Version
+## Current Milestone: v3.0 Mobile Version
 
 **Goal:** Give the D&D Quest Board a purpose-built mobile experience using mobile-specific Razor views, keeping all controllers, data, and desktop views unchanged.
 
@@ -115,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-23 — Milestone v2.0 Mobile Version started*
+*Last updated: 2026-06-23 — Milestone v3.0 Mobile Version started*
