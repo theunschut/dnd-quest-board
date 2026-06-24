@@ -124,6 +124,8 @@
             </h6>
             <form asp-action="Details" asp-controller="Quest" asp-route-id="@Model.Quest?.Id" method="post">
                 @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="0" />
+                <input type="hidden" name="Quest.Id" value="@Model.Quest?.Id" />
                 @{
                     var sortedDateVotes = Model.Quest?.ProposedDates
                         .OrderBy(pd => pd.Date)
