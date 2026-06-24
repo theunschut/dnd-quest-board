@@ -75,10 +75,11 @@
     </div>
 
     @* Voting section: update vote (signed-up player, open quest) *@
+    @* Voting section: update vote (signed-up player, open quest) *@
     @if (User.Identity?.IsAuthenticated == true && isPlayerSignedUp && Model.Quest?.IsFinalized == false)
     {
-        <div class="mb-3">
-            <h6 class="text-muted text-uppercase mb-2">
+        <div class="quest-section-card-mobile mb-3">
+            <h6 class="quest-section-heading mb-3">
                 <i class="fas fa-vote-yea me-1"></i>Update Your Vote
             </h6>
             <div class="d-grid gap-2">
@@ -96,10 +97,11 @@
     }
 
     @* Voting section: date selection (not yet signed up, open quest) *@
+    @* Note: _Calendar partial is a 7-column desktop grid — full mobile date-voting is a future task *@
     @if (User.Identity?.IsAuthenticated == true && !isPlayerSignedUp && Model.Quest?.IsFinalized == false)
     {
-        <div class="mb-3">
-            <h6 class="text-muted text-uppercase mb-2">
+        <div class="quest-section-card-mobile mb-3">
+            <h6 class="quest-section-heading mb-2">
                 <i class="fas fa-calendar-alt me-1"></i>Choose a Date
             </h6>
             @foreach (var calendarMonth in ViewBag.CalendarMonths as List<CalendarViewModel> ?? new List<CalendarViewModel>())
