@@ -33,6 +33,7 @@
 - [ ] **CAL-02**: Each agenda entry shows: day label (e.g. SATURDAY, JUNE 14), quest name, and time
 - [ ] **CAL-03**: Days with no quests are skipped entirely — only days with at least one quest appear
 - [ ] **CAL-04**: Tapping a quest entry in the agenda navigates to Quest Details for that quest
+- [ ] **CAL-05**: The `_Calendar` partial used inside Quest Details renders as a vertical per-date list with tap-friendly Yes/No/Maybe vote buttons — replacing both the broken desktop grid (Choose a Date) and the Phase 13 simplified quest-level buttons (Update Your Vote)
 
 ### DM Views
 
@@ -87,6 +88,7 @@
 | CAL-02 | Phase 14 | Pending |
 | CAL-03 | Phase 14 | Pending |
 | CAL-04 | Phase 14 | Pending |
+| CAL-05 | Phase 14 | Pending |
 | DMVIEW-01 | Phase 15 | Pending |
 | DMVIEW-02 | Phase 15 | Pending |
 | DMVIEW-03 | Phase 15 | Pending |
