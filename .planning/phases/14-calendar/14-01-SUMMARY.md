@@ -67,7 +67,7 @@ Each task was committed atomically:
 1. **Task 1: Add CAL-05 to REQUIREMENTS.md** - `f33cc76` (docs)
 2. **Task 2: Add CAL test stubs and fix QVIEW-01** - `b64a1f7` (test)
 
-**Plan metadata:** (added in final commit)
+**Plan metadata:** `cd648e0` (docs: complete plan 01)
 
 ## Files Created/Modified
 
