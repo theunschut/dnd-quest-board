@@ -8,9 +8,7 @@
 }
 
 /* Individual quest card */
-/* position: relative required — signed-up badge uses position: absolute inside */
 .quest-card-mobile {
-    position: relative;
     background-color: #343a40;
     border: 1px solid #495057;
     border-radius: 8px;
@@ -28,6 +26,10 @@
 }
 
 /* Hover/active feedback */
+.quest-card-mobile:hover {
+    background-color: #3d444b;
+}
+
 .quest-card-mobile:active {
     background-color: #495057;
 }
