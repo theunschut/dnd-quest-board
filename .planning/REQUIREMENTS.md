@@ -43,14 +43,14 @@
 
 ### Account Pages
 
-- [ ] **ACCT-01**: Login page on mobile is a full-width single-column form with large input fields and a clearly tappable submit button
-- [ ] **ACCT-02**: Register page on mobile is a full-width single-column form
-- [ ] **ACCT-03**: User Profile edit page is usable on small screens
+- [x] **ACCT-01**: Login page on mobile is a full-width single-column form with large input fields and a clearly tappable submit button
+- [x] **ACCT-02**: Register page on mobile is a full-width single-column form
+- [x] **ACCT-03**: User Profile edit page is usable on small screens
 
 ### Browse Pages
 
-- [ ] **BROWSE-01**: Shop index on mobile displays items in a single-column scrollable list (or 2-column grid if space permits); filter and sort controls are accessible
-- [ ] **BROWSE-02**: Guild Members directory on mobile displays character cards in a single-column or 2-column layout
+- [x] **BROWSE-01**: Shop index on mobile displays items in a single-column scrollable list (or 2-column grid if space permits); filter and sort controls are accessible
+- [x] **BROWSE-02**: Guild Members directory on mobile displays character cards in a single-column or 2-column layout
 
 ## Future Requirements
 
@@ -92,8 +92,8 @@
 | DMVIEW-01 | Phase 15 | Pending |
 | DMVIEW-02 | Phase 15 | Pending |
 | DMVIEW-03 | Phase 15 | Pending |
-| ACCT-01 | Phase 16 | Pending |
-| ACCT-02 | Phase 16 | Pending |
-| ACCT-03 | Phase 16 | Pending |
-| BROWSE-01 | Phase 16 | Pending |
-| BROWSE-02 | Phase 16 | Pending |
+| ACCT-01 | Phase 16 | Complete |
+| ACCT-02 | Phase 16 | Complete |
+| ACCT-03 | Phase 16 | Complete |
+| BROWSE-01 | Phase 16 | Complete |
+| BROWSE-02 | Phase 16 | Complete |

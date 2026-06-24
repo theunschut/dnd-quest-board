@@ -111,11 +111,11 @@ Plans:
   3. The Shop index on mobile displays items in a single-column or 2-column list; filter and sort controls are accessible without horizontal scrolling
   4. The Guild Members directory on mobile displays character cards in a single-column or 2-column layout with no overflow
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 16-01-PLAN.md — Integration test stubs for ACCT-01..03 + BROWSE-01..02 in MobileViewsTests.cs (Wave 1)
+- [x] 16-01-PLAN.md — Integration test stubs for ACCT-01..03 + BROWSE-01..02 in MobileViewsTests.cs (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -137,4 +137,4 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 0/4 | Not started | - |
-| 16. Account & Browse | 0/4 | Not started | - |
+| 16. Account & Browse | 1/4 | In Progress|  |

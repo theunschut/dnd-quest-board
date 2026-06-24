@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
 current_phase: 16
-current_phase_name: Account & Browse
+current_phase_name: account-browse
 status: executing
 stopped_at: Phase 16 UI-SPEC approved
-last_updated: "2026-06-24T21:06:20.390Z"
+last_updated: "2026-06-24T21:14:06.769Z"
 last_activity: 2026-06-24
-last_activity_desc: Phase 16 planning complete
+last_activity_desc: Phase 16 execution started
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 18
+  completed_plans: 15
   percent: 80
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v3.0 Mobile Version — Phase 15 (DM Views) complete; Phase 16 (Account & Browse) is next
+**Current focus:** Phase 16 — account-browse
 
 ## Current Position
 
-Phase: 16 of 16 (Account & Browse) — NOT YET PLANNED
-Plan: Not started
+Phase: 16 (account-browse) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-24 — Phase 16 planning complete
+Last activity: 2026-06-24 — Phase 16 execution started
 
 Progress: [████████░░] 80%
 
@@ -53,6 +53,7 @@ Progress: [████████░░] 80%
 | 15 | 4 | ~65 min | ~16 min |
 
 *Updated after each plan completion*
+| Phase 16 P01 | 3m | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,7 @@ Recent decisions affecting current work:
 - Phase 15, Plan 03: Both manage-date-option AND date-option CSS classes on same div — JS closest('.date-option') selector compatibility with desktop JavaScript
 - Phase 15, Plan 03: Raw C# variables inside @if(IsFinalized){} after HTML output — no @{} wrapper; Razor returns to C# code mode after HTML inside a code block
 - Phase 15, Plan 04: After creating new .Mobile.cshtml views, rebuild integration tests project (dotnet build EuphoriaInn.IntegrationTests) before running tests — WebApplicationFactory uses compiled output
+- [Phase ?]: Plan 16-01: Filter & Sort HTML assertion uses &amp; encoding — Razor auto-encodes & in text output
 
 ### Pending Todos
 
@@ -103,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-24T20:45:46.151Z
+Last session: 2026-06-24T21:14:01.625Z
 Stopped at: Phase 16 UI-SPEC approved
 Resume file: .planning/phases/16-account-browse/16-UI-SPEC.md
