@@ -70,10 +70,13 @@ Inherited from Phase 13 UI-SPEC.md. Four sizes, two weights only.
 
 | Role | Size | Weight | Line Height | Font | Bootstrap Class |
 |------|------|--------|-------------|------|----------------|
-| Body | 16px | 400 | 1.5 | System sans-serif | — (mobile.css baseline) |
-| Label / meta | ~14px (0.875em) | 400 | 1.4 | System sans-serif | `<small>` or `.small` |
-| Card title / section heading | 20px | 700 | 1.2 | System sans-serif | `h5` or `fw-bold fs-5` |
-| Page heading | 24px | 700 | 1.2 | Cinzel, serif | `h4` + Cinzel |
+| Vote count badges | 12px / 0.75rem | 400 | — | System sans-serif | `.badge` Bootstrap default |
+| Label / meta / secondary text | 14px / 0.875rem | 400 | 1.4 | System sans-serif | `<small>` or `.small` |
+| Body / form labels / section headings | 16px / 1rem | 400 (body) / 700 (headings) | 1.5 | System sans-serif | — (mobile.css baseline) |
+| Card title / DM name | 20px / 1.25rem | 700 | 1.2 | System sans-serif (body) / Cinzel (DM name) | `h5` or `fw-bold fs-5` |
+
+No 24px / 1.5rem (h4) declarations. Mobile uses 20px as maximum heading size, consistent with
+Phases 13 and 14.
 
 Phase 15 additions:
 - **Form labels**: 16px, weight 400 — standard Bootstrap `.form-label` inherits body. No override.
@@ -178,7 +181,7 @@ interactive element below the nav bar and serves as the first visual focus point
       [Proposed Dates section]
         [date row × N]
         [Add Another Date Option button]
-      [Form action row: Create Quest + Cancel]
+      [Form action row: Create Quest + Back to Quest Board]
     </form>
   </div>
 </div>
@@ -278,7 +281,7 @@ provides the touch target. Bootstrap `.form-check-label` padding ensures ≥44px
         <i class="fas fa-plus me-2"></i>Create Quest
     </button>
     <a href="@Url.Action("Index", "Home")" class="btn btn-secondary flex-fill">
-        <i class="fas fa-times me-2"></i>Cancel
+        <i class="fas fa-arrow-left me-2"></i>Back to Quest Board
     </a>
 </div>
 ```
@@ -337,6 +340,10 @@ Key rules:
 `removePlayerSignup`, and `updatePlayerAvailability` functions all operate identically.
 **Antiforgery:** `@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery` at top of
 mobile view — required for the inline `<script>` block's `tokens.RequestToken` usage.
+
+**Primary visual anchor:** The quest title row at the top of the glass card. The quest name (20px,
+parchment, weight 700) is the typographic entry point; the Finalize Quest button (full-width,
+btn-primary) is the primary action anchor.
 
 **Authorization guard (same as desktop):**
 ```html
@@ -570,7 +577,7 @@ Key rules:
     color: #F4E4BC !important;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9);
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     letter-spacing: 0.05em;
 }
 
@@ -676,7 +683,7 @@ Profile photo sizing:
   border-radius: 50%; display: flex; align-items: center; justify-content: center;`
 
 Name: `h5` — 20px, weight 700, Cinzel font (`.dm-profile-name`), parchment.
-Role label: `<p>` at 16px, weight 400, faded parchment.
+Role label: `<p>` at 14px, weight 400, faded parchment (`.dm-profile-role-label` uses `font-size: 0.875rem`).
 
 **Bio card:**
 ```html
@@ -730,7 +737,7 @@ parchment (`.dm-profile-bio-text`). Empty state: faded parchment italic.
 ```
 
 Quest history item structure (D-07 — card list per quest):
-- Title: `fw-bold`, 16px, parchment, tappable
+- Title: `fw-bold`, 14px (0.875rem), parchment, tappable
 - CR badge: `bg-secondary`, right-aligned via `ms-2 flex-shrink-0`
 - Date: `<small>` 14px, faded parchment, with calendar-check icon
 - Tap target: entire row via `onclick="window.location.href='...'"`, `cursor: pointer`
@@ -783,7 +790,7 @@ Key rules:
 .dm-profile-role-label {
     color: rgba(244, 228, 188, 0.7) !important;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9) !important;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     margin-bottom: 0;
 }
 
@@ -792,7 +799,7 @@ Key rules:
     color: #F4E4BC !important;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9);
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     letter-spacing: 0.05em;
 }
 
@@ -834,7 +841,7 @@ Key rules:
 
 /* Quest history row */
 .dm-quest-history-item {
-    padding: 10px 0;
+    padding: 12px 0;
     border-bottom: 1px solid rgba(139, 69, 19, 0.3);
     cursor: pointer;
 }
@@ -853,7 +860,7 @@ Key rules:
 .dm-quest-history-title {
     color: #F4E4BC !important;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9) !important;
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     line-height: 1.3;
 }
 
@@ -883,8 +890,8 @@ Extends Phase 13 and Phase 14 copywriting contracts. Phase 15 additions only.
 |---------|------|
 | Quest Create — submit | "Create Quest" (with `fa-plus` icon) |
 | Quest Create — add date | "Add Another Date Option" (with `fa-plus` icon) |
-| Quest Create — remove date | "Remove" (with `fa-trash` icon) |
-| Quest Create — cancel | "Cancel" (with `fa-times` icon) |
+| Quest Create — remove date | "Remove Date" (with `fa-trash` icon) |
+| Quest Create — back navigation | "Back to Quest Board" (with `fa-arrow-left` icon) |
 | Quest Manage — finalize | "Finalize Quest" (with `fa-check-circle` icon) |
 | Quest Manage — edit quest | "Edit Quest" (with `fa-edit` icon) |
 | Quest Manage — delete quest | "Delete Quest" (with `fa-trash` icon) |
@@ -892,6 +899,10 @@ Extends Phase 13 and Phase 14 copywriting contracts. Phase 15 additions only.
 | Quest Manage — refresh | "Refresh Data" (with `fa-sync` icon) |
 | Quest Manage — follow-up | "Create Follow-Up" (with `fa-scroll` icon) |
 | DM Profile — edit | "Edit Profile" (with `fa-edit` icon) |
+
+Note: the Remove button inside the `input-group` HTML rendering uses the short label "Remove" due to
+space constraints in the button column (~25% width); the canonical label for this action is
+"Remove Date" as shown in the table above.
 
 ### Section Headings
 
@@ -905,8 +916,8 @@ Extends Phase 13 and Phase 14 copywriting contracts. Phase 15 additions only.
 | Quest Manage — player sub-group | "Players (Select up to N)" | h6, parchment |
 | Quest Manage — assistant DM sub-group | "Assistant DMs (Pre-selected, uncheck to exclude)" | h6, parchment |
 | Quest Manage — spectator sub-group | "Spectators (Auto-approved)" | h6, parchment |
-| DM Profile — bio | "About" | `.dm-profile-section-heading` (uppercase, 0.85rem) |
-| DM Profile — history | "Quest History" | `.dm-profile-section-heading` (uppercase, 0.85rem) |
+| DM Profile — bio | "About" | `.dm-profile-section-heading` (uppercase, 0.875rem) |
+| DM Profile — history | "Quest History" | `.dm-profile-section-heading` (uppercase, 0.875rem) |
 
 ### Empty States
 
@@ -942,7 +953,7 @@ handled by existing controller logic.
 
 All tap targets use `onclick="window.location.href='...'"` — established codebase pattern.
 - Quest history items in DM Profile: entire row is tappable (not just title text).
-- Touch area is the full item width and height (`padding: 10px 0` gives ≥44px visual height on most
+- Touch area is the full item width and height (`padding: 12px 0` gives ≥44px visual height on most
   entries due to title wrap).
 
 ### Form Submissions
@@ -989,7 +1000,7 @@ for standard form controls. Verification:
 | Select elements | `mobile.css select { min-height: 44px }` |
 | Checkbox labels | Bootstrap `.form-check-label` padding + 16px body = adequate touch height |
 | Date radio buttons + labels | Bootstrap `.form-check-label` padding + 16px body = adequate touch height |
-| Quest history tap rows | `padding: 10px 0` + 16px title text ≥ 36px visual; acceptable for list items that are clearly rows |
+| Quest history tap rows | `padding: 12px 0` + 14px title text ≥ 38px visual; acceptable for list items that are clearly rows |
 | Edit Profile button | `btn w-100 min-height: 44px` from mobile.css |
 
 ---
@@ -1046,7 +1057,7 @@ views use this pattern (D-09).
 | Registry | Blocks Used | Safety Gate |
 |----------|-------------|-------------|
 | Bootstrap 5.3.0 CDN | `.d-flex`, `.flex-fill`, `.flex-wrap`, `.gap-2`, `.w-100`, `.form-check`, `.form-check-input`, `.input-group`, utility classes | not required — CDN, no npm install |
-| Font Awesome 6.4.0 CDN | `fa-scroll`, `fa-check-circle`, `fa-trash`, `fa-edit`, `fa-crown`, `fa-dragon`, `fa-sync`, `fa-unlock`, `fa-users`, `fa-user-shield`, `fa-eye`, `fa-dice-d20`, `fa-calendar-check` | not required — CDN, no npm install |
+| Font Awesome 6.4.0 CDN | `fa-scroll`, `fa-check-circle`, `fa-trash`, `fa-edit`, `fa-crown`, `fa-dragon`, `fa-sync`, `fa-unlock`, `fa-users`, `fa-user-shield`, `fa-eye`, `fa-dice-d20`, `fa-calendar-check`, `fa-arrow-left` | not required — CDN, no npm install |
 | Google Fonts CDN | Cinzel only | not required — CDN, no npm install |
 | Third-party component registries | none | not applicable |
 
@@ -1066,7 +1077,7 @@ Source: Phase 13 UI-SPEC.md Registry Safety (inherited); `_Layout.Mobile.cshtml`
 | 15-CONTEXT.md (D-01 through D-10) | 10 locked decisions: no sidebar on Create, input-group layout retained, glass card on Create, condensed vote badges on Manage, reuse desktop inline JS, glass cards on Manage, card list on Profile history, full glass card on Profile, per-page CSS files, mobile.css handles touch targets |
 | 15-CONTEXT.md Specifics | Vote badge format `N Yes · N Maybe · N No`, quest history tap pattern, DM photo rounded-circle |
 | Phase 13 UI-SPEC.md | Full design system baseline (spacing, typography, color, CSS authoring rules, registry safety, touch target table) |
-| Phase 14 UI-SPEC.md | Glass card color values confirmation, section heading pattern (`text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em`) |
+| Phase 14 UI-SPEC.md | Glass card color values confirmation, section heading pattern (`text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em`) |
 | `quests.mobile.css` | Exact glass card CSS values, parchment text values, badge text-shadow suppression, participant-row border-bottom, section heading pattern |
 | `mobile.css` | Touch target 44px, 16px body font, spacing overrides |
 | `Quest/Create.cshtml` | Form field names, form action, `_QuestFormScripts` partial usage, proposed-dates section structure, input-group layout |
