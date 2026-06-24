@@ -47,12 +47,16 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 ### Phase 14: Calendar
 **Goal**: Players can see which quests are scheduled this month on a phone without the 7-column grid overflowing the screen
 **Depends on**: Phase 12
-**Requirements**: CAL-01, CAL-02, CAL-03, CAL-04
+**Requirements**: CAL-01, CAL-02, CAL-03, CAL-04, CAL-05
 **Success Criteria** (what must be TRUE):
   1. The mobile calendar renders as a vertical agenda list, not a 7-column day grid
   2. Each agenda entry shows a day label (e.g. SATURDAY, JUNE 14), the quest name, and the time
   3. Days with no quests are not rendered; only days that have at least one quest appear
   4. Tapping any quest entry in the agenda navigates to that quest's Details page
+  5. The _Calendar partial used inside Quest Details renders as a vertical per-date list with tap-friendly Yes/No/Maybe vote buttons — replacing both the broken desktop grid (Choose a Date) and the Phase 13 simplified quest-level buttons (Update Your Vote)
+**Notes**:
+  - CAL-05 requires creating `Views/Shared/_Calendar.Mobile.cshtml` — the MobileViewLocationExpander serves it automatically on mobile; no controller changes needed
+  - CAL-05 also requires replacing the custom 3-button block in `Details.Mobile.cshtml` (Update Your Vote section) with the same `@await Html.PartialAsync("_Calendar", calendarMonth)` call already used in the Choose a Date section
 **Plans**: TBD
 **UI hint**: yes
 
