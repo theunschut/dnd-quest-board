@@ -186,7 +186,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     public async Task MobileQuestLog_MobileUserAgent_RendersListWithTitleAndDmName()
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_qview03", "dm_qview03@test.com", name: "DM Qview03");
-        await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Ancient Dungeon", isFinalized: true);
+        await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Ancient Dungeon", isFinalized: true, finalizedDate: DateTime.UtcNow.AddDays(-2));
 
         var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
