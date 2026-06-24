@@ -97,6 +97,6 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 |-------|----------------|--------|-----------|
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
 | 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
-| 14. Calendar | 2/3 | In progress | - |
+| 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 0/? | Not started | - |
 | 16. Account & Browse | 0/? | Not started | - |
