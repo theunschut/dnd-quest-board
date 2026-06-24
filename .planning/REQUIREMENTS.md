@@ -7,9 +7,9 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: A `MobileDetectionMiddleware` detects mobile user agents per request and stores the result in `HttpContext.Items["IsMobile"]`
-- [ ] **INFRA-02**: A `MobileViewLocationExpander` is registered; on mobile requests the view engine checks `ViewName.Mobile.cshtml` before `ViewName.cshtml`; desktop requests are unaffected and desktop views are not modified
-- [ ] **INFRA-03**: Mobile detection logic lives in `PopulateValues` (not `ExpandViewLocations`) so the view path cache correctly separates mobile and desktop entries
+- [x] **INFRA-01**: A `MobileDetectionMiddleware` detects mobile user agents per request and stores the result in `HttpContext.Items["IsMobile"]`
+- [x] **INFRA-02**: A `MobileViewLocationExpander` is registered; on mobile requests the view engine checks `ViewName.Mobile.cshtml` before `ViewName.cshtml`; desktop requests are unaffected and desktop views are not modified *(backend half — expander + registration complete; end-to-end proof in Plan 02)*
+- [x] **INFRA-03**: Mobile detection logic lives in `PopulateValues` (not `ExpandViewLocations`) so the view path cache correctly separates mobile and desktop entries
 - [ ] **INFRA-04**: `_Layout.Mobile.cshtml` provides the mobile HTML shell with a Bootstrap offcanvas navigation drawer
 - [ ] **INFRA-05**: `_ViewStart.cshtml` selects `_Layout.Mobile.cshtml` for mobile requests and `_Layout.cshtml` for desktop — no individual mobile view sets its layout explicitly
 - [ ] **INFRA-06**: `mobile.css` provides baseline touch target sizing (minimum 44px height), mobile typography scale, and spacing overrides
@@ -70,9 +70,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 12 | Pending |
-| INFRA-02 | Phase 12 | Pending |
-| INFRA-03 | Phase 12 | Pending |
+| INFRA-01 | Phase 12 | Complete (Plan 01) |
+| INFRA-02 | Phase 12 | Complete (Plan 01, backend half) |
+| INFRA-03 | Phase 12 | Complete (Plan 01) |
 | INFRA-04 | Phase 12 | Pending |
 | INFRA-05 | Phase 12 | Pending |
 | INFRA-06 | Phase 12 | Pending |
