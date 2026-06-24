@@ -41,7 +41,12 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
   3. Tapping a quest card navigates to Quest Details; tapping a DM's own quest navigates to Quest Manage
   4. Quest Details voting buttons (Yes / No / Maybe) are at least 44px tall and spaced to avoid accidental taps
   5. The participant list on Quest Details renders as a stacked single-column list (name + character + role per row) rather than a horizontal table
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 13-01-PLAN.md — Integration test stubs (MobileViewsTests.cs) for HOME-01 through QVIEW-03
+- [ ] 13-02-PLAN.md — Home/Index.Mobile.cshtml + home.mobile.css (HOME-01, HOME-02, HOME-03, HOME-04)
+- [ ] 13-03-PLAN.md — Quest/Details.Mobile.cshtml + quests.mobile.css (QVIEW-01, QVIEW-02)
+- [ ] 13-04-PLAN.md — QuestLog/Index.Mobile.cshtml + quest-log.mobile.css (QVIEW-03)
 **UI hint**: yes
 
 ### Phase 14: Calendar
@@ -88,7 +93,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
-| 13. Core Player Views | 0/? | Not started | - |
+| 13. Core Player Views | 0/4 | Not started | - |
 | 14. Calendar | 0/? | Not started | - |
 | 15. DM Views | 0/? | Not started | - |
 | 16. Account & Browse | 0/? | Not started | - |
