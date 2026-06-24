@@ -16,10 +16,10 @@
 
 ### Quest Board (Home Page)
 
-- [ ] **HOME-01**: On mobile, the quest board displays a vertical scrollable card list instead of the decorative poster/parchment image cards
-- [ ] **HOME-02**: Each quest entry shows: title, challenge rating, DM name, and status (Open / Finalized / Done); finalized entries include the date
-- [ ] **HOME-03**: Each quest entry is tap-navigable to Quest Details, or to Quest Manage for the signed-in DM's own quests
-- [ ] **HOME-04**: If the current user is already signed up for a quest, the entry shows a visual indicator (badge or icon — no wax seal imagery)
+- [x] **HOME-01**: On mobile, the quest board displays a vertical scrollable card list instead of the decorative poster/parchment image cards
+- [x] **HOME-02**: Each quest entry shows: title, challenge rating, DM name, and status (Open / Finalized / Done); finalized entries include the date
+- [x] **HOME-03**: Each quest entry is tap-navigable to Quest Details, or to Quest Manage for the signed-in DM's own quests
+- [x] **HOME-04**: If the current user is already signed up for a quest, the entry shows a visual indicator (badge or icon — no wax seal imagery)
 
 ### Quest Views
 
@@ -76,10 +76,10 @@
 | INFRA-04 | Phase 12 | Complete (Plan 02) |
 | INFRA-05 | Phase 12 | Complete (Plan 02) |
 | INFRA-06 | Phase 12 | Complete (Plan 03) |
-| HOME-01 | Phase 13 | Pending |
-| HOME-02 | Phase 13 | Pending |
-| HOME-03 | Phase 13 | Pending |
-| HOME-04 | Phase 13 | Pending |
+| HOME-01 | Phase 13 | Complete (Plan 02) |
+| HOME-02 | Phase 13 | Complete (Plan 02) |
+| HOME-03 | Phase 13 | Complete (Plan 02) |
+| HOME-04 | Phase 13 | Complete (Plan 02) |
 | QVIEW-01 | Phase 13 | Pending |
 | QVIEW-02 | Phase 13 | Pending |
 | QVIEW-03 | Phase 13 | Pending |
