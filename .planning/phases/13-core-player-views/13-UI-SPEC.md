@@ -55,18 +55,20 @@ Source: `mobile.css` INFRA-06; D-01 / D-02 locked decisions.
 
 ## Typography
 
+Four sizes, two weights only.
+
 | Role | Size | Weight | Line Height | Font | Bootstrap Class |
 |------|------|--------|-------------|------|----------------|
 | Body | 16px | 400 | 1.5 | System sans-serif | — (mobile.css baseline) |
-| Label / meta | 12px | 400 | 1.4 | System sans-serif | `small` or `fs-6` |
-| Card title | 18px | 600 | 1.3 | System sans-serif | `h6` or `fw-semibold` |
-| Section heading | 20px | 600 | 1.2 | Cinzel, serif | `h5` + inline `font-family: 'Cinzel'` |
+| Label / meta | ~14px (0.875em) | 400 | 1.4 | System sans-serif | `<small>` or `small` class |
+| Card title / section heading | 20px | 700 | 1.3–1.2 | System sans-serif (card) / Cinzel (section) | `h5` or `fw-bold fs-5` |
 | Page heading | 24px | 700 | 1.2 | Cinzel, serif | `h4` + Cinzel via per-page CSS |
 
 Notes:
 - Body 16px is declared in `mobile.css` — prevents iOS auto-zoom on input focus. Do not redeclare in per-page CSS.
-- Cinzel applies only to section headings (page titles, card list heading, quest log header). All meta text and body copy use the browser's default sans-serif stack.
-- Two weights only: 400 (body, label, meta) and 600/700 (headings, card titles).
+- Meta text uses Bootstrap's `<small>` element (0.875em × 16px ≈ 14px). Do not declare a fixed 12px size in per-page CSS.
+- Cinzel applies only to page headings and the Quest Log section header. Card titles use system sans-serif at 20px.
+- Two weights only: 400 (body, label, meta) and 700 (all headings, card titles, section headings). No intermediate 600 weight.
 
 Source: `mobile.css` line 14; `_Layout.Mobile.cshtml` Google Fonts CDN line 10; CONTEXT.md Claude's Discretion.
 
@@ -100,7 +102,7 @@ IsFinalized (no date, or future date)                                         �
 Neither                                                                        → Open (bg-success)
 ```
 
-Accent reserved for: Finalized status badge, primary action buttons (vote Yes, sign up). Not applied to card backgrounds, meta text, or informational icons.
+Accent reserved for: Finalized status badge, primary action buttons (Vote Yes, Sign up). Not applied to card backgrounds, meta text, or informational icons.
 
 Source: D-05 locked decision; RESEARCH.md Data Binding Inventory — Status badge logic; CONTEXT.md specifics.
 
@@ -109,6 +111,8 @@ Source: D-05 locked decision; RESEARCH.md Data Binding Inventory — Status badg
 ## View-by-View Visual Contract
 
 ### View 1: Home/Index.Mobile.cshtml (HOME-01 — HOME-04)
+
+Primary visual anchor: the first quest card's title — the largest typographic element on initial load (20px, weight 700), appearing immediately below the nav bar with no page heading above it.
 
 **Layout structure:**
 ```
@@ -126,7 +130,7 @@ Source: D-05 locked decision; RESEARCH.md Data Binding Inventory — Status badg
      onclick="window.location.href='...'">
   [signed-up badge — top-right, conditional]
   <div class="d-flex justify-content-between align-items-start mb-1">
-    <h6 class="quest-card-title mb-0">              ← 18px, weight 600
+    <h6 class="quest-card-title mb-0">              ← 20px, weight 700
       [quest title]
     </h6>
     <span class="badge [statusBadge] ms-2">         ← status badge (right of title)
@@ -134,7 +138,7 @@ Source: D-05 locked decision; RESEARCH.md Data Binding Inventory — Status badg
     </span>
   </div>
   <div class="d-flex justify-content-between align-items-center">
-    <small class="text-muted">                      ← 12px, muted
+    <small class="text-muted">                      ← ~14px via <small>, muted
       <i class="fas fa-crown me-1"></i>[DM name]
     </small>
     <span class="badge bg-dark border">             ← CR badge
@@ -169,9 +173,9 @@ Source: D-05 locked decision; RESEARCH.md Data Binding Inventory — Status badg
 
 **Per-page CSS file:** `home.mobile.css`
 Key rules:
-- `.quest-card-mobile` — `background-color: #343a40; border: 1px solid #495057; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer;`
+- `.quest-card-mobile` — `background-color: #343a40; border: 1px solid #495057; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer;`
 - `.quest-list-mobile` — `display: flex; flex-direction: column;` (no gap needed; cards use `margin-bottom`)
-- `.quest-card-title` — `font-size: 1.1rem; font-weight: 600;` (≈ 17.6px)
+- `.quest-card-title` — `font-size: 1.25rem; font-weight: 700;` (≈ 20px)
 
 ---
 
@@ -184,7 +188,7 @@ Key rules:
 3. Quest description (full text, pre-wrap)
 4. [Voting section — when not finalized or user not signed up]
    4a. Proposed date list (via _Calendar partial or simplified list — see note)
-   4b. Yes / No / Maybe vote buttons (full-width, stacked, min-height 44px)
+   4b. Vote Yes / Vote No / Vote Maybe buttons (full-width, stacked, min-height 44px)
 5. [Participant list — when finalized]
    5a. Section heading "Adventurers"
    5b. Stacked rows: player name + character name + role badge
@@ -195,13 +199,13 @@ Key rules:
 ```
 <div class="d-grid gap-2">
   <button class="btn btn-success" onclick="changeVoteToYes(@Model.Quest?.Id)">
-    <i class="fas fa-check me-2"></i>Yes
+    <i class="fas fa-check me-2"></i>Vote Yes
   </button>
   <button class="btn btn-danger" onclick="changeVoteToNo(@Model.Quest?.Id)">
-    <i class="fas fa-times me-2"></i>No
+    <i class="fas fa-times me-2"></i>Vote No
   </button>
   <button class="btn btn-warning" onclick="changeVoteToMaybe(@Model.Quest?.Id)">
-    <i class="fas fa-question me-2"></i>Maybe
+    <i class="fas fa-question me-2"></i>Vote Maybe
   </button>
 </div>
 ```
@@ -209,6 +213,7 @@ Key rules:
 - `min-height: 44px` inherited from `mobile.css` `.btn` rule — no per-page override needed
 - AJAX pattern: same fetch-based JS as desktop (`changeVoteToYes`, `changeVoteToNo`, `changeVoteToMaybe`)
 - Antiforgery token: use globally-injected `Antiforgery.GetAndStoreTokens(ViewContext.HttpContext)` — no `@inject` directive in the mobile view
+- No page refresh on button tap itself — only after fetch resolves
 
 **Participant list (QVIEW-02 — stacked, replaces table):**
 ```
@@ -220,7 +225,7 @@ Key rules:
   {
     <div class="participant-row d-flex justify-content-between align-items-center py-2 border-bottom">
       <div>
-        <span class="fw-semibold">@participant.Player.Name</span>
+        <span class="fw-bold">@participant.Player.Name</span>
         <br>
         <small class="text-muted">@(participant.Character?.Name ?? "No character")</small>
       </div>
@@ -239,7 +244,7 @@ Key rules:
 
 **Description placement (Claude's Discretion — locked above):** Description renders above the voting section. Full text, `white-space: pre-wrap` to preserve line breaks.
 
-**_Calendar partial note (RESEARCH.md Open Question #1):** Reuse the `_Calendar` partial for Phase 13. The calendar grid may overflow on narrow screens — this is a known limitation tracked for Phase 14 (`CAL-01` through `CAL-04`). The vote buttons (Yes / No / Maybe) are the primary QVIEW-01 deliverable; the calendar itself is secondary UX for Phase 13.
+**_Calendar partial note (RESEARCH.md Open Question #1):** Reuse the `_Calendar` partial for Phase 13. The calendar grid may overflow on narrow screens — this is a known limitation tracked for Phase 14 (`CAL-01` through `CAL-04`). The vote buttons (Vote Yes / Vote No / Vote Maybe) are the primary QVIEW-01 deliverable; the calendar itself is secondary UX for Phase 13.
 
 **Per-page CSS file:** `quests.mobile.css`
 Key rules:
@@ -274,7 +279,7 @@ Key rules:
 <div class="quest-log-item"
      onclick="window.location.href='@Url.Action("Details", "QuestLog", new { id = quest.Id })'">
   <div class="d-flex justify-content-between align-items-start mb-1">
-    <h6 class="quest-log-item-title mb-0 fw-semibold">@quest.Title</h6>
+    <h6 class="quest-log-item-title mb-0 fw-bold">@quest.Title</h6>
     <span class="badge bg-secondary ms-2">CR @quest.ChallengeRating</span>
   </div>
   <small class="text-muted d-block">
@@ -305,7 +310,7 @@ Copy matches the desktop empty state intent (`QuestLog/Index.cshtml` lines 80–
 **Per-page CSS file:** `quest-log.mobile.css`
 Key rules:
 - `.quest-log-item` — `background-color: #343a40; border: 1px solid #495057; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer;`
-- `.quest-log-item-title` — `font-size: 1rem; font-weight: 600;`
+- `.quest-log-item-title` — `font-size: 1.25rem; font-weight: 700;`
 - `.cinzel-heading` — `font-family: 'Cinzel', serif; font-weight: 700;`
 
 ---
@@ -317,9 +322,9 @@ Key rules:
 | Element | Copy |
 |---------|------|
 | Quest Board — sign-up indicator badge | "Signed up" (with check icon, no period) |
-| Quest Details — vote yes | "Yes" |
-| Quest Details — vote no | "No" |
-| Quest Details — vote maybe | "Maybe" |
+| Quest Details — vote yes | "Vote Yes" |
+| Quest Details — vote no | "Vote No" |
+| Quest Details — vote maybe | "Vote Maybe" |
 | Quest Details — revoke signup | "Revoke Signup" |
 
 ### Section Headings
