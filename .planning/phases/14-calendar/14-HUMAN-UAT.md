@@ -19,6 +19,8 @@ result: [approved]
 ### 2. Quest entry tap navigation
 expected: Tapping any agenda entry card navigates to the correct Quest Details page for that quest
 result: [issue] - clicking the navbar calendar button doesn't do anything
+fix: fix(14) committed — removed data-bs-dismiss="offcanvas" from all anchor nav links; Bootstrap 5.3.0 calls event.preventDefault() on A elements with data-bs-dismiss, blocking navigation
+fix_status: resolved — pending re-test
 
 ### 3. Vote button touch targets
 expected: Yes/No/Maybe vote buttons are visually at least 44px tall and comfortably tappable without accidental misses
@@ -34,13 +36,15 @@ fix_status: resolved — pending re-test
 
 total: 4
 passed: 2
-issues: 1
-pending: 1
+issues: 0
+pending: 2
 skipped: 0
 blocked: 0
 
 ## Gaps
 
 ### Issue 2: Navbar calendar navigation
-status: needs-clarification
-description: clicking the navbar calendar button doesn't do anything — root cause unclear, awaiting user clarification on whether the hamburger opens, which specific button is affected
+status: resolved
+root-cause: Bootstrap 5.3.0 calls event.preventDefault() on A elements with data-bs-dismiss="offcanvas", closing the offcanvas but blocking the href navigation. Affected all 12 anchor nav links.
+fix: removed data-bs-dismiss="offcanvas" from all anchor tags; kept on close button and logout form button where Bootstrap does not block default behavior
+re-test: verify Calendar link + other nav links navigate correctly
