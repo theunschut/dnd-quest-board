@@ -73,9 +73,9 @@
 | INFRA-01 | Phase 12 | Complete (Plan 01) |
 | INFRA-02 | Phase 12 | Complete (Plan 01, backend half) |
 | INFRA-03 | Phase 12 | Complete (Plan 01) |
-| INFRA-04 | Phase 12 | Pending |
-| INFRA-05 | Phase 12 | Pending |
-| INFRA-06 | Phase 12 | Pending |
+| INFRA-04 | Phase 12 | Complete (Plan 02) |
+| INFRA-05 | Phase 12 | Complete (Plan 02) |
+| INFRA-06 | Phase 12 | Complete (Plan 03) |
 | HOME-01 | Phase 13 | Pending |
 | HOME-02 | Phase 13 | Pending |
 | HOME-03 | Phase 13 | Pending |
