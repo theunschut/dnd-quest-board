@@ -112,6 +112,13 @@ None - no external service configuration required.
 - Plans 13-02 and 13-03 should target 8 tests going green when their views are implemented
 - No blockers
 
+## Self-Check: PASSED
+
+- FOUND: EuphoriaInn.IntegrationTests/Mobile/MobileViewsTests.cs
+- FOUND: .planning/phases/13-core-player-views/13-01-SUMMARY.md
+- FOUND: commit edd035d (test stubs)
+- FOUND: commit 37edda4 (docs/metadata)
+
 ---
 *Phase: 13-core-player-views*
 *Completed: 2026-06-24*
