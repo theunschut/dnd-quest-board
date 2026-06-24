@@ -536,12 +536,13 @@ If both assumptions hold, the Assumptions Log entries can be closed as confirmed
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does Details.Mobile.cshtml need the full `UpdateSignup` form POST flow, or is the existing flow sufficient?**
    - What we know: The desktop `Details.cshtml` has a `<form method="post" asp-action="UpdateSignup">` that binds `DateVotes` from the radio buttons. The mobile view currently used AJAX for a simpler single-vote endpoint.
    - What's unclear: The update vote form (`UpdateSignup`) accepts `List<PlayerDateVote> dateVotes` which maps to `DateVotes[i].ProposedDateId` + `DateVotes[i].Vote` hidden + radio fields. This is a full form POST requiring the hidden ProposedDateId fields AND the antiforgery token. The mobile view needs to either replicate this form structure or keep AJAX.
    - Recommendation: Replicate the form structure from `Details.cshtml` (lines 520-590). The `_Calendar.Mobile.cshtml` renders radio buttons in `name="DateVotes[@updateVoteIndex].Vote"` format (per D-07 and UI-SPEC). This only works if `Details.Mobile.cshtml` has the matching `<form>` and hidden `DateVotes[@i].ProposedDateId` fields. The planner should make this explicit in the plan.
+   - **RESOLVED:** Yes — Plan 03 Task 2 implements the full form POST flow with two `<form>` wrappers (one for initial vote POST to `Details`, one for update vote POST to `UpdateSignup`), hidden `DateVotes[@i].ProposedDateId` fields, and `@Html.AntiForgeryToken()` tokens matching the desktop `Details.cshtml` pattern.
 
 ---
 
