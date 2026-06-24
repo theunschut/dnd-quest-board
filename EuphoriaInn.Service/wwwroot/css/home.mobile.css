@@ -1,0 +1,33 @@
+/* Quest Board Mobile — home.mobile.css */
+/* Page 13: HOME-01, HOME-02, HOME-03, HOME-04 */
+
+/* Card stack container */
+.quest-list-mobile {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Individual quest card */
+/* position: relative required — signed-up badge uses position: absolute inside */
+.quest-card-mobile {
+    position: relative;
+    background-color: #343a40;
+    border: 1px solid #495057;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+/* Card title — 20px, bold */
+.quest-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0;
+}
+
+/* Hover/active feedback */
+.quest-card-mobile:active {
+    background-color: #495057;
+}
