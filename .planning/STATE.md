@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
-current_phase: 12
-current_phase_name: Mobile Infrastructure
 status: executing
-stopped_at: Phase 12 Plan 01 complete
+stopped_at: Phase 12 Plan 02 complete
 last_updated: "2026-06-24T00:00:00Z"
-last_activity: 2026-06-24
-last_activity_desc: Completed Plan 01 — MobileDetectionMiddleware + MobileViewLocationExpander
+last_activity: "2026-06-24 — Completed Plan 02: _Layout.Mobile.cshtml + _ViewStart.cshtml conditional routing + MobileLayoutTests"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 1
-  completed_plans: 1
-  percent: 5
+  total_plans: 3
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -24,30 +21,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v3.0 Mobile Version — Phase 12 Plan 01 complete, Plan 02 ready
+**Current focus:** Milestone v3.0 Mobile Version — Phase 12 Plan 02 complete, Plan 03 (mobile.css baseline) ready
 
 ## Current Position
 
 Phase: 12 of 16 (Mobile Infrastructure)
-Plan: 01 complete, proceeding to Plan 02
+Plan: 02 complete, proceeding to Plan 03
 Status: Executing
-Last activity: 2026-06-24 — Completed Plan 01: MobileDetectionMiddleware + MobileViewLocationExpander + Program.cs registration
+Last activity: 2026-06-24 — Completed Plan 02: _Layout.Mobile.cshtml + _ViewStart.cshtml conditional routing + MobileLayoutTests (4 tests green)
 
-Progress: [█░░░░░░░░░] 5%
+Progress: [██░░░░░░░░] 10%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: 9 minutes
-- Total execution time: 9 minutes
+- Total plans completed: 2
+- Average duration: 6 minutes
+- Total execution time: 12 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12 | 1 | 9 min | 9 min |
+| 12 | 2 | 12 min | 6 min |
 
 *Updated after each plan completion*
 
@@ -65,6 +62,8 @@ Recent decisions affecting current work:
 - Research: Mobile detection must live in PopulateValues (not ExpandViewLocations) — cache-key correctness; ExpandViewLocations only runs on cache miss
 - Plan 01: IsMobile stored as boxed bool (not string) in HttpContext.Items — is true pattern is null-safe and handles health check / static file requests
 - Plan 01: In .NET 10 ViewLocationExpanderContext.Values is null after construction; real RazorViewEngine initializes it before invoking expanders — test setup must mirror this
+- Plan 02: No @inject in _Layout.Mobile.cshtml — AuthorizationService/UserService already injected globally via _ViewImports.cshtml; adding them again would shadow/duplicate
+- Plan 02: Desktop HTML contains literal D&D Quest Board (unencoded &) in anchor text — integration test assertions must use literal string not HTML-encoded &amp;
 
 ### Pending Todos
 
@@ -77,5 +76,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-24
-Stopped at: Phase 12 Plan 01 complete
-Resume file: .planning/phases/12-mobile-infrastructure/12-02-PLAN.md
+Stopped at: Phase 12 Plan 02 complete
+Resume file: .planning/phases/12-mobile-infrastructure/12-03-PLAN.md

@@ -11,7 +11,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - Integer phases (12, 13, 14…): Planned milestone work
 - Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration)*
+- [ ] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration; Plan 02 complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + integration tests)*
 - [ ] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log
 - [ ] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone
 - [ ] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input
@@ -28,7 +28,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
   2. A `.Mobile.cshtml` file placed alongside any existing view is served automatically on mobile requests and never served on desktop requests — without touching the view's controller action
   3. A desktop browser visiting any route sees no change to layout, markup, or styles compared to before Phase 12
   4. `mobile.css` is loaded on mobile pages; touch targets in that stylesheet are at minimum 44px in height
-**Plans**: Plan 01 (complete: MobileDetectionMiddleware + MobileViewLocationExpander + Program.cs registration), Plan 02+ TBD
+**Plans**: Plan 01 (complete: MobileDetectionMiddleware + MobileViewLocationExpander + Program.cs registration), Plan 02 (complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + INFRA-02/04/05 integration tests), Plan 03+ TBD
 **UI hint**: yes
 
 ### Phase 13: Core Player Views
@@ -87,7 +87,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Mobile Infrastructure | 0/? | Not started | - |
+| 12. Mobile Infrastructure | 2/3 | In progress | - |
 | 13. Core Player Views | 0/? | Not started | - |
 | 14. Calendar | 0/? | Not started | - |
 | 15. DM Views | 0/? | Not started | - |
