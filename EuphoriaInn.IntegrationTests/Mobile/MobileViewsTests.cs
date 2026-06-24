@@ -40,6 +40,10 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     [Fact]
     public async Task MobileHome_MobileUserAgent_RendersCardListNotPosterImages()
     {
+        // Seed a quest so the card list renders (not the empty state)
+        var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home01", "dm_home01@test.com", name: "DM Home01");
+        await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Open Quest Home01");
+
         var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("quest-card-mobile");
@@ -75,13 +79,16 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-02b: Finalized quest shows the primary badge (date confirmed).
+    /// HOME-02b: Finalized quest shows the primary badge (date confirmed, future date).
+    /// Note: repository filters out finalized quests with null or past FinalizedDate;
+    /// a future FinalizedDate is required for the quest to appear on the board.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_FinalizedQuestShowsDate()
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home02b", "dm_home02b@test.com", name: "DM Home02b");
-        await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Finalized Adventure", isFinalized: true);
+        await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Finalized Adventure",
+            isFinalized: true, finalizedDate: DateTime.UtcNow.AddDays(7));
 
         var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
