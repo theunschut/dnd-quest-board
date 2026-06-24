@@ -60,7 +60,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 **Plans**: 3 plans
 Plans:
 - [x] 14-01-PLAN.md — Add CAL-05 to REQUIREMENTS.md and create integration test stubs (Wave 1)
-- [ ] 14-02-PLAN.md — Create calendar.mobile.css and Calendar/Index.Mobile.cshtml (Wave 2)
+- [x] 14-02-PLAN.md — Create calendar.mobile.css and Calendar/Index.Mobile.cshtml (Wave 2)
 - [ ] 14-03-PLAN.md — Create _Calendar.Mobile.cshtml, update Details.Mobile.cshtml, append quests.mobile.css (Wave 2)
 **UI hint**: yes
 
@@ -97,6 +97,6 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 |-------|----------------|--------|-----------|
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
 | 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
-| 14. Calendar | 1/3 | In progress | - |
+| 14. Calendar | 2/3 | In progress | - |
 | 15. DM Views | 0/? | Not started | - |
 | 16. Account & Browse | 0/? | Not started | - |
