@@ -9,8 +9,8 @@
 
 /* Individual quest card */
 .quest-card-mobile {
-    background-color: #343a40;
-    border: 1px solid #495057;
+    background-color: rgba(139, 69, 19, 0.18);
+    border: 1px solid rgba(139, 69, 19, 0.45);
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 8px;
@@ -21,15 +21,16 @@
 .quest-card-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #fff;
+    color: #F4E4BC;
     margin-bottom: 0;
 }
 
 /* Hover/active feedback */
 .quest-card-mobile:hover {
-    background-color: #3d444b;
+    background-color: rgba(139, 69, 19, 0.32);
+    border-color: rgba(205, 133, 63, 0.6);
 }
 
 .quest-card-mobile:active {
-    background-color: #495057;
+    background-color: rgba(139, 69, 19, 0.45);
 }
