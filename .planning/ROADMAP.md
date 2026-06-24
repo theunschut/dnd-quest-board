@@ -12,7 +12,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration; Plan 02 complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + integration tests; Plan 03 complete: mobile.css 44px touch targets + MobileCssTests — Phase 12 fully done)*
-- [ ] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log
+- [x] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log (completed 2026-06-24)
 - [ ] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone
 - [ ] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input
 - [ ] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens
@@ -88,7 +88,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
-| 13. Core Player Views | 3/4 | In progress | - |
+| 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
 | 14. Calendar | 0/? | Not started | - |
 | 15. DM Views | 0/? | Not started | - |
 | 16. Account & Browse | 0/? | Not started | - |
