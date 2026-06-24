@@ -140,6 +140,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_qview01", "dm_qview01@test.com", name: "DM Qview01");
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Vote Quest");
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.UtcNow.AddDays(7));
         var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory, "player_qview01", "player_qview01@test.com");
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/Quest/Details/{quest.Id}");
@@ -149,9 +150,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        html.Should().Contain("changeVoteToYes");
-        html.Should().Contain("changeVoteToNo");
-        html.Should().Contain("changeVoteToMaybe");
+        html.Should().Contain("btn-check");
         html.Should().Contain("quests.mobile.css");
     }
 
@@ -204,5 +203,104 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("quest-log.mobile.css");
+    }
+
+    /// <summary>
+    /// CAL-CSS: calendar.mobile.css is linked from /Calendar on mobile.
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_MobileUserAgent_LoadsMobileCssLink()
+    {
+        var (response, html) = await GetWithUserAgentAsync("/Calendar", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("calendar.mobile.css");
+    }
+
+    /// <summary>
+    /// CAL-01: Mobile UA on /Calendar renders agenda list (contains agenda-quest-entry, no calendar-grid).
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_MobileUserAgent_RendersAgendaList()
+    {
+        var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_cal01", "dm_cal01@test.com", name: "DM Cal01");
+        var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL01");
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id,
+            new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 15, 19, 0, 0, DateTimeKind.Utc));
+
+        var (response, html) = await GetWithUserAgentAsync(
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("agenda-quest-entry");
+        html.Should().NotContain("calendar-grid");
+    }
+
+    /// <summary>
+    /// CAL-02: Agenda entry contains day label in uppercase day-name format and time.
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_MobileUserAgent_AgendaEntryContainsDayLabelAndTime()
+    {
+        var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_cal02", "dm_cal02@test.com", name: "DM Cal02");
+        var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL02");
+        var knownDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 15, 19, 0, 0, DateTimeKind.Utc);
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, knownDate);
+
+        var (response, html) = await GetWithUserAgentAsync(
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("agenda-day-label");
+        // Day label format is "SATURDAY, JUNE 14" — assert at least the time portion is present
+        html.Should().Contain("19:00");
+    }
+
+    /// <summary>
+    /// CAL-03: Desktop UA on /Calendar does NOT render agenda list.
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_DesktopUserAgent_DoesNotRenderAgendaList()
+    {
+        var (response, html) = await GetWithUserAgentAsync("/Calendar", DesktopUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().NotContain("agenda-quest-entry");
+    }
+
+    /// <summary>
+    /// CAL-04: Agenda entry links to /Quest/Details/{id}.
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_MobileUserAgent_AgendaEntryLinksToDetails()
+    {
+        var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_cal04", "dm_cal04@test.com", name: "DM Cal04");
+        var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL04");
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.UtcNow.AddDays(3));
+
+        var (response, html) = await GetWithUserAgentAsync(
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain($"/Quest/Details/{quest.Id}");
+    }
+
+    /// <summary>
+    /// CAL-05: _Calendar.Mobile.cshtml partial renders per-date vote buttons on Quest Details mobile.
+    /// Authenticated player not yet signed up — should see btn-check radio inputs.
+    /// </summary>
+    [Fact]
+    public async Task MobileCalendar_MobileUserAgent_CalendarPartialRendersVoteButtons()
+    {
+        var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_cal05", "dm_cal05@test.com", name: "DM Cal05");
+        var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL05");
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.UtcNow.AddDays(5));
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_cal05", "player_cal05@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Quest/Details/{quest.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("btn-check");
+        html.Should().Contain("calendar-date-entry-mobile");
     }
 }
