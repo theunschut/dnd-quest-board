@@ -1,7 +1,7 @@
 ---
 phase: 14
 slug: calendar
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-24
@@ -121,6 +121,8 @@ Source: 14-CONTEXT.md D-12, D-13; `calendar.css` lines 102–108; Phase 13 UI-SP
   [Empty state — when month has no quests]
 </div>
 ```
+
+**Primary visual anchor:** The centered Cinzel month-name heading — the largest and most stylistically distinct element on the page. All other elements (day labels, quest entries, chevron buttons) subordinate to it.
 
 **Month navigation bar (D-01, D-02):**
 ```html
@@ -442,8 +444,8 @@ Phase 14 introduces no new JavaScript patterns. `_Calendar.Mobile.cshtml` uses o
 .agenda-quest-entry {
     background-color: #343a40;
     border-radius: 6px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
     cursor: pointer;
     border-left: 3px solid #343a40; /* overridden by status class */
 }
@@ -484,7 +486,7 @@ Add these rules to the existing `quests.mobile.css`:
 }
 
 .calendar-date-label-mobile {
-    font-size: 0.9375rem; /* ~15px, between body and small */
+    font-size: 0.875em; /* 14px — label/meta token */
     color: #1a0f08;
 }
 
@@ -548,11 +550,11 @@ Source: Phase 13 UI-SPEC.md Registry Safety (inherited); `_Layout.Mobile.cshtml`
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: FLAG (non-blocking — "Yes/No/Maybe" justified by D-03 narrow-screen constraint)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-06-24
