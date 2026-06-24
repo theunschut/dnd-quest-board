@@ -14,7 +14,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - [x] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration; Plan 02 complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + integration tests; Plan 03 complete: mobile.css 44px touch targets + MobileCssTests — Phase 12 fully done)*
 - [x] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log (completed 2026-06-24)
 - [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
-- [ ] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input
+- [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
 - [ ] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens
 
 ## Phase Details
@@ -74,10 +74,10 @@ Plans:
   3. The DM Profile page on mobile shows bio text and the profile photo in a single-column layout at a readable font size without requiring zoom
 **Plans**: 4 plans
 Plans:
-- [ ] 15-01-PLAN.md — Add DMVIEW integration test stubs to MobileViewsTests.cs (Wave 1)
-- [ ] 15-02-PLAN.md — Create Quest/Create.Mobile.cshtml and dm-create.mobile.css (Wave 2)
-- [ ] 15-03-PLAN.md — Create Quest/Manage.Mobile.cshtml and dm-manage.mobile.css (Wave 2)
-- [ ] 15-04-PLAN.md — Create DungeonMaster/Profile.Mobile.cshtml and dm-profile.mobile.css (Wave 2)
+- [x] 15-01-PLAN.md — Add DMVIEW integration test stubs to MobileViewsTests.cs (Wave 1)
+- [x] 15-02-PLAN.md — Create Quest/Create.Mobile.cshtml and dm-create.mobile.css (Wave 2)
+- [x] 15-03-PLAN.md — Create Quest/Manage.Mobile.cshtml and dm-manage.mobile.css (Wave 2)
+- [x] 15-04-PLAN.md — Create DungeonMaster/Profile.Mobile.cshtml and dm-profile.mobile.css (Wave 2)
 **UI hint**: yes
 
 ### Phase 16: Account & Browse

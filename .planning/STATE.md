@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
 status: executing
-stopped_at: Phase 15 planned — 4 plans in 2 waves — ready for /gsd-execute-phase 15
-last_updated: "2026-06-24T16:00:00Z"
+stopped_at: Phase 15 complete — DM Views (Create + Manage + Profile mobile views) — 110/110 tests pass
+last_updated: "2026-06-24T17:30:00Z"
 last_activity: 2026-06-24
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 14
-  completed_plans: 14
-  percent: 60
+  completed_phases: 4
+  total_plans: 18
+  completed_plans: 18
+  percent: 80
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v3.0 Mobile Version — Phase 14 (Calendar) complete; Phase 15 (DM Views) is next
+**Current focus:** Milestone v3.0 Mobile Version — Phase 15 (DM Views) complete; Phase 16 (Account & Browse) is next
 
 ## Current Position
 
-Phase: 15 of 16 (DM Views) — PLANNED
-Plan: 4 plans ready — test stubs (01), Create mobile view (02), Manage mobile view (03), Profile mobile view (04)
-Status: Phase 15 planned — all DMVIEW-01/02/03 requirements covered, verification PASSED
+Phase: 16 of 16 (Account & Browse) — NOT YET PLANNED
+Plan: Not started
+Status: Phase 15 complete — all DMVIEW-01/02/03 requirements satisfied, 110/110 integration tests pass
 Last activity: 2026-06-24
 
-Progress: [████░░░░░░] 40%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 18
 - Average duration: ~4.5 minutes
 - Total execution time: ~28 minutes
 
@@ -46,7 +46,8 @@ Progress: [████░░░░░░] 40%
 |-------|-------|-------|----------|
 | 12 | 3 | 14 min | 5 min |
 | 13 | 4 | ~18 min | ~4.5 min |
-| 14 | 2/3 | ~5 min | ~2.5 min |
+| 14 | 3 | ~10 min | ~3 min |
+| 15 | 4 | ~65 min | ~16 min |
 
 *Updated after each plan completion*
 
@@ -84,6 +85,10 @@ Recent decisions affecting current work:
 - Phase 14, Plan 03: No @inject in _Calendar.Mobile.cshtml — globally available via _ViewImports.cshtml
 - Phase 14, Plan 03: No @section Styles in _Calendar.Mobile.cshtml — partial cannot push sections; quests.mobile.css covers it
 - Phase 14, Plan 03: updateVoteIndexLookup set in foreach body without @{} wrapper — direct C# code mode assignment (Phase 13 pattern enforced)
+- Phase 15, Plan 03: Antiforgery already injected globally via _ViewImports.cshtml — no @inject in Manage.Mobile.cshtml (plan template was wrong, would cause duplicate injection compile error)
+- Phase 15, Plan 03: Both manage-date-option AND date-option CSS classes on same div — JS closest('.date-option') selector compatibility with desktop JavaScript
+- Phase 15, Plan 03: Raw C# variables inside @if(IsFinalized){} after HTML output — no @{} wrapper; Razor returns to C# code mode after HTML inside a code block
+- Phase 15, Plan 04: After creating new .Mobile.cshtml views, rebuild integration tests project (dotnet build EuphoriaInn.IntegrationTests) before running tests — WebApplicationFactory uses compiled output
 
 ### Pending Todos
 
@@ -96,5 +101,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-24
-Stopped at: Phase 14, Plan 02 complete — calendar.mobile.css + Index.Mobile.cshtml; CAL-01/02/03/04 GREEN
-Resume file: .planning/phases/15-dm-views/15-UI-SPEC.md
+Stopped at: Phase 15 complete — Create.Mobile.cshtml + Manage.Mobile.cshtml + Profile.Mobile.cshtml; all 3 DMVIEW tests GREEN; 110/110 total tests pass
+Resume file: .planning/phases/16-account-browse/ (not yet created — run /gsd-plan-phase 16 to plan)
