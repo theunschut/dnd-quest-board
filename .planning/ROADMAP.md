@@ -72,7 +72,12 @@ Plans:
   1. The Quest Create form on mobile is a single-column layout; date/time inputs use native touch pickers and all fields are reachable by vertical scroll only
   2. Quest Manage on mobile lets a DM select or deselect players and tap Finalize without any horizontal overflow
   3. The DM Profile page on mobile shows bio text and the profile photo in a single-column layout at a readable font size without requiring zoom
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 15-01-PLAN.md — Add DMVIEW integration test stubs to MobileViewsTests.cs (Wave 1)
+- [ ] 15-02-PLAN.md — Create Quest/Create.Mobile.cshtml and dm-create.mobile.css (Wave 2)
+- [ ] 15-03-PLAN.md — Create Quest/Manage.Mobile.cshtml and dm-manage.mobile.css (Wave 2)
+- [ ] 15-04-PLAN.md — Create DungeonMaster/Profile.Mobile.cshtml and dm-profile.mobile.css (Wave 2)
 **UI hint**: yes
 
 ### Phase 16: Account & Browse
@@ -98,5 +103,5 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
 | 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
-| 15. DM Views | 0/? | Not started | - |
+| 15. DM Views | 0/4 | Not started | - |
 | 16. Account & Browse | 0/? | Not started | - |
