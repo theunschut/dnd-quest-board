@@ -461,4 +461,80 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("account-card-mobile");
     }
+
+    // -----------------------------------------------------------------------
+    // Phase 16 — BROWSE-01: Shop index renders item grid and Filter & Sort button on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// BROWSE-01: Mobile UA on /Shop renders "Filter & Sort" offcanvas trigger button and links
+    /// shop.mobile.css. The shop-item-card-mobile class only renders when items exist; the filter
+    /// button and CSS link render unconditionally, so those are the stable smoke-test assertions.
+    /// Note: shop-item-card-mobile presence with seeded items is verified by Plan 03's own seeded test.
+    /// Test starts RED — Shop/Index.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileShopIndex_MobileUserAgent_RendersItemGridAndFilterButton()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "shop_browse16", "shop_browse16@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Shop");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("Filter &amp; Sort");
+        html.Should().Contain("shop.mobile.css");
+    }
+
+    /// <summary>
+    /// BROWSE-01 (D-04 guard): Mobile UA on /Shop must NOT render the purchase-history-panel.
+    /// Enforces decision D-04 — Purchase History side panel is omitted on mobile.
+    /// Test starts RED — Shop/Index.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileShopIndex_MobileUserAgent_OmitsPurchaseHistoryPanel()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "shop_d04_16", "shop_d04_16@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Shop");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().NotContain("purchase-history-panel");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 16 — BROWSE-02: Guild Members index renders list rows on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// BROWSE-02: Mobile UA on /GuildMembers links guild-members.mobile.css. The guild-member-row
+    /// class only renders when characters exist; the CSS link renders unconditionally, so that is
+    /// the stable smoke-test assertion here.
+    /// Note: guild-member-row presence with seeded characters is verified by Plan 04's own seeded test.
+    /// Test starts RED — GuildMembers/Index.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileGuildMembers_MobileUserAgent_RendersListRows()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "guild_browse16", "guild_browse16@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/GuildMembers");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("guild-members.mobile.css");
+    }
 }
