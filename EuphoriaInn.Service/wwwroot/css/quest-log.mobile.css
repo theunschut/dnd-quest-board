@@ -1,0 +1,30 @@
+/* Quest Log Mobile — quest-log.mobile.css */
+/* Phase 13: QVIEW-03 */
+
+/* Individual log entry */
+.quest-log-item {
+    background-color: #343a40;
+    border: 1px solid #495057;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+/* Entry title */
+.quest-log-item-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Hover/active feedback */
+.quest-log-item:active {
+    background-color: #495057;
+}
+
+/* Page heading uses Cinzel font (loaded by _Layout.Mobile.cshtml via Google Fonts CDN) */
+.cinzel-heading {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+}
