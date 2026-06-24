@@ -1,0 +1,36 @@
+/* Touch target sizing — INFRA-06 */
+.btn,
+a.nav-link,
+input,
+select,
+textarea,
+.form-control,
+.form-select {
+    min-height: 44px;
+}
+
+/* Mobile typography scale */
+body {
+    font-size: 16px; /* prevents iOS auto-zoom on input focus */
+    line-height: 1.5;
+}
+
+/* Mobile spacing overrides */
+.container-fluid {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* D&D theme baseline — D-04 */
+.navbar-brand {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+}
+
+.mobile-layout {
+    background-color: #212529; /* matches Bootstrap bg-dark */
+}
+
+.mobile-layout .navbar {
+    min-height: 56px;
+}
