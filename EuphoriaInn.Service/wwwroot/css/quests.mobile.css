@@ -46,13 +46,47 @@
     border-bottom: none !important;
 }
 
-/* Quest description — on notice board background, dark brown text matching desktop */
+/* Quest header card — glass card matching desktop modern-card */
+.quest-header-card-mobile {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 12px;
+}
+
+/* Title inside header card — parchment */
+.quest-header-card-mobile h5 {
+    color: #F4E4BC !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9),
+                 -1px -1px 2px rgba(0, 0, 0, 0.9),
+                 1px 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* DM name inside header card — faded parchment */
+.quest-header-card-mobile small,
+.quest-header-card-mobile .text-muted {
+    color: rgba(244, 228, 188, 0.7) !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Badges inside header card */
+.quest-header-card-mobile .badge {
+    text-shadow: none !important;
+}
+
+/* Divider inside header card */
+.quest-card-divider {
+    border-color: rgba(205, 133, 63, 0.4) !important;
+}
+
+/* Quest description — inside header card, parchment text */
 .quest-description-mobile {
     font-size: 1rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
-    color: #1a0f08;
-    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9), 1px 1px 2px rgba(0, 0, 0, 0.5);
+    color: #F4E4BC;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), -1px -1px 1px rgba(0, 0, 0, 0.9);
     font-weight: 500;
     white-space: pre-wrap;
 }
