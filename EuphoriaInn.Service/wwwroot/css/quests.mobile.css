@@ -1,0 +1,29 @@
+/* Quest Details Mobile — quests.mobile.css */
+/* Phase 13: QVIEW-01, QVIEW-02 */
+
+/* Participant list container */
+.participant-list-mobile {
+    border: 1px solid #495057;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #343a40;
+}
+
+/* Individual participant row */
+.participant-row {
+    font-size: 0.9rem;
+}
+
+/* Remove bottom border from last participant row */
+.participant-row:last-child {
+    border-bottom: none !important;
+}
+
+/* Quest description full-text block */
+.quest-description-mobile {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #dee2e6;
+    white-space: pre-wrap;
+}
