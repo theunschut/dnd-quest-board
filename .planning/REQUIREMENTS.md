@@ -23,8 +23,8 @@
 
 ### Quest Views
 
-- [ ] **QVIEW-01**: Quest Details on mobile shows the quest description and date voting buttons (Yes / No / Maybe) as large tap-friendly controls (minimum 44px)
-- [ ] **QVIEW-02**: The participant table on Quest Details is replaced with a stacked list on mobile (player name + character name + role, one item per row)
+- [x] **QVIEW-01**: Quest Details on mobile shows the quest description and date voting buttons (Yes / No / Maybe) as large tap-friendly controls (minimum 44px)
+- [x] **QVIEW-02**: The participant table on Quest Details is replaced with a stacked list on mobile (player name + character name + role, one item per row)
 - [ ] **QVIEW-03**: Quest Log index on mobile displays past quests as a scannable list with title, date, and DM name
 
 ### Calendar
@@ -80,8 +80,8 @@
 | HOME-02 | Phase 13 | Complete (Plan 02) |
 | HOME-03 | Phase 13 | Complete (Plan 02) |
 | HOME-04 | Phase 13 | Complete (Plan 02) |
-| QVIEW-01 | Phase 13 | Pending |
-| QVIEW-02 | Phase 13 | Pending |
+| QVIEW-01 | Phase 13 | Complete (Plan 03) |
+| QVIEW-02 | Phase 13 | Complete (Plan 03) |
 | QVIEW-03 | Phase 13 | Pending |
 | CAL-01 | Phase 14 | Pending |
 | CAL-02 | Phase 14 | Pending |
