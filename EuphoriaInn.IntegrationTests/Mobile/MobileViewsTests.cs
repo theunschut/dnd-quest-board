@@ -369,4 +369,96 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         html.Should().Contain("dm-profile-header-card");
         html.Should().Contain("dm-profile.mobile.css");
     }
+
+    // -----------------------------------------------------------------------
+    // Phase 16 — ACCT-01: Login page renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ACCT-01: Mobile UA on /Account/Login renders account-card-mobile glass card form and
+    /// links account.mobile.css. Test starts RED — Login.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileAccountLogin_MobileUserAgent_RendersGlassCardForm()
+    {
+        var (response, html) = await GetWithUserAgentAsync("/Account/Login", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("account-card-mobile");
+        html.Should().Contain("account.mobile.css");
+    }
+
+    /// <summary>
+    /// ACCT-01 regression guard: Desktop UA on /Account/Login must NOT render the mobile glass card.
+    /// Proves the desktop view is unchanged after the mobile view is added.
+    /// </summary>
+    [Fact]
+    public async Task MobileAccountLogin_DesktopUserAgent_DoesNotRenderGlassCard()
+    {
+        var (response, html) = await GetWithUserAgentAsync("/Account/Login", DesktopUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().NotContain("account-card-mobile");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 16 — ACCT-02: Register page renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ACCT-02: Mobile UA on /Account/Register renders account-card-mobile glass card form and
+    /// links account.mobile.css. Test starts RED — Register.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileAccountRegister_MobileUserAgent_RendersGlassCardForm()
+    {
+        var (response, html) = await GetWithUserAgentAsync("/Account/Register", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("account-card-mobile");
+        html.Should().Contain("account.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 16 — ACCT-03: Authenticated account pages render glass card on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ACCT-03 (Edit): Mobile UA on /Account/Edit renders account-card-mobile glass card form.
+    /// Uses authenticated request — AccountController.Edit carries [Authorize].
+    /// Test starts RED — Edit.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileAccountEdit_MobileUserAgent_RendersGlassCardForm()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "acct_edit16", "acct_edit16@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Account/Edit");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("account-card-mobile");
+    }
+
+    /// <summary>
+    /// ACCT-03 (Profile): Mobile UA on /Account/Profile renders account-card-mobile glass card layout.
+    /// Uses authenticated request — AccountController.Profile carries [Authorize].
+    /// Test starts RED — Profile.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task MobileAccountProfile_MobileUserAgent_RendersGlassCardLayout()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "acct_prof16", "acct_prof16@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Account/Profile");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("account-card-mobile");
+    }
 }
