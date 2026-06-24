@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
+milestone: v3.0
+milestone_name: Mobile Version
 status: executing
-stopped_at: Phase 14, Plan 02 complete — calendar.mobile.css + Calendar/Index.Mobile.cshtml created, CAL-01 through CAL-04 GREEN
-last_updated: "2026-06-24T15:16:00Z"
+stopped_at: Phase 14 complete — 3/3 plans done, all 107 tests GREEN; verifying before advancing to Phase 15
+last_updated: "2026-06-24T15:25:00Z"
 last_activity: 2026-06-24
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 10
-  completed_plans: 9
-  percent: 90
+  completed_phases: 3
+  total_plans: 14
+  completed_plans: 14
+  percent: 60
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v3.0 Mobile Version — Phase 13 complete; Phase 14 (Calendar) is next
+**Current focus:** Milestone v3.0 Mobile Version — Phase 14 (Calendar) complete; Phase 15 (DM Views) is next
 
 ## Current Position
 
-Phase: 14 of 16 (Calendar) — EXECUTING
-Plan: 14-02 complete — moving to 14-03 (_Calendar.Mobile.cshtml + Details.Mobile update)
-Status: Plan 02 of 3 complete — CSS + agenda view in place, CAL-01/02/03/04 GREEN
+Phase: 14 of 16 (Calendar) — COMPLETE
+Plan: All 3 plans complete — test stubs (01), agenda view (02), vote partial + Details update (03)
+Status: Phase 14 verified — 107/107 integration tests GREEN, all CAL requirements satisfied
 Last activity: 2026-06-24
 
 Progress: [████░░░░░░] 40%
@@ -80,6 +80,10 @@ Recent decisions affecting current work:
 - Phase 13, Plan 04: QVIEW-03 test fix: finalizedDate required for GetCompletedQuestsAsync filter (FinalizedDate <= yesterday)
 - Phase 14, Plan 01: QVIEW-01 updated to assert btn-check (not changeVoteToYes) — forward-compatible with Plan 03 AJAX removal
 - Phase 14, Plan 01: CreateProposedDateAsync seed added to QVIEW-01 so vote buttons render once Plan 03 replaces the AJAX block
+- Phase 14, Plan 03: VoteType.Yes=2, VoteType.No=0, VoteType.Maybe=1 — confirmed from desktop _Calendar.cshtml
+- Phase 14, Plan 03: No @inject in _Calendar.Mobile.cshtml — globally available via _ViewImports.cshtml
+- Phase 14, Plan 03: No @section Styles in _Calendar.Mobile.cshtml — partial cannot push sections; quests.mobile.css covers it
+- Phase 14, Plan 03: updateVoteIndexLookup set in foreach body without @{} wrapper — direct C# code mode assignment (Phase 13 pattern enforced)
 
 ### Pending Todos
 

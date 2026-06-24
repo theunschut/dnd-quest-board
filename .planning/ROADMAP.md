@@ -13,7 +13,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 
 - [x] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration; Plan 02 complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + integration tests; Plan 03 complete: mobile.css 44px touch targets + MobileCssTests — Phase 12 fully done)*
 - [x] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log (completed 2026-06-24)
-- [ ] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone
+- [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
 - [ ] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input
 - [ ] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens
 
@@ -61,7 +61,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 Plans:
 - [x] 14-01-PLAN.md — Add CAL-05 to REQUIREMENTS.md and create integration test stubs (Wave 1)
 - [x] 14-02-PLAN.md — Create calendar.mobile.css and Calendar/Index.Mobile.cshtml (Wave 2)
-- [ ] 14-03-PLAN.md — Create _Calendar.Mobile.cshtml, update Details.Mobile.cshtml, append quests.mobile.css (Wave 2)
+- [x] 14-03-PLAN.md — Create _Calendar.Mobile.cshtml, update Details.Mobile.cshtml, append quests.mobile.css (Wave 2)
 **UI hint**: yes
 
 ### Phase 15: DM Views
