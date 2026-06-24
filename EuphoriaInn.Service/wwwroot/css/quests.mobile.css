@@ -1,17 +1,44 @@
 /* Quest Details Mobile — quests.mobile.css */
 /* Phase 13: QVIEW-01, QVIEW-02 */
 
-/* Participant list container */
+/* Participant list — glass card matching desktop modern-card */
 .participant-list-mobile {
-    border: 1px solid #495057;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     padding: 12px;
-    background-color: #343a40;
+}
+
+/* Headings inside participant list — parchment */
+.participant-list-mobile h6 {
+    color: #F4E4BC !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Names and labels inside participant list — parchment */
+.participant-list-mobile .fw-bold {
+    color: #F4E4BC !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 2px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Character names and muted text inside card — faded parchment */
+.participant-list-mobile small,
+.participant-list-mobile .text-muted {
+    color: rgba(244, 228, 188, 0.7) !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Badges inside card */
+.participant-list-mobile .badge {
+    text-shadow: none !important;
 }
 
 /* Individual participant row */
 .participant-row {
     font-size: 0.9rem;
+    border-color: rgba(139, 69, 19, 0.3) !important;
 }
 
 /* Remove bottom border from last participant row */
@@ -19,11 +46,13 @@
     border-bottom: none !important;
 }
 
-/* Quest description full-text block */
+/* Quest description — on notice board background, dark brown text matching desktop */
 .quest-description-mobile {
     font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
-    color: #dee2e6;
+    color: #1a0f08;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9), 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-weight: 500;
     white-space: pre-wrap;
 }
