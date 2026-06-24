@@ -303,4 +303,70 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         html.Should().Contain("btn-check");
         html.Should().Contain("calendar-date-entry-mobile");
     }
+
+    /// <summary>
+    /// DMVIEW-01: Quest Create on mobile renders single-column glass card form (dm-create-card-mobile).
+    /// Also checks that dm-create.mobile.css is linked.
+    /// </summary>
+    [Fact]
+    public async Task MobileDmCreate_MobileUserAgent_RendersGlassCardForm()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_dmview01", "dm_dmview01@test.com", roles: new[] { "DungeonMaster" });
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Quest/Create");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("dm-create-card-mobile");
+        html.Should().Contain("dm-create.mobile.css");
+    }
+
+    /// <summary>
+    /// DMVIEW-02: Quest Manage on mobile renders condensed vote badges (manage-date-option, dm-vote-summary).
+    /// Also checks that dm-manage.mobile.css is linked.
+    /// </summary>
+    [Fact]
+    public async Task MobileDmManage_MobileUserAgent_RendersCondensedVoteBadges()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_dmview02", "dm_dmview02@test.com", roles: new[] { "DungeonMaster" });
+        var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dmUser.Id, "Manage Mobile Quest DM02");
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.UtcNow.AddDays(7));
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Quest/Manage/{quest.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("manage-date-option");
+        html.Should().Contain("dm-vote-summary");
+        html.Should().Contain("dm-manage.mobile.css");
+    }
+
+    /// <summary>
+    /// DMVIEW-03: DM Profile on mobile renders glass card layout (dm-profile-header-card).
+    /// Also checks that dm-profile.mobile.css is linked.
+    /// </summary>
+    [Fact]
+    public async Task MobileDmProfile_MobileUserAgent_RendersGlassCardLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_dmview03", "dm_dmview03@test.com", roles: new[] { "DungeonMaster" });
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/DungeonMaster/Profile/{dmUser.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("dm-profile-header-card");
+        html.Should().Contain("dm-profile.mobile.css");
+    }
 }
