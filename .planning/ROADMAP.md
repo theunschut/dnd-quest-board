@@ -224,3 +224,90 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 19-07-PLAN.md — Phase integration test gate (all 8 mobile-view tests GREEN)
+
+---
+
+# Roadmap: D&D Quest Board — Milestone 4: Email Notifications
+
+## Overview
+
+Milestone 4 adds three capabilities to the existing application: styled HTML email templates for all outbound notifications, automated and DM-triggered session reminders via Hangfire, and an admin email stats dashboard backed by the Resend REST API. The existing email delivery path (SmtpClient → Postfix → Resend SMTP relay) is unchanged — only the template rendering and job orchestration layers are new.
+
+The critical infrastructure decision is `HtmlRenderer` (built into .NET 10) for template rendering inside background jobs — `IRazorViewEngine` throws `NullReferenceException` in that context and must not be used. Every Hangfire job resolves scoped services via `IServiceScopeFactory` to avoid DbContext lifetime violations.
+
+## Phases
+
+**Phase Numbering:**
+Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications starts at Phase 20.
+
+- [ ] **Phase 20: Hangfire Infrastructure** - Install Hangfire with SQL Server storage, expose admin-only dashboard at `/hangfire`, and establish the `IServiceScopeFactory` pattern all subsequent jobs must follow
+- [ ] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template
+- [ ] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days
+- [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
+
+## Phase Details
+
+### Phase 20: Hangfire Infrastructure
+
+**Goal**: Hangfire is running, its dashboard is accessible only to Admin users, and the `IServiceScopeFactory` pattern is established as the mandatory contract for all subsequent job implementations
+**Depends on**: Nothing (first Milestone 4 phase)
+**Requirements**: JOBS-01, JOBS-02
+**Success Criteria** (what must be TRUE):
+  1. Visiting `/hangfire` as an Admin user loads the Hangfire dashboard; visiting it as a non-admin or unauthenticated user returns a 401 or redirect — never the dashboard content
+  2. The Hangfire dashboard registration appears in `Program.cs` after `UseAuthentication` and `UseAuthorization` — verifiable by code review (Docker-proxied requests would bypass `LocalRequestsOnlyAuthorizationFilter`, so a custom `IDashboardAuthorizationFilter` is used)
+  3. A smoke-test Hangfire job that resolves a scoped service via `IServiceScopeFactory` enqueues and completes without exception, confirming the scope pattern works before any real job is wired
+  4. The application starts and all existing integration tests pass — Hangfire adds the `[HangFire]` schema to the database without any EF Core migration
+**Plans**: TBD
+
+### Phase 21: HTML Email Templates
+
+**Goal**: All outbound emails render as styled HTML; the quest-finalization email is upgraded and protected against duplicate sends on re-finalization; the single-quest reminder template is ready for Phase 22 to consume
+**Depends on**: Phase 20
+**Requirements**: EMAIL-01, EMAIL-02, EMAIL-03
+**Success Criteria** (what must be TRUE):
+  1. Finalizing a quest sends a styled HTML email (not plain text) to all confirmed players; the email renders correctly in a standard email client
+  2. Re-opening and re-finalizing a quest for the same confirmed date does not send a second finalization email to players — the `FinalizedEmailSentForDate` column on the Quest entity (added via EF Core migration) prevents the duplicate
+  3. The `IEmailRenderService` interface is defined in Domain and backed by `RazorEmailRenderService` in Service; the implementation uses `HtmlRenderer` — not `IRazorViewEngine` — and can be invoked from a background job context without throwing `NullReferenceException`
+  4. A shared email layout Razor component (`_EmailLayout.razor`) and a quest-finalization Razor component (`QuestFinalized.razor`) exist and are used by the finalization send path
+  5. A single-quest session reminder Razor component (`SessionReminder.razor`) renders a complete HTML email that Phase 22 can use without modification
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 22: Session Reminders
+
+**Goal**: Players are automatically reminded of their confirmed quests 24 hours before the session, with digest batching for multi-quest days, idempotent retry behavior, and a DM manual trigger option
+**Depends on**: Phase 21
+**Requirements**: EMAIL-04, REMIND-01, REMIND-02, REMIND-03, REMIND-04
+**Success Criteria** (what must be TRUE):
+  1. A Hangfire recurring job runs daily at 09:00 and sends reminder emails to all players confirmed for quests whose `FinalizedDate` falls the following day — verified by checking Hangfire's recurring job list in the dashboard
+  2. A player confirmed for two quests on the same day receives exactly one combined digest email listing both quests, not two separate emails
+  3. A DM tapping the "Send Reminder" button on the quest manage page enqueues a Hangfire background job; the job completes and the player receives a reminder email
+  4. If the Hangfire job retries after a partial failure, players who already received a reminder (tracked via `ReminderSentAt` on the quest or a `ReminderLog` table, added via EF Core migration) are not emailed again
+  5. The date comparison in the reminder job accounts for the `FinalizedDate` timezone storage convention (UTC vs. local verified before implementation) so no quests are missed or triggered a day early
+**Plans**: TBD
+
+### Phase 23: Admin Email Stats
+
+**Goal**: Admin users can see live email delivery health (sent, delivered, bounced, failed) pulled from the Resend API, without adding the Resend SDK
+**Depends on**: Nothing (fully independent of Phases 21–22; requires only Phase 20 for the admin auth pattern)
+**Requirements**: STATS-01
+**Success Criteria** (what must be TRUE):
+  1. An Admin user can navigate to the email stats page and see counts for sent, delivered, bounced, and failed emails — pulled live from the Resend API
+  2. The stats are fetched via a typed `HttpClient` calling `GET https://api.resend.com/emails` with a Bearer token; no Resend SDK package is added to the project
+  3. The `ResendApiKey` is read from `EmailSettings` in `appsettings.json`; the page renders an actionable error message if the key is missing or the API returns an error (not an unhandled exception)
+  4. A non-admin user cannot access the stats page (protected by the existing `"AdminOnly"` authorization policy)
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 20 → 21 → 22 → 23
+Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any order after Phase 20 completes. The critical path is 20 → 21 → 22.
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 20. Hangfire Infrastructure | 0/TBD | Not started | - |
+| 21. HTML Email Templates | 0/TBD | Not started | - |
+| 22. Session Reminders | 0/TBD | Not started | - |
+| 23. Admin Email Stats | 0/TBD | Not started | - |
