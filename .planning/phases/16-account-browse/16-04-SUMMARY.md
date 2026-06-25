@@ -1,11 +1,29 @@
 ---
-plan: 16-04
 phase: 16-account-browse
+plan: "04"
+subsystem: mobile-guild-members
+tags: [mobile, guild-members, css, BROWSE-02]
 status: complete
-completed: 2026-06-25
-duration: ~5 min
-tasks_total: 3
-tasks_completed: 3
+
+dependency_graph:
+  requires:
+    - "16-01: integration test stubs (MobileGuildMembers test RED)"
+  provides:
+    - "BROWSE-02: mobile Guild Members directory as single-column tappable list rows"
+  affects: []
+
+tech_stack:
+  added: []
+  patterns:
+    - "glass card CSS pattern (rgba 0.15 background, blur 15px) — consistent with dm-profile.mobile.css"
+    - "tappable list row with onclick window.location.href — consistent with Phases 13-15"
+    - "GetProfilePicture route for all img src — Pitfall 5 avoidance"
+
+key_files:
+  created:
+    - EuphoriaInn.Service/Views/GuildMembers/Index.Mobile.cshtml
+    - EuphoriaInn.Service/wwwroot/css/guild-members.mobile.css
+  modified: []
 ---
 
 # Plan 16-04 Summary — Guild Members Mobile View
