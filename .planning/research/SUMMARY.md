@@ -1,154 +1,245 @@
-# Project Research Summary
+# Research Summary - Omphalos Integration (Milestone 3)
 
-**Project:** D&D Quest Board — Milestone 3: Mobile Version
-**Domain:** Mobile-specific Razor views in ASP.NET Core 8 MVC
-**Researched:** 2026-06-23
-**Confidence:** MEDIUM
+**Synthesized:** 2026-06-18
+**Sources:** STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md, PROJECT.md
+
+---
 
 ## Executive Summary
 
-Milestone 3 delivers a mobile-optimised experience for the D&D Quest Board by adding `.Mobile.cshtml` view variants alongside existing desktop views, using ASP.NET Core's built-in `IViewLocationExpander` mechanism for transparent device-based view routing. The approach requires no controller changes, no ViewModel changes, and no changes to the repository or domain layers. A lightweight middleware detects the User-Agent once per request, stores the result in `HttpContext.Items`, and the view expander reads that flag to prepend `.Mobile.cshtml` paths before falling back to the desktop views. All existing flows remain intact by design — a missing `.Mobile.cshtml` silently falls through to the desktop view.
+Milestone 3 connects two independent, already-functional apps (Quest Board on ASP.NET Core + SQL Server; Omphalos on .NET 10 Minimal API + PostgreSQL) via a browser-redirect SSO flow using a short-lived HMAC-SHA256 signed token. Neither app calls the other API directly in this milestone -- Quest Board generates a signed URL and issues a browser redirect; Omphalos receives and validates that redirect, auto-provisions the DM account on first use, finds or creates the quest session, and issues its JWT cookie. The entire cryptographic layer is BCL (System.Security.Cryptography.HMACSHA256) -- zero net-new NuGet packages required in either repo.
 
-The recommended implementation uses a hand-rolled `IViewLocationExpander` (~30 lines, zero new dependencies) rather than the `Wangkanai.Responsive` NuGet package. The hand-rolled path is lower-risk: no transitive dependencies, no middleware reordering required. Wangkanai requires moving `UseSession()` before `UseRouting()` in `Program.cs` and must not copy-paste its example `AddSession()` call, which would override the project's 24-hour session timeout with a 10-second default.
+The work breaks cleanly into three sequential Quest Board phases and one parallel Omphalos phase. Phase 10 (Admin Settings) is the sole blocker: it supplies IAdminSettingService which both subsequent Quest Board phases depend on at compile time. Phase 20 (Omphalos SSO) has no code dependency on Quest Board and can begin the moment the token format contract is written down. The two development streams converge only at end-to-end integration testing.
 
-The highest-complexity mobile views are the Calendar (agenda list vs. 7-column grid — structurally different markup) and the Quest Board index (removal of decorative poster images). The infrastructure block (middleware + expander + mobile layout + `_ViewStart.cshtml` update) must be built as an atomic unit before any individual mobile views are added; once in place, each `.Mobile.cshtml` is independent and deliverable incrementally.
+The highest-risk items are all pre-implementation decisions that cannot be deferred: the canonical MAC message format (which fields, in what order, with what encoding), the username normalisation convention, and the deployment topology (same eTLD+1 vs different domains). These three decisions must be locked before any implementation begins; getting them wrong after the fact requires coordinated changes in both repos simultaneously.
 
-## Key Findings
+---
 
-### Recommended Stack
+## Stack Additions
 
-**Core components (hand-rolled, zero new NuGet dependencies):**
-- `MobileDetectionMiddleware` — ~20 lines; parses User-Agent once per request; keywords: Mobi, Android, iPhone, iPad, Windows Phone, BlackBerry; sets `HttpContext.Items["IsMobile"]`
-- `MobileViewLocationExpander` — implements `IViewLocationExpander` (built-in ASP.NET Core 8); prepends `.Mobile.cshtml` paths; cache-key written in `PopulateValues`, path expansion in `ExpandViewLocations`
-- Bootstrap 5 offcanvas (already on CDN) — replaces desktop collapse nav with a slide-in drawer on mobile
+**Net-new NuGet packages: zero.**
 
-**Optional NuGet alternative:**
-- `Wangkanai.Responsive 7.14.0` + `Wangkanai.Detection 8.20.0` (transitive) — packages UA detection and view expander together; adds tablet detection and user-preference cookies; requires middleware reorder; NOT recommended due to session-timeout trap
+| Item | Location | Status | Action |
+|------|----------|--------|--------|
+| HMACSHA256 / CryptographicOperations | Both repos | Already in BCL runtime | Use directly |
+| IHttpClientFactory (Microsoft.Extensions.Http) | Quest Board Service | Included in Microsoft.NET.Sdk.Web | Add AddHttpClient in Program.cs |
+| AdminSettingEntity EF table | Quest Board Repository | Does not exist | New EF entity + migration AddAdminSettings |
+| QuestBoard:Secret config key | Omphalos | Does not exist | Add env var QuestBoard__Secret; fail-fast on startup |
+| ExternalQuestId column on GameSession | Omphalos Repository | Does not exist | New nullable int? column + Omphalos EF migration |
+| CORS code changes | Omphalos | N/A | None -- redirect is a browser navigation, not a fetch |
 
-**Stay as-is:**
-- All existing NuGet packages, CDN libraries, Bootstrap 5, jQuery, FontAwesome — no changes
+Existing packages unchanged: Microsoft.IdentityModel.Tokens (Omphalos), System.Security.Cryptography.Xml (Quest Board Domain). Both present but unrelated to HMAC token path.
 
-### Expected Features (Milestone 3 Scope)
+Note: CLAUDE.md says ASP.NET Core 8 but all Quest Board .csproj files target net10.0. Documentation is stale; nothing changes for this milestone.
 
-**Must have (table stakes):**
-- Mobile layout shell (`_Layout.Mobile.cshtml`) with Bootstrap offcanvas nav
-- Quest Board index mobile view — card list, no poster images, tap-friendly
-- Calendar mobile view — agenda/list replacing 7-column grid (highest complexity)
-- Quest Details mobile view — touch-friendly voting and signup UI
-- `mobile.css` — touch target sizing (44px min), mobile typography scale
+---
 
-**Should have:**
-- Quest Create / Edit mobile views (DMs create quests from phone)
-- DM Manage quest mobile view
-- Account pages mobile views (login, register, profile)
-- Guild Members mobile view
+## Feature Design Decisions
 
-**Defer:**
-- Tablet-specific views (`.Tablet.cshtml`)
-- PWA manifest and service worker
-- Push notifications
-- "Force desktop" cookie override
+### Admin Settings Shape
 
-### Architecture Approach
+Use a key-value EF entity (AdminSettingEntity: Key nvarchar(200) PK unique, Value nvarchar(max), UpdatedAt datetime2) rather than a typed two-column entity. The key-value shape avoids a new migration every time a settings key is added in a future milestone.
 
-Strictly additive to the Service layer only — no controllers, ViewModels, repositories, or domain services are modified.
+Two keys for this milestone: OmphalosUrl and OmphalosSharedSecret.
 
-**Build order is fixed:**
-1. `MobileDetectionMiddleware` — UA parsing, sets `HttpContext.Items["IsMobile"]`
-2. `MobileViewLocationExpander` — registered in `Program.cs` via `RazorViewEngineOptions`
-3. `_Layout.Mobile.cshtml` — mobile HTML shell; Bootstrap offcanvas nav; loads `mobile.css`
-4. `_ViewStart.cshtml` (modified) — single conditional sets Layout based on `HttpContext.Items["IsMobile"]`
-5. `mobile.css` — mobile overrides for typography, spacing, touch targets
-6. Per-page `*.Mobile.cshtml` — opt-in; created only where desktop markup is structurally incompatible
+Register IAdminSettingService as Scoped, not Singleton -- the secret must be read from DB per-request so a settings change takes effect immediately without restart.
 
-**Key implementation details:**
-- Detection **must** live in `PopulateValues`, not `ExpandViewLocations` — the latter only runs on cache miss; putting detection in the wrong method serves cached desktop paths to mobile users
-- Partial views participate in `ExpandViewLocations` automatically — `_QuestCard.Mobile.cshtml` will be checked before `_QuestCard.cshtml` on mobile requests with no extra code
-- View suffix `.Mobile.cshtml` alongside desktop view (e.g., `Views/Quest/Details.Mobile.cshtml` next to `Views/Quest/Details.cshtml`) — NOT a separate `/Views/Mobile/` folder hierarchy
+### Admin UI Secret Handling
 
-### Critical Pitfalls
+Render the secret field as type="password". On GET, leave the field empty -- do not populate from DB. On POST, only overwrite the DB value if the submitted field is non-empty. Empty POST = keep existing value. This prevents accidental secret exposure and is the standard pattern for secret fields.
 
-1. **Mobile detection inside `ExpandViewLocations`** — only called on cache miss; cached desktop paths are then served to mobile users. Always detect in `PopulateValues` and write to `context.Values`.
-2. **Adding a second `AddSession()` call when following Wangkanai's install guide** — overrides the project's 24-hour session timeout with 10 seconds, breaking auth. Reuse the existing `AddSession()`.
-3. **Using `UseDetection()` without `UseResponsive()`** — Detection alone does not register the `IViewLocationExpander`; views will not switch.
-4. **Setting Layout in each individual mobile view** — brittle. Set once in `_ViewStart.cshtml`; mobile views inherit automatically.
-5. **Creating a `/Views/Mobile/` parallel folder hierarchy** — complex expander path manipulation required. Use `.Mobile.cshtml` suffix in the same controller folder; expander is a one-line string replace.
+### Token Format (the cross-app contract)
 
-## Implications for Roadmap
+```
+MAC input (canonical, exact):  {username}|{questId}|{expiry}
+Algorithm:                      HMAC-SHA256
+Key encoding:                   UTF-8 bytes of the shared secret string
+Signature encoding:             lowercase hex
+Username normalisation:         lowercase both sides
+Field encoding:                 URL-encode each field before concatenating
+Expiry format:                  Unix timestamp, UTC seconds (never local time)
+Token TTL:                      300 seconds (5 minutes)
+Grace period on validation:     5-10 seconds (absorbs container clock drift)
+```
 
-### Phase 10: Mobile Infrastructure Foundation
-**Rationale:** All mobile views depend on the middleware + expander + layout + `_ViewStart` being in place as an atomic unit. Safe to ship with no `.Mobile.cshtml` files — all requests fall through to desktop views unchanged.
-**Delivers:** Mobile detection pipeline, view routing, mobile layout shell, `mobile.css` baseline; zero user-visible change for desktop users
-**Implements:** `MobileDetectionMiddleware`, `MobileViewLocationExpander`, `_Layout.Mobile.cshtml`, `_ViewStart.cshtml` update, `mobile.css`
-**Avoids:** Detection-in-ExpandViewLocations pitfall; second AddSession() pitfall; Layout-in-each-view pitfall
+Query string parameters: username, questId, questTitle, exp, sig.
 
-### Phase 11: Core Player-Facing Mobile Views
-**Rationale:** Players are the primary mobile users. Quest board index and Quest Details are the highest-traffic routes for this persona.
-**Delivers:** `Home/Index.Mobile.cshtml` (card list, no poster images), `Quest/Details.Mobile.cshtml` (touch voting UI)
-**Uses:** Bootstrap 5 card grid, mobile.css touch target rules
+questTitle is for session pre-fill only and is NOT in the MAC input. The MAC covers identity and routing (username|questId|expiry); presentation data is separate.
 
-### Phase 12: Calendar Mobile View
-**Rationale:** Highest-complexity mobile view — desktop 7-column grid is structurally unusable on a phone. Isolated to contain risk.
-**Delivers:** `Calendar/Index.Mobile.cshtml` (agenda list), mobile calendar CSS
-**Research flag:** Calendar is the highest-complexity mobile adaptation. The phase plan should include a spike on the agenda layout before committing to markup.
+### Session Find-or-Create
 
-### Phase 13: DM Mobile Views
-**Rationale:** DMs create and manage quests — lower mobile urgency than player-facing views, but forms must work on touch.
-**Delivers:** `Quest/Create.Mobile.cshtml`, `Quest/Manage.Mobile.cshtml`, DM directory mobile views
+Omphalos SSO endpoint performs find-or-create by ExternalQuestId (new nullable int? column on GameSession):
 
-### Phase 14: Account and Secondary Pages
-**Rationale:** Simplest pages; Bootstrap's responsive utilities may handle these without separate `.Mobile.cshtml` files. Audit each page — only create view files where desktop markup is structurally incompatible.
-**Delivers:** Mobile-ready Account pages (CSS or dedicated views), Shop index, Guild Members
-**Decision point:** CSS-only first; create `.Mobile.cshtml` only where needed
+1. Query GameSession WHERE UserId = provisioned user AND ExternalQuestId = questId.
+2. If found: redirect to that session.
+3. If not found: create new session with Id = Guid.NewGuid().ToString(), Title = questTitle, ExternalQuestId = questId.
 
-### Phase Ordering Rationale
+GameSession.Id is client-generated in the existing Omphalos codebase. The SSO endpoint must supply a valid unique ID on create -- use Guid.NewGuid().ToString().
 
-- Phase 10 is mandatory first — prerequisite for all others; can ship without breaking anything
-- Phases 11–14 reflect player-facing priority over DM-facing over administrative
-- Calendar (Phase 12) isolated from bulk player views (Phase 11) — failed calendar approach should not block quest board delivery
-- Phase 14 deferred — lowest risk pages, likely CSS-only
+### Auto-Provisioning Strategy
 
-### Research Flags
+On first SSO, Omphalos creates a User with:
+- Username = normalised (lowercase) username from token
+- PasswordHash = BCrypt hash of a cryptographically random password (never usable directly)
+- Role = mapped from Quest Board role in the token: DungeonMaster/Admin -> Omphalos Admin; Player -> Omphalos Player
 
-Needs research during planning:
-- **Phase 10 (infrastructure):** Confirm hand-rolled vs. Wangkanai final decision before starting
-- **Phase 12 (Calendar):** Agenda view markup needs a spike; `CalendarViewModel` may need a reshaping helper
+The token payload must include the Quest Board role. Defaulting all provisioned users to Player silently strips DMs of Omphalos permissions.
 
-Standard patterns (skip research):
-- **Phase 11:** Bootstrap card list; existing ViewModel sufficient
-- **Phase 13:** Same pattern as Phase 11
-- **Phase 14:** CSS media query audit; no new architecture decisions
+---
+
+## Architecture Overview
+
+### New Files Per Phase
+
+**Phase 10 -- Admin Settings (Quest Board)**
+
+| File | Layer | Status |
+|------|-------|--------|
+| EuphoriaInn.Repository/Entities/AdminSettingEntity.cs | Repository | New |
+| EuphoriaInn.Domain/Models/AdminSetting.cs | Domain | New |
+| EuphoriaInn.Domain/Interfaces/IAdminSettingRepository.cs | Domain | New |
+| EuphoriaInn.Domain/Interfaces/IAdminSettingService.cs | Domain | New |
+| EuphoriaInn.Domain/Services/AdminSettingService.cs | Domain | New |
+| EuphoriaInn.Repository/AdminSettingRepository.cs | Repository | New |
+| EuphoriaInn.Service/Controllers/Admin/AdminController.cs | Service | Modified -- add Settings GET/POST |
+| EuphoriaInn.Service/ViewModels/AdminViewModels/AdminSettingsViewModel.cs | Service | New |
+| EuphoriaInn.Service/Views/Admin/Settings.cshtml | Service | New |
+| EuphoriaInn.Repository/Entities/QuestBoardContext.cs | Repository | Modified -- add DbSet + unique index |
+| EuphoriaInn.Repository/Automapper/EntityProfile.cs | Repository | Modified -- add mapping |
+| EuphoriaInn.Repository/Extensions/ServiceExtensions.cs | Repository | Modified -- register repo |
+| EuphoriaInn.Domain/Extensions/ServiceExtensions.cs | Domain | Modified -- register service |
+| EF migration: AddAdminSettings | Repository/Migrations | New |
+
+**Phase 11 -- Navigation + Token Generation (Quest Board)**
+
+| File | Layer | Status |
+|------|-------|--------|
+| EuphoriaInn.Domain/Interfaces/IIntegrationTokenService.cs | Domain | New |
+| EuphoriaInn.Domain/Services/IntegrationTokenService.cs | Domain | New |
+| EuphoriaInn.Service/ViewComponents/OmphalosNavItemViewComponent.cs | Service | New |
+| EuphoriaInn.Service/Views/Shared/Components/OmphalosNavItem/Default.cshtml | Service | New |
+| EuphoriaInn.Service/Controllers/QuestBoard/QuestController.cs | Service | Modified -- add LaunchOmphalos action |
+| EuphoriaInn.Service/Views/Quest/Details.cshtml | Service | Modified -- conditional button |
+| EuphoriaInn.Service/Views/Quest/Manage.cshtml | Service | Modified -- conditional button |
+| EuphoriaInn.Service/Views/Shared/_Layout.cshtml | Service | Modified -- invoke OmphalosNavItem component |
+| EuphoriaInn.Domain/Extensions/ServiceExtensions.cs | Domain | Modified -- register IntegrationTokenService |
+
+**Phase 20 -- SSO Endpoint + Session Linking (Omphalos)**
+
+| File | Layer | Status |
+|------|-------|--------|
+| Omphalos.Domain/Entities/GameSession.cs | Domain | Modified -- add int? ExternalQuestId |
+| Omphalos.Domain/Interfaces/ISessionRepository.cs | Domain | Modified -- add GetByExternalQuestIdAsync |
+| Omphalos.Domain/Interfaces/IAuthService.cs | Domain | Modified -- expose GenerateToken(User) |
+| Omphalos.Domain/Interfaces/ISsoService.cs | Domain | New |
+| Omphalos.Domain/DTOs/SsoRequest.cs | Domain | New |
+| Omphalos.Domain/DTOs/SsoResult.cs | Domain | New |
+| Omphalos.Repository/Configurations/GameSessionConfiguration.cs | Repository | Modified -- nullable column + index |
+| Omphalos.Repository/Repositories/SessionRepository.cs | Repository | Modified -- implement GetByExternalQuestIdAsync |
+| Omphalos.Services/Implementations/AuthService.cs | Services | Modified -- make GenerateToken public |
+| Omphalos.Services/Implementations/SsoService.cs | Services | New |
+| Omphalos.Web/Endpoints/SsoEndpoints.cs | Web | New |
+| Omphalos.Web/Program.cs | Web | Modified -- register ISsoService; MapSsoEndpoints |
+| Omphalos EF migration: AddExternalQuestIdToGameSession | Repository/Migrations | New |
+
+### Key Architectural Patterns
+
+**IIntegrationTokenService in Domain, not inline in controller.** HMAC generation reads IAdminSettingService -- that is business logic, not presentation logic. Thin controller principle is enforced throughout this codebase.
+
+**View Component for navbar, not base controller inheritance.** _Layout.cshtml is shared across all controllers. A ViewComponent injects IAdminSettingService directly and fires once per layout render. A base controller approach fires a DB read on every action across every controller.
+
+**ViewBag for quest-page Omphalos flag, not new ViewModel wrapper.** Details and Manage already use ViewBag for five other flags. Adding ViewBag.OmphalosConfigured is consistent with the existing pattern; wrapping the raw Quest domain model is a scope-expanding refactor outside this milestone.
+
+**Asymmetric secret storage is by design.** Quest Board stores the secret in the DB (editable via Admin UI). Omphalos reads it from env var (fail-fast on startup). This matches how each app already manages its own secrets.
+
+---
+
+## Build Order
+
+```
+Phase 10: Admin Settings (Quest Board)
+    No dependencies -- start immediately.
+    |
+    Phase 10 merged + auto-migration deployed
+    |
+    Phase 11: Navigation + Token Generation (Quest Board)
+        Hard compile-time dependency on IAdminSettingService from Phase 10.
+        Cannot start until Phase 10 is merged.
+    |
+    Both Phase 11 AND Phase 20 complete
+    |
+    End-to-end integration test (both containers, shared secret configured)
+
+Phase 20: SSO Endpoint + Session Linking (Omphalos)   [PARALLEL to Phase 11]
+    No compile-time dependency on Quest Board.
+    Can start immediately after the token format contract is agreed.
+```
+
+Practical sequence:
+1. Lock the token format contract in writing (before any code)
+2. Phase 10 Quest Board Admin Settings -- unblocked
+3. Phase 20 Omphalos SSO -- begins in parallel after contract is agreed
+4. Phase 11 Quest Board token generation + nav -- begins after Phase 10 merges
+5. End-to-end test -- requires Phase 11 and Phase 20 both complete
+
+---
+
+## Watch Out For
+
+**1. Token format contract must be agreed before any implementation**
+The MAC canonical string, field encoding (URL-encode each component), signature encoding (lowercase hex), and username normalisation (lowercase both sides) must all be written down as a shared spec before either IntegrationTokenService.cs or SsoService.cs is started. A mismatch discovered after both sides are implemented requires coordinated edits in two repos. Write the spec as a block comment at the top of both files.
+
+**2. Username normalisation -- define once, apply everywhere (Phases 11 + 12)**
+Quest Board Identity UserName is mixed-case; Omphalos PostgreSQL comparisons are case-sensitive by default. If Quest Board sends "Theun" and Omphalos has stored "theun", auto-provision creates a duplicate and the unique index throws. Normalise to lowercase in the token payload (Phase 11) and before lookup in SsoService (Phase 20). This must be in the token format spec.
+
+**3. Secret field POST -- empty = keep existing, never overwrite with blank (Phase 10)**
+The GET must render the secret field empty. The POST must only call SetValueAsync for the secret if the submitted value is non-empty. Getting this wrong means the first save-without-changing-the-secret silently wipes the secret, breaking all subsequent SSO redirects with no obvious error.
+
+**4. Omphalos missing env var -- null HMAC key must fail-fast (Phase 20)**
+Follow the existing Omphalos pattern: builder.Configuration["QuestBoard:Secret"] ?? throw. If the code falls back to null, HMACSHA256 with a zero-length key still produces a valid HMAC -- meaning any forged token computed with the same empty key passes validation. Add QuestBoard__Secret=change-me to .env.example.
+
+**5. SameSite cookie and deployment topology (Phase 20)**
+omphalos_token uses SameSite=Lax. This works for redirects between subdomains of the same eTLD+1. If the apps are on different eTLD+1 domains, the cookie is silently blocked. The Secure = true TODO in AuthEndpoints.cs must become a hard requirement -- SameSite=None (needed for cross-eTLD+1) requires Secure=true. Verify deployment topology before Phase 20 begins.
+
+**6. Review the Omphalos migration before applying (Phase 20)**
+GameSession has a jsonb column (SessionLog). Npgsql EF Core migrations have historically emitted spurious AlterColumn for jsonb columns when regenerating the model snapshot. After running the migration add command, read the generated Up() method and confirm it contains only AddColumn for external_quest_id. Remove any spurious AlterColumn on SessionLog before applying.
+
+**7. Include Quest Board role in token payload (Phase 20)**
+Defaulting all auto-provisioned users to Omphalos UserRole.Player silently strips DMs of DM-only Omphalos permissions. The token must carry the Quest Board role; SsoService maps DungeonMaster/Admin to Omphalos Admin. Define the mapping in the token spec.
+
+---
+
+## Open Questions (Policy Decisions Needed)
+
+These cannot be resolved by research. They require a product or operator decision before implementation begins.
+
+**1. Replay protection: accept residual risk or implement a nonce store?**
+A 5-minute token with no nonce store means a captured redirect URL is reusable for up to 5 minutes. For a trusted self-hosted group app this is a known, acceptable risk. A scoped ConcurrentDictionary on Quest Board (no DB writes, cleared on expiry) covers it if nonce tracking is required. Pick one before Phase 11 is specced.
+
+**2. Omphalos unreachable: block the redirect with an inline error, or always redirect and accept a browser dead-end?**
+A server-side pre-flight GET {omphalosUrl}/health (2-3s timeout) before issuing the redirect gives the DM an inline error on the Quest Board page. This adds one HTTP call on every "Open Session Notes" click. Alternative: always redirect and accept the browser error. Decision needed.
+
+**3. Integration button when Omphalos is not configured: disabled with tooltip, or hidden entirely?**
+Disabled gives admins a visual cue on a freshly deployed instance; hidden keeps the UI clean. Both are defensible. Decision needed before the Settings and Quest views are built.
+
+**4. Quest Board origin in Omphalos AllowedOrigins: Milestone 3 deployment requirement or defer to the bidirectional milestone?**
+The SSO redirect flow needs no CORS change. But any future JavaScript API calls will require Quest Board URL in AllowedOrigins. Configure now (deployment concern, not code) or track for the next milestone?
+
+**5. Store ExternalSessionId back on Quest Board QuestEntity this milestone?**
+Enables a session-exists badge on the Quest Manage page. Requires a nullable string? ExternalSessionId column and a Quest Board migration. FEATURES.md calls it a differentiator; ARCHITECTURE.md treats it as optional. Include in Milestone 3 or defer?
+
+---
 
 ## Confidence Assessment
 
-| Area | Confidence | Notes |
+| Area | Confidence | Basis |
 |------|------------|-------|
-| Stack | MEDIUM | Versions verified from NuGet registry; middleware ordering from official Wangkanai install guide; limited .NET 8 community examples |
-| Architecture | MEDIUM | IViewLocationExpander interface confirmed from official source; PopulateValues cache-key semantics confirmed |
-| Pitfalls | MEDIUM | Critical pitfalls evidenced from source and official docs; Wangkanai-specific pitfalls from official install guide |
-| Features | MEDIUM | Scope inferred from project brief; no dedicated Milestone 3 feature research file (FEATURES.md is stale Milestone 2) |
+| Stack (no new packages) | HIGH | Both repos directly inspected; BCL APIs verified |
+| Token format design | HIGH | BCL crypto is stable; format is a design choice, not a discovery |
+| Quest Board architecture | HIGH | Existing patterns are consistent; new files follow established conventions exactly |
+| Omphalos architecture | HIGH | Omphalos source directly inspected; flat structure is straightforward to extend |
+| Security pitfalls | HIGH | All pitfalls grounded in actual code and well-documented SSO patterns |
+| Deployment topology (SameSite cookie) | MEDIUM | Depends on how the operator deploys; cannot be resolved until deployment config is known |
+| React SPA auth guard behaviour | MEDIUM | Auth guard code not fully inspected; flagged as a Phase 20 frontend risk |
 
-**Overall confidence:** MEDIUM
-
-### Gaps to Address
-
-- **FEATURES.md is stale (Milestone 2):** No dedicated Milestone 3 feature research file. Roadmapper should derive feature scope from project brief and architecture research.
-- **Calendar agenda layout design:** No specific markup pattern researched. Spike warranted before Phase 12 plan.
-- **Hand-rolled vs. Wangkanai final decision:** Resolve in Phase 10 planning. Recommendation: hand-rolled.
-
-## Sources
-
-### Primary (MEDIUM confidence)
-- NuGet Gallery — Wangkanai.Responsive 7.14.0 / Detection 8.20.0 (version, net8.0 target)
-- Wangkanai Responsive INSTALL.md (middleware order, view suffix convention)
-- IViewLocationExpander source — dotnet/aspnetcore (interface contract, cache-key semantics)
-- IViewLocationExpander Interface — Microsoft Learn
-- Layout in ASP.NET Core — Microsoft Learn
-
-### Secondary (MEDIUM confidence)
-- Jack Histon — IViewLocationExpander walkthrough (PopulateValues/ExpandViewLocations pattern; confirmed stable through .NET 8)
-- Khalid Abuhakmeh — Razor View Engine searched locations (default format patterns)
-
----
-*Research completed: 2026-06-23*
-*Ready for roadmap: yes*
+**Overall: HIGH confidence on the implementation path. MEDIUM on two deployment-environment assumptions that must be verified before Phase 20 ships.**

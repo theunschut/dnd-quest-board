@@ -1,17 +1,4 @@
-# D&D Quest Board — Milestone 3: Mobile Version
-
-## Current Milestone: v3.0 Mobile Version
-
-**Goal:** Give the D&D Quest Board a purpose-built mobile experience using mobile-specific Razor views, keeping all controllers, data, and desktop views unchanged.
-
-**Target features:**
-- Mobile detection middleware + `IViewLocationExpander` (view engine checks `ViewName.Mobile.cshtml` first on mobile requests)
-- Mobile shared layout with hamburger navbar
-- Quest board: clean tap-list replacing the decorative poster/parchment images
-- Calendar: iPhone-style agenda view (day label + quests below, empty days skipped) replacing 7-column grid
-- All other pages: mobile-optimised layouts (Quest Details, Shop, Guild Members, DM Profile, Account, Admin views)
-
-**Paused from Milestone 2:** Phase 8 (Profile Picture Avatar Crop, issue #78) — deferred; resumes in a future milestone.
+# D&D Quest Board
 
 ## What This Is
 
@@ -21,47 +8,54 @@ A D&D campaign management web application for a group of players and Dungeon Mas
 
 The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
 
+## Current Milestone: v2.0 Omphalos Integration
+
+**Goal:** DMs can open Omphalos session notes for any quest with one click — navigated automatically into the correct session, authenticated via a short-lived signed token.
+
+**Target features:**
+- Admin Settings page (key-value store) for Omphalos URL and shared secret
+- "Open DM Tool" link in DM navbar dropdown and "Open Session Notes" button on quest pages
+- Omphalos: SSO endpoint that validates Quest Board tokens and auto-provisions users + quest sessions
+- Foundation designed for bidirectional API calls (Omphalos → Quest Board) in a future milestone
+
 ## Requirements
 
 ### Validated
 
-- ✓ Quest creation with proposed dates and difficulty selection — existing
-- ✓ Player signup with Yes/No/Maybe date voting — existing
-- ✓ DM quest finalization with player selection and email notification — existing
-- ✓ User authentication and registration (ASP.NET Core Identity) — existing
-- ✓ Role-based access control (Admin, DungeonMaster, Player) — existing
-- ✓ Character creation and guild member directory — existing
-- ✓ Shop with gold economy and item transactions — existing
-- ✓ Monthly calendar view for quest scheduling — existing
-- ✓ Admin panel for user and quest management — existing
-- ✓ Docker deployment with SQL Server — existing
+*From before Milestone 2:*
+- ✓ Quest creation with proposed dates and difficulty selection
+- ✓ Player signup with Yes/No/Maybe date voting
+- ✓ DM quest finalization with player selection and email notification
+- ✓ User authentication and registration (ASP.NET Core Identity)
+- ✓ Role-based access control (Admin, DungeonMaster, Player)
+- ✓ Character creation and guild member directory
+- ✓ Shop with gold economy and item transactions
+- ✓ Monthly calendar view for quest scheduling
+- ✓ Admin panel for user and quest management
+- ✓ Docker deployment with SQL Server
+
+*From Milestone 2: Refactor + Feature Expansion (v1.0):*
+- ✓ Domain layer compiles without referencing Repository; correct dependency direction enforced at build time — Phase 1
+- ✓ Quest finalization and email dispatch fully inside services; controllers receive ServiceResult — Phase 2
+- ✓ Typed EmailSettings options; AppUrl config; no SMTP duplication — Phase 2
+- ✓ Dead code removed; magic numbers replaced with named enums; naming consistent — Phase 3
+- ✓ Account lockout (5 attempts/15 min); password minimum 8 characters; .env gitignored — Phase 4
+- ✓ Shop filter and sort by rarity/price; URL-persistent state — Phase 5
+- ✓ Follow-up quest creation from a finalized quest; original players pre-approved — Phase 6
+- ✓ DM profile page with photo and bio; DMs edit own profile; admin edits any — Phase 7
+- ✓ Shop server-side pagination (12 items/page) with stacked search, filter, sort — Phase 9
+
+*From Milestone 3: Omphalos Integration (v2.0 — Quest Board side complete):*
+- ✓ Admin Settings page for Omphalos URL and shared secret; protected by AdminOnly policy — Phase 10
+- ✓ OmphalosNavItem ViewComponent in DM navbar dropdown; "Open Omphalos" link (new tab) — Phase 11
+- ✓ "Open Session Notes" button on Quest Detail and Manage pages for DMs — Phase 11
+- ✓ LaunchOmphalos endpoint generates 300s HMAC-SHA256 signed redirect URL — Phase 11
 
 ### Active
 
-#### Architecture Refactor
-- [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
-- [x] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers — Validated in Phase 02: email-service-consolidation
-- [x] Controllers reduced to: validate input → call service → return view/redirect — Validated in Phase 02: email-service-consolidation
+*(Requirements for Milestone 3 — Phase 20 Omphalos work remaining)*
 
-#### Code Quality & Dead Code — Validated in Phase 03: code-quality-dead-code
-- [x] Remove `SecurityConfiguration` class and its unused `appsettings.json` section
-- [x] Remove dead `UpdateQuestPropertiesAsync` (non-notification variant) from interface and service
-- [x] Replace `SignupRole == 1` magic number with named enum reference throughout
-- [x] Extract 30-minute `IsSameDateTime` window as a named constant with comment
-- [x] Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` to match its actual class name
-
-#### Security — Validated in Phase 04: security-hardening
-- [x] Enable account lockout on login (`lockoutOnFailure: true`, 5 attempts, 15-min lock)
-- [x] Increase minimum password length to 8 characters
-- [x] Remove `Password` property from `User` domain model
-- [x] Add `.env` to `.gitignore`; keep only `.env.example` tracked
-- Note: `HasKey` remains on user-facing edit — it is informational (who holds a physical building key), not a permission
-
-#### New Features
-- [x] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style — Validated in Phase 07: dm-profile-page
-- [x] Shop filter and sort by price/rarity (issue #96) — Validated in Phase 05: shop-filter-sort
-- [x] Follow-up quest creation (issue #49) — creates part 2 with existing players pre-filled, new date required — Validated in Phase 06: follow-up-quest
-- [ ] Profile picture crop/avatar selection for guild member page (issue #78) — deferred to future milestone
+- [ ] Omphalos validates the Quest Board token, auto-provisions DM account on first use, finds/creates quest session, issues JWT cookie — Phase 20 (Omphalos repo)
 
 ### Out of Scope
 
@@ -69,33 +63,40 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - 5etools integration (#82) — large standalone feature, future milestone
 - Miniature request page (#59) — large standalone feature, future milestone
 - Email verification on registration — deferred; small group, trust is assumed
-- ~~Pagination on list views — deferred; group is small enough that unbounded lists are fine now~~ — Shop pagination implemented in Phase 09 with server-side EF Core paging (12 items/page) and search
 - Image blob storage migration — deferred; performance acceptable at current scale
+- Profile picture avatar crop (Phase 8) — deferred from Milestone 2; no strong user demand, revisit later
+- Omphalos → Quest Board API calls — bidirectional foundation laid in Milestone 3; full reverse integration in a future milestone
+- True SSO / OAuth OIDC between apps — overkill for self-hosted group app; HMAC shared-secret bridge is sufficient
 
 ## Context
 
-The codebase was built iteratively with AI assistance without upfront planning. It is functional but has accumulated architectural drift:
+The codebase completed a major refactor (Milestone 2) restoring clean architecture: Domain layer independent from Repository, business logic in services, typed configuration, security hardened. Architecture concerns from the original codebase are resolved.
 
-- **Layer boundary violation:** `EuphoriaInn.Domain` services directly reference `EuphoriaInn.Repository` entity types and depend on the repository layer for EF-specific constructs. The intended direction is Domain ← Repository (Domain defines interfaces, Repository implements them) but in practice Domain knows too much about Repository internals.
-- **Controller bloat:** Quest finalization, email dispatch, shop transactions, and other multi-step operations are partially or fully implemented inside controller actions rather than delegated to services.
-- **30 documented concerns** catalogued in `.planning/codebase/CONCERNS.md` — this milestone addresses the architecture, code quality, and security subsets.
+Omphalos (C:\Repos\omphalos) is a friend's DM campaign manager: React 18 + ASP.NET Core 10 Minimal API + PostgreSQL, JWT auth via httpOnly cookie, served from Docker. It already has an `/api` prefix, CORS `ALLOWED_ORIGIN` config, and admin settings infrastructure. The integration adds a shared-secret SSO endpoint and quest-session linking to Omphalos.
+
+**Bidirectional design note:** The shared HMAC secret is symmetric — it can validate calls in either direction. Future phases can add Omphalos → Quest Board API calls using the same key without changing the security model.
 
 The codebase map is current (analysed 2026-04-15): `.planning/codebase/`.
 
 ## Constraints
 
-- **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work after the refactor
+- **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work
 - **Tech stack:** Stay on ASP.NET Core 8 MVC + SQL Server + EF Core — no framework changes
 - **Deployment:** Must remain deployable via `docker-compose up` with no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
+- **Standalone apps:** Both Quest Board and Omphalos must function independently without the other running
+- **No stored credentials:** Shared secret stored in admin settings (DB) for Quest Board; env var for Omphalos
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | — Validated: phases 1-4 refactor complete, features landing on clean arch |
+| Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | ✓ Good — phases 1-4 refactor complete, features landed on clean arch |
 | Bugs deferred to separate milestone | Bugs are isolated fixes; refactor may touch same code and create conflicts | — Standing |
-| No pagination this milestone | Group size makes it a non-issue; adds complexity to every list view | — Reversed in Phase 09: shop pagination added with server-side EF Core paging |
+| No pagination this milestone (M2) | Group size makes it a non-issue | — Reversed in Phase 09: shop pagination added |
+| Phase 8 avatar crop deferred from M2 | No strong user demand; SkiaSharp native lib risk in Docker image | — Deferred to future milestone |
+| HMAC shared-secret for cross-app auth | Simpler than OAuth; both apps remain standalone; symmetric for future bidirectional use | — Pending |
+| Username-based user matching | Assumes same username in both apps; auto-provision on first SSO; no explicit linking step | — Pending |
 
 ## Evolution
 
@@ -115,4 +116,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-25 — Phase 18 complete; Quest/Edit, CreateFollowUp, DungeonMaster/EditProfile, and QuestLog/Details mobile views shipped, 126 integration tests pass*
+*Last updated: 2026-06-18 — Milestone 3: Omphalos Integration started*

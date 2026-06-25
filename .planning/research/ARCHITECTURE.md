@@ -1,535 +1,351 @@
-# Architecture Research
+# Architecture Research — Omphalos Integration
 
-**Domain:** Mobile-specific Razor views in ASP.NET Core 8 MVC using IViewLocationExpander
-**Researched:** 2026-06-23
-**Confidence:** MEDIUM
-
----
-
-## Standard Architecture
-
-### System Overview
-
-```
-HTTP Request (mobile User-Agent)
-        │
-        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  MobileDetectionMiddleware                                  │
-│  Reads User-Agent → HttpContext.Items["IsMobile"] = true    │
-│  (runs before UseRouting)                                   │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  MVC Pipeline (UseRouting → UseAuthorization)               │
-│  Controller executes, returns ViewResult with ViewModel     │
-│  No controller changes required                             │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  RazorViewEngine — view resolution                          │
-│                                                             │
-│  MobileViewLocationExpander.PopulateValues()                │
-│    reads HttpContext.Items["IsMobile"]                      │
-│    stores in context.Values["isMobile"]  ← cache key       │
-│                                                             │
-│  MobileViewLocationExpander.ExpandViewLocations()           │
-│    for each location yields:                                │
-│      1. /Views/{1}/{0}.Mobile.cshtml  ← checked first      │
-│      2. /Views/{1}/{0}.cshtml         ← desktop fallback    │
-│    for Shared yields:                                       │
-│      1. /Views/Shared/{0}.Mobile.cshtml                     │
-│      2. /Views/Shared/{0}.cshtml                            │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  _ViewStart.cshtml                                          │
-│  Sets Layout = mobile or desktop based on HttpContext.Items │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-               View renders with shared ViewModel
-         (same ViewModel type — no controller changes)
-```
-
-### Component Responsibilities
-
-| Component | Responsibility | Location |
-|-----------|----------------|----------|
-| `MobileDetectionMiddleware` | Parse User-Agent, set `HttpContext.Items["IsMobile"]` | `EuphoriaInn.Service/Middleware/MobileDetectionMiddleware.cs` |
-| `MobileViewLocationExpander` | Inject `.Mobile.cshtml` paths into view resolution chain | `EuphoriaInn.Service/ViewExpanders/MobileViewLocationExpander.cs` |
-| `_Layout.Mobile.cshtml` | Shared mobile HTML shell, slim navbar, mobile CSS | `EuphoriaInn.Service/Views/Shared/_Layout.Mobile.cshtml` |
-| `_ViewStart.cshtml` | Conditionally sets `Layout` to mobile or desktop | `EuphoriaInn.Service/Views/_ViewStart.cshtml` (modified) |
-| `*.Mobile.cshtml` views | Mobile-specific page content, opt-in per page | `EuphoriaInn.Service/Views/{Controller}/` alongside desktop views |
-| `mobile.css` | Mobile-specific stylesheet | `EuphoriaInn.Service/wwwroot/css/mobile.css` (new) |
+**Researched:** 2026-06-18
+**Confidence:** HIGH — direct codebase inspection of both repos
 
 ---
 
-## Architectural Patterns
+## Quest Board New Components
 
-### Pattern 1: IViewLocationExpander — suffix injection with fallback
+### Phase 10: Admin Settings
 
-**What:** A class implementing `IViewLocationExpander` that prepends `.Mobile.cshtml` paths ahead of every default location. The Razor engine tries paths in yield order — the first file that exists wins. Because every mobile path is paired with its desktop fallback in the same yield block, missing `.Mobile.cshtml` files automatically fall through to the desktop view.
+**Goal:** Admin can save and load Omphalos URL and shared HMAC secret via a new /Admin/Settings page.
 
-**When to use:** Any time you want optional per-page overrides without modifying controllers. This is the canonical ASP.NET Core mechanism for view location customisation.
+#### Layer Placement
 
-**Two-method contract:**
+AdminSetting is a simple key-value configuration store. It follows the same full-stack pattern as every other entity in the codebase: entity in Repository, domain model + interface + service in Domain, controller action in Service layer. There is no shortcut here — putting settings logic in the controller would violate the "thin controller" principle that the Milestone 2 refactor established.
 
-- `PopulateValues` runs on every request. It writes values into `context.Values` which form the cache key. Two requests with identical `context.Values` skip `ExpandViewLocations` and reuse cached paths. **This is where mobile detection state must be written.**
-- `ExpandViewLocations` runs only on cache miss (new unique key combination). It receives the default location list and returns an expanded list. Order determines priority.
+#### New Files
 
-**Complete implementation:**
+**Repository layer — `EuphoriaInn.Repository/`**
+
+- `Entities/AdminSettingEntity.cs` — EF entity implementing `IEntity`. Properties: `int Id` (identity PK, satisfies `IEntity` contract), `string Key` (unique), `string Value`, `DateTime UpdatedAt`. Uses data annotation `[Table("AdminSettings")]`, `[Key]`, `[DatabaseGenerated(DatabaseGeneratedOption.Identity)]`, `[Required]`, `[StringLength(200)]` on Key, consistent with `ShopItemEntity` style.
+- `Interfaces/IAdminSettingRepository.cs` — placed in `EuphoriaInn.Repository/Interfaces/` (not Domain, because this is a concrete infrastructure interface); note: repository interfaces go in `EuphoriaInn.Domain/Interfaces/` per the existing pattern — see `IQuestRepository`, `IShopRepository` etc. Therefore this file goes to `EuphoriaInn.Domain/Interfaces/IAdminSettingRepository.cs`. Extends `IBaseRepository<AdminSetting>` and adds `Task<AdminSetting?> GetByKeyAsync(string key, CancellationToken ct)` and `Task UpsertByKeyAsync(string key, string value, CancellationToken ct)`.
+- `AdminSettingRepository.cs` — placed at root of `EuphoriaInn.Repository/` (same level as `ShopRepository.cs`, `QuestRepository.cs`). Extends `BaseRepository<AdminSetting, AdminSettingEntity>`, implements `GetByKeyAsync` via `DbSet.FirstOrDefaultAsync(e => e.Key == key)` and `UpsertByKeyAsync` via find-then-add-or-update pattern, calls `DbContext.SaveChangesAsync`.
+
+**QuestBoardContext modification** — `EuphoriaInn.Repository/Entities/QuestBoardContext.cs`
+
+- Add `public DbSet<AdminSettingEntity> AdminSettings { get; set; }` — one line, follows the pattern of every other `DbSet` already present.
+- Add a unique index on `Key` in `OnModelCreating`: `modelBuilder.Entity<AdminSettingEntity>().HasIndex(a => a.Key).IsUnique()` — prevents duplicate keys at the DB level.
+
+**Domain layer — `EuphoriaInn.Domain/`**
+
+- `Models/AdminSetting.cs` — domain model with `int Id`, `string Key`, `string Value`, `DateTime UpdatedAt`; implements `IModel`. Placed in `EuphoriaInn.Domain/Models/` alongside `Quest.cs`, `User.cs` etc.
+- `Interfaces/IAdminSettingRepository.cs` — (see above — repository interfaces live in Domain per existing pattern)
+- `Interfaces/IAdminSettingService.cs` — extends `IBaseService<AdminSetting>` with two extra methods: `Task<string?> GetValueAsync(string key, CancellationToken ct = default)` and `Task SetValueAsync(string key, string value, CancellationToken ct = default)`.
+- `Services/AdminSettingService.cs` — `internal class AdminSettingService` extends `BaseService<AdminSetting>` (note: `BaseService<TModel>` does not have a TEntity parameter visible to callers — the concrete class signature is `internal class AdminSettingService(IAdminSettingRepository repository, IMapper mapper) : BaseService<AdminSetting>(repository, mapper), IAdminSettingService`). Implements `GetValueAsync` by calling `repository.GetByKeyAsync(key, ct)` and returning `result?.Value`. Implements `SetValueAsync` by calling `repository.UpsertByKeyAsync(key, value, ct)`.
+
+**AutoMapper** — `EuphoriaInn.Repository/Automapper/EntityProfile.cs` (modified)
+
+- Add `CreateMap<AdminSetting, AdminSettingEntity>().ReverseMap()` — both sides are flat primitives, no enum conversions needed. One line.
+
+**Service layer — `EuphoriaInn.Service/`**
+
+- `Controllers/Admin/AdminController.cs` (modified) — inject `IAdminSettingService` into the existing primary constructor alongside `IUserService` and `IQuestService`. Add two actions: `[HttpGet] public async Task<IActionResult> Settings()` that loads OmphalosUrl and OmphalosSecret keys and maps to `AdminSettingsViewModel`; `[HttpPost] [ValidateAntiForgeryToken] public async Task<IActionResult> Settings(AdminSettingsViewModel model)` that calls `SetValueAsync` for each key.
+- `ViewModels/AdminViewModels/AdminSettingsViewModel.cs` (new) — two string properties: `OmphalosUrl` (`[DataType(DataType.Url)]`, `[StringLength(500)]`) and `OmphalosSharedSecret` (`[StringLength(500)]`); neither is `[Required]` since the admin may want to clear them.
+- `Views/Admin/Settings.cshtml` (new) — follows `modern-card` pattern mandated in CLAUDE.md. Two inputs: URL as text, secret as password (type="password" to prevent shoulder-surfing). Save button with `fa-save` icon. Back link to `/Admin/Users`.
+
+#### Modified Files (Phase 10)
+
+| File | Change |
+|------|--------|
+| `EuphoriaInn.Repository/Entities/QuestBoardContext.cs` | Add `DbSet<AdminSettingEntity>` + unique index on Key |
+| `EuphoriaInn.Repository/Automapper/EntityProfile.cs` | Add AdminSetting↔AdminSettingEntity map |
+| `EuphoriaInn.Repository/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IAdminSettingRepository, AdminSettingRepository>()` |
+| `EuphoriaInn.Domain/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IAdminSettingService, AdminSettingService>()` |
+| `EuphoriaInn.Service/Controllers/Admin/AdminController.cs` | Inject `IAdminSettingService`; add Settings GET/POST actions |
+
+#### EF Migration
+
+One migration: `AddAdminSettings`. Adds `AdminSettings` table with `Id int identity PK`, `Key nvarchar(200) not null unique`, `Value nvarchar(max) not null`, `UpdatedAt datetime2 not null`. Created by running `dotnet ef migrations add AddAdminSettings --project ../EuphoriaInn.Repository` from the Service project directory. Auto-applied on startup.
+
+---
+
+### Phase 11: Navigation + Token Generation
+
+**Goal:** DM navbar shows "Open DM Tool" when Omphalos URL is configured; Quest Detail and Manage pages show "Open Session Notes" button that generates a short-lived HMAC-signed redirect URL.
+
+#### Where HMAC Token Generation Lives
+
+**Decision: a dedicated `IIntegrationTokenService` in the Domain layer, not inline in the controller.**
+
+Rationale:
+- Token generation reads the shared secret from `IAdminSettingService` — that is a service call, which is business logic, not presentation logic.
+- Controllers in this codebase do not contain business logic; they coordinate services and produce HTTP responses. Adding `HMACSHA256` calls to a controller action violates the pattern established in Milestone 2.
+- The service will be reusable: future Omphalos → Quest Board API calls will need the same HMAC validation logic, and a service behind an interface can be tested in isolation.
+- All Domain services are already `internal class` implementations behind `I*Service` interfaces — this is the established pattern.
+
+#### New Files (Phase 11)
+
+**Domain layer — `EuphoriaInn.Domain/`**
+
+- `Interfaces/IIntegrationTokenService.cs` — public interface:
+
+  ```csharp
+  public interface IIntegrationTokenService
+  {
+      Task<string?> GenerateQuestDeepLinkAsync(int questId, string username, CancellationToken ct = default);
+  }
+  ```
+
+  Returns `null` when Omphalos URL or secret is not configured; callers must handle gracefully (do not show button, do not redirect).
+
+- `Services/IntegrationTokenService.cs` — `internal class IntegrationTokenService(IAdminSettingService settings) : IIntegrationTokenService`. Reads `OmphalosUrl` and `OmphalosSharedSecret` keys via `settings.GetValueAsync`. Constructs payload string `"{questId}|{username}|{unixTimestampUtc}"`. Computes `HMACSHA256(payload, sharedSecret)` using `System.Security.Cryptography.HMACSHA256` — this namespace is already available in the Domain project via `System.Security.Cryptography.Xml` 8.0.3. Sets expiry to `DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds()`. Returns full URL: `{omphalosUrl}/api/sso/quest-board?questId={questId}&user={username}&expires={unix}&sig={hmacHex}`.
+
+**Service layer — `EuphoriaInn.Service/`**
+
+- `ViewComponents/OmphalosNavItemViewComponent.cs` (new) — `public class OmphalosNavItemViewComponent(IAdminSettingService settings) : ViewComponent`. Reads `OmphalosUrl` in `InvokeAsync`; passes a bool `IsConfigured` to the Default view.
+- `Views/Shared/Components/OmphalosNavItem/Default.cshtml` (new) — renders a single `<li>` dropdown item `<a href="/Quest/LaunchOmphalos">Open DM Tool</a>` when `IsConfigured` is true.
+
+No new controller files for Phase 11. Token generation and redirect are a new action on the existing `QuestController`.
+
+#### Modified Files (Phase 11)
+
+| File | Change |
+|------|--------|
+| `EuphoriaInn.Domain/Extensions/ServiceExtensions.cs` | Add `services.AddScoped<IIntegrationTokenService, IntegrationTokenService>()` |
+| `EuphoriaInn.Service/Controllers/QuestBoard/QuestController.cs` | Inject `IAdminSettingService` and `IIntegrationTokenService`; add `LaunchOmphalos(int id)` GET action; set `ViewBag.OmphalosConfigured` in Details and Manage actions |
+| `EuphoriaInn.Service/Views/Quest/Details.cshtml` | Add conditional "Open Session Notes" button (shown if `ViewBag.OmphalosConfigured && ViewBag.CanManage`) |
+| `EuphoriaInn.Service/Views/Quest/Manage.cshtml` | Add conditional "Open Session Notes" button (shown if `ViewBag.OmphalosConfigured`) |
+| `EuphoriaInn.Service/Views/Shared/_Layout.cshtml` | Add `@await Component.InvokeAsync("OmphalosNavItem")` in DM dropdown section |
+
+#### ViewModel vs ViewBag decision for quest pages
+
+The Details and Manage actions already use `ViewBag` heavily: `ViewBag.CanManage`, `ViewBag.IsAuthorized`, `ViewBag.IsAdmin`, `ViewBag.CalendarMonths`, `ViewBag.CurrentQuestId`. Adding `ViewBag.OmphalosConfigured = true/false` is one more boolean in an existing `ViewBag` pattern — no ViewModel wrapper needed. Introducing a strongly-typed ViewModel for the Manage action (which currently passes a raw `Quest` domain model via `return View(quest)`) would require wrapping the domain model, which is a larger refactor outside this milestone's scope.
+
+#### Navbar View Component decision
+
+The shared `_Layout.cshtml` cannot receive controller-specific `ViewBag` values injected from one specific controller — every page shares the layout. Options:
+
+1. **View Component** — `OmphalosNavItemViewComponent` injects `IAdminSettingService` via DI, reads the URL, renders conditionally. This is the standard ASP.NET Core pattern for layout-level data requiring a service call. No controller modification needed for the navbar.
+2. **Base controller with `OnActionExecutionAsync`** — sets `ViewBag.OmphalosUrl` for every action across all controllers. Introduces an inheritance coupling that does not exist in this codebase today (all controllers inherit directly from `Controller`). Avoid.
+
+**Decision: View Component.** It is self-contained, follows the ASP.NET Core recommended pattern, and requires no changes to existing controllers.
+
+---
+
+## Omphalos New Components
+
+### Phase 20: SSO Endpoint + Session Linking
+
+**Goal:** Omphalos validates a Quest Board HMAC token, auto-provisions the DM account on first use, finds or creates the quest's `GameSession`, issues a JWT cookie, and redirects the user into the correct session.
+
+#### Omphalos Architecture Recap (from reading)
+
+Omphalos is a .NET 10 Minimal API + PostgreSQL app with a flat domain structure: entities in `Omphalos.Domain/Entities/`, interfaces in `Omphalos.Domain/Interfaces/`, DTOs in `Omphalos.Domain/DTOs/`, service implementations in `Omphalos.Services/Implementations/`, repositories in `Omphalos.Repository/Repositories/`, entity configurations via `IEntityTypeConfiguration<T>` in `Omphalos.Repository/Configurations/`, and endpoint groups in `Omphalos.Web/Endpoints/`. `Program.cs` registers everything directly — no extension method wrappers.
+
+`GameSession.Id` is a client-provided `string` (not auto-generated). `User.Id` is a `Guid`. There are no base repository or base service classes — each service and repository is standalone.
+
+#### ExternalQuestId on GameSession
+
+`GameSession` needs a nullable `int? ExternalQuestId` to record which Quest Board quest it corresponds to. This allows the SSO endpoint to find-or-create the session for a given quest.
+
+**Domain entity** — `Omphalos.Domain/Entities/GameSession.cs` (modified)
+- Add `public int? ExternalQuestId { get; set; }` — nullable, so existing sessions without a Quest Board link continue to work unchanged.
+
+**Repository configuration** — `Omphalos.Repository/Configurations/GameSessionConfiguration.cs` (modified)
+- Add `builder.Property(s => s.ExternalQuestId).IsRequired(false)` — nullable column.
+- Add `builder.HasIndex(s => s.ExternalQuestId)` — non-unique index for fast lookup by external ID (one DM can theoretically have multiple sessions for the same quest over time, so unique is wrong here).
+
+**Repository interface** — `Omphalos.Domain/Interfaces/ISessionRepository.cs` (modified)
+- Add `Task<GameSession?> GetByExternalQuestIdAsync(Guid userId, int questId, CancellationToken ct = default)`.
+
+**Repository implementation** — `Omphalos.Repository/Repositories/SessionRepository.cs` (modified)
+- Implement `GetByExternalQuestIdAsync`: `.Where(s => s.UserId == userId && s.ExternalQuestId == questId).OrderByDescending(s => s.DateModified).FirstOrDefaultAsync(ct)` — returns the most recently modified session for this quest/user combination.
+
+**EF Migration** — `AddExternalQuestIdToGameSession`
+- Adds nullable `external_quest_id int` column to `game_sessions` table (Npgsql snake_cases the property name automatically unless overridden in config).
+- Adds the index.
+- Run `dotnet ef migrations add AddExternalQuestIdToGameSession` from the Omphalos.Web or appropriate project; auto-applied on startup via existing `db.Database.MigrateAsync()` in Program.cs.
+
+#### SsoEndpoints.cs
+
+**New file** — `Omphalos.Web/Endpoints/SsoEndpoints.cs`
+
+Pattern matches `AuthEndpoints.cs` exactly: a static class with a `MapSsoEndpoints(this IEndpointRouteBuilder app)` extension method.
+
+Endpoint: `POST /api/sso/quest-board`, `AllowAnonymous`.
+
+Request body (JSON): `{ questId: int, user: string, expires: long, sig: string }` — maps to a new `SsoRequest` DTO.
+
+The endpoint:
+1. Passes the request to `ISsoService.ValidateAndProvisionAsync` — validates HMAC signature and expiry, provisions user if not found, finds or creates session.
+2. On failure (invalid sig, expired token, missing secret config), returns `Results.Unauthorized()` or `Results.BadRequest("message")`.
+3. On success, calls `IAuthService` to generate a JWT for the provisioned user.
+4. Sets the `omphalos_token` cookie using the same `TokenCookieOptions` already defined in `AuthEndpoints.cs` — these options should be extracted to a shared constant in the `Endpoints` namespace or a shared `CookieConfig` static class to avoid duplication.
+5. Returns `Results.Ok(new { sessionId, redirectUrl })` — the React SPA uses the `sessionId` to navigate to the correct session.
+
+#### ISsoService (new interface and implementation)
+
+HMAC validation and find-or-create session logic belongs in a service (Domain layer), not in the endpoint (Web layer). This keeps business logic testable and keeps the endpoint thin.
+
+**New file** — `Omphalos.Domain/Interfaces/ISsoService.cs`
 
 ```csharp
-// EuphoriaInn.Service/ViewExpanders/MobileViewLocationExpander.cs
-using Microsoft.AspNetCore.Mvc.Razor;
-
-namespace EuphoriaInn.Service.ViewExpanders;
-
-public class MobileViewLocationExpander : IViewLocationExpander
+public interface ISsoService
 {
-    private const string IsMobileKey = "isMobile";
-
-    // Step 1 — runs every request, determines cache key.
-    // Read the flag set by middleware; store it so the cache splits
-    // desktop (isMobile=false) and mobile (isMobile=true) path sets.
-    public void PopulateValues(ViewLocationExpanderContext context)
-    {
-        var isMobile = context.ActionContext.HttpContext.Items["IsMobile"] is true;
-        context.Values[IsMobileKey] = isMobile.ToString();
-    }
-
-    // Step 2 — runs only when cache misses (i.e. first desktop request
-    // and first mobile request per view name).
-    // For mobile requests, prepend .Mobile.cshtml ahead of each default path.
-    // For desktop requests, return the original locations unchanged.
-    public IEnumerable<string> ExpandViewLocations(
-        ViewLocationExpanderContext context,
-        IEnumerable<string> viewLocations)
-    {
-        if (!context.Values.TryGetValue(IsMobileKey, out var isMobileStr)
-            || isMobileStr != "True")
-        {
-            return viewLocations;
-        }
-
-        return ExpandForMobile(viewLocations);
-    }
-
-    private static IEnumerable<string> ExpandForMobile(IEnumerable<string> viewLocations)
-    {
-        foreach (var location in viewLocations)
-        {
-            // Yield the .Mobile.cshtml variant first, then the original.
-            // The engine picks the first path that resolves to a real file.
-            yield return location.Replace(".cshtml", ".Mobile.cshtml",
-                StringComparison.OrdinalIgnoreCase);
-            yield return location;
-        }
-    }
+    Task<SsoResult> ValidateAndProvisionAsync(SsoRequest request, CancellationToken ct = default);
 }
 ```
 
-**Registration in Program.cs** — add before `builder.Build()`:
+**New file** — `Omphalos.Services/Implementations/SsoService.cs`
 
+`SsoService(IUserRepository users, ISessionRepository sessions, IConfiguration config) : ISsoService`
+
+`ValidateAndProvisionAsync` logic:
+1. Read `QuestBoard:Secret` from config — if absent, return failure result (Omphalos is misconfigured).
+2. Validate `request.Expires > DateTimeOffset.UtcNow.ToUnixTimeSeconds()` — token not expired.
+3. Recompute HMAC: `HMACSHA256("{questId}|{user}|{expires}", secret)` — compare constant-time with `CryptographicOperations.FixedTimeEquals`.
+4. Look up user by username via `users.GetByUsernameAsync(request.User)` — if not found, auto-provision with `BCrypt`-hashed random password (same as `AuthService.SeedAdminAsync` pattern; role = `UserRole.Player` initially).
+5. Call `sessions.GetByExternalQuestIdAsync(user.Id, request.QuestId)` — if null, create a stub `GameSession` with `Id = Guid.NewGuid().ToString()`, `Title = $"Quest #{request.QuestId}"`, `ExternalQuestId = request.QuestId`, `UserId = user.Id`, `DateCreated = DateModified = DateTimeOffset.UtcNow.ToUnixTimeSeconds()`.
+6. Return `SsoResult(User: user, SessionId: session.Id, IsNewSession: wasCreated)`.
+
+**IAuthService modification** — `Omphalos.Domain/Interfaces/IAuthService.cs` (modified)
+
+`GenerateToken(User user)` is currently `private` in `AuthService`. The SSO endpoint needs to issue a JWT after provisioning. Add `string GenerateToken(User user)` to `IAuthService` (make it `internal` in the interface if desired, but `public` is simpler and consistent). `AuthService` makes its existing private `GenerateToken` method the public implementation.
+
+Alternatively, add `Task<LoginResponse> ExchangeForTokenAsync(User user, CancellationToken ct)` to keep the interface at the LoginResponse abstraction level. Either works — the simpler change is exposing `GenerateToken` directly, since `AuthService` already has the full implementation.
+
+#### New DTOs
+
+- `Omphalos.Domain/DTOs/SsoRequest.cs` — `public record SsoRequest(int QuestId, string User, long Expires, string Sig)`
+- `Omphalos.Domain/DTOs/SsoResult.cs` — `public record SsoResult(bool Success, Domain.Entities.User? User, string? SessionId, bool IsNewSession, string? ErrorMessage = null)`
+
+#### Program.cs modifications
+
+Two additions in `Program.cs`:
+
+In the services registration section (after `IGlobalCharacterService`):
 ```csharp
-// Program.cs — add alongside AddControllersWithViews()
-builder.Services.AddControllersWithViews();
-builder.Services.Configure<RazorViewEngineOptions>(options =>
-{
-    options.ViewLocationExpanders.Add(new MobileViewLocationExpander());
-});
+builder.Services.AddScoped<ISsoService, SsoService>();
 ```
 
----
-
-### Pattern 2: Mobile detection middleware — set once, read everywhere
-
-**What:** A lightweight middleware that runs before routing and sets a typed flag in `HttpContext.Items`. Controllers, views, layout, and the expander all read from the same place. No action filter needed; no DI service needed.
-
-**Why middleware, not inside the expander:** `PopulateValues` is called by the view engine, not the request pipeline. Doing User-Agent string parsing inside `PopulateValues` would duplicate work on every view resolution call (partials, layouts, the main view). Middleware runs exactly once per request. The expander reads the already-computed result.
-
-**Why not an action filter:** Action filters run after model binding and authorize attributes. Middleware runs earlier and is unconditional — it applies to all routes consistently. The flag is also needed in `_ViewStart.cshtml` which runs outside the action filter lifecycle.
-
-**Why not a third-party library:** The project constraint is no framework changes. The User-Agent `Mobi` keyword is specified in the W3C mobile browser spec and is present in all modern mobile browser UAs (iOS Safari, Chrome for Android, Samsung Internet). A six-keyword check is reliable enough for layout selection; it does not need to be precise device identification.
-
-**Implementation:**
-
+In the endpoint registration section (after `app.MapGlobalCharacterEndpoints()`):
 ```csharp
-// EuphoriaInn.Service/Middleware/MobileDetectionMiddleware.cs
-namespace EuphoriaInn.Service.Middleware;
-
-public class MobileDetectionMiddleware(RequestDelegate next)
-{
-    // RFC 2616 compliant mobile UA keywords. Covers iOS, Android, Windows Phone,
-    // and generic "Mobi" (W3C spec for mobile browsers).
-    private static readonly string[] MobileKeywords =
-        ["Mobi", "Android", "iPhone", "iPad", "Windows Phone", "BlackBerry"];
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        var userAgent = context.Request.Headers.UserAgent.ToString();
-        var isMobile = MobileKeywords.Any(kw =>
-            userAgent.Contains(kw, StringComparison.OrdinalIgnoreCase));
-
-        context.Items["IsMobile"] = isMobile;
-
-        await next(context);
-    }
-}
+app.MapSsoEndpoints();
 ```
 
-**Registration in Program.cs** — add in the middleware pipeline, before `UseRouting`:
+#### HMAC secret configuration
 
-```csharp
-app.UseStaticFiles();
+Omphalos reads the shared secret from config key `QuestBoard:Secret`. In Docker Compose, this maps to env var `QuestBoard__Secret` (double-underscore convention, consistent with how Omphalos already handles `Jwt__Secret`, `Admin__Username` etc.). The value must match the `OmphalosSharedSecret` stored in Quest Board's `AdminSettings` table. This is a deployment concern, not an architectural one.
 
-// Must come before UseRouting so IsMobile is set before
-// any view resolution begins.
-app.UseMiddleware<MobileDetectionMiddleware>();
+#### Modified Files (Phase 20 — Omphalos)
 
-app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
-```
+| File | Change |
+|------|--------|
+| `Omphalos.Domain/Entities/GameSession.cs` | Add `int? ExternalQuestId` |
+| `Omphalos.Domain/Interfaces/ISessionRepository.cs` | Add `GetByExternalQuestIdAsync` |
+| `Omphalos.Domain/Interfaces/IAuthService.cs` | Expose `GenerateToken(User user)` |
+| `Omphalos.Repository/Configurations/GameSessionConfiguration.cs` | Add nullable column config + index |
+| `Omphalos.Repository/Repositories/SessionRepository.cs` | Implement `GetByExternalQuestIdAsync` |
+| `Omphalos.Services/Implementations/AuthService.cs` | Make `GenerateToken` public to satisfy interface |
+| `Omphalos.Web/Program.cs` | Register `ISsoService`; call `app.MapSsoEndpoints()` |
 
----
+#### New Files (Phase 20 — Omphalos)
 
-### Pattern 3: Mobile layout — _ViewStart.cshtml conditional selection
-
-**What:** `_ViewStart.cshtml` is executed before every full view (not partials). Set `Layout` conditionally based on `HttpContext.Items["IsMobile"]`. This is the authoritative place for layout selection — it means individual mobile views do **not** need to specify `@{ Layout = "..." }`.
-
-**Updated _ViewStart.cshtml:**
-
-```cshtml
-@{
-    var isMobile = Context.Items["IsMobile"] is true;
-    Layout = isMobile
-        ? "~/Views/Shared/_Layout.Mobile.cshtml"
-        : "_Layout";
-}
-```
-
-**_Layout.Mobile.cshtml structure:**
-
-```cshtml
-@using EuphoriaInn.Domain.Interfaces
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - D&D Quest Board</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
-    @await RenderSectionAsync("Styles", required: false)
-</head>
-<body class="mobile-layout">
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                <i class="fas fa-dice-d20"></i> Quest Board
-            </a>
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#mobileNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Off-canvas nav for mobile (replaces dropdown-heavy desktop nav) -->
-    <div class="offcanvas offcanvas-end" id="mobileNav">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            @* Same nav logic as _Layout.cshtml — copy auth-conditional nav items *@
-        </div>
-    </div>
-
-    <div class="container-fluid px-2 mt-2">
-        @RenderBody()
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
-```
-
-Key differences from `_Layout.cshtml`:
-- Loads `mobile.css` only (not the five desktop stylesheets that include desktop-specific rules)
-- Uses Bootstrap offcanvas for nav instead of collapse — offcanvas is a better mobile pattern for deep nav menus
-- `container-fluid px-2` instead of `container mt-3` — full-width, tighter padding on small screens
-- The five desktop CSS files (`site.css`, `calendar.css`, `quests.css`, `shop.css`, `guild-members.css`) are not loaded; `mobile.css` provides mobile-appropriate overrides
-
----
-
-### Pattern 4: File naming convention — ViewName.Mobile.cshtml alongside desktop view
-
-**Recommended convention:** Place mobile views in the same controller folder as their desktop counterpart, with the `.Mobile.cshtml` suffix:
-
-```
-Views/
-├── Home/
-│   ├── Index.cshtml             ← desktop (unchanged)
-│   └── Index.Mobile.cshtml      ← mobile override (new)
-├── Quest/
-│   ├── Details.cshtml           ← desktop (unchanged)
-│   ├── Details.Mobile.cshtml    ← mobile override (new)
-│   ├── _QuestCard.cshtml        ← desktop partial (unchanged)
-│   └── _QuestCard.Mobile.cshtml ← mobile partial (only if needed)
-├── Calendar/
-│   ├── Index.cshtml             ← desktop (unchanged)
-│   └── Index.Mobile.cshtml      ← mobile override (new — agenda view)
-└── Shared/
-    ├── _Layout.cshtml           ← desktop layout (unchanged)
-    └── _Layout.Mobile.cshtml    ← mobile layout (new)
-```
-
-**Why not a separate `/Views/Mobile/` folder:** A parallel folder structure means every path transform in `ExpandViewLocations` needs controller-subfolder logic. The suffix approach lets the expander do a simple string replace on the incoming location list — one line of code, no edge cases. It also keeps related views physically co-located.
-
----
-
-### Pattern 5: Partial view strategy — only create mobile partials when they differ substantially
-
-**How partials interact with the expander:** `ExpandViewLocations` is called for every view lookup, including partials rendered via `<partial name="..." />` and `@Html.PartialAsync(...)`. The expander will therefore look for `_QuestCard.Mobile.cshtml` before `_QuestCard.cshtml` on a mobile request. This is automatic — no extra code needed.
-
-**Recommendation:**
-- Partials that are purely structural scaffolding (e.g. `_QuestFormScripts.cshtml`) — no mobile variant needed. The scripts work the same.
-- Partials that render complex layout (`_QuestCard.cshtml`, `_Calendar.cshtml`) — create a mobile variant only if the desktop markup is too wide or image-heavy to work on small screens. Favour CSS-only fixes over duplicate markup where possible.
-- Partials rendered inside a mobile page view that is itself already a `.Mobile.cshtml` — those are only reached from the mobile view, so they can reference the desktop partial if the calling view already adapts the outer structure.
-
----
-
-## Recommended Project Structure (new files only)
-
-```
-EuphoriaInn.Service/
-├── Middleware/
-│   └── MobileDetectionMiddleware.cs        ← NEW
-├── ViewExpanders/
-│   └── MobileViewLocationExpander.cs       ← NEW
-├── Views/
-│   ├── _ViewStart.cshtml                   ← MODIFIED (conditional layout only)
-│   ├── Shared/
-│   │   └── _Layout.Mobile.cshtml           ← NEW
-│   ├── Home/
-│   │   └── Index.Mobile.cshtml             ← NEW (phase 2)
-│   ├── Calendar/
-│   │   └── Index.Mobile.cshtml             ← NEW (phase 2, agenda view)
-│   ├── Quest/
-│   │   ├── Details.Mobile.cshtml           ← NEW (phase 3)
-│   │   └── _QuestCard.Mobile.cshtml        ← NEW if needed
-│   └── [other controllers]/
-│       └── *.Mobile.cshtml                 ← NEW per phase
-└── wwwroot/
-    └── css/
-        └── mobile.css                      ← NEW
-```
-
-**Files that must NOT be modified:** All existing `*.cshtml` views (except `_ViewStart.cshtml`), all controllers, all ViewModels, all repository/domain/service layer files.
-
----
-
-## Data Flow
-
-### Mobile request — full path
-
-```
-Browser sends GET /  (User-Agent: Mozilla/5.0 ... iPhone ...)
-    │
-    ▼
-MobileDetectionMiddleware
-    HttpContext.Items["IsMobile"] = true
-    │
-    ▼
-HomeController.Index()
-    returns View(viewModel)   ← no change to controller
-    │
-    ▼
-RazorViewEngine begins view resolution for "Index"
-    │
-    ▼
-MobileViewLocationExpander.PopulateValues()
-    reads HttpContext.Items["IsMobile"] → true
-    context.Values["isMobile"] = "True"   ← unique cache key
-    │
-    ▼
-Cache miss for ("Index", isMobile=True)?
-    YES → MobileViewLocationExpander.ExpandViewLocations()
-        yields: /Views/Home/Index.Mobile.cshtml  ← checked first
-        yields: /Views/Home/Index.cshtml
-    │
-    ▼
-File system check: /Views/Home/Index.Mobile.cshtml exists?
-    YES → render it
-    NO  → fall through to /Views/Home/Index.cshtml
-    │
-    ▼
-_ViewStart.cshtml executes
-    Context.Items["IsMobile"] is true
-    Layout = "~/Views/Shared/_Layout.Mobile.cshtml"
-    │
-    ▼
-Response rendered with mobile layout + mobile view content
-    ViewModel is identical to what desktop view would receive
-```
-
-### Desktop request — path
-
-```
-Browser sends GET /  (User-Agent: Mozilla/5.0 ... Chrome/Windows ...)
-    │
-    ▼
-MobileDetectionMiddleware
-    HttpContext.Items["IsMobile"] = false
-    │
-    ▼
-MobileViewLocationExpander.PopulateValues()
-    context.Values["isMobile"] = "False"   ← different cache key
-    │
-    ▼
-MobileViewLocationExpander.ExpandViewLocations()
-    isMobile is false → returns viewLocations unchanged
-    │
-    ▼
-Normal resolution: /Views/Home/Index.cshtml
-_ViewStart.cshtml → Layout = "_Layout"  (desktop layout)
-```
+| File | Purpose |
+|------|---------|
+| `Omphalos.Domain/Interfaces/ISsoService.cs` | Interface for SSO validation and provisioning |
+| `Omphalos.Domain/DTOs/SsoRequest.cs` | Inbound token payload DTO |
+| `Omphalos.Domain/DTOs/SsoResult.cs` | Result of validation/provisioning |
+| `Omphalos.Services/Implementations/SsoService.cs` | HMAC validation, user provisioning, session find-or-create |
+| `Omphalos.Web/Endpoints/SsoEndpoints.cs` | `POST /api/sso/quest-board` HTTP endpoint |
 
 ---
 
 ## Integration Points
 
-### Program.cs — complete registration diff
+### Phase 10 is the sole blocker for Phase 11
 
-Three additions in order:
+Phase 11 has a hard compile-time dependency on Phase 10. `IIntegrationTokenService` calls `IAdminSettingService.GetValueAsync` — the service interface and entity must exist before Phase 11 compiles. The View Component for the navbar also calls `IAdminSettingService`. Phase 11 cannot start until the `AdminSetting` entity, migration, and service registration from Phase 10 are complete and merged.
 
-```csharp
-// 1. Register expander (add alongside AddControllersWithViews)
-builder.Services.AddControllersWithViews();
-builder.Services.Configure<RazorViewEngineOptions>(options =>
-{
-    options.ViewLocationExpanders.Add(new MobileViewLocationExpander());
-});
+### Phase 20 is independent of Phases 10 and 11
 
-// ... all existing service registrations unchanged ...
+Phase 20 (Omphalos SSO endpoint) has no compile-time dependency on any Quest Board code. Both repos are independent deployments. Phase 20 can be developed and deployed to the Omphalos repo entirely in parallel with Quest Board Phase 10 work, provided the token format contract is agreed before either side begins implementation.
 
-var app = builder.Build();
+**Token format contract — must be agreed before any implementation begins:**
 
-// 2. Middleware pipeline — add after UseStaticFiles, before UseRouting
-app.UseStaticFiles();
-app.UseMiddleware<MobileDetectionMiddleware>();   // ← ADD THIS LINE
-app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
+```
+Payload:    "{questId}|{username}|{unixTimestampUtc}"
+Algorithm:  HMAC-SHA256
+Key:        the shared secret string, UTF-8 encoded bytes
+Signature:  lowercase hex string of the HMAC bytes
+URL params: questId (int), user (string), expires (unix timestamp seconds), sig (hex string)
+Expiry:     5 minutes from generation time
 ```
 
-### _ViewStart.cshtml — single conditional
+This contract is the sole coupling point between Phase 11 and Phase 20. Write it as a comment at the top of both `IntegrationTokenService.cs` and `SsoService.cs`.
 
-```cshtml
-@{
-    var isMobile = Context.Items["IsMobile"] is true;
-    Layout = isMobile
-        ? "~/Views/Shared/_Layout.Mobile.cshtml"
-        : "_Layout";
-}
+### End-to-end test dependency
+
+The first end-to-end test requires both apps running and the shared secret configured in both. This is the only point where the two development streams converge. It cannot be tested until Phase 11 generates valid tokens and Phase 20 validates them in a shared environment.
+
+---
+
+## Build Order
+
+```
+Phase 10: Admin Settings (Quest Board only)
+    |
+    | Phase 10 merged + migration deployed
+    |
+    +--> Phase 11: Navigation + Token Generation (Quest Board)
+    |       Depends on: IAdminSettingService, AdminSettingEntity migration
+    |       Can start only after Phase 10 is merged
+    |
+    +--> Phase 20: SSO Endpoint + Session Linking (Omphalos)
+            Depends on: agreed token format contract only
+            Can start in PARALLEL with Phase 11 (independent repo)
+                |
+                | Both Phase 11 AND Phase 20 complete
+                |
+            End-to-end integration test (both containers running)
 ```
 
-This is the **only** modification to existing view infrastructure. The existing `_Layout.cshtml` is not touched.
+**Practical parallel work:** A developer working on Omphalos (Phase 20) has zero blocked time once the token format contract is written down. Phase 20 work on Omphalos can begin the moment the format is agreed during or immediately after Phase 10 planning. The Quest Board phases (10 then 11) are sequential in the same repo.
 
 ---
 
-## Build Order (respects dependency chain)
+## Key Architectural Decisions
 
-| Step | Deliverable | Depends On | Notes |
-|------|------------|------------|-------|
-| 1 | `MobileDetectionMiddleware` + Program.cs registration | Nothing | Foundation — all other components read from `HttpContext.Items["IsMobile"]` |
-| 2 | `MobileViewLocationExpander` + Program.cs registration | Step 1 (HttpContext.Items must be set before expander reads it) | Core mechanism — enables `.Mobile.cshtml` fallback |
-| 3 | `_Layout.Mobile.cshtml` + `mobile.css` | Step 2 | Shared shell; every mobile page needs this to render correctly |
-| 4 | `_ViewStart.cshtml` update | Step 3 (layout file must exist before _ViewStart references it) | Activates mobile layout for all views |
-| 5 | `Home/Index.Mobile.cshtml` | Steps 1–4 | First page; proves the full pipeline end-to-end before building more |
-| 6 | `Calendar/Index.Mobile.cshtml` | Steps 1–4 | Highest complexity; agenda view is a significant departure from desktop grid |
-| 7 | `Quest/Details.Mobile.cshtml` | Steps 1–4 | High-traffic page for players |
-| 8+ | Remaining `*.Mobile.cshtml` views | Steps 1–4 | Each is independent; can be added in any order |
+### IIntegrationTokenService vs inline controller logic
 
-Steps 1–4 are a single atomic unit — do not split across phases. They produce no user-visible change until step 5 adds a first mobile view. This is intentional: the infrastructure is safe to ship before mobile views exist because all mobile requests silently fall through to desktop views.
+**Decision: dedicated `IIntegrationTokenService` in the Domain layer.**
 
----
+Inline approach rejected because: (1) reading the shared secret requires calling `IAdminSettingService`, which is a service-layer dependency not appropriate for a controller; (2) putting `HMACSHA256` in a controller action contradicts the thin-controller principle enforced in Milestone 2; (3) the same signing logic will be needed for future bidirectional API authentication. A service behind a public interface is testable, injectable, and reusable.
 
-## Anti-Patterns
+### ViewModel vs ViewBag for Omphalos URL availability on quest pages
 
-### Anti-Pattern 1: Mobile detection inside ExpandViewLocations
+**Decision: ViewBag boolean flag, consistent with existing pattern.**
 
-**What people do:** Read `context.ActionContext.HttpContext.Request.Headers.UserAgent` inside `ExpandViewLocations` to decide whether to inject mobile paths.
+The Details and Manage actions already use `ViewBag` for five different flags. Adding `ViewBag.OmphalosConfigured = true/false` adds no new pattern. Introducing a strongly-typed ViewModel wrapper for the Manage action (which currently passes a raw `Quest` domain model) would require a wider refactor outside this milestone's scope.
 
-**Why it's wrong:** `ExpandViewLocations` is only called on cache miss. On a cache hit the User-Agent is never read again — but the cached paths from the previous call (which may have been a desktop request) are reused. The expander cache then serves desktop paths to mobile users until the cache expires.
+### View Component for navbar vs base controller inheritance
 
-**Do this instead:** Always detect in `PopulateValues` and store in `context.Values`. The values dictionary IS the cache key — different values guarantee different cache entries and force `ExpandViewLocations` to run per device type.
+**Decision: View Component.**
 
----
+A `BaseController` that sets `ViewBag.OmphalosUrl` in `OnActionExecutionAsync` for every request would introduce inheritance coupling that does not exist in this codebase and would fire a DB read on every request from every controller. A View Component fires once per layout render, is self-contained, follows the ASP.NET Core documented pattern for layout-level service calls, and requires no changes to any existing controller.
 
-### Anti-Pattern 2: Setting Layout inside each mobile view
+### ExternalQuestId as nullable column on GameSession vs join table
 
-**What people do:** Every `.Mobile.cshtml` begins with `@{ Layout = "~/Views/Shared/_Layout.Mobile.cshtml"; }`.
+**Decision: nullable column on `GameSession`.**
 
-**Why it's wrong:** Brittle — if the layout path changes, every mobile view needs updating. Also requires all desktop views to explicitly set their layout, removing the convention provided by `_ViewStart.cshtml`.
+A join table is warranted only if a `GameSession` could link to multiple Quest Board quests, or if multiple external systems could each add their own quest ID. For this milestone the relationship is 1-per-DM-per-quest. A nullable column is simpler, requires no join on session reads, and is directly indexable. If the relationship becomes many-to-many in a future milestone, a join table migration is a forward step, not a rewrite.
 
-**Do this instead:** Set layout in `_ViewStart.cshtml` based on `HttpContext.Items["IsMobile"]`. Mobile views inherit automatically.
+### HMAC secret storage: DB in Quest Board, env var in Omphalos
 
----
+**Decision: asymmetric storage.**
 
-### Anti-Pattern 3: Separate `/Views/Mobile/` folder hierarchy
+Quest Board stores the secret in `AdminSettings` (editable via Admin UI — the same Admin UI that manages users and quests). Omphalos reads it from env var `QuestBoard__Secret` in docker-compose (consistent with how Omphalos already handles `Jwt__Secret` and `Admin__Password`). Omphalos has no admin UI for secret management in this milestone. The operational requirement — that both values must match — is a deployment concern, not an architectural one.
 
-**What people do:** Create `/Views/Mobile/Home/Index.cshtml` and modify `ExpandViewLocations` to prepend the `Mobile/` directory.
+### Token expiry: 5 minutes, no revocation list
 
-**Why it's wrong:** Requires path manipulation that must account for controller subdirectories, Area routes, and shared views. The expander logic becomes non-trivial. Co-location is also lost — desktop and mobile views for the same page are in different folders.
+**Decision: 5-minute expiry, no revocation.**
 
-**Do this instead:** Use the `.Mobile.cshtml` suffix in the same controller folder. The expander is a one-line string replace. Co-location is preserved.
+Short-lived prevents replay attacks via shared or bookmarked redirect links. The user experience is: click button → fresh token generated → redirected immediately → token consumed. Five minutes is long enough to survive a brief network delay or a browser redirect chain, but short enough that a leaked token is practically useless. No revocation list is needed because the attack window is too narrow to be exploitable in practice for a self-hosted group app.
 
----
+### Auto-provisioning: random password, Player role
 
-### Anti-Pattern 4: Reading HttpContext.Items in view code with inline conditionals
+**Decision: provision with random BCrypt-hashed password, initial role Player.**
 
-**What people do:** `@if (Context.Items["IsMobile"] is true)` blocks scattered throughout desktop views to conditionally render mobile markup inline.
-
-**Why it's wrong:** Defeats the purpose of separate mobile views. Desktop views become bloated with device-conditional branches. Violates the constraint that desktop views must not be modified.
-
-**Do this instead:** Create a `.Mobile.cshtml` file only when the layout changes substantially. If only a CSS tweak is needed, handle it in `mobile.css` via media queries (no view change at all).
-
----
-
-## Scaling Considerations
-
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| Current (small group) | Single middleware, single expander, per-page opt-in mobile views — appropriate |
-| Medium | Add a cookie-based override (let users force desktop on mobile) — middleware reads cookie before User-Agent; sets `HttpContext.Items["IsMobile"]` to cookie value if present |
-| Large | Add tablet as a third device class — add `DeviceType` string to `context.Values` and yield `.Tablet.cshtml` before `.cshtml` in the expander |
-
----
-
-## Sources
-
-- [IViewLocationExpander Interface — Microsoft Learn (ASP.NET Core 8)](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.iviewlocationexpander?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [IViewLocationExpander.ExpandViewLocations Method — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.iviewlocationexpander.expandviewlocations?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [ViewLocationExpanderContext.ActionContext Property — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.viewlocationexpandercontext.actioncontext?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [Layout in ASP.NET Core — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/layout?view=aspnetcore-8.0) — MEDIUM confidence (official docs); confirmed _ViewStart.cshtml conditional Layout pattern
-- [IViewLocationExpander.cs source — dotnet/aspnetcore on GitHub](https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.Razor/src/IViewLocationExpander.cs) — MEDIUM confidence (source of truth for interface contract)
-- [Extending The Razor View Engine With View Location Expanders — Jack Histon](https://jackhiston.com/2017/10/24/extending-the-razor-view-engine-with-view-location-expanders/) — LOW confidence (community blog, pre-.NET 8; registration pattern confirmed against official docs)
-- [Searched Locations For The Razor View Engine — Khalid Abuhakmeh](https://khalidabuhakmeh.com/searched-locations-razor-view-engine-aspdotnet) — LOW confidence (community); confirmed default format patterns `/Views/{1}/{0}.cshtml`
-
----
-*Architecture research for: Mobile Razor views, ASP.NET Core 8 MVC*
-*Researched: 2026-06-23*
+On first SSO from Quest Board, Omphalos creates a new `User` with a cryptographically random password that the user can never log in with directly (they always use the Quest Board SSO link). Role is `Player` — not `Admin`. If the user needs elevated Omphalos permissions, an Omphalos admin promotes them separately. This keeps the provisioning path minimal and avoids accidental privilege escalation.

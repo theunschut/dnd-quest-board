@@ -15,7 +15,9 @@ public class QuestController(
     IMapper mapper,
     IPlayerSignupService playerSignupService,
     IQuestService questService,
-    ICharacterService characterService
+    ICharacterService characterService,
+    IAdminSettingService adminSettingService,
+    IIntegrationTokenService integrationTokenService
     ) : Controller
 {
     [HttpGet]
@@ -242,6 +244,11 @@ public class QuestController(
         var isQuestDm = currentUser?.Name == quest.DungeonMaster?.Name;
         var isAdmin = currentUser != null && await userService.IsInRoleAsync(User, "Admin");
         ViewBag.CanManage = isQuestDm || isAdmin;
+
+        var settings = await adminSettingService.GetSettingsAsync(token);
+        ViewBag.ShowOmphalosButton = settings.IsConfigured
+            && currentUser != null
+            && (currentUser.Name.Equals(quest.DungeonMaster?.Name, StringComparison.OrdinalIgnoreCase) || isAdmin);
 
         // Get all quests for calendar context
         var allQuests = await questService.GetQuestsForCalendarAsync(token);
@@ -640,6 +647,9 @@ public class QuestController(
         ViewBag.IsAuthorized = isQuestDm || isAdmin;
         ViewBag.IsAdmin = isAdmin;
 
+        var omphalosSettings = await adminSettingService.GetSettingsAsync();
+        ViewBag.ShowOmphalosButton = omphalosSettings.IsConfigured && (isQuestDm || isAdmin);
+
         return View(quest);
     }
 
@@ -792,6 +802,32 @@ public class QuestController(
         }
 
         return RedirectToAction("Manage", new { id = newQuestId });
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> LaunchOmphalos(int id, CancellationToken token = default)
+    {
+        var settings = await adminSettingService.GetSettingsAsync(token);
+        if (!settings.IsConfigured)
+            return NotFound();
+
+        var quest = await questService.GetQuestWithDetailsAsync(id, token);
+        if (quest == null)
+            return NotFound();
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+            return Challenge();
+
+        var signedUrl = integrationTokenService.GenerateSignedUrl(
+            settings.OmphalosUrl!,
+            quest.Id,
+            quest.Title,
+            currentUser.Name,
+            settings.OmphalosSharedSecret!);
+
+        return Redirect(signedUrl);
     }
 
 }

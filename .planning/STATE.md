@@ -1,19 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-current_phase: 19
-current_phase_name: admin-shop-management-views
-status: verifying
-stopped_at: "Completed 19-07-PLAN.md — Phase gate: all 8 Phase 19 tests GREEN, full suite 134 tests passed"
-last_updated: "2026-06-25T16:46:29.517Z"
-last_activity: 2026-06-25
-last_activity_desc: Phase 19 execution started
+milestone: v2.0
+milestone_name: Omphalos Integration
+status: In progress
+stopped_at: Phase 11 complete — human-verify approved 2026-06-19; Phase 20 (Omphalos repo) next
+last_updated: "2026-06-19T00:00:00Z"
+last_activity: 2026-06-19 — Phase 11 human-verify approved; all 15/15 must-haves + 4/4 UAT items pass
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 34
-  completed_plans: 34
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 6
+  completed_plans: 6
   percent: 100
 ---
 
@@ -21,130 +18,85 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-23)
+See: .planning/PROJECT.md (updated 2026-06-18)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 19 — admin-shop-management-views
+**Current focus:** Milestone v2.0 — Phase 20: SSO Endpoint + Quest-Session Linking (Omphalos repo at C:\Repos\omphalos)
 
 ## Current Position
 
-Phase: 19 (admin-shop-management-views) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-06-25 — Phase 19 execution started
-Last activity: 2026-06-25
+Phase: Phase 20 — SSO Endpoint + Quest-Session Linking (Omphalos)
+Plan: Not yet planned — Phase 20 is in the Omphalos repository
+Status: Phase 11 complete (2026-06-19) — Quest Board Omphalos integration fully delivered; Phase 20 planned in Omphalos repo
+Last activity: 2026-06-19 — Phase 11 human-verify approved (all 4 UAT items pass); phase marked complete
 
-Progress: [██████████] 100%
+Progress bar: [██████████] 100% (6/6 plans complete — Quest Board milestone work done)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 18
-- Average duration: ~4.5 minutes
-- Total execution time: ~28 minutes
+- Total plans completed: 2
+- Average duration: 2.5 min
+- Total execution time: 5 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 12 | 3 | 14 min | 5 min |
-| 13 | 4 | ~18 min | ~4.5 min |
-| 14 | 3 | ~10 min | ~3 min |
-| 15 | 4 | ~65 min | ~16 min |
+| Phase 11 | 2 plans | 5 min | 2.5 min |
 
 *Updated after each plan completion*
-| Phase 16 P01 | 3m | 2 tasks | 1 files |
-| Phase 16-account-browse P02 | 7m | 4 tasks | 6 files |
-| Phase 16 P03 | 12 | 3 tasks | 2 files |
-| Phase 17 P01 | 3m | 2 tasks | 2 files |
-| Phase 17 P02 | 2min | 2 tasks | 2 files |
-| Phase 17 P03 | 3min | 2 tasks | 3 files |
-| Phase 17 P04 | 2.5min | 2 tasks | 3 files |
-| Phase 18 P01 | 3min | 2 tasks | 2 files |
-| Phase 18 P03 | 8min | 2 tasks | 2 files |
-| Phase 18 P04 | 5min | 2 tasks | 2 files |
-| Phase 18 P05 | 2.5min | 1 task | 1 files |
-| Phase 19 P01 | 2min | 2 tasks | 2 files |
-| Phase 19 P02 | 3min | 2 tasks | 4 files |
-| Phase 19 P03 | 4min | 2 tasks | 3 files |
-| Phase 19 P04 | 5m | 2 tasks | 4 files |
-| Phase 19 P05 | 3 | 1 tasks | 2 files |
-| Phase 19 P06 | 2m | 1 tasks | 2 files |
-| Phase 19 P07 | 3m | 1 tasks | 0 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
 
-- Roadmap: Phase 12 (INFRA) must complete before Phases 13–16 — middleware + expander + layout shell are an atomic prerequisite
-- Roadmap: Phases 13, 14, 15, 16 are independent of each other; all depend only on Phase 12
-- Roadmap: Phases renumbered 12–16 to avoid conflict with Omphalos Integration phases 10–11
-- Research: Use hand-rolled IViewLocationExpander (~30 lines, zero new NuGet dependencies) — Wangkanai.Responsive rejected due to session-timeout override trap and middleware reorder requirement
-- Research: Mobile detection must live in PopulateValues (not ExpandViewLocations) — cache-key correctness; ExpandViewLocations only runs on cache miss
-- Plan 01: IsMobile stored as boxed bool (not string) in HttpContext.Items — is true pattern is null-safe and handles health check / static file requests
-- Plan 01: In .NET 10 ViewLocationExpanderContext.Values is null after construction; real RazorViewEngine initializes it before invoking expanders — test setup must mirror this
-- Plan 02: No @inject in _Layout.Mobile.cshtml — AuthorizationService/UserService already injected globally via _ViewImports.cshtml; adding them again would shadow/duplicate
-- Plan 02: Desktop HTML contains literal D&D Quest Board (unencoded &) in anchor text — integration test assertions must use literal string not HTML-encoded &amp;
-    - Plan 03: No @media query in mobile.css — file is exclusively loaded by _Layout.Mobile.cshtml; device targeting is handled at layout-selection layer
-    - Plan 03: Path resolution for CSS file-content test walks upward from AppContext.BaseDirectory — robust across machines and CI without hardcoding repo path
-- Phase 13, Plan 01: Store _factory as field (not just _client) — authenticated tests need _factory.Services for seeding
-- Phase 13, Plan 01: GetWithUserAgentAsync takes url param (unlike MobileLayoutTests hardcoded '/') — covers /, /QuestLog, /Quest/Details/{id}
-- Phase 13, Plan 01: Tests start RED by design — Wave 0 goal is compilation + test discovery, not green assertions
-- Phase 13, Plan 02: IsFinalized + null FinalizedDate means quest is filtered by repository (FinalizedDate > oneDayAgo = false for null); tests must seed future FinalizedDate for Finalized badge
-- Phase 13, Plan 02: TestDataHelper.CreateTestQuestAsync extended with optional FinalizedDate param for test scenarios needing finalized quest with confirmed date
-- Phase 13, Plan 02: Razor syntax does not allow @{} blocks nested inside @foreach{}; declare variables directly in the C# code mode of the foreach body
-- Phase 13, Plan 03: No @inject in Details.Mobile.cshtml — Antiforgery already globally injected via _ViewImports.cshtml line 16; desktop Details.cshtml line 5 @inject is redundant, do not copy it
-- Phase 13, Plan 03: Vote button stacking handled entirely by Bootstrap d-grid gap-2 — no custom CSS needed in quests.mobile.css (mobile.css already sets .btn min-height: 44px)
-- Phase 13, Plan 03: JS vote functions in @section Scripts render unconditionally — they must be present even when vote button divs are hidden by auth guards
-- Phase 13, Plan 04: QVIEW-03 test fix: finalizedDate required for GetCompletedQuestsAsync filter (FinalizedDate <= yesterday)
-- Phase 14, Plan 01: QVIEW-01 updated to assert btn-check (not changeVoteToYes) — forward-compatible with Plan 03 AJAX removal
-- Phase 14, Plan 01: CreateProposedDateAsync seed added to QVIEW-01 so vote buttons render once Plan 03 replaces the AJAX block
-- Phase 14, Plan 03: VoteType.Yes=2, VoteType.No=0, VoteType.Maybe=1 — confirmed from desktop _Calendar.cshtml
-- Phase 14, Plan 03: No @inject in _Calendar.Mobile.cshtml — globally available via _ViewImports.cshtml
-- Phase 14, Plan 03: No @section Styles in _Calendar.Mobile.cshtml — partial cannot push sections; quests.mobile.css covers it
-- Phase 14, Plan 03: updateVoteIndexLookup set in foreach body without @{} wrapper — direct C# code mode assignment (Phase 13 pattern enforced)
-- Phase 15, Plan 03: Antiforgery already injected globally via _ViewImports.cshtml — no @inject in Manage.Mobile.cshtml (plan template was wrong, would cause duplicate injection compile error)
-- Phase 15, Plan 03: Both manage-date-option AND date-option CSS classes on same div — JS closest('.date-option') selector compatibility with desktop JavaScript
-- Phase 15, Plan 03: Raw C# variables inside @if(IsFinalized){} after HTML output — no @{} wrapper; Razor returns to C# code mode after HTML inside a code block
-- Phase 15, Plan 04: After creating new .Mobile.cshtml views, rebuild integration tests project (dotnet build EuphoriaInn.IntegrationTests) before running tests — WebApplicationFactory uses compiled output
-- [Phase ?]: Plan 16-01: Filter & Sort HTML assertion uses &amp; encoding — Razor auto-encodes & in text output
-- [Phase ?]: Plan 16-02: btn-warning for Change Password link in Edit.Mobile.cshtml — CLAUDE.md requires filled colored buttons
-- [Phase ?]: Plan 16-03: Razor static HTML text is not encoded — write literal &amp; entity to produce &amp; in output; separate @if from & with newline
-- Phase 17, Plan 01: Character detail/edit test stubs seed a CharacterEntity via TestDataHelper.CreateTestCharacterAsync to get valid character.Id for route parameters
-- Phase 17, Plan 01: Players Index test uses authenticated GET /Players — PlayersController carries [Authorize]; consistent with MobileGuildMembers pattern
-- Phase 17, Plan 01: MSB3492 transient error on --no-restore builds is a Windows file-lock artifact on .cache file; full build + test discovery confirmed 0 C# errors
-- [Phase ?]: Phase 17, Plan 02: Details.Mobile.cshtml follows @section Styles pattern; no Layout= or @inject; owner actions guard wraps entire glass card
-- Phase 17, Plan 03: character-form.mobile.css uses 16px padding (vs 12px for detail views) — matches account.mobile.css form-container convention
-- Phase 17, Plan 03: Create.Mobile.cshtml and Edit.Mobile.cshtml share character-form.mobile.css via @section Styles — shared CSS for related form views (D-12, D-13)
-- Phase 17, Plan 04: Non-tappable player rows use .players-row.no-link modifier (cursor default, no active bg) — preserves 44px min-height touch target without interaction affordance
-- Phase 17, Plan 04: Desktop Players/Index.cshtml Name <th> w-50 class removed after email column deletion — Name is sole column, no width constraint needed
-- [Phase ?]: Phase 18-03: dm-editprofile.mobile.css glass card + EditProfile.Mobile.cshtml; photo section at top (D-12), file validation JS verbatim (D-13), 16px padding per UI-SPEC
-- [Phase ?]: Phase 19 admin/shop tests: CreateAuthenticatedAdminClientAsync for Admin routes, CreateAuthenticatedClientWithUserAsync with DungeonMaster for ShopManagement routes
-- [Phase ?]: SHOPMGMT-01 ShopDetails test: seeds seller DM without DM role, authenticates as regular player buyer — Shop/Details accessible to any authenticated user
-- [Phase ?]: Phase 19 Plan 03
-- [Phase ?]: Phase 19-05: Outer shop-mgmt-index-card-mobile container always rendered (not conditional on allItems.Any()) — integration test asserts CSS class present even when DM has no items
-- [Phase ?]: Phase 19 gate plan: all 8 GetMobilePage_* tests GREEN, 134 total tests pass, no test-side fixes needed
+Milestone 2 decisions carried forward as context:
 
-### Roadmap Evolution
+- IIdentityService pattern: Domain defines interface, Repository implements with UserEntity — keeps Identity coupling out of Domain layer
+- BaseRepository<TModel, TEntity> implements IBaseRepository<TModel> — all CRUD methods return domain models via AutoMapper
+- IOptions<EmailSettings> pattern — EmailService is Scoped, settings are static at startup
+- AppUrl fallback to '[Quest Board URL]' literal when empty — preserves existing behavior for unconfigured deployments
 
-- Phase 17 added: Character & Player Views (GuildMembers/Details, Create, Edit + Players/Index mobile views)
-- Phase 18 added: DM Editing & Secondary Quest Views (Quest/Edit, CreateFollowUp, QuestLog/Details, DungeonMaster/EditProfile mobile views)
-- Phase 19 added: Admin & Shop Management Views (Shop/Details, Admin/*, ShopManagement/* mobile views)
+Milestone 3 decisions:
+
+- HMAC-SHA256 shared secret for cross-app auth — symmetric, supports future bidirectional API calls
+- Username-based user matching between Quest Board and Omphalos — auto-provision on first SSO
+- Phase 8 (avatar crop) deferred from Milestone 2 — no strong user demand, SkiaSharp Docker risk
+- Admin Settings uses key-value EF entity (AdminSettingEntity: Key nvarchar(200) PK, Value nvarchar(max), UpdatedAt datetime2) — avoids a new migration per settings key in future milestones
+- IAdminSettingService registered as Scoped — secret read from DB per-request so settings changes take effect without restart
+- Token format contract (TOKEN-02): canonical MAC message is alphabetical query string `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}`; algorithm HMAC-SHA256; signature lowercase hex; username normalised to lowercase both sides; TTL 300 seconds
+- ViewComponent for navbar Omphalos link — injects IAdminSettingService directly, fires once per layout render; avoids base-controller inheritance anti-pattern
+- ViewBag for quest-page Omphalos flag — consistent with existing pattern (five other ViewBag flags already on Details/Manage); no new ViewModel wrapper
+- Asymmetric secret storage by design: Quest Board stores secret in DB (Admin UI editable); Omphalos reads from QUEST_BOARD_SECRET env var (fail-fast on startup)
 
 ### Pending Todos
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260420-bqj | Fix stale checkboxes and progress table in ROADMAP.md and PROJECT.md | 2026-04-20 | 791d099 | [260420-bqj-fix-stale-checkboxes-and-progress-table-](./quick/260420-bqj-fix-stale-checkboxes-and-progress-table-/) |
+| 260420-n5f | Restore HasKey checkbox to user-facing Account/Edit form | 2026-04-20 | e934add | [260420-n5f-restore-haskey-checkbox-to-user-facing-a](./quick/260420-n5f-restore-haskey-checkbox-to-user-facing-a/) |
+| 260617-d8u | Proposed dates UX improvement — default to today at 18:00 and auto-advance by 1 day per addition | 2026-06-17 | dd290ab | [260617-d8u-proposed-dates-ux-today-and-next-day](./quick/260617-d8u-proposed-dates-ux-today-and-next-day/) |
+| 260617-w1w | Fix #89: Quest Log page shows DM session quests — filter them out | 2026-06-17 | b424fef | [260617-w1w-fix-89-quest-log-page-shows-dm-session-q](./quick/260617-w1w-fix-89-quest-log-page-shows-dm-session-q/) |
+
+### Roadmap Evolution
+
+- Milestone 2 phases 1-9 complete (Phase 8 avatar crop deferred)
+- Milestone 3 roadmap defined 2026-06-18: Phases 10-12
+
 ### Blockers/Concerns
 
-- **Paused from Milestone 2 — Phase 8 (avatar crop):** Deferred to a future milestone. When resuming, verify SkiaSharp native lib (`libSkiaSharp`) is available in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm). Fallback: CSS `object-position` crop-display without server-side crop.
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-25T16:46:29.502Z
-Stopped at: Completed 19-07-PLAN.md — Phase gate: all 8 Phase 19 tests GREEN, full suite 134 tests passed
-Resume file: None
+Last session: 2026-06-19T00:00:00Z
+Stopped at: Phase 11 fully complete — human-verify approved. Quest Board work for Milestone 3 done.
+Next: Phase 20 (Omphalos SSO endpoint) in C:\Repos\omphalos — run /gsd-progress there to see the roadmap.

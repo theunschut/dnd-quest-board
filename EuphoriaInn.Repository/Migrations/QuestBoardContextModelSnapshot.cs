@@ -22,6 +22,23 @@ namespace EuphoriaInn.Repository.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("EuphoriaInn.Repository.Entities.AdminSettingEntity", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("AdminSettings");
+                });
+
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.CharacterClassEntity", b =>
                 {
                     b.Property<int>("Id")

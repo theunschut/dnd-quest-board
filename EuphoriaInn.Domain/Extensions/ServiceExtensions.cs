@@ -20,6 +20,8 @@ public static class ServiceExtensions
         services.AddScoped<IShopSeedService, ShopSeedService>();
         services.AddScoped<ICharacterService, CharacterService>();
         services.AddScoped<IDungeonMasterProfileService, DungeonMasterProfileService>();
+        services.AddScoped<IAdminSettingService, AdminSettingService>();
+        services.AddTransient<IIntegrationTokenService, IntegrationTokenService>();
 
         return services;
     }

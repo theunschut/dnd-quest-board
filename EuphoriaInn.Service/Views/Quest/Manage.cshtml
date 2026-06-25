@@ -523,6 +523,22 @@ else
                 </div>
             </div>
 
+            @if ((bool)(ViewBag.ShowOmphalosButton ?? false))
+            {
+                <div class="card modern-card mb-3">
+                    <div class="card-header modern-card-header">
+                        <h5>Session Notes</h5>
+                    </div>
+                    <div class="card-body modern-card-body">
+                        <a href="@Url.Action("LaunchOmphalos", "Quest", new { id = Model.Id })"
+                           class="btn btn-warning w-100">
+                            <i class="fas fa-book-open me-2"></i>
+                            Open Session Notes
+                        </a>
+                    </div>
+                </div>
+            }
+
             <div class="card modern-card">
                 <div class="card-header modern-card-header">
                     <h5>Quest Summary</h5>
