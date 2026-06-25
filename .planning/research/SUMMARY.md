@@ -1,154 +1,127 @@
 # Project Research Summary
 
-**Project:** D&D Quest Board — Milestone 3: Mobile Version
-**Domain:** Mobile-specific Razor views in ASP.NET Core 8 MVC
-**Researched:** 2026-06-23
-**Confidence:** MEDIUM
+**Project:** D&D Quest Board — Milestone 4 Email Notifications
+**Domain:** Background jobs + transactional email + admin ops
+**Researched:** 2026-06-25
+**Confidence:** HIGH
 
 ## Executive Summary
 
-Milestone 3 delivers a mobile-optimised experience for the D&D Quest Board by adding `.Mobile.cshtml` view variants alongside existing desktop views, using ASP.NET Core's built-in `IViewLocationExpander` mechanism for transparent device-based view routing. The approach requires no controller changes, no ViewModel changes, and no changes to the repository or domain layers. A lightweight middleware detects the User-Agent once per request, stores the result in `HttpContext.Items`, and the view expander reads that flag to prepend `.Mobile.cshtml` paths before falling back to the desktop views. All existing flows remain intact by design — a missing `.Mobile.cshtml` silently falls through to the desktop view.
+Milestone 4 adds three capabilities to an existing ASP.NET Core 10 MVC app: styled HTML email templates for all outbound notifications, automated and DM-triggered session reminders via Hangfire, and an admin email stats dashboard backed by the Resend REST API. The app already sends email through Postfix → Resend SMTP relay and that path stays unchanged — no new sending mechanism is needed.
 
-The recommended implementation uses a hand-rolled `IViewLocationExpander` (~30 lines, zero new dependencies) rather than the `Wangkanai.Responsive` NuGet package. The hand-rolled path is lower-risk: no transitive dependencies, no middleware reordering required. Wangkanai requires moving `UseSession()` before `UseRouting()` in `Program.cs` and must not copy-paste its example `AddSession()` call, which would override the project's 24-hour session timeout with a 10-second default.
+The critical architectural decision is **how to render HTML email templates inside Hangfire background jobs**. `IRazorViewEngine` throws `NullReferenceException` in that context because `IHttpContextAccessor.HttpContext` is null. The correct approach is `HtmlRenderer` from `Microsoft.AspNetCore.Components.Web` (built into .NET 10), which renders Razor components without an HTTP context. This decision gates every email send in the milestone.
 
-The highest-complexity mobile views are the Calendar (agenda list vs. 7-column grid — structurally different markup) and the Quest Board index (removal of decorative poster images). The infrastructure block (middleware + expander + mobile layout + `_ViewStart.cshtml` update) must be built as an atomic unit before any individual mobile views are added; once in place, each `.Mobile.cshtml` is independent and deliverable incrementally.
+The two biggest implementation risks are (1) scoped DbContext leaking into Hangfire jobs — every job method must resolve services via `IServiceScopeFactory`, not constructor injection — and (2) duplicate emails on Hangfire retry — a `ReminderSentAt` timestamp column must be added before any reminder job is wired up.
 
 ## Key Findings
 
 ### Recommended Stack
 
-**Core components (hand-rolled, zero new NuGet dependencies):**
-- `MobileDetectionMiddleware` — ~20 lines; parses User-Agent once per request; keywords: Mobi, Android, iPhone, iPad, Windows Phone, BlackBerry; sets `HttpContext.Items["IsMobile"]`
-- `MobileViewLocationExpander` — implements `IViewLocationExpander` (built-in ASP.NET Core 8); prepends `.Mobile.cshtml` paths; cache-key written in `PopulateValues`, path expansion in `ExpandViewLocations`
-- Bootstrap 5 offcanvas (already on CDN) — replaces desktop collapse nav with a slide-in drawer on mobile
+Two NuGet packages are the entire new footprint: `Hangfire.AspNetCore` 1.8.23 and `Hangfire.SqlServer` 1.8.23, both in `EuphoriaInn.Service`. Hangfire shares the existing SQL Server database under a separate `[HangFire]` schema — no EF Core migration, no second connection string. The `Hangfire.Dashboard.Authorization` package is unnecessary; a custom `IDashboardAuthorizationFilter` is three lines of C#.
 
-**Optional NuGet alternative:**
-- `Wangkanai.Responsive 7.14.0` + `Wangkanai.Detection 8.20.0` (transitive) — packages UA detection and view expander together; adds tablet detection and user-preference cookies; requires middleware reorder; NOT recommended due to session-timeout trap
+The Resend SDK (`Resend` NuGet) is **not added**. Email continues to go out via SmtpClient → Postfix → Resend SMTP relay. For the admin stats dashboard, a plain `HttpClient` calls `GET https://api.resend.com/emails` with a Bearer token — confirmed viable because Postfix-relayed emails do appear in the Resend API response.
 
-**Stay as-is:**
-- All existing NuGet packages, CDN libraries, Bootstrap 5, jQuery, FontAwesome — no changes
+**Core technologies:**
+- `Hangfire.AspNetCore` 1.8.23: recurring + on-demand background jobs — chosen over `IHostedService` for dashboard, retry, and persistence
+- `Hangfire.SqlServer` 1.8.23: job storage on existing DB — no extra infrastructure
+- `HtmlRenderer` (`Microsoft.AspNetCore.Components.Web`): Razor-component-to-string rendering without HTTP context — built into .NET 10, zero dependencies
+- `HttpClient` (built-in): Resend stats API calls — avoids Resend SDK dependency for read-only use
 
-### Expected Features (Milestone 3 Scope)
+### Expected Features
 
 **Must have (table stakes):**
-- Mobile layout shell (`_Layout.Mobile.cshtml`) with Bootstrap offcanvas nav
-- Quest Board index mobile view — card list, no poster images, tap-friendly
-- Calendar mobile view — agenda/list replacing 7-column grid (highest complexity)
-- Quest Details mobile view — touch-friendly voting and signup UI
-- `mobile.css` — touch target sizing (44px min), mobile typography scale
+- HTML email templates replacing plain text for all outbound notifications
+- Quest-finalization email upgraded to HTML (existing feature, new look)
+- 24h auto session reminder delivered by Hangfire recurring job (cron `0 9 * * *`)
+- DM manual reminder trigger (button on quest manage page → Hangfire enqueue)
+- Digest batching: players confirmed for multiple same-day quests get one combined email
 
 **Should have:**
-- Quest Create / Edit mobile views (DMs create quests from phone)
-- DM Manage quest mobile view
-- Account pages mobile views (login, register, profile)
-- Guild Members mobile view
+- Admin email stats dashboard: daily/monthly sent/bounced/failed counts from Resend API
+- Hangfire dashboard at `/hangfire` (admin-only, via custom `IDashboardAuthorizationFilter`)
 
-**Defer:**
-- Tablet-specific views (`.Tablet.cshtml`)
-- PWA manifest and service worker
-- Push notifications
-- "Force desktop" cookie override
+**Defer (v2+):**
+- Webhook-based delivery tracking (requires registered webhook URL in Resend, more complex than polling)
+- Resend batch API sending (irrelevant at 17-member scale using SMTP relay)
+- Vote reminders (deferred by user decision)
 
 ### Architecture Approach
 
-Strictly additive to the Service layer only — no controllers, ViewModels, repositories, or domain services are modified.
+New components slot cleanly into the existing three-layer architecture. `IEmailRenderService` (interface in Domain) and `RazorEmailRenderService` (implementation in Service using `HtmlRenderer`) keep the rendering concern out of Domain. `SessionReminderJob` lives in Service and is the only class that touches Hangfire directly — Domain and Repository know nothing about jobs. Digest batching logic lives inside `SessionReminderJob` (group players before calling `IEmailService`), not in `IEmailService` itself. The Resend stats HTTP client is a typed `HttpClient` registered in Service DI; Domain exposes an `IEmailStatsService` interface.
 
-**Build order is fixed:**
-1. `MobileDetectionMiddleware` — UA parsing, sets `HttpContext.Items["IsMobile"]`
-2. `MobileViewLocationExpander` — registered in `Program.cs` via `RazorViewEngineOptions`
-3. `_Layout.Mobile.cshtml` — mobile HTML shell; Bootstrap offcanvas nav; loads `mobile.css`
-4. `_ViewStart.cshtml` (modified) — single conditional sets Layout based on `HttpContext.Items["IsMobile"]`
-5. `mobile.css` — mobile overrides for typography, spacing, touch targets
-6. Per-page `*.Mobile.cshtml` — opt-in; created only where desktop markup is structurally incompatible
-
-**Key implementation details:**
-- Detection **must** live in `PopulateValues`, not `ExpandViewLocations` — the latter only runs on cache miss; putting detection in the wrong method serves cached desktop paths to mobile users
-- Partial views participate in `ExpandViewLocations` automatically — `_QuestCard.Mobile.cshtml` will be checked before `_QuestCard.cshtml` on mobile requests with no extra code
-- View suffix `.Mobile.cshtml` alongside desktop view (e.g., `Views/Quest/Details.Mobile.cshtml` next to `Views/Quest/Details.cshtml`) — NOT a separate `/Views/Mobile/` folder hierarchy
+**Major components:**
+1. `IEmailRenderService` / `RazorEmailRenderService` — renders Razor component templates to HTML strings; used by `IEmailService`
+2. `SessionReminderJob` — Hangfire job class; resolves services via `IServiceScopeFactory`; groups players, calls `IEmailService`
+3. `HangfireAdminAuthFilter` — `IDashboardAuthorizationFilter`; checks `Admin` role; registered after `UseAuthorization`
+4. `IEmailStatsService` / `ResendEmailStatsService` — typed HttpClient wrapper for `GET /emails`; paginates and counts by `last_event`
 
 ### Critical Pitfalls
 
-1. **Mobile detection inside `ExpandViewLocations`** — only called on cache miss; cached desktop paths are then served to mobile users. Always detect in `PopulateValues` and write to `context.Values`.
-2. **Adding a second `AddSession()` call when following Wangkanai's install guide** — overrides the project's 24-hour session timeout with 10 seconds, breaking auth. Reuse the existing `AddSession()`.
-3. **Using `UseDetection()` without `UseResponsive()`** — Detection alone does not register the `IViewLocationExpander`; views will not switch.
-4. **Setting Layout in each individual mobile view** — brittle. Set once in `_ViewStart.cshtml`; mobile views inherit automatically.
-5. **Creating a `/Views/Mobile/` parallel folder hierarchy** — complex expander path manipulation required. Use `.Mobile.cshtml` suffix in the same controller folder; expander is a one-line string replace.
+1. **Scoped DbContext in Hangfire jobs** — Inject `IServiceScopeFactory`, call `CreateAsyncScope()` inside the job method, resolve services from the scope. Never inject scoped services directly into the job constructor.
+
+2. **Duplicate emails on job retry** — Hangfire retries up to 10 times by default. Add `ReminderSentAt` (nullable DateTime) to the quest or a `ReminderLog` table. Check before sending. This migration must land before the first reminder job runs.
+
+3. **Hangfire dashboard auth bypassed by Docker reverse proxy** — `LocalRequestsOnlyAuthorizationFilter` sees every Docker-proxied request as local. Always use a custom filter checking `httpContext.User.IsInRole("Admin")`. Register the dashboard **after** `UseAuthentication` + `UseAuthorization`.
+
+4. **`IRazorViewEngine` throws in background jobs** — `IHttpContextAccessor.HttpContext` is null outside an HTTP request. Use `HtmlRenderer` (Razor components) — no HTTP context dependency.
+
+5. **UTC vs. local date boundary for reminders** — If `FinalizedDate` is stored as local time but the Docker container runs UTC, quests may be missed or triggered a day early. Verify storage timezone before coding the job comparison.
 
 ## Implications for Roadmap
 
-### Phase 10: Mobile Infrastructure Foundation
-**Rationale:** All mobile views depend on the middleware + expander + layout + `_ViewStart` being in place as an atomic unit. Safe to ship with no `.Mobile.cshtml` files — all requests fall through to desktop views unchanged.
-**Delivers:** Mobile detection pipeline, view routing, mobile layout shell, `mobile.css` baseline; zero user-visible change for desktop users
-**Implements:** `MobileDetectionMiddleware`, `MobileViewLocationExpander`, `_Layout.Mobile.cshtml`, `_ViewStart.cshtml` update, `mobile.css`
-**Avoids:** Detection-in-ExpandViewLocations pitfall; second AddSession() pitfall; Layout-in-each-view pitfall
+Phases 20+ (continuing from Phase 19):
 
-### Phase 11: Core Player-Facing Mobile Views
-**Rationale:** Players are the primary mobile users. Quest board index and Quest Details are the highest-traffic routes for this persona.
-**Delivers:** `Home/Index.Mobile.cshtml` (card list, no poster images), `Quest/Details.Mobile.cshtml` (touch voting UI)
-**Uses:** Bootstrap 5 card grid, mobile.css touch target rules
+### Phase 20: Hangfire Infrastructure
+**Rationale:** Every subsequent phase depends on Hangfire being wired up safely. Pitfalls 1, 2, 3 must be resolved before any job is registered.
+**Delivers:** `AddHangfire` + `AddHangfireServer`, `HangfireAdminAuthFilter`, dashboard at `/hangfire` (admin-only), `IServiceScopeFactory` pattern established.
+**Avoids:** Dashboard auth bypass (Pitfall 3).
 
-### Phase 12: Calendar Mobile View
-**Rationale:** Highest-complexity mobile view — desktop 7-column grid is structurally unusable on a phone. Isolated to contain risk.
-**Delivers:** `Calendar/Index.Mobile.cshtml` (agenda list), mobile calendar CSS
-**Research flag:** Calendar is the highest-complexity mobile adaptation. The phase plan should include a spike on the agenda layout before committing to markup.
+### Phase 21: HTML Email Templates
+**Rationale:** All email sends in subsequent phases depend on the rendering approach. Validating `HtmlRenderer` with the existing finalization email de-risks Phase 22.
+**Delivers:** `IEmailRenderService` + `RazorEmailRenderService`, `_EmailLayout.razor`, `QuestFinalized.razor` component, existing finalization send path switched to HTML.
+**Avoids:** `IRazorViewEngine` NullReferenceException (Pitfall 4).
 
-### Phase 13: DM Mobile Views
-**Rationale:** DMs create and manage quests — lower mobile urgency than player-facing views, but forms must work on touch.
-**Delivers:** `Quest/Create.Mobile.cshtml`, `Quest/Manage.Mobile.cshtml`, DM directory mobile views
+### Phase 22: Session Reminders
+**Rationale:** Builds on Phase 20 (Hangfire) and Phase 21 (HTML templates). Digest batching included here — it is a grouping loop, not a separate system.
+**Delivers:** `ReminderSentAt` column + migration, `GetQuestsDueTomorrowAsync` repository query, `SessionReminderJob` (recurring `0 9 * * *` + `DisableConcurrentExecution`), `SessionReminder.razor` + digest variant, DM manual trigger button on quest manage page.
+**Avoids:** Duplicate email on retry (Pitfall 2), scoped DbContext leak (Pitfall 1).
 
-### Phase 14: Account and Secondary Pages
-**Rationale:** Simplest pages; Bootstrap's responsive utilities may handle these without separate `.Mobile.cshtml` files. Audit each page — only create view files where desktop markup is structurally incompatible.
-**Delivers:** Mobile-ready Account pages (CSS or dedicated views), Shop index, Guild Members
-**Decision point:** CSS-only first; create `.Mobile.cshtml` only where needed
+### Phase 23: Admin Email Stats
+**Rationale:** Fully independent of Phases 21–22; only needs Resend API key config. Lowest risk, slotted last.
+**Delivers:** `IEmailStatsService` + `ResendEmailStatsService` (typed HttpClient, paginates `GET /emails`, counts by `last_event`), `ResendApiKey` in `EmailSettings`, admin stats view.
 
 ### Phase Ordering Rationale
-
-- Phase 10 is mandatory first — prerequisite for all others; can ship without breaking anything
-- Phases 11–14 reflect player-facing priority over DM-facing over administrative
-- Calendar (Phase 12) isolated from bulk player views (Phase 11) — failed calendar approach should not block quest board delivery
-- Phase 14 deferred — lowest risk pages, likely CSS-only
+- Phase 20 first: Hangfire safety patterns must be in place before any job ships
+- Phase 21 second: rendering approach gates all HTML sends; upgrading finalization email validates end-to-end
+- Phase 22 third: core value delivery of the milestone
+- Phase 23 last: independent, can be dropped if time-constrained without affecting other phases
 
 ### Research Flags
 
-Needs research during planning:
-- **Phase 10 (infrastructure):** Confirm hand-rolled vs. Wangkanai final decision before starting
-- **Phase 12 (Calendar):** Agenda view markup needs a spike; `CalendarViewModel` may need a reshaping helper
+Standard patterns (skip research-phase during planning):
+- **Phase 20:** Official Hangfire docs + Context7 verified — no surprises
+- **Phase 21:** `HtmlRenderer` is official Microsoft API — confirmed working
+- **Phase 23:** Resend `GET /emails` is simple REST — no surprises expected
 
-Standard patterns (skip research):
-- **Phase 11:** Bootstrap card list; existing ViewModel sufficient
-- **Phase 13:** Same pattern as Phase 11
-- **Phase 14:** CSS media query audit; no new architecture decisions
+Needs care during planning:
+- **Phase 22:** Verify `FinalizedDate` timezone storage before writing the date comparison in the job (Pitfall 5)
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | MEDIUM | Versions verified from NuGet registry; middleware ordering from official Wangkanai install guide; limited .NET 8 community examples |
-| Architecture | MEDIUM | IViewLocationExpander interface confirmed from official source; PopulateValues cache-key semantics confirmed |
-| Pitfalls | MEDIUM | Critical pitfalls evidenced from source and official docs; Wangkanai-specific pitfalls from official install guide |
-| Features | MEDIUM | Scope inferred from project brief; no dedicated Milestone 3 feature research file (FEATURES.md is stale Milestone 2) |
+| Stack (packages + versions) | HIGH | NuGet confirmed; .NET 10 compatibility verified |
+| Features | HIGH | All behaviors verified against official docs |
+| Architecture | HIGH | Layer placements derived from existing codebase dependency rules |
+| Pitfalls | HIGH | All 5 verified against official Hangfire docs + GitHub issues |
 
-**Overall confidence:** MEDIUM
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **FEATURES.md is stale (Milestone 2):** No dedicated Milestone 3 feature research file. Roadmapper should derive feature scope from project brief and architecture research.
-- **Calendar agenda layout design:** No specific markup pattern researched. Spike warranted before Phase 12 plan.
-- **Hand-rolled vs. Wangkanai final decision:** Resolve in Phase 10 planning. Recommendation: hand-rolled.
-
-## Sources
-
-### Primary (MEDIUM confidence)
-- NuGet Gallery — Wangkanai.Responsive 7.14.0 / Detection 8.20.0 (version, net8.0 target)
-- Wangkanai Responsive INSTALL.md (middleware order, view suffix convention)
-- IViewLocationExpander source — dotnet/aspnetcore (interface contract, cache-key semantics)
-- IViewLocationExpander Interface — Microsoft Learn
-- Layout in ASP.NET Core — Microsoft Learn
-
-### Secondary (MEDIUM confidence)
-- Jack Histon — IViewLocationExpander walkthrough (PopulateValues/ExpandViewLocations pattern; confirmed stable through .NET 8)
-- Khalid Abuhakmeh — Razor View Engine searched locations (default format patterns)
+- **FinalizedDate timezone:** Query the DB or check EF Core entity config to confirm UTC vs. local storage before writing the reminder job.
+- **HtmlRenderer CSS inlining:** Outlook strips `<style>` blocks. Decide during Phase 21 whether to inline CSS manually or use `PreMailer.Net` — simple first.
 
 ---
-*Research completed: 2026-06-23*
+*Research completed: 2026-06-25*
 *Ready for roadmap: yes*

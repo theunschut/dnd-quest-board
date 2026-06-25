@@ -1,4 +1,4 @@
-# D&D Quest Board — Milestone 3: Mobile Version
+# D&D Quest Board — Milestone 4: Email Notifications
 
 ## Current Milestone: v4.0 Email Notifications
 
@@ -14,7 +14,7 @@
 
 ## What This Is
 
-A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 8 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
+A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 10 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
 
 ## Core Value
 
@@ -93,7 +93,7 @@ The codebase map is current (analysed 2026-04-15): `.planning/codebase/`.
 ## Constraints
 
 - **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work after the refactor
-- **Tech stack:** Stay on ASP.NET Core 8 MVC + SQL Server + EF Core — no framework changes
+- **Tech stack:** Stay on ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes (upgraded from .NET 8 during Milestone 3)
 - **Deployment:** Must remain deployable via `docker-compose up` with no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
 
