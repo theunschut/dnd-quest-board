@@ -5,7 +5,7 @@ milestone_name: email-notifications
 current_phase: 21
 current_phase_name: HTML Email Templates
 status: verifying
-stopped_at: Completed 20-03-PLAN.md — Phase 20 complete
+stopped_at: Phase 20 complete — all 5 UAT tests passed, transitioned to Phase 21
 last_updated: "2026-06-25T21:31:51.372Z"
 last_activity: 2026-06-25
 last_activity_desc: Phase 20 complete, transitioned to Phase 21
@@ -24,13 +24,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-25)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 20 — hangfire-infrastructure
+**Current focus:** Phase 21 — html-email-templates
 
 ## Current Position
 
 Phase: 21 — HTML Email Templates
 Plan: Not started
-Status: Phase complete — ready for verification
+Status: Ready to plan
 Last activity: 2026-06-25 — Phase 20 complete, transitioned to Phase 21
 
 ```
@@ -51,9 +51,9 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 - Hangfire job scope: IServiceScopeFactory + CreateAsyncScope() inside job method — never inject scoped services via constructor
 - Resend stats: plain HttpClient calling GET /emails with Bearer token — no Resend SDK added
 - FinalizedDate timezone: must verify UTC vs. local storage before writing the Phase 22 job date comparison
-- [Phase ?]: UseHangfireDashboard must also be guarded by !IsEnvironment(Testing) — Hangfire calls ThrowIfNotConfigured inside UseHangfireDashboard which fails when AddHangfire was skipped
-- [Phase ?]: Pre-Hangfire redirect middleware placed inside !IsEnvironment('Testing') block to preserve test isolation
-- [Phase ?]: AdminDashboardAuthFilter Response.Redirect() calls removed — filter now returns true/false only (defense-in-depth)
+- [Phase 20]: UseHangfireDashboard must also be guarded by !IsEnvironment(Testing) — Hangfire calls ThrowIfNotConfigured inside UseHangfireDashboard which fails when AddHangfire was skipped
+- [Phase 20]: Pre-Hangfire redirect middleware placed inside !IsEnvironment('Testing') block to preserve test isolation
+- [Phase 20]: AdminDashboardAuthFilter Response.Redirect() calls removed — filter now returns true/false only (defense-in-depth)
 
 ### Pending Todos
 
@@ -68,8 +68,8 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 
 ## Session Continuity
 
-Last session: 2026-06-25T21:16:57.320Z
-Stopped at: Completed 20-03-PLAN.md — Phase 20 complete
+Last session: 2026-06-25
+Stopped at: Phase 20 complete, ready to plan Phase 21
 Resume file: None
 
 ## Performance Metrics
