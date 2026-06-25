@@ -67,7 +67,7 @@
 
 ### Quest Log
 
-- [ ] **QLOG-01**: Quest Log Details on mobile shows the quest summary, adventurers list, and session recap in a single-column layout with stacked Quick Actions and Quest Statistics glass cards below
+- [x] **QLOG-01**: Quest Log Details on mobile shows the quest summary, adventurers list, and session recap in a single-column layout with stacked Quick Actions and Quest Statistics glass cards below
 
 ## Future Requirements
 
@@ -121,4 +121,4 @@
 | CHAR-02 | Phase 17 | Complete |
 | CHAR-03 | Phase 17 | Complete |
 | PLAYER-01 | Phase 17 | Complete |
-| QLOG-01 | Phase 18 | Pending |
+| QLOG-01 | Phase 18 | Complete |
