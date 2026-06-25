@@ -760,4 +760,223 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         html.Should().Contain("quest-log-detail-main-card");
         html.Should().Contain("quest-log-detail.mobile.css");
     }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-01: Admin Users list renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-01: Mobile UA on /Admin/Users renders admin-users-card-mobile glass card and links
+    /// admin-users.mobile.css. Requires Admin role authentication.
+    /// Starts RED — Admin/Users.Mobile.cshtml does not exist yet; goes GREEN when Plan 02 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_AdminUsers_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, adminUser) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(
+            _factory, "admin_users19", "admin_users19@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Admin/Users");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("admin-users-card-mobile");
+        html.Should().Contain("admin-users.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-01: Admin EditUser form renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-01: Mobile UA on /Admin/EditUser?userId={id} renders admin-form-card-mobile glass card
+    /// and links admin-form.mobile.css. Requires Admin role authentication.
+    /// Starts RED — Admin/EditUser.Mobile.cshtml does not exist yet; goes GREEN when Plan 03 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_AdminEditUser_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, adminUser) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(
+            _factory, "admin_edituser19", "admin_edituser19@test.com");
+        var targetUser = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "edit_target19", "edit_target19@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Admin/EditUser?userId={targetUser.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("admin-form-card-mobile");
+        html.Should().Contain("admin-form.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-01: Admin Quests list renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-01: Mobile UA on /Admin/Quests renders admin-quests-card-mobile glass card and links
+    /// admin-quests.mobile.css. Requires Admin role authentication.
+    /// Starts RED — Admin/Quests.Mobile.cshtml does not exist yet; goes GREEN when Plan 02 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_AdminQuests_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, adminUser) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(
+            _factory, "admin_quests19", "admin_quests19@test.com");
+        await TestDataHelper.CreateTestQuestAsync(_factory.Services, adminUser.Id, "Admin Quest Mobile19");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Admin/Quests");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("admin-quests-card-mobile");
+        html.Should().Contain("admin-quests.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-01: Admin ResetPassword form renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-01: Mobile UA on /Admin/ResetPassword?userId={id} renders admin-form-card-mobile glass
+    /// card and links admin-form.mobile.css. Requires Admin role authentication.
+    /// Starts RED — Admin/ResetPassword.Mobile.cshtml does not exist yet; goes GREEN when Plan 03 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_AdminResetPassword_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, adminUser) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(
+            _factory, "admin_resetpw19", "admin_resetpw19@test.com");
+        var targetUser = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "resetpw_target19", "resetpw_target19@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Admin/ResetPassword?userId={targetUser.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("admin-form-card-mobile");
+        html.Should().Contain("admin-form.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-02: ShopManagement Index renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-02: Mobile UA on /ShopManagement renders shop-mgmt-index-card-mobile glass card and
+    /// links shop-management-index.mobile.css. Requires DungeonMaster role authentication.
+    /// Starts RED — ShopManagement/Index.Mobile.cshtml does not exist yet; goes GREEN when Plan 05 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_ShopManagementIndex_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_shopidx19", "dm_shopidx19@test.com", roles: new[] { "DungeonMaster" });
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/ShopManagement");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("shop-mgmt-index-card-mobile");
+        html.Should().Contain("shop-management-index.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-02: ShopManagement Create form renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-02: Mobile UA on /ShopManagement/Create renders shop-mgmt-create-card-mobile glass card
+    /// and links shop-management-create.mobile.css. Requires DungeonMaster role authentication.
+    /// Starts RED — ShopManagement/Create.Mobile.cshtml does not exist yet; goes GREEN when Plan 04 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_ShopManagementCreate_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_shopcreate19", "dm_shopcreate19@test.com", roles: new[] { "DungeonMaster" });
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/ShopManagement/Create");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("shop-mgmt-create-card-mobile");
+        html.Should().Contain("shop-management-create.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — ADMIN-02: ShopManagement Edit form renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// ADMIN-02: Mobile UA on /ShopManagement/Edit/{id} renders shop-mgmt-edit-card-mobile glass
+    /// card and links shop-management-edit.mobile.css. Requires DungeonMaster role authentication.
+    /// Starts RED — ShopManagement/Edit.Mobile.cshtml does not exist yet; goes GREEN when Plan 04 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_ShopManagementEdit_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_shopedit19", "dm_shopedit19@test.com", roles: new[] { "DungeonMaster" });
+        var item = await TestDataHelper.CreateShopItemAsync(
+            _factory.Services, dmUser.Id, "Edit Item Mobile19");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/ShopManagement/Edit/{item.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("shop-mgmt-edit-card-mobile");
+        html.Should().Contain("shop-management-edit.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 19 — SHOPMGMT-01: Shop Details page renders mobile layout
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// SHOPMGMT-01: Mobile UA on /Shop/Details/{id} renders shop-details-card-mobile glass card and
+    /// links shop-details.mobile.css. Authenticated as a regular player.
+    /// Starts RED — Shop/Details.Mobile.cshtml does not exist yet; goes GREEN when Plan 06 lands.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_ShopDetails_ReturnsSuccessAndMobileLayout()
+    {
+        var sellerDm = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "seller_dm19", "seller_dm19@test.com");
+        var item = await TestDataHelper.CreateShopItemAsync(
+            _factory.Services, sellerDm.Id, "Detail Item Mobile19");
+        var (authClient, buyerUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "buyer_details19", "buyer_details19@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Shop/Details/{item.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("shop-details-card-mobile");
+        html.Should().Contain("shop-details.mobile.css");
+    }
 }
