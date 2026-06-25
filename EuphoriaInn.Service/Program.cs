@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
+using Hangfire.SqlServer;
+using EuphoriaInn.Service.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +77,29 @@ builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices(builder.Configuration);
 
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.Zero,
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            }));
+
+    builder.Services.AddHangfireServer(options =>
+    {
+        options.WorkerCount = 2;
+    });
+}
+
 // Add automapper
 builder.Services.AddAutoMapper(config =>
 {
@@ -101,6 +127,11 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new AdminDashboardAuthFilter() }
+});
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -114,6 +145,10 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     // Seed basic shop data
     await SeedShopDataAsync(app);
+
+    // Smoke-test: proves IServiceScopeFactory pattern resolves before real jobs land
+    // REMOVE THIS in Phase 21 once real jobs exist
+    BackgroundJob.Enqueue<SmokeTestJob>(j => j.RunAsync(CancellationToken.None));
 }
 
 app.Run();
