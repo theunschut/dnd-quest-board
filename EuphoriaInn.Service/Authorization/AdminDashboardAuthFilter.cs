@@ -9,16 +9,10 @@ public class AdminDashboardAuthFilter : IDashboardAuthorizationFilter
         var httpContext = context.GetHttpContext();
 
         if (httpContext.User.Identity?.IsAuthenticated != true)
-        {
-            httpContext.Response.Redirect("/Account/Login");
             return false;
-        }
 
         if (!httpContext.User.IsInRole("Admin"))
-        {
-            httpContext.Response.Redirect("/Account/Login");
             return false;
-        }
 
         return true;
     }
