@@ -205,7 +205,13 @@ Plans:
   2. The Shop Management index, create, and edit pages are fully functional on mobile
   3. The Shop item detail page renders in a single-column layout with no overflow
 
-**Plans:** 0 plans (run /gsd-plan-phase 19 to break down)
+**Plans:** 7 plans
 
 Plans:
-- [ ] TBD
+- [ ] 19-01-PLAN.md — Add ADMIN-01/ADMIN-02/SHOPMGMT-01 to REQUIREMENTS.md + RED integration test stubs
+- [ ] 19-02-PLAN.md — Admin Users + Admin Quests mobile list views (delete-fetch JS)
+- [ ] 19-03-PLAN.md — Admin EditUser + ResetPassword mobile forms (shared admin-form CSS)
+- [ ] 19-04-PLAN.md — ShopManagement Create + Edit mobile forms (pricing JS, button-free price)
+- [ ] 19-05-PLAN.md — ShopManagement Index mobile flat list (modals, auth-guarded actions)
+- [ ] 19-06-PLAN.md — Shop/Details mobile view (inlined non-modal content, toasts)
+- [ ] 19-07-PLAN.md — Phase integration test gate (all 8 mobile-view tests GREEN)
