@@ -129,6 +129,26 @@ app.UseAuthorization();
 
 if (!app.Environment.IsEnvironment("Testing"))
 {
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/hangfire"))
+        {
+            if (context.User.Identity?.IsAuthenticated != true)
+            {
+                context.Response.Redirect("/Account/Login");
+                return;
+            }
+
+            if (!context.User.IsInRole("Admin"))
+            {
+                context.Response.Redirect("/Account/Login");
+                return;
+            }
+        }
+
+        await next();
+    });
+
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
     {
         Authorization = new[] { new AdminDashboardAuthFilter() }
