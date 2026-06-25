@@ -109,7 +109,7 @@
 | DMVIEW-01 | Phase 15 | Pending |
 | DMVIEW-02 | Phase 15 | Pending |
 | DMVIEW-03 | Phase 15 | Pending |
-| DMVIEW-04 | Phase 18 | Pending |
+| DMVIEW-04 | Phase 18 | Complete |
 | DMVIEW-05 | Phase 18 | Complete |
 | DMVIEW-06 | Phase 18 | Complete |
 | ACCT-01 | Phase 16 | Complete |

@@ -18,7 +18,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
 - [x] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens *(completed 2026-06-25: all 5 account views + shop + guild members — 50 integration tests pass)*
 - [x] **Phase 17: Character & Player Views** - GuildMembers/Details, Create, Edit, and Players/Index mobile views *(completed 2026-06-25: all 4 plans done — 122 integration tests pass)*
-- [ ] **Phase 18: DM Editing & Secondary Quest Views** - Quest/Edit, Quest/CreateFollowUp, QuestLog/Details, and DungeonMaster/EditProfile mobile views
+- [x] **Phase 18: DM Editing & Secondary Quest Views** - Quest/Edit, Quest/CreateFollowUp, QuestLog/Details, and DungeonMaster/EditProfile mobile views *(completed 2026-06-25: all 4 views + integration tests — 126 integration tests pass)*
 - [ ] **Phase 19: Admin & Shop Management Views** - Shop/Details, all Admin/*, and all ShopManagement/* mobile views
 
 ## Phase Details
@@ -142,7 +142,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
 | 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
-| 18. DM Editing & Secondary Quest Views | 4/5 | In Progress|  |
+| 18. DM Editing & Secondary Quest Views | 5/5 | Complete | 2026-06-25 |
 | 19. Admin & Shop Management Views | 0/0 | Not started | - |
 
 ### Phase 17: Character & Player Views
@@ -178,7 +178,7 @@ Plans:
   3. The DM Edit Profile page (bio, photo upload) is fully functional on mobile with no overflow
   4. The Quest Log detail page renders the quest summary and player list in a single-column layout
 
-**Plans:** 3/5 plans executed
+**Plans:** 5/5 plans executed
 
 Plans:
 **Wave 1**
@@ -190,7 +190,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 18-05-PLAN.md — Integration tests for all 4 Phase 18 mobile views (Wave 2)
+- [x] 18-05-PLAN.md — Integration tests for all 4 Phase 18 mobile views (Wave 2)
 
 ---
 
