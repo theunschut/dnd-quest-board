@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 18 context gathered
+stopped_at: Phase 18 UI-SPEC approved
 last_updated: "2026-06-25T11:36:57.519Z"
 last_activity: 2026-06-25
 progress:
@@ -126,4 +126,4 @@ None yet.
 
 Last session: 2026-06-25T11:36:57.503Z
 Stopped at: Phase 18 context gathered
-Resume file: .planning/phases/18-dm-editing-secondary-quest-views/18-CONTEXT.md
+Resume file: .planning/phases/18-dm-editing-secondary-quest-views/18-UI-SPEC.md
