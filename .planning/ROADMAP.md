@@ -159,6 +159,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 **Plans:** 4/4 plans executed
 
 Plans:
+
 - [x] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
 - [x] 17-02-PLAN.md — Create GuildMembers/Details.Mobile.cshtml and character-detail.mobile.css (Wave 2)
 - [x] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
@@ -208,10 +209,18 @@ Plans:
 **Plans:** 7 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 19-01-PLAN.md — Add ADMIN-01/ADMIN-02/SHOPMGMT-01 to REQUIREMENTS.md + RED integration test stubs
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 19-02-PLAN.md — Admin Users + Admin Quests mobile list views (delete-fetch JS)
 - [ ] 19-03-PLAN.md — Admin EditUser + ResetPassword mobile forms (shared admin-form CSS)
 - [ ] 19-04-PLAN.md — ShopManagement Create + Edit mobile forms (pricing JS, button-free price)
 - [ ] 19-05-PLAN.md — ShopManagement Index mobile flat list (modals, auth-guarded actions)
 - [ ] 19-06-PLAN.md — Shop/Details mobile view (inlined non-modal content, toasts)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 19-07-PLAN.md — Phase integration test gate (all 8 mobile-view tests GREEN)
