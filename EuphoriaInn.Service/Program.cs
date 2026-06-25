@@ -127,10 +127,13 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    Authorization = new[] { new AdminDashboardAuthFilter() }
-});
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new AdminDashboardAuthFilter() }
+    });
+}
 
 app.MapControllerRoute(
     name: "default",
