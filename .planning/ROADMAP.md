@@ -16,7 +16,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - [x] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log (completed 2026-06-24)
 - [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
 - [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
-- [ ] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens
+- [x] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens *(completed 2026-06-25: all 5 account views + shop + guild members — 50 integration tests pass)*
 
 ## Phase Details
 
@@ -111,7 +111,7 @@ Plans:
   3. The Shop index on mobile displays items in a single-column or 2-column list; filter and sort controls are accessible without horizontal scrolling
   4. The Guild Members directory on mobile displays character cards in a single-column or 2-column layout with no overflow
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 Plans:
 **Wave 1**
 
@@ -121,7 +121,7 @@ Plans:
 
 - [x] 16-02-PLAN.md — Account mobile views (Login, Register, Edit, Profile, ChangePassword) + account.mobile.css (Wave 2)
 - [x] 16-03-PLAN.md — Shop/Index.Mobile.cshtml + shop.mobile.css (Wave 2)
-- [ ] 16-04-PLAN.md — GuildMembers/Index.Mobile.cshtml + guild-members.mobile.css (Wave 2)
+- [x] 16-04-PLAN.md — GuildMembers/Index.Mobile.cshtml + guild-members.mobile.css (Wave 2)
 
 **UI hint**: yes
 
@@ -136,5 +136,5 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
 | 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
-| 15. DM Views | 0/4 | Not started | - |
-| 16. Account & Browse | 3/4 | In Progress|  |
+| 15. DM Views | 4/4 | Complete | 2026-06-24 |
+| 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
