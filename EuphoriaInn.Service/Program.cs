@@ -4,8 +4,11 @@ using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Extensions;
 using EuphoriaInn.Service.Authorization;
 using EuphoriaInn.Service.Automapper;
+using EuphoriaInn.Service.Middleware;
+using EuphoriaInn.Service.ViewExpanders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +23,10 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<RazorViewEngineOptions>(options =>
+{
+    options.ViewLocationExpanders.Add(new MobileViewLocationExpander());
+});
 
 // Add health checks
 builder.Services.AddHealthChecks();
@@ -86,6 +93,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseMiddleware<MobileDetectionMiddleware>();
 
 app.UseRouting();
 

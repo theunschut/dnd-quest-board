@@ -12,7 +12,8 @@ public static class TestDataHelper
         string description = "Test Description",
         int challengeRating = 5,
         bool isFinalized = false,
-        bool dungeonMasterSession = false)
+        bool dungeonMasterSession = false,
+        DateTime? finalizedDate = null)
     {
         using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
@@ -24,6 +25,7 @@ public static class TestDataHelper
             ChallengeRating = challengeRating,
             DungeonMasterId = dungeonMasterId,
             IsFinalized = isFinalized,
+            FinalizedDate = finalizedDate,
             DungeonMasterSession = dungeonMasterSession,
             TotalPlayerCount = 4,
             CreatedAt = DateTime.UtcNow

@@ -491,11 +491,13 @@
         // Minimal script for modal loading (Bootstrap 5 doesn't have remote modal)
         document.getElementById('itemDetailsModal').addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
+            if (!button) return;
             const itemUrl = button.getAttribute('data-item-url');
             if (itemUrl) {
                 fetch(itemUrl)
                     .then(response => response.text())
-                    .then(html => document.getElementById('itemDetailsBody').innerHTML = html);
+                    .then(html => document.getElementById('itemDetailsBody').innerHTML = html)
+                    .catch(() => {}); // silently ignore fetch errors
             }
         });
 
