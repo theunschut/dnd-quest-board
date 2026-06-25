@@ -537,4 +537,106 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("guild-members.mobile.css");
     }
+
+    // -----------------------------------------------------------------------
+    // Phase 17 — CHAR-01: Character Details renders glass card layout on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// CHAR-01: Mobile UA on /GuildMembers/Details/{id} renders character-detail-card glass card
+    /// and links character-detail.mobile.css. Test starts RED — Details.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_CharacterDetails_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, ownerUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "char_det17", "char_det17@test.com");
+        var character = await TestDataHelper.CreateTestCharacterAsync(_factory.Services, ownerUser.Id, "Aria Swiftblade");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/GuildMembers/Details/{character.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("character-detail-card");
+        html.Should().Contain("character-detail.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 17 — CHAR-02: Character Create renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// CHAR-02: Mobile UA on /GuildMembers/Create renders character-form-card glass card form
+    /// and links character-form.mobile.css. Test starts RED — Create.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_CharacterCreate_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "char_cre17", "char_cre17@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/GuildMembers/Create");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("character-form-card");
+        html.Should().Contain("character-form.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 17 — CHAR-03: Character Edit renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// CHAR-03: Mobile UA on /GuildMembers/Edit/{id} renders character-form-card glass card form
+    /// and links character-form.mobile.css. Test starts RED — Edit.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_CharacterEdit_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, ownerUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "char_edi17", "char_edi17@test.com");
+        var character = await TestDataHelper.CreateTestCharacterAsync(_factory.Services, ownerUser.Id, "Bram Ironfist");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/GuildMembers/Edit/{character.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("character-form-card");
+        html.Should().Contain("character-form.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 17 — PLAYER-01: Players Index renders section list on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// PLAYER-01: Mobile UA on /Players renders players-section-card glass card sections
+    /// and links players.mobile.css. Test starts RED — Players/Index.Mobile.cshtml does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_PlayersIndex_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_idx17", "player_idx17@test.com");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Players");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("players-section-card");
+        html.Should().Contain("players.mobile.css");
+    }
 }
