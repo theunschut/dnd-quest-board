@@ -52,6 +52,16 @@
 - [x] **BROWSE-01**: Shop index on mobile displays items in a single-column scrollable list (or 2-column grid if space permits); filter and sort controls are accessible
 - [x] **BROWSE-02**: Guild Members directory on mobile displays character cards in a single-column or 2-column layout
 
+### Character Views
+
+- [ ] **CHAR-01**: GuildMembers/Details on mobile shows character stats (level, class/level badges, description, backstory), profile photo (or fa-user fallback), and owner actions (Edit / Retire-Reactivate / Delete) in a single-column glass card layout without overflow
+- [ ] **CHAR-02**: GuildMembers/Create on mobile is a single-column scrollable form with profile picture upload at the top, stacked class entries (class select + level input + remove button each on col-12), and all inputs meeting the 44px minimum touch target
+- [ ] **CHAR-03**: GuildMembers/Edit on mobile has identical structure to Create with the current portrait thumbnail shown above the file input; all owner-only fields are reachable by vertical scroll and all inputs meet the 44px minimum touch target
+
+### Players Page
+
+- [ ] **PLAYER-01**: Players/Index on mobile displays Dungeon Masters and Registered Players as separate single-column name lists in glass card containers; DM names tap-navigate to their DungeonMaster Profile page; no email column is shown; the desktop Players/Index.cshtml also has its email column removed
+
 ## Future Requirements
 
 - Tablet-specific views (`.Tablet.cshtml`) — defer; phone-first scope sufficient for v1
@@ -97,3 +107,7 @@
 | ACCT-03 | Phase 16 | Complete |
 | BROWSE-01 | Phase 16 | Complete |
 | BROWSE-02 | Phase 16 | Complete |
+| CHAR-01 | Phase 17 | Pending |
+| CHAR-02 | Phase 17 | Pending |
+| CHAR-03 | Phase 17 | Pending |
+| PLAYER-01 | Phase 17 | Pending |
