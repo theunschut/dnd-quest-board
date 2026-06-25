@@ -6,14 +6,14 @@ current_phase: 20
 current_phase_name: hangfire-infrastructure
 status: verifying
 stopped_at: Completed 20-03-PLAN.md — Phase 20 complete
-last_updated: "2026-06-25T20:47:16.921Z"
+last_updated: "2026-06-25T21:17:01.894Z"
 last_activity: 2026-06-25
 last_activity_desc: Phase 20 execution started
 progress:
   total_phases: 12
   completed_phases: 9
-  total_plans: 37
-  completed_plans: 37
+  total_plans: 38
+  completed_plans: 38
   percent: 75
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 20 (hangfire-infrastructure) — EXECUTING
-Plan: 3 of 3
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-06-25 — Phase 20 execution started
 
@@ -52,6 +52,8 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 - Resend stats: plain HttpClient calling GET /emails with Bearer token — no Resend SDK added
 - FinalizedDate timezone: must verify UTC vs. local storage before writing the Phase 22 job date comparison
 - [Phase ?]: UseHangfireDashboard must also be guarded by !IsEnvironment(Testing) — Hangfire calls ThrowIfNotConfigured inside UseHangfireDashboard which fails when AddHangfire was skipped
+- [Phase ?]: Pre-Hangfire redirect middleware placed inside !IsEnvironment('Testing') block to preserve test isolation
+- [Phase ?]: AdminDashboardAuthFilter Response.Redirect() calls removed — filter now returns true/false only (defense-in-depth)
 
 ### Pending Todos
 
@@ -66,7 +68,7 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 
 ## Session Continuity
 
-Last session: 2026-06-25T20:47:16.907Z
+Last session: 2026-06-25T21:16:57.320Z
 Stopped at: Completed 20-03-PLAN.md — Phase 20 complete
 Resume file: None
 
@@ -75,3 +77,4 @@ Resume file: None
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 20 P03 | 3 | 2 tasks | 1 files |
+| Phase 20 P20.1-01 | 5m | 3 tasks | 2 files |

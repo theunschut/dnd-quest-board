@@ -259,8 +259,10 @@ Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications sta
   3. A smoke-test Hangfire job that resolves a scoped service via `IServiceScopeFactory` enqueues and completes without exception, confirming the scope pattern works before any real job is wired
   4. The application starts and all existing integration tests pass — Hangfire adds the `[HangFire]` schema to the database without any EF Core migration
 
-**Plans**: 3/3 plans complete
+**Plans**: 4/4 plans complete
 Plans:
+
+- [x] 20.1-01-PLAN.md
 
 - [x] 20-01-PLAN.md — Install Hangfire packages, create AdminDashboardAuthFilter, create SmokeTestJob (Wave 1)
 - [x] 20-02-PLAN.md — Add Background Jobs nav link to Admin dropdown in _Layout.cshtml (Wave 1)
@@ -320,7 +322,7 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 20. Hangfire Infrastructure | 3/3 | Complete   | 2026-06-25 |
+| 20. Hangfire Infrastructure | 4/4 | Complete   | 2026-06-25 |
 | 21. HTML Email Templates | 0/TBD | Not started | - |
 | 22. Session Reminders | 0/TBD | Not started | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
