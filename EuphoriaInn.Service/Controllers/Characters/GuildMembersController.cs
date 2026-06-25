@@ -110,6 +110,14 @@ namespace EuphoriaInn.Service.Controllers.Characters
             // Handle profile picture upload
             if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
             {
+                var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif" };
+                if (!allowedMimeTypes.Contains(viewModel.ProfilePictureFile.ContentType,
+                    StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
+                        "Only JPG, PNG, or GIF images are accepted.");
+                    return View(viewModel);
+                }
                 const long maxFileSizeBytes = 5 * 1024 * 1024;
                 if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
                 {
@@ -196,6 +204,15 @@ namespace EuphoriaInn.Service.Controllers.Characters
             // Handle profile picture upload - clear old picture first if new one is being uploaded
             if (viewModel.ProfilePictureFile != null && viewModel.ProfilePictureFile.Length > 0)
             {
+                var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif" };
+                if (!allowedMimeTypes.Contains(viewModel.ProfilePictureFile.ContentType,
+                    StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.ProfilePictureFile),
+                        "Only JPG, PNG, or GIF images are accepted.");
+                    viewModel.IsOwner = true;
+                    return View(viewModel);
+                }
                 const long maxFileSizeBytes = 5 * 1024 * 1024;
                 if (viewModel.ProfilePictureFile.Length > maxFileSizeBytes)
                 {
@@ -281,7 +298,12 @@ namespace EuphoriaInn.Service.Controllers.Characters
                 return NotFound();
             }
 
-            return File(profilePicture, "image/jpeg");
+            return File(profilePicture, DetectImageMimeType(profilePicture));
         }
+
+        private static string DetectImageMimeType(byte[] data) =>
+            data.Length >= 4 && data[0] == 0x89 && data[1] == 0x50 ? "image/png" :
+            data.Length >= 6 && data[0] == 0x47 && data[1] == 0x49 ? "image/gif" :
+            "image/jpeg";
     }
 }

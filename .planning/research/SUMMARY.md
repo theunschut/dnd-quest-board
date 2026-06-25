@@ -1,161 +1,154 @@
 # Project Research Summary
 
-**Project:** D&D Quest Board — Milestone 2: Refactor + Feature Expansion
-**Domain:** ASP.NET Core 8 MVC — Clean Architecture refactor of existing brownfield app
-**Researched:** 2026-04-15
-**Confidence:** HIGH
+**Project:** D&D Quest Board — Milestone 3: Mobile Version
+**Domain:** Mobile-specific Razor views in ASP.NET Core 8 MVC
+**Researched:** 2026-06-23
+**Confidence:** MEDIUM
 
 ## Executive Summary
 
-This milestone refactors an existing, working ASP.NET Core 8 MVC application to fix a compile-time dependency inversion violation (Domain depends on Repository, when it should be the reverse), slim down controller actions by moving business logic into services, fix a set of security gaps, and add four user-facing features from the GitHub backlog.
+Milestone 3 delivers a mobile-optimised experience for the D&D Quest Board by adding `.Mobile.cshtml` view variants alongside existing desktop views, using ASP.NET Core's built-in `IViewLocationExpander` mechanism for transparent device-based view routing. The approach requires no controller changes, no ViewModel changes, and no changes to the repository or domain layers. A lightweight middleware detects the User-Agent once per request, stores the result in `HttpContext.Items`, and the view expander reads that flag to prepend `.Mobile.cshtml` paths before falling back to the desktop views. All existing flows remain intact by design — a missing `.Mobile.cshtml` silently falls through to the desktop view.
 
-The single highest-leverage change is moving `EntityProfile.cs` (AutoMapper Entity↔DomainModel mappings) from `EuphoriaInn.Domain` to `EuphoriaInn.Repository`. This one file is the reason Domain holds a `<ProjectReference>` to Repository. Removing that reference restores the correct dependency direction: `Service → Domain ← Repository`. Everything else in the architectural refactor flows from this fix.
+The recommended implementation uses a hand-rolled `IViewLocationExpander` (~30 lines, zero new dependencies) rather than the `Wangkanai.Responsive` NuGet package. The hand-rolled path is lower-risk: no transitive dependencies, no middleware reordering required. Wangkanai requires moving `UseSession()` before `UseRouting()` in `Program.cs` and must not copy-paste its example `AddSession()` call, which would override the project's 24-hour session timeout with a 10-second default.
 
-The four new features (DM profile page, shop filter/sort, profile picture avatar crop, follow-up quest) are independent of each other and can be developed in any order after the architecture cleanup. The most complex technically is image cropping, which requires Cropper.js 1.5.x via CDN (not v2 — ESM-only) and SkiaSharp for server-side crop storage. The simplest is shop filter/sort, which needs no data model changes.
+The highest-complexity mobile views are the Calendar (agenda list vs. 7-column grid — structurally different markup) and the Quest Board index (removal of decorative poster images). The infrastructure block (middleware + expander + mobile layout + `_ViewStart.cshtml` update) must be built as an atomic unit before any individual mobile views are added; once in place, each `.Mobile.cshtml` is independent and deliverable incrementally.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Keep the existing stack entirely. No framework changes. Specific targeted additions:
+**Core components (hand-rolled, zero new NuGet dependencies):**
+- `MobileDetectionMiddleware` — ~20 lines; parses User-Agent once per request; keywords: Mobi, Android, iPhone, iPad, Windows Phone, BlackBerry; sets `HttpContext.Items["IsMobile"]`
+- `MobileViewLocationExpander` — implements `IViewLocationExpander` (built-in ASP.NET Core 8); prepends `.Mobile.cshtml` paths; cache-key written in `PopulateValues`, path expansion in `ExpandViewLocations`
+- Bootstrap 5 offcanvas (already on CDN) — replaces desktop collapse nav with a slide-in drawer on mobile
 
-**Core technologies:**
-- `MailKit 4.15.1`: Replace deprecated `System.Net.Mail.SmtpClient` in `EmailService` — Microsoft's recommended alternative; same email content, different send API
-- `SkiaSharp` (via NuGet): Server-side image crop for avatar feature — `System.Drawing.Common` is deprecated on Linux/Docker in .NET 8
-- `Cropper.js 1.5.13` (via cdnjs CDN): Client-side avatar crop UI — v1.5.x ships UMD bundles compatible with script-tag loading; v2.x is ESM-only and incompatible with this project's CDN-only frontend
+**Optional NuGet alternative:**
+- `Wangkanai.Responsive 7.14.0` + `Wangkanai.Detection 8.20.0` (transitive) — packages UA detection and view expander together; adds tablet detection and user-preference cookies; requires middleware reorder; NOT recommended due to session-timeout trap
 
 **Stay as-is:**
-- ASP.NET Core 8 MVC — no reason to change
-- EF Core 9 + SQL Server — no changes needed
-- AutoMapper 14 — keep explicit `AddProfile<T>()` registration (never switch to assembly scanning)
-- Bootstrap 5 + vanilla JS + jQuery — consistent with all existing views
+- All existing NuGet packages, CDN libraries, Bootstrap 5, jQuery, FontAwesome — no changes
 
-**Configuration improvement:**
-- `IOptions<EmailSettings>` pattern (already in .NET 8, no new packages) to replace `IConfiguration` string-key access in `EmailService`
+### Expected Features (Milestone 3 Scope)
 
-### Expected Features
+**Must have (table stakes):**
+- Mobile layout shell (`_Layout.Mobile.cshtml`) with Bootstrap offcanvas nav
+- Quest Board index mobile view — card list, no poster images, tap-friendly
+- Calendar mobile view — agenda/list replacing 7-column grid (highest complexity)
+- Quest Details mobile view — touch-friendly voting and signup UI
+- `mobile.css` — touch target sizing (44px min), mobile typography scale
 
-**Must have (table stakes for this milestone):**
-- Layer dependency direction fixed — Domain compiles without referencing Repository
-- Controller actions ≤ 20 lines for typical operations (validate → service → respond)
-- Account lockout enabled including for existing users (SQL migration required)
-- `.env` removed from git tracking
+**Should have:**
+- Quest Create / Edit mobile views (DMs create quests from phone)
+- DM Manage quest mobile view
+- Account pages mobile views (login, register, profile)
+- Guild Members mobile view
 
-**Should have (core new features):**
-- DM profile page (#98) — photo + name + bio, browsable by players
-- Shop filter/sort (#96) — by price and rarity, server-side LINQ, no JS library needed
-- Profile picture avatar crop (#78) — Cropper.js 1.5.x client-side select, SkiaSharp server-side crop
-- Follow-up quest (#49) — self-referential FK, pre-filled player list, new date required
-
-**Defer (out of scope this milestone):**
-- MailKit migration — parallel to email refactor but scope-expanding; suppress `SmtpClient` warning and defer
-- Pagination — group is small enough that unbounded lists are acceptable now
-- Image blob storage migration — deferred per PROJECT.md constraint
+**Defer:**
+- Tablet-specific views (`.Tablet.cshtml`)
+- PWA manifest and service worker
+- Push notifications
+- "Force desktop" cookie override
 
 ### Architecture Approach
 
-Move `EntityProfile.cs` to `EuphoriaInn.Repository/Automapper/`, remove `<ProjectReference>` to Repository from `EuphoriaInn.Domain.csproj`, update `Program.cs` AutoMapper registration to reference `typeof(EuphoriaInn.Repository.Automapper.EntityProfile)`. Then inject `IEmailService` into `QuestService` and move email dispatch out of controllers into services. Add a lightweight `ServiceResult` record to communicate service success/failure to controllers without exposing business logic. `BaseService<TModel, TEntity>` requires no changes — its generic `TEntity` parameter is a compile-time placeholder, not a Repository type import.
+Strictly additive to the Service layer only — no controllers, ViewModels, repositories, or domain services are modified.
 
-**Major components after refactor:**
-1. `EuphoriaInn.Domain` — pure business logic, interfaces, domain models; no EF/HTTP dependencies
-2. `EuphoriaInn.Repository` — EF entities, DbContext, EntityProfile, concrete repository implementations
-3. `EuphoriaInn.Service` — thin controllers, ViewModels, ViewModelProfile; talks only to Domain interfaces
+**Build order is fixed:**
+1. `MobileDetectionMiddleware` — UA parsing, sets `HttpContext.Items["IsMobile"]`
+2. `MobileViewLocationExpander` — registered in `Program.cs` via `RazorViewEngineOptions`
+3. `_Layout.Mobile.cshtml` — mobile HTML shell; Bootstrap offcanvas nav; loads `mobile.css`
+4. `_ViewStart.cshtml` (modified) — single conditional sets Layout based on `HttpContext.Items["IsMobile"]`
+5. `mobile.css` — mobile overrides for typography, spacing, touch targets
+6. Per-page `*.Mobile.cshtml` — opt-in; created only where desktop markup is structurally incompatible
+
+**Key implementation details:**
+- Detection **must** live in `PopulateValues`, not `ExpandViewLocations` — the latter only runs on cache miss; putting detection in the wrong method serves cached desktop paths to mobile users
+- Partial views participate in `ExpandViewLocations` automatically — `_QuestCard.Mobile.cshtml` will be checked before `_QuestCard.cshtml` on mobile requests with no extra code
+- View suffix `.Mobile.cshtml` alongside desktop view (e.g., `Views/Quest/Details.Mobile.cshtml` next to `Views/Quest/Details.cshtml`) — NOT a separate `/Views/Mobile/` folder hierarchy
 
 ### Critical Pitfalls
 
-1. **AutoMapper assembly scanning** — never switch to `AppDomain.CurrentDomain.GetAssemblies()` scanning; it causes `DuplicateTypeMapConfigurationException` at startup. Keep explicit `AddProfile<T>()` calls for both profiles.
-2. **Stale quest state in email dispatch** — `FinalizeQuestAsync` must build the email recipient list from post-save entity state, not from the `quest` object fetched before the mutating call. Either re-fetch after `SaveChangesAsync` or return recipients from the service.
-3. **Lockout doesn't apply to existing users** — enabling `lockoutOnFailure: true` in code does nothing for users with `LockoutEnabled = 0` in `AspNetUsers`. An EF migration with `UPDATE AspNetUsers SET LockoutEnabled = 1` is mandatory.
-4. **Password property AutoMapper trap** — removing `Password` from `User` domain model requires explicit `Ignore()` on both directions of any `ReverseMap()` that touches User mapping, or a future `UpdateAsync` will overwrite users' password hashes with empty string.
-5. **`EntityProfile` move order** — remove Domain's project reference to Repository only after `EntityProfile.cs` has been physically moved and the `Program.cs` AutoMapper registration updated. Out-of-order execution causes cascading build failures.
+1. **Mobile detection inside `ExpandViewLocations`** — only called on cache miss; cached desktop paths are then served to mobile users. Always detect in `PopulateValues` and write to `context.Values`.
+2. **Adding a second `AddSession()` call when following Wangkanai's install guide** — overrides the project's 24-hour session timeout with 10 seconds, breaking auth. Reuse the existing `AddSession()`.
+3. **Using `UseDetection()` without `UseResponsive()`** — Detection alone does not register the `IViewLocationExpander`; views will not switch.
+4. **Setting Layout in each individual mobile view** — brittle. Set once in `_ViewStart.cshtml`; mobile views inherit automatically.
+5. **Creating a `/Views/Mobile/` parallel folder hierarchy** — complex expander path manipulation required. Use `.Mobile.cshtml` suffix in the same controller folder; expander is a one-line string replace.
 
 ## Implications for Roadmap
 
-### Phase 1: Layer Dependency Fix
-**Rationale:** The root architectural violation must be fixed before new features are added. Every subsequent phase lands on correct architecture.
-**Delivers:** `EntityProfile` in Repository, Domain project reference to Repository removed, `Program.cs` AutoMapper registration updated, build green
-**Avoids:** Pitfalls 1 and 5 (AutoMapper scanning, wrong move order)
+### Phase 10: Mobile Infrastructure Foundation
+**Rationale:** All mobile views depend on the middleware + expander + layout + `_ViewStart` being in place as an atomic unit. Safe to ship with no `.Mobile.cshtml` files — all requests fall through to desktop views unchanged.
+**Delivers:** Mobile detection pipeline, view routing, mobile layout shell, `mobile.css` baseline; zero user-visible change for desktop users
+**Implements:** `MobileDetectionMiddleware`, `MobileViewLocationExpander`, `_Layout.Mobile.cshtml`, `_ViewStart.cshtml` update, `mobile.css`
+**Avoids:** Detection-in-ExpandViewLocations pitfall; second AddSession() pitfall; Layout-in-each-view pitfall
 
-### Phase 2: Email & Service Consolidation
-**Rationale:** Independent of Phase 1's exact file moves but requires Domain to be clean. Consolidates two email dispatch flows and introduces `IOptions<EmailSettings>`.
-**Delivers:** `IEmailService` injected into `QuestService`, `FinalizeQuestAsync` dispatches emails internally, `UpdateQuestPropertiesWithNotificationsAsync` returns `ServiceResult`, `EmailSettings` typed options class, `[Quest Board URL]` placeholder replaced
-**Avoids:** Pitfall 2 (stale quest state), Pitfall 5 (IOptions DI registration)
+### Phase 11: Core Player-Facing Mobile Views
+**Rationale:** Players are the primary mobile users. Quest board index and Quest Details are the highest-traffic routes for this persona.
+**Delivers:** `Home/Index.Mobile.cshtml` (card list, no poster images), `Quest/Details.Mobile.cshtml` (touch voting UI)
+**Uses:** Bootstrap 5 card grid, mobile.css touch target rules
 
-### Phase 3: Code Quality & Dead Code
-**Rationale:** Low-risk housekeeping; unblocks the security phase by removing confusing dead code first.
-**Delivers:** `SecurityConfiguration` deleted, dead `UpdateQuestPropertiesAsync` removed, `SignupRole` cast to enum, 30-minute constant named, `CharacterViewModels` filename fixed, `Password` removed from `User` model
-**Avoids:** Pitfalls 6, 7, 8, 9, 10 (see PITFALLS.md)
+### Phase 12: Calendar Mobile View
+**Rationale:** Highest-complexity mobile view — desktop 7-column grid is structurally unusable on a phone. Isolated to contain risk.
+**Delivers:** `Calendar/Index.Mobile.cshtml` (agenda list), mobile calendar CSS
+**Research flag:** Calendar is the highest-complexity mobile adaptation. The phase plan should include a spike on the agenda layout before committing to markup.
 
-### Phase 4: Security Fixes
-**Rationale:** Isolated config and model changes; all code quality cleanup in Phase 3 makes these targeted edits.
-**Delivers:** Lockout enabled + SQL migration for existing users, password min length 8, `HasKey` admin-only, `.env` in `.gitignore`, `Password` property audit complete
-**Avoids:** Pitfall 3 (lockout existing users), Pitfall 13 (.env history note)
+### Phase 13: DM Mobile Views
+**Rationale:** DMs create and manage quests — lower mobile urgency than player-facing views, but forms must work on touch.
+**Delivers:** `Quest/Create.Mobile.cshtml`, `Quest/Manage.Mobile.cshtml`, DM directory mobile views
 
-### Phase 5: Shop Filter/Sort (#96)
-**Rationale:** Zero migrations, no new libraries, immediate visible value. Good warmup feature after the refactor.
-**Delivers:** Price ASC/DESC and rarity filter on shop index; server-side LINQ; Bootstrap collapse filter panel
-
-### Phase 6: Follow-Up Quest (#49)
-**Rationale:** Requires `SignupRole` enum fix from Phase 3. Self-referential FK migration, pre-filled player list on quest create.
-**Delivers:** "Create follow-up" button on finalized quest Manage page; `OriginalQuestId` FK on `QuestEntity`; players pre-approved
-
-### Phase 7: DM Profile Page (#98)
-**Rationale:** Follows `CharacterImageEntity` pattern established in codebase. Bio field migration + photo storage (same SQL blob pattern).
-**Delivers:** `DungeonMasterProfile` entity with photo and bio; browsable profile page; admin can edit any DM's profile
-
-### Phase 8: Profile Picture Avatar Crop (#78)
-**Rationale:** Most technically novel feature — Cropper.js + SkiaSharp. Done last so scope risk doesn't delay other features.
-**Delivers:** Cropper.js 1.5.x on character edit page; `CropX/Y/Width/Height` columns on `CharacterImages`; `GetAvatarPicture` endpoint; original image unchanged on character detail page
-**Research flag:** Verify SkiaSharp native dependency available in `mcr.microsoft.com/dotnet/aspnet:8.0` Docker image before starting
+### Phase 14: Account and Secondary Pages
+**Rationale:** Simplest pages; Bootstrap's responsive utilities may handle these without separate `.Mobile.cshtml` files. Audit each page — only create view files where desktop markup is structurally incompatible.
+**Delivers:** Mobile-ready Account pages (CSS or dedicated views), Shop index, Guild Members
+**Decision point:** CSS-only first; create `.Mobile.cshtml` only where needed
 
 ### Phase Ordering Rationale
 
-- Phases 1–4 fix the house before decorating it; features land on clean architecture
-- Phase 5 (shop filter) comes first among features because it is zero-risk and delivers immediate value
-- Phase 6 (follow-up quest) depends on Phase 3's `SignupRole` enum fix
-- Phase 8 (avatar crop) is last because Cropper.js + SkiaSharp Docker validation is the only meaningful open question
+- Phase 10 is mandatory first — prerequisite for all others; can ship without breaking anything
+- Phases 11–14 reflect player-facing priority over DM-facing over administrative
+- Calendar (Phase 12) isolated from bulk player views (Phase 11) — failed calendar approach should not block quest board delivery
+- Phase 14 deferred — lowest risk pages, likely CSS-only
 
 ### Research Flags
 
-Phases needing attention during plan-phase:
-- **Phase 8 (avatar crop):** Confirm SkiaSharp native lib availability in the Docker base image before committing to the implementation approach; CSS-only crop-display fallback if unavailable
-- **Phase 6 (follow-up quest):** Confirm EF self-referential FK migration generates correctly with nullable `OriginalQuestId`
+Needs research during planning:
+- **Phase 10 (infrastructure):** Confirm hand-rolled vs. Wangkanai final decision before starting
+- **Phase 12 (Calendar):** Agenda view markup needs a spike; `CalendarViewModel` may need a reshaping helper
 
-Phases with standard patterns (plan-phase research optional):
-- **Phase 1:** Well-documented AutoMapper + project reference change; no surprises expected
-- **Phase 2–4:** Configuration patterns, Identity lockout, dead code removal — all standard
-- **Phase 5:** LINQ filter/sort — trivial; plan directly from requirements
-- **Phase 7:** Follows existing CharacterImageEntity pattern exactly
+Standard patterns (skip research):
+- **Phase 11:** Bootstrap card list; existing ViewModel sufficient
+- **Phase 13:** Same pattern as Phase 11
+- **Phase 14:** CSS media query audit; no new architecture decisions
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Existing stack stays; SkiaSharp and Cropper.js CDN verified |
-| Features | HIGH | All 4 features inspected against live codebase; implementation paths clear |
-| Architecture | HIGH | Dependency direction fix verified against Microsoft docs and csproj inspection |
-| Pitfalls | HIGH | All pitfalls grounded in actual codebase file inspection |
+| Stack | MEDIUM | Versions verified from NuGet registry; middleware ordering from official Wangkanai install guide; limited .NET 8 community examples |
+| Architecture | MEDIUM | IViewLocationExpander interface confirmed from official source; PopulateValues cache-key semantics confirmed |
+| Pitfalls | MEDIUM | Critical pitfalls evidenced from source and official docs; Wangkanai-specific pitfalls from official install guide |
+| Features | MEDIUM | Scope inferred from project brief; no dedicated Milestone 3 feature research file (FEATURES.md is stale Milestone 2) |
 
-**Overall confidence:** HIGH
+**Overall confidence:** MEDIUM
 
 ### Gaps to Address
 
-- **SkiaSharp on Docker:** Verify `libSkiaSharp` native dependency in `mcr.microsoft.com/dotnet/aspnet:8.0` (Debian Bookworm) before Phase 8 begins. Fallback: store crop coordinates and apply CSS `object-position` on the avatar `<img>` tag (no server-side crop needed).
-- **MailKit migration:** Deliberately deferred. `SmtpClient` obsolete warning suppressed with `#pragma`. Schedule as its own task in a later milestone.
+- **FEATURES.md is stale (Milestone 2):** No dedicated Milestone 3 feature research file. Roadmapper should derive feature scope from project brief and architecture research.
+- **Calendar agenda layout design:** No specific markup pattern researched. Spike warranted before Phase 12 plan.
+- **Hand-rolled vs. Wangkanai final decision:** Resolve in Phase 10 planning. Recommendation: hand-rolled.
 
 ## Sources
 
-### Primary (HIGH confidence)
-- Microsoft .NET Microservices Architecture Guide — infrastructure layer patterns
-- Microsoft Learn — Options pattern in ASP.NET Core 8
-- Microsoft Learn — ASP.NET Core Identity lockout configuration
-- AutoMapper GitHub issues — duplicate profile registration behavior
+### Primary (MEDIUM confidence)
+- NuGet Gallery — Wangkanai.Responsive 7.14.0 / Detection 8.20.0 (version, net8.0 target)
+- Wangkanai Responsive INSTALL.md (middleware order, view suffix convention)
+- IViewLocationExpander source — dotnet/aspnetcore (interface contract, cache-key semantics)
+- IViewLocationExpander Interface — Microsoft Learn
+- Layout in ASP.NET Core — Microsoft Learn
 
 ### Secondary (MEDIUM confidence)
-- cdnjs.cloudflare.com — Cropper.js 1.5.13 CDN availability confirmed
-- thecodewrapper.com — EF Core entity/domain separation patterns
-- code-maze.com — Identity lockout per-user `LockoutEnabled` column behavior
+- Jack Histon — IViewLocationExpander walkthrough (PopulateValues/ExpandViewLocations pattern; confirmed stable through .NET 8)
+- Khalid Abuhakmeh — Razor View Engine searched locations (default format patterns)
 
 ---
-*Research completed: 2026-04-15*
+*Research completed: 2026-06-23*
 *Ready for roadmap: yes*

@@ -1,184 +1,131 @@
-# Requirements: D&D Quest Board — Milestone 2
+# Requirements: D&D Quest Board — Milestone 3: Mobile Version
 
-**Defined:** 2026-04-15
+**Defined:** 2026-06-23
 **Core Value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
 
 ## v1 Requirements
 
-### Architecture Refactor
+### Infrastructure
 
-- [x] **ARCH-01**: `EntityProfile.cs` (AutoMapper Entity↔DomainModel) lives in `EuphoriaInn.Repository`, not `EuphoriaInn.Domain`
-- [x] **ARCH-02**: `EuphoriaInn.Domain.csproj` has no `<ProjectReference>` to `EuphoriaInn.Repository`
-- [x] **ARCH-03**: Dependency direction is `Service → Domain ← Repository`; Domain compiles without Repository
-- [x] **ARCH-04**: AutoMapper registration in `Program.cs` explicitly references both profile types by assembly anchor (no `AppDomain` scanning)
+- [x] **INFRA-01**: A `MobileDetectionMiddleware` detects mobile user agents per request and stores the result in `HttpContext.Items["IsMobile"]`
+- [x] **INFRA-02**: A `MobileViewLocationExpander` is registered; on mobile requests the view engine checks `ViewName.Mobile.cshtml` before `ViewName.cshtml`; desktop requests are unaffected and desktop views are not modified *(backend half — expander + registration complete; end-to-end proof in Plan 02)*
+- [x] **INFRA-03**: Mobile detection logic lives in `PopulateValues` (not `ExpandViewLocations`) so the view path cache correctly separates mobile and desktop entries
+- [ ] **INFRA-04**: `_Layout.Mobile.cshtml` provides the mobile HTML shell with a Bootstrap offcanvas navigation drawer
+- [ ] **INFRA-05**: `_ViewStart.cshtml` selects `_Layout.Mobile.cshtml` for mobile requests and `_Layout.cshtml` for desktop — no individual mobile view sets its layout explicitly
+- [ ] **INFRA-06**: `mobile.css` provides baseline touch target sizing (minimum 44px height), mobile typography scale, and spacing overrides
 
-### Controller Slimming
+### Quest Board (Home Page)
 
-- [x] **CTRL-01**: Quest finalization (email dispatch included) is fully handled inside `QuestService.FinalizeQuestAsync`; controller action is ≤ 20 lines
-- [x] **CTRL-02**: `QuestController` does not inject `IEmailService` directly (all email goes through `QuestService`)
-- [x] **CTRL-03**: Date-change email dispatch is handled inside `QuestService.UpdateQuestPropertiesWithNotificationsAsync`; controller receives `ServiceResult` not a user list
-- [x] **CTRL-04**: Shop remaining-quantity calculation is handled inside `ShopService`; `ShopController.Index` only maps and renders
+- [x] **HOME-01**: On mobile, the quest board displays a vertical scrollable card list instead of the decorative poster/parchment image cards
+- [x] **HOME-02**: Each quest entry shows: title, challenge rating, DM name, and status (Open / Finalized / Done); finalized entries include the date
+- [x] **HOME-03**: Each quest entry is tap-navigable to Quest Details, or to Quest Manage for the signed-in DM's own quests
+- [x] **HOME-04**: If the current user is already signed up for a quest, the entry shows a visual indicator (badge or icon — no wax seal imagery)
 
-### Email & Configuration
+### Quest Views
 
-- [x] **EMAIL-01**: `EmailSettings` typed options record exists and is registered with `AddOptions<EmailSettings>().BindConfiguration()` in `ServiceExtensions`
-- [x] **EMAIL-02**: `EmailService` injects `IOptions<EmailSettings>` instead of `IConfiguration`; SMTP setup is not duplicated across methods
-- [x] **EMAIL-03**: The `[Quest Board URL]` placeholder in the date-changed email body is replaced with the real application URL
-- [x] **EMAIL-04**: Email finalize dispatch builds its recipient list from post-save entity state (not pre-finalize fetched `quest` object)
+- [x] **QVIEW-01**: Quest Details on mobile shows the quest description and date voting buttons (Yes / No / Maybe) as large tap-friendly controls (minimum 44px)
+- [x] **QVIEW-02**: The participant table on Quest Details is replaced with a stacked list on mobile (player name + character name + role, one item per row)
+- [x] **QVIEW-03**: Quest Log index on mobile displays past quests as a scannable list with title, date, and DM name
 
-### Security
+### Calendar
 
-- [x] **SEC-01**: `lockoutOnFailure: true` is passed to `PasswordSignInAsync` and `LockoutOptions` configured (5 attempts, 15-min lock)
-- [x] **SEC-02**: EF Core migration sets `LockoutEnabled = 1` for all existing users in `AspNetUsers`
-- [x] **SEC-03**: Minimum password length is 8 characters (up from 6)
-- [x] **SEC-04**: `HasKey` checkbox is removed from `Account/Edit.cshtml` and `EditProfileViewModel`; it can only be set via `Admin/EditUser`
-- [x] **SEC-05**: `Password` property removed from `User` domain model, `Equals`, and `GetHashCode`; AutoMapper ignore is explicit on both mapping directions
-- [x] **SEC-06**: `.env` added to `.gitignore`; `.env.example` with placeholder values is the only tracked env file
+- [ ] **CAL-01**: The calendar on mobile shows an agenda/list view instead of the 7-column day grid
+- [ ] **CAL-02**: Each agenda entry shows: day label (e.g. SATURDAY, JUNE 14), quest name, and time
+- [ ] **CAL-03**: Days with no quests are skipped entirely — only days with at least one quest appear
+- [ ] **CAL-04**: Tapping a quest entry in the agenda navigates to Quest Details for that quest
+- [ ] **CAL-05**: The `_Calendar` partial used inside Quest Details renders as a vertical per-date list with tap-friendly Yes/No/Maybe vote buttons — replacing both the broken desktop grid (Choose a Date) and the Phase 13 simplified quest-level buttons (Update Your Vote)
 
-### Code Quality & Dead Code
+### DM Views
 
-- [x] **QUAL-01**: `SecurityConfiguration.cs` deleted; `Security` section removed from `appsettings.json`
-- [x] **QUAL-02**: Dead `UpdateQuestPropertiesAsync` (non-notification variant) removed from `IQuestService` and `QuestService`
-- [x] **QUAL-03**: `SignupRole == 1` magic number replaced with `(SignupRole)playerSignup.SignupRole == SignupRole.Spectator` cast throughout service code
-- [x] **QUAL-04**: `IsSameDateTime` 30-minute window extracted as a named constant with explanatory comment
-- [x] **QUAL-05**: `CharacterViewModels/GuildMembersIndexViewModel.cs` renamed to `CharactersIndexViewModel.cs` to match its class name
+- [ ] **DMVIEW-01**: Quest Create on mobile is a single-column scrollable form with touch-friendly date/time inputs and appropriately sized controls
+- [ ] **DMVIEW-02**: Quest Manage on mobile lets DMs select or deselect players and finalize the quest without horizontal overflow
+- [ ] **DMVIEW-03**: DM Profile page on mobile shows bio and photo in a single-column layout, readable without zooming
+- [x] **DMVIEW-04**: Quest Edit on mobile is a single-column scrollable form; all fields (title, description, challenge rating, player count, DM session, proposed dates) are reachable by vertical scroll with no horizontal overflow
+- [x] **DMVIEW-05**: Create Follow-Up Quest on mobile is a single-column scrollable form with the pre-approved players panel rendered below the form; `datetime-local` date inputs are functional on mobile
+- [x] **DMVIEW-06**: DM Edit Profile on mobile is a single-column form with photo upload at the top; bio textarea and file input are fully functional with no overflow
 
-### Feature: Shop Filter/Sort (GitHub #96)
+### Account Pages
 
-- [x] **SHOP-01**: User can filter shop items by item rarity (one or more rarity values)
-- [x] **SHOP-02**: User can sort shop items by price ascending or descending
-- [x] **SHOP-03**: Filter and sort state persists in the URL as query parameters (bookmarkable)
-- [x] **SHOP-04**: Applying filter/sort does not require a page reload beyond the initial request (server-side, no JS dependency)
+- [x] **ACCT-01**: Login page on mobile is a full-width single-column form with large input fields and a clearly tappable submit button
+- [x] **ACCT-02**: Register page on mobile is a full-width single-column form
+- [x] **ACCT-03**: User Profile edit page is usable on small screens
 
-### Feature: Follow-Up Quest (GitHub #49)
+### Browse Pages
 
-- [ ] **FOLLOW-01**: A DM can create a follow-up quest from a finalized quest's Manage page
-- [ ] **FOLLOW-02**: The follow-up quest pre-fills all players from the original quest as pre-approved signups
-- [ ] **FOLLOW-03**: The follow-up quest requires a new date to be set before saving
-- [ ] **FOLLOW-04**: The follow-up quest is linked to the original via `OriginalQuestId`; the original quest's detail page shows a link to its follow-up
-- [ ] **FOLLOW-05**: An EF Core migration adds nullable `OriginalQuestId` self-referential FK to `QuestEntity`
+- [x] **BROWSE-01**: Shop index on mobile displays items in a single-column scrollable list (or 2-column grid if space permits); filter and sort controls are accessible
+- [x] **BROWSE-02**: Guild Members directory on mobile displays character cards in a single-column or 2-column layout
 
-### Feature: DM Profile Page (GitHub #98)
+### Character Views
 
-- [ ] **DMPRO-01**: A dedicated DM profile page exists at `/DungeonMaster/Profile/{id}` showing the DM's photo, name, and bio
-- [ ] **DMPRO-02**: DMs can edit their own profile bio and upload a profile photo via the existing account area
-- [ ] **DMPRO-03**: Admin can edit any DM's profile
-- [ ] **DMPRO-04**: The DM directory page links to each DM's profile
-- [ ] **DMPRO-05**: An EF Core migration adds `Bio` (varchar 2000, nullable) and a linked `DungeonMasterProfileImage` table (following `CharacterImageEntity` pattern)
+- [x] **CHAR-01**: GuildMembers/Details on mobile shows character stats (level, class/level badges, description, backstory), profile photo (or fa-user fallback), and owner actions (Edit / Retire-Reactivate / Delete) in a single-column glass card layout without overflow
+- [x] **CHAR-02**: GuildMembers/Create on mobile is a single-column scrollable form with profile picture upload at the top, stacked class entries (class select + level input + remove button each on col-12), and all inputs meeting the 44px minimum touch target
+- [x] **CHAR-03**: GuildMembers/Edit on mobile has identical structure to Create with the current portrait thumbnail shown above the file input; all owner-only fields are reachable by vertical scroll and all inputs meet the 44px minimum touch target
 
-### Feature: Profile Picture Avatar Crop (GitHub #78)
+### Players Page
 
-- [ ] **CROP-01**: When uploading a character profile picture, the user sees a Cropper.js 1.5.x square crop selector before submitting
-- [ ] **CROP-02**: The selected crop region is stored as four nullable float columns (`CropX`, `CropY`, `CropWidth`, `CropHeight`) on `CharacterImages`; the original full image bytes are never modified
-- [ ] **CROP-03**: A new `GetAvatarPicture` endpoint serves the cropped version using SkiaSharp; the existing `GetProfilePicture` endpoint continues serving the original
-- [ ] **CROP-04**: The guild member directory page uses the avatar (cropped) endpoint; the character detail page uses the original endpoint
-- [ ] **CROP-05**: An EF Core migration adds the four crop coordinate columns to `CharacterImages`
+- [x] **PLAYER-01**: Players/Index on mobile displays Dungeon Masters and Registered Players as separate single-column name lists in glass card containers; DM names tap-navigate to their DungeonMaster Profile page; no email column is shown; the desktop Players/Index.cshtml also has its email column removed
 
-### Feature: Shop Pagination & Server-Side Search (GitHub Phase 9)
+### Quest Log
 
-- [x] **SHOP-PAG-01**: `ShopController.Index` returns at most 12 items per page via a single unified repository method `GetPagedPublishedItemsAsync` that applies `Skip((page-1)*12).Take(12)` at the database layer (no post-fetch LINQ on the Index path)
-- [x] **SHOP-PAG-02**: The unified paged method executes all filtering (type, rarity, search, availability window), sorting, and pagination inside one `IQueryable<ShopItemEntity>`; returns `(IList<ShopItem> Items, int TotalCount)`
-- [x] **SHOP-PAG-03**: A server-side `?search=` query parameter matches against `Name` OR `Description` via EF Core `.Contains()` translation; stacks with `type`, `rarity`, `sort`, `page`
-- [x] **SHOP-PAG-04**: The client-side `filterShopItems()` JavaScript function is removed from `site.js`; all `data-item-name`, `data-item-description`, `onkeyup`, `onchange`, and `shopEmptyMsg` DOM hooks are removed from `Index.cshtml`
-- [x] **SHOP-PAG-05**: A Bootstrap 5 numbered pager (Previous / 1 2 … N / Next) renders below the inventory grid when `TotalPages > 1`; always shows first page, last page, and current ±2 with ellipses for gaps; active page rendered as `<span>` (not link); disabled Previous at page 1, disabled Next at last page
-- [x] **SHOP-PAG-06**: Pager links carry forward all active state (`type`, `rarity`, `sort`, `search`) via a `BuildPageUrl` helper; category tab links via extended `BuildTabUrl` carry `search` forward and always reset to page 1; filter form includes `<input type="hidden" name="page" value="1" />`
-- [x] **SHOP-PAG-07**: `ShopController.Index` clamps `page` after computing `totalPages`: `page = Math.Max(1, Math.Min(page, totalPages))` with `totalPages = Math.Max(1, Math.Ceiling(totalCount / 12.0))`; `ShopIndexViewModel` gains `SearchQuery`, `CurrentPage`, `TotalPages`, `TotalItems`, `HasActiveSearch` and loses `EquipmentItems` + `MagicItems` computed properties
+- [x] **QLOG-01**: Quest Log Details on mobile shows the quest summary, adventurers list, and session recap in a single-column layout with stacked Quick Actions and Quest Statistics glass cards below
 
-## v2 Requirements
+### Admin & Shop Management
 
-### Bug Fixes (separate milestone)
+- [x] **ADMIN-01**: Admin user list and edit pages are usable on mobile without horizontal scrolling
+- [x] **ADMIN-02**: Shop Management index, create, and edit pages are fully functional on mobile
+- [x] **SHOPMGMT-01**: Shop item detail page renders in a single-column layout with no overflow
 
-- **BUG-01**: DM can add new dates to an existing quest (issue #94)
-- **BUG-02**: Profile images ≤ 5MB do not return HTTP 413 (issue #91)
-- **BUG-03**: DM sessions are excluded from the Quest Log page (issue #89)
+## Future Requirements
 
-### Large Features (future milestones)
-
-- **FEAT-01**: D&D Beyond PDF character sheet parser (issue #84)
-- **FEAT-02**: 5etools integration (issue #82)
-- **FEAT-03**: Miniature request page (issue #59)
-- **FEAT-04**: Email notifications and password reset (issue #25)
-- **FEAT-05**: Build artifact for non-Docker deployment (issue #64)
-
-### Performance / Polish
-
-- **PERF-01**: Pagination on quest list, shop, and admin user list
-- **PERF-02**: MailKit replacing deprecated `System.Net.Mail.SmtpClient`
-- **PERF-03**: Image blob storage migrated to filesystem/Azure Blob
+- Tablet-specific views (`.Tablet.cshtml`) — defer; phone-first scope sufficient for v1
+- "Switch to desktop" cookie override — user-controlled escape hatch; natural extension of the expander but not needed for v1
+- PWA manifest and service worker — offline support; separate initiative
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Bug fixes (#94, #91, #89) | Separate bug-fix milestone to avoid merge conflicts with refactor |
-| D&D Beyond PDF parser (#84) | Large standalone feature; own milestone |
-| 5etools integration (#82) | Large standalone feature; own milestone |
-| Miniature request page (#59) | Large standalone feature; own milestone |
-| Email verification on registration | Small group, trust assumed; not requested |
-| Pagination | Group size makes unbounded lists acceptable now |
-| MailKit migration | Parallel scope expansion to email refactor; deferred, SmtpClient warning suppressed |
-| Image blob storage migration | Performance acceptable at current scale |
-| Rate limiting middleware | Low risk for private group app; deferred |
+- **No controller changes** — all controllers and action methods remain unchanged; ViewModels are shared with desktop views
+- **No desktop view changes** — mobile views are purely additive; desktop experience is unchanged
+- **No native mobile app** — this milestone delivers a mobile web experience, not an iOS/Android app
+- **PWA features** — offline support, push notifications, and home screen installation are a separate milestone
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | Phase 1 | Complete |
-| ARCH-02 | Phase 1 | Complete |
-| ARCH-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 1 | Complete |
-| CTRL-01 | Phase 2 | Complete |
-| CTRL-02 | Phase 2 | Complete |
-| CTRL-03 | Phase 2 | Complete |
-| CTRL-04 | Phase 2 | Complete |
-| EMAIL-01 | Phase 2 | Complete |
-| EMAIL-02 | Phase 2 | Complete |
-| EMAIL-03 | Phase 2 | Complete |
-| EMAIL-04 | Phase 2 | Complete |
-| SEC-01 | Phase 4 | Complete |
-| SEC-02 | Phase 4 | Complete |
-| SEC-03 | Phase 4 | Complete |
-| SEC-04 | Phase 4 | Complete |
-| SEC-05 | Phase 4 | Complete |
-| SEC-06 | Phase 4 | Complete |
-| QUAL-01 | Phase 3 | Complete |
-| QUAL-02 | Phase 3 | Complete |
-| QUAL-03 | Phase 3 | Complete |
-| QUAL-04 | Phase 3 | Complete |
-| QUAL-05 | Phase 3 | Complete |
-| SHOP-01 | Phase 5 | Complete |
-| SHOP-02 | Phase 5 | Complete |
-| SHOP-03 | Phase 5 | Complete |
-| SHOP-04 | Phase 5 | Complete |
-| FOLLOW-01 | Phase 6 | Pending |
-| FOLLOW-02 | Phase 6 | Pending |
-| FOLLOW-03 | Phase 6 | Pending |
-| FOLLOW-04 | Phase 6 | Pending |
-| FOLLOW-05 | Phase 6 | Pending |
-| DMPRO-01 | Phase 7 | Pending |
-| DMPRO-02 | Phase 7 | Pending |
-| DMPRO-03 | Phase 7 | Pending |
-| DMPRO-04 | Phase 7 | Pending |
-| DMPRO-05 | Phase 7 | Pending |
-| CROP-01 | Phase 8 | Pending |
-| CROP-02 | Phase 8 | Pending |
-| CROP-03 | Phase 8 | Pending |
-| CROP-04 | Phase 8 | Pending |
-| CROP-05 | Phase 8 | Pending |
-| SHOP-PAG-01 | Phase 9 | Complete |
-| SHOP-PAG-02 | Phase 9 | Complete |
-| SHOP-PAG-03 | Phase 9 | Complete |
-| SHOP-PAG-04 | Phase 9 | Complete |
-| SHOP-PAG-05 | Phase 9 | Complete |
-| SHOP-PAG-06 | Phase 9 | Complete |
-| SHOP-PAG-07 | Phase 9 | Complete |
-
-**Coverage:**
-- v1 requirements: 49 total (42 original + 7 added in Phase 9)
-- Mapped to phases: 49/49
-- Unmapped: 0
-
----
-*Requirements defined: 2026-04-15*
-*Last updated: 2026-04-21 — added Phase 9 SHOP-PAG-01 through SHOP-PAG-07*
+| INFRA-01 | Phase 12 | Complete (Plan 01) |
+| INFRA-02 | Phase 12 | Complete (Plan 01, backend half) |
+| INFRA-03 | Phase 12 | Complete (Plan 01) |
+| INFRA-04 | Phase 12 | Complete (Plan 02) |
+| INFRA-05 | Phase 12 | Complete (Plan 02) |
+| INFRA-06 | Phase 12 | Complete (Plan 03) |
+| HOME-01 | Phase 13 | Complete (Plan 02) |
+| HOME-02 | Phase 13 | Complete (Plan 02) |
+| HOME-03 | Phase 13 | Complete (Plan 02) |
+| HOME-04 | Phase 13 | Complete (Plan 02) |
+| QVIEW-01 | Phase 13 | Complete (Plan 03) |
+| QVIEW-02 | Phase 13 | Complete (Plan 03) |
+| QVIEW-03 | Phase 13 | Complete |
+| CAL-01 | Phase 14 | Pending |
+| CAL-02 | Phase 14 | Pending |
+| CAL-03 | Phase 14 | Pending |
+| CAL-04 | Phase 14 | Pending |
+| CAL-05 | Phase 14 | Pending |
+| DMVIEW-01 | Phase 15 | Pending |
+| DMVIEW-02 | Phase 15 | Pending |
+| DMVIEW-03 | Phase 15 | Pending |
+| DMVIEW-04 | Phase 18 | Complete |
+| DMVIEW-05 | Phase 18 | Complete |
+| DMVIEW-06 | Phase 18 | Complete |
+| ACCT-01 | Phase 16 | Complete |
+| ACCT-02 | Phase 16 | Complete |
+| ACCT-03 | Phase 16 | Complete |
+| BROWSE-01 | Phase 16 | Complete |
+| BROWSE-02 | Phase 16 | Complete |
+| CHAR-01 | Phase 17 | Complete |
+| CHAR-02 | Phase 17 | Complete |
+| CHAR-03 | Phase 17 | Complete |
+| PLAYER-01 | Phase 17 | Complete |
+| QLOG-01 | Phase 18 | Complete |
+| ADMIN-01 | Phase 19 | Complete |
+| ADMIN-02 | Phase 19 | Complete |
+| SHOPMGMT-01 | Phase 19 | Complete |
