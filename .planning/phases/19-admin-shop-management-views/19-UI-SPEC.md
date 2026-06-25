@@ -45,7 +45,7 @@ Declared values (all multiples of 4):
 
 Exceptions:
 - Touch targets: All `.btn`, `input`, `select`, `textarea`, `.form-control`, `.form-select` have `min-height: 44px` — declared in `mobile.css` (INFRA-06). Do NOT redefine in per-page CSS.
-- Icon-only action buttons in ShopManagement Index: `btn-sm` with `padding: 6px 8px` override to fit multiple buttons horizontally without wrapping on 320px screens.
+- Icon-only action buttons in ShopManagement Index: `btn-sm` with `padding: 4px 8px` override to fit multiple buttons horizontally without wrapping on 320px screens.
 - Checkbox and radio inputs: exempt from 44px rule (Phase 18 fix — `23e378f`). Per `mobile.css` selector: `input:not([type=checkbox]):not([type=radio])`.
 
 Source: `mobile.css` (INFRA-06), 19-CONTEXT.md D-01 / D-08, Phase 18 commit `23e378f`
@@ -54,12 +54,14 @@ Source: `mobile.css` (INFRA-06), 19-CONTEXT.md D-01 / D-08, Phase 18 commit `23e
 
 ## Typography
 
-| Role    | Size      | Weight          | Line Height | Notes                              |
-|---------|-----------|-----------------|-------------|------------------------------------|
-| Body    | 16px      | 400 (regular)   | 1.5         | Set in `mobile.css` `body` rule. Prevents iOS auto-zoom. |
-| Label   | 14px      | 600 (semibold)  | 1.4         | Form labels, card meta lines, `.form-label` |
-| Heading | 20px      | 700 (bold)      | 1.2         | Glass card `h5` headings            |
-| Display | 24px      | 700 (bold)      | 1.2         | Page-level `h2` (e.g. "Shop Management") |
+| Role    | Size      | Weight       | Line Height | Notes                              |
+|---------|-----------|--------------|-------------|------------------------------------|
+| Body    | 16px      | 400 (regular) | 1.5        | Set in `mobile.css` `body` rule. Prevents iOS auto-zoom. |
+| Label   | 14px      | 700 (bold)   | 1.4         | Form labels, card meta lines, `.form-label` — visually distinct from body text |
+| Heading | 20px      | 700 (bold)   | 1.2         | Glass card `h5` headings            |
+| Display | 24px      | 700 (bold)   | 1.2         | Page-level `h2` (e.g. "Shop Management") |
+
+Declared weights: 400 (regular) + 700 (bold). No third weight.
 
 Parchment heading text treatment (applied to glass card h5 and display headings inside glass cards):
 - `color: #F4E4BC !important`
@@ -91,7 +93,7 @@ Glass card backdrop: `blur(15px)`
 Accent reserved for:
 1. Primary submit button on all form views (Save Changes, Create Item, Update Item)
 2. "Add New Item" button on ShopManagement Index
-3. Purchase button on Shop Details
+3. Purchase Item button on Shop Details
 
 NOT accent: Delete buttons (danger/red), Edit buttons (secondary/outline), Deny buttons (warning/amber), icon-only action buttons in ShopManagement item cards (use `btn-secondary btn-sm`).
 
@@ -159,6 +161,7 @@ Source: established Phase 13, confirmed in all Phases 14–18.
 - Glass card per item
 - Card structure: rarity badge (top-left) + item name (bold, parchment) + price (`X gp`, subdued) + status badge — all in one row/block
 - Action buttons: icon-only `btn-sm` row — View (`fa-eye`), Edit (`fa-edit`), Archive/Reopen (`fa-archive`/`fa-box-open`), Deny (`fa-times-circle btn-warning`), Delete (`fa-trash btn-danger`)
+  - Each button requires BOTH `title="Action name"` (hover tooltip) AND `aria-label="Action name"` (screen reader). Exact labels: `aria-label="View item"`, `aria-label="Edit item"`, `aria-label="Archive item"` / `aria-label="Reopen item"`, `aria-label="Deny item"`, `aria-label="Delete item"`
 - Authorization guards (AdminOnly for delete/publish) preserved from desktop
 - "Add New Item" button: full-width `btn-primary` at top, `fa-plus me-2`
 - "View Shop" link: full-width `btn-outline-secondary` below Add button
@@ -195,12 +198,12 @@ Source: 19-CONTEXT.md decisions D-01 through D-20, `<specifics>` section
 | Primary CTA — ResetPassword    | "Reset Password"                                                                             |
 | Primary CTA — ShopMgmt Create  | "Create Item"                                                                                |
 | Primary CTA — ShopMgmt Edit    | "Save Changes"                                                                               |
-| Primary CTA — Shop Details     | "Purchase" (with `fa-shopping-cart` icon)                                                    |
+| Primary CTA — Shop Details     | "Purchase Item" (with `fa-shopping-cart` icon)                                               |
 | Add item button                | "Add New Item"                                                                               |
 | ShopMgmt empty state heading   | "No items yet"                                                                               |
 | ShopMgmt empty state body      | "Add the first item to your shop."                                                           |
-| Admin Users empty state        | "No users found."                                                                            |
-| Admin Quests empty state       | "No quests found."                                                                           |
+| Admin Users empty state        | "No users found. Users appear here once registered."                                         |
+| Admin Quests empty state       | "No quests found. Quests appear here once created by a DM."                                  |
 | Error state (purchase fails)   | "Purchase failed. Check your gold balance and try again." (TempData["Error"] toast)          |
 | Gold received toast            | TempData["GoldReceived"] value — displayed verbatim from controller (not defined here)       |
 | Delete user confirmation       | Browser `confirm()` dialog: "Are you sure you want to delete this user? This action cannot be undone." — copy from `deleteUser()` JS |
@@ -234,8 +237,9 @@ Applied to: EditUser, ResetPassword, ShopMgmt Create, ShopMgmt Edit.
 Action button rows on list cards (Admin Users, Admin Quests, ShopManagement items): `d-flex flex-wrap gap-2` — wrap on narrow screens.
 
 Icon-only buttons (ShopManagement item cards):
-- Use `btn-sm` with `title` attribute for accessibility (tooltip on hover)
-- Size: `padding: 6px 8px` override — prevents wrapping of 4–5 buttons on 320px screens
+- Use `btn-sm` with BOTH `title="Action name"` (hover tooltip) AND `aria-label="Action name"` (screen reader) on every button
+- Exact `aria-label` values: `"View item"`, `"Edit item"`, `"Archive item"` / `"Reopen item"`, `"Deny item"`, `"Delete item"`
+- Size: `padding: 4px 8px` override — prevents wrapping of 4–5 buttons on 320px screens
 - All icons: `fas` prefix, no text label
 
 ### Form Interactions
