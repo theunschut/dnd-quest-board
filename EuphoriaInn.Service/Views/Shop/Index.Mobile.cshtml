@@ -168,7 +168,7 @@
             <!-- Action buttons -->
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-warning flex-grow-1">Apply Filters</button>
-                @if (Model.SelectedRarities.Any() || Model.SelectedSort != null)
+                @if (Model.SelectedRarities.Any() || Model.SelectedSort != null || !string.IsNullOrEmpty(Model.SearchQuery))
                 {
                     <a href="@Url.Action("Index", "Shop")" class="btn btn-outline-secondary">Clear Filters</a>
                 }
