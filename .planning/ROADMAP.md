@@ -141,7 +141,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
-| 17. Character & Player Views | 0/0 | Not started | - |
+| 17. Character & Player Views | 0/4 | Not started | - |
 | 18. DM Editing & Secondary Quest Views | 0/0 | Not started | - |
 | 19. Admin & Shop Management Views | 0/0 | Not started | - |
 
@@ -156,10 +156,13 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
   2. The Create Character and Edit Character forms are single-column on mobile with all fields reachable by vertical scroll and inputs at minimum 44px height
   3. The Players list on mobile is a readable single-column list with no horizontal scrolling
 
-**Plans:** 0 plans (run /gsd-plan-phase 17 to break down)
+**Plans:** 4 plans
 
 Plans:
-- [ ] TBD
+- [ ] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
+- [ ] 17-02-PLAN.md — Create GuildMembers/Details.Mobile.cshtml and character-detail.mobile.css (Wave 2)
+- [ ] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
+- [ ] 17-04-PLAN.md — Create Players/Index.Mobile.cshtml, players.mobile.css, and remove email column from desktop Players/Index.cshtml (Wave 2)
 
 ---
 
