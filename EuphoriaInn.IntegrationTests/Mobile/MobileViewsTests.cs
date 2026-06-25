@@ -639,4 +639,125 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         html.Should().Contain("players-section-card");
         html.Should().Contain("players.mobile.css");
     }
+
+    // -----------------------------------------------------------------------
+    // Phase 18 — DMVIEW-04: Quest Edit renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// DMVIEW-04: Mobile UA on /Quest/Edit/{id} renders quest-edit-card-mobile glass card form
+    /// and links quest-edit.mobile.css. Requires DM authentication and ownership of the quest.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_QuestEdit_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_qedit18", "dm_qedit18@test.com", roles: new[] { "DungeonMaster" });
+        var quest = await TestDataHelper.CreateTestQuestAsync(
+            _factory.Services, dmUser.Id, "Edit Quest Mobile18");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Quest/Edit/{quest.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("quest-edit-card-mobile");
+        html.Should().Contain("quest-edit.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 18 — DMVIEW-05: CreateFollowUp renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// DMVIEW-05: Mobile UA on /Quest/CreateFollowUp/{id} renders quest-followup-card-mobile
+    /// glass card form and links quest-followup.mobile.css.
+    /// Requires DM authentication — CreateFollowUp action enforces DM role.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_QuestCreateFollowUp_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_followup18", "dm_followup18@test.com", roles: new[] { "DungeonMaster" });
+        var quest = await TestDataHelper.CreateTestQuestAsync(
+            _factory.Services, dmUser.Id, "FollowUp Source Quest18", isFinalized: true);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var q = await context.Quests.FindAsync([quest.Id], TestContext.Current.CancellationToken);
+            if (q != null) { q.FinalizedDate = DateTime.UtcNow.AddDays(-2); await context.SaveChangesAsync(TestContext.Current.CancellationToken); }
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/Quest/CreateFollowUp/{quest.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("quest-followup-card-mobile");
+        html.Should().Contain("quest-followup.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 18 — DMVIEW-06: DM EditProfile renders glass card form on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// DMVIEW-06: Mobile UA on /DungeonMaster/EditProfile/{id} renders dm-editprofile-card-mobile
+    /// glass card form and links dm-editprofile.mobile.css.
+    /// Requires DM authentication — EditProfile enforces DM ownership or Admin role.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_DmEditProfile_ReturnsSuccessAndMobileLayout()
+    {
+        var (authClient, dmUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "dm_editprof18", "dm_editprof18@test.com", roles: new[] { "DungeonMaster" });
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/DungeonMaster/EditProfile/{dmUser.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("dm-editprofile-card-mobile");
+        html.Should().Contain("dm-editprofile.mobile.css");
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 18 — QLOG-01: QuestLog Details renders glass card layout on mobile UA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// QLOG-01: Mobile UA on /QuestLog/Details/{id} renders quest-log-detail-main-card glass card
+    /// and links quest-log-detail.mobile.css. Quest must be finalized with past FinalizedDate.
+    /// </summary>
+    [Fact]
+    public async Task GetMobilePage_QuestLogDetails_ReturnsSuccessAndMobileLayout()
+    {
+        var dm = await AuthenticationHelper.CreateTestUserAsync(
+            _factory.Services, "dm_qldet18", "dm_qldet18@test.com", name: "DM QLogDet18");
+        var quest = await TestDataHelper.CreateTestQuestAsync(
+            _factory.Services, dm.Id, "Quest Log Detail Mobile18", isFinalized: true);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+            var q = await context.Quests.FindAsync([quest.Id], TestContext.Current.CancellationToken);
+            if (q != null) { q.FinalizedDate = DateTime.UtcNow.AddDays(-2); await context.SaveChangesAsync(TestContext.Current.CancellationToken); }
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/QuestLog/Details/{quest.Id}");
+        request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("quest-log-detail-main-card");
+        html.Should().Contain("quest-log-detail.mobile.css");
+    }
 }
