@@ -142,7 +142,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
 | 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
-| 18. DM Editing & Secondary Quest Views | 0/0 | Not started | - |
+| 18. DM Editing & Secondary Quest Views | 0/5 | Not started | - |
 | 19. Admin & Shop Management Views | 0/0 | Not started | - |
 
 ### Phase 17: Character & Player Views
@@ -178,10 +178,19 @@ Plans:
   3. The DM Edit Profile page (bio, photo upload) is fully functional on mobile with no overflow
   4. The Quest Log detail page renders the quest summary and player list in a single-column layout
 
-**Plans:** 0 plans (run /gsd-plan-phase 18 to break down)
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD
+**Wave 1**
+
+- [ ] 18-01-PLAN.md — Quest/Edit.Mobile.cshtml + quest-edit.mobile.css (Wave 1)
+- [ ] 18-02-PLAN.md — Quest/CreateFollowUp.Mobile.cshtml + quest-followup.mobile.css (Wave 1)
+- [ ] 18-03-PLAN.md — DungeonMaster/EditProfile.Mobile.cshtml + dm-editprofile.mobile.css (Wave 1)
+- [ ] 18-04-PLAN.md — QuestLog/Details.Mobile.cshtml + quest-log-detail.mobile.css (Wave 1)
+
+**Wave 2**
+
+- [ ] 18-05-PLAN.md — Integration tests for all 4 Phase 18 mobile views (Wave 2)
 
 ---
 

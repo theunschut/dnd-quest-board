@@ -40,6 +40,9 @@
 - [ ] **DMVIEW-01**: Quest Create on mobile is a single-column scrollable form with touch-friendly date/time inputs and appropriately sized controls
 - [ ] **DMVIEW-02**: Quest Manage on mobile lets DMs select or deselect players and finalize the quest without horizontal overflow
 - [ ] **DMVIEW-03**: DM Profile page on mobile shows bio and photo in a single-column layout, readable without zooming
+- [ ] **DMVIEW-04**: Quest Edit on mobile is a single-column scrollable form; all fields (title, description, challenge rating, player count, DM session, proposed dates) are reachable by vertical scroll with no horizontal overflow
+- [ ] **DMVIEW-05**: Create Follow-Up Quest on mobile is a single-column scrollable form with the pre-approved players panel rendered below the form; `datetime-local` date inputs are functional on mobile
+- [ ] **DMVIEW-06**: DM Edit Profile on mobile is a single-column form with photo upload at the top; bio textarea and file input are fully functional with no overflow
 
 ### Account Pages
 
@@ -61,6 +64,10 @@
 ### Players Page
 
 - [x] **PLAYER-01**: Players/Index on mobile displays Dungeon Masters and Registered Players as separate single-column name lists in glass card containers; DM names tap-navigate to their DungeonMaster Profile page; no email column is shown; the desktop Players/Index.cshtml also has its email column removed
+
+### Quest Log
+
+- [ ] **QLOG-01**: Quest Log Details on mobile shows the quest summary, adventurers list, and session recap in a single-column layout with stacked Quick Actions and Quest Statistics glass cards below
 
 ## Future Requirements
 
@@ -102,6 +109,9 @@
 | DMVIEW-01 | Phase 15 | Pending |
 | DMVIEW-02 | Phase 15 | Pending |
 | DMVIEW-03 | Phase 15 | Pending |
+| DMVIEW-04 | Phase 18 | Pending |
+| DMVIEW-05 | Phase 18 | Pending |
+| DMVIEW-06 | Phase 18 | Pending |
 | ACCT-01 | Phase 16 | Complete |
 | ACCT-02 | Phase 16 | Complete |
 | ACCT-03 | Phase 16 | Complete |
@@ -111,3 +121,4 @@
 | CHAR-02 | Phase 17 | Complete |
 | CHAR-03 | Phase 17 | Complete |
 | PLAYER-01 | Phase 17 | Complete |
+| QLOG-01 | Phase 18 | Pending |
