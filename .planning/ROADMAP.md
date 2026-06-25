@@ -159,7 +159,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 **Plans:** 4 plans
 
 Plans:
-- [ ] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
+- [x] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
 - [ ] 17-02-PLAN.md — Create GuildMembers/Details.Mobile.cshtml and character-detail.mobile.css (Wave 2)
 - [ ] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
 - [ ] 17-04-PLAN.md — Create Players/Index.Mobile.cshtml, players.mobile.css, and remove email column from desktop Players/Index.cshtml (Wave 2)
