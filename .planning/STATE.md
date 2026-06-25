@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 19
 current_phase_name: admin-shop-management-views
 status: executing
-stopped_at: Phase 19 UI-SPEC approved — ready for /gsd-plan-phase 19
-last_updated: "2026-06-25T16:31:41.294Z"
+stopped_at: Completed 19-05-PLAN.md — ShopManagement/Index.Mobile.cshtml flat list view; integration test GREEN
+last_updated: "2026-06-25T16:37:54.293Z"
 last_activity: 2026-06-25
 last_activity_desc: Phase 19 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 34
-  completed_plans: 31
+  completed_plans: 32
   percent: 88
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-23)
 ## Current Position
 
 Phase: 19 (admin-shop-management-views) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-06-25 — Phase 19 execution started
 Last activity: 2026-06-25
@@ -69,6 +69,7 @@ Progress: [██████████] 100%
 | Phase 19 P02 | 3min | 2 tasks | 4 files |
 | Phase 19 P03 | 4min | 2 tasks | 3 files |
 | Phase 19 P04 | 5m | 2 tasks | 4 files |
+| Phase 19 P05 | 3 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 19 admin/shop tests: CreateAuthenticatedAdminClientAsync for Admin routes, CreateAuthenticatedClientWithUserAsync with DungeonMaster for ShopManagement routes
 - [Phase ?]: SHOPMGMT-01 ShopDetails test: seeds seller DM without DM role, authenticates as regular player buyer — Shop/Details accessible to any authenticated user
 - [Phase ?]: Phase 19 Plan 03
+- [Phase ?]: Phase 19-05: Outer shop-mgmt-index-card-mobile container always rendered (not conditional on allItems.Any()) — integration test asserts CSS class present even when DM has no items
 
 ### Roadmap Evolution
 
@@ -140,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-25T16:31:33.724Z
-Stopped at: Completed 18-05-PLAN.md — Phase 18 integration tests (126 total passing); Phase 18 complete
+Last session: 2026-06-25T16:37:54.281Z
+Stopped at: Completed 19-05-PLAN.md — ShopManagement/Index.Mobile.cshtml flat list view; integration test GREEN
 Resume file: None
