@@ -143,7 +143,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
 | 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
 | 18. DM Editing & Secondary Quest Views | 5/5 | Complete | 2026-06-25 |
-| 19. Admin & Shop Management Views | 3/7 | In Progress|  |
+| 19. Admin & Shop Management Views | 4/7 | In Progress|  |
 
 ### Phase 17: Character & Player Views
 
@@ -206,7 +206,7 @@ Plans:
   2. The Shop Management index, create, and edit pages are fully functional on mobile
   3. The Shop item detail page renders in a single-column layout with no overflow
 
-**Plans:** 3/7 plans executed
+**Plans:** 4/7 plans executed
 
 Plans:
 **Wave 1**
@@ -217,7 +217,7 @@ Plans:
 
 - [x] 19-02-PLAN.md — Admin Users + Admin Quests mobile list views (delete-fetch JS)
 - [x] 19-03-PLAN.md — Admin EditUser + ResetPassword mobile forms (shared admin-form CSS)
-- [ ] 19-04-PLAN.md — ShopManagement Create + Edit mobile forms (pricing JS, button-free price)
+- [x] 19-04-PLAN.md — ShopManagement Create + Edit mobile forms (pricing JS, button-free price)
 - [ ] 19-05-PLAN.md — ShopManagement Index mobile flat list (modals, auth-guarded actions)
 - [ ] 19-06-PLAN.md — Shop/Details mobile view (inlined non-modal content, toasts)
 
