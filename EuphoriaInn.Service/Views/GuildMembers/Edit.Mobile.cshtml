@@ -128,7 +128,7 @@
 
 @section Scripts {
     <script>
-        let classIndex = @Model.Classes.Count;
+        let classIndex = @(Model.Classes.Any() ? Model.Classes.Count : 1);
 
         const MAX_FILE_SIZE = 5 * 1024 * 1024;
         const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
