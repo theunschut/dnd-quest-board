@@ -1,7 +1,7 @@
 /* Touch target sizing — INFRA-06 */
 .btn,
 a.nav-link,
-input,
+input:not([type=checkbox]):not([type=radio]),
 select,
 textarea,
 .form-control,
