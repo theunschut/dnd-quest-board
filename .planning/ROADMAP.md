@@ -17,6 +17,9 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
 - [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
 - [x] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens *(completed 2026-06-25: all 5 account views + shop + guild members — 50 integration tests pass)*
+- [ ] **Phase 17: Character & Player Views** - GuildMembers/Details, Create, Edit, and Players/Index mobile views
+- [ ] **Phase 18: DM Editing & Secondary Quest Views** - Quest/Edit, Quest/CreateFollowUp, QuestLog/Details, and DungeonMaster/EditProfile mobile views
+- [ ] **Phase 19: Admin & Shop Management Views** - Shop/Details, all Admin/*, and all ShopManagement/* mobile views
 
 ## Phase Details
 
@@ -138,3 +141,59 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
+| 17. Character & Player Views | 0/0 | Not started | - |
+| 18. DM Editing & Secondary Quest Views | 0/0 | Not started | - |
+| 19. Admin & Shop Management Views | 0/0 | Not started | - |
+
+### Phase 17: Character & Player Views
+
+**Goal:** Players can view character details, create new characters, edit existing characters, and browse the player list on a phone without layout breakage
+**Depends on:** Phase 12 (mobile infrastructure)
+**Requirements**: CHAR-01, CHAR-02, CHAR-03, PLAYER-01
+**Success Criteria** (what must be TRUE):
+
+  1. The Guild Member detail page on mobile shows character stats, profile photo, class/level, and backstory in a single-column layout without overflow
+  2. The Create Character and Edit Character forms are single-column on mobile with all fields reachable by vertical scroll and inputs at minimum 44px height
+  3. The Players list on mobile is a readable single-column list with no horizontal scrolling
+
+**Plans:** 0 plans (run /gsd-plan-phase 17 to break down)
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 18: DM Editing & Secondary Quest Views
+
+**Goal:** Dungeon Masters can edit quests, create follow-up quests, and edit their DM profile on a phone; players can view individual quest log entries — all without layout breakage or horizontal scrolling
+**Depends on:** Phase 12 (mobile infrastructure)
+**Requirements**: DMVIEW-04, DMVIEW-05, DMVIEW-06, QLOG-01
+**Success Criteria** (what must be TRUE):
+
+  1. The Quest Edit form on mobile is a single-column layout with all fields reachable by vertical scroll
+  2. The Create Follow-Up Quest form pre-fills existing player list and is usable on a small screen
+  3. The DM Edit Profile page (bio, photo upload) is fully functional on mobile with no overflow
+  4. The Quest Log detail page renders the quest summary and player list in a single-column layout
+
+**Plans:** 0 plans (run /gsd-plan-phase 18 to break down)
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 19: Admin & Shop Management Views
+
+**Goal:** Admins can manage users, quests, and shop items from a phone; the Shop item detail page is readable on small screens
+**Depends on:** Phase 12 (mobile infrastructure)
+**Requirements**: ADMIN-01, ADMIN-02, SHOPMGMT-01
+**Success Criteria** (what must be TRUE):
+
+  1. The Admin user list and edit pages are usable on mobile without horizontal scrolling
+  2. The Shop Management index, create, and edit pages are fully functional on mobile
+  3. The Shop item detail page renders in a single-column layout with no overflow
+
+**Plans:** 0 plans (run /gsd-plan-phase 19 to break down)
+
+Plans:
+- [ ] TBD

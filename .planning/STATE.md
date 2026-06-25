@@ -99,6 +99,12 @@ Recent decisions affecting current work:
 - [Phase ?]: Plan 16-02: btn-warning for Change Password link in Edit.Mobile.cshtml — CLAUDE.md requires filled colored buttons
 - [Phase ?]: Plan 16-03: Razor static HTML text is not encoded — write literal &amp; entity to produce &amp; in output; separate @if from & with newline
 
+### Roadmap Evolution
+
+- Phase 17 added: Character & Player Views (GuildMembers/Details, Create, Edit + Players/Index mobile views)
+- Phase 18 added: DM Editing & Secondary Quest Views (Quest/Edit, CreateFollowUp, QuestLog/Details, DungeonMaster/EditProfile mobile views)
+- Phase 19 added: Admin & Shop Management Views (Shop/Details, Admin/*, ShopManagement/* mobile views)
+
 ### Pending Todos
 
 None yet.
