@@ -71,9 +71,9 @@
 
 ### Admin & Shop Management
 
-- [ ] **ADMIN-01**: Admin user list and edit pages are usable on mobile without horizontal scrolling
-- [ ] **ADMIN-02**: Shop Management index, create, and edit pages are fully functional on mobile
-- [ ] **SHOPMGMT-01**: Shop item detail page renders in a single-column layout with no overflow
+- [x] **ADMIN-01**: Admin user list and edit pages are usable on mobile without horizontal scrolling
+- [x] **ADMIN-02**: Shop Management index, create, and edit pages are fully functional on mobile
+- [x] **SHOPMGMT-01**: Shop item detail page renders in a single-column layout with no overflow
 
 ## Future Requirements
 
@@ -126,6 +126,6 @@
 | CHAR-03 | Phase 17 | Complete |
 | PLAYER-01 | Phase 17 | Complete |
 | QLOG-01 | Phase 18 | Complete |
-| ADMIN-01 | Phase 19 | Pending |
-| ADMIN-02 | Phase 19 | Pending |
-| SHOPMGMT-01 | Phase 19 | Pending |
+| ADMIN-01 | Phase 19 | Complete |
+| ADMIN-02 | Phase 19 | Complete |
+| SHOPMGMT-01 | Phase 19 | Complete |

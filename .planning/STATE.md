@@ -6,15 +6,15 @@ current_phase: 19
 current_phase_name: admin-shop-management-views
 status: executing
 stopped_at: Phase 19 UI-SPEC approved — ready for /gsd-plan-phase 19
-last_updated: "2026-06-25T16:05:04.503Z"
+last_updated: "2026-06-25T16:12:58.528Z"
 last_activity: 2026-06-25
-last_activity_desc: Phase 19 planning complete
+last_activity_desc: Phase 19 execution started
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 27
-  completed_plans: 27
-  percent: 100
+  total_plans: 34
+  completed_plans: 28
+  percent: 82
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-23)
 
 ## Current Position
 
-Phase: 19 (admin-shop-management-views) — PLANNED
-Plan: 0 of ? — Phase 19 UI-SPEC approved; ready for /gsd-plan-phase
+Phase: 19 (admin-shop-management-views) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-06-25 — Phase 19 planning complete
+Last activity: 2026-06-25 — Phase 19 execution started
 Last activity: 2026-06-25
 
 Progress: [██████████] 100%
@@ -65,6 +65,7 @@ Progress: [██████████] 100%
 | Phase 18 P03 | 8min | 2 tasks | 2 files |
 | Phase 18 P04 | 5min | 2 tasks | 2 files |
 | Phase 18 P05 | 2.5min | 1 task | 1 files |
+| Phase 19 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - Phase 17, Plan 04: Non-tappable player rows use .players-row.no-link modifier (cursor default, no active bg) — preserves 44px min-height touch target without interaction affordance
 - Phase 17, Plan 04: Desktop Players/Index.cshtml Name <th> w-50 class removed after email column deletion — Name is sole column, no width constraint needed
 - [Phase ?]: Phase 18-03: dm-editprofile.mobile.css glass card + EditProfile.Mobile.cshtml; photo section at top (D-12), file validation JS verbatim (D-13), 16px padding per UI-SPEC
+- [Phase ?]: Phase 19 admin/shop tests: CreateAuthenticatedAdminClientAsync for Admin routes, CreateAuthenticatedClientWithUserAsync with DungeonMaster for ShopManagement routes
+- [Phase ?]: SHOPMGMT-01 ShopDetails test: seeds seller DM without DM role, authenticates as regular player buyer — Shop/Details accessible to any authenticated user
 
 ### Roadmap Evolution
 
@@ -133,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-25T12:51:00.000Z
+Last session: 2026-06-25T16:12:52.317Z
 Stopped at: Completed 18-05-PLAN.md — Phase 18 integration tests (126 total passing); Phase 18 complete
 Resume file: None

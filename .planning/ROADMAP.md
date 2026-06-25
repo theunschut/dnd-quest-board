@@ -143,7 +143,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
 | 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
 | 18. DM Editing & Secondary Quest Views | 5/5 | Complete | 2026-06-25 |
-| 19. Admin & Shop Management Views | 0/0 | Not started | - |
+| 19. Admin & Shop Management Views | 1/7 | In Progress|  |
 
 ### Phase 17: Character & Player Views
 
@@ -206,12 +206,12 @@ Plans:
   2. The Shop Management index, create, and edit pages are fully functional on mobile
   3. The Shop item detail page renders in a single-column layout with no overflow
 
-**Plans:** 7 plans
+**Plans:** 1/7 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 19-01-PLAN.md — Add ADMIN-01/ADMIN-02/SHOPMGMT-01 to REQUIREMENTS.md + RED integration test stubs
+- [x] 19-01-PLAN.md — Add ADMIN-01/ADMIN-02/SHOPMGMT-01 to REQUIREMENTS.md + RED integration test stubs
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
