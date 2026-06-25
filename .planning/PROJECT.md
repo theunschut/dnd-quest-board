@@ -115,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-25 — Phase 16 complete; Milestone 3 Mobile Version fully delivered (50 integration tests pass)*
+*Last updated: 2026-06-25 — Phase 17 complete; character detail/create/edit + players index mobile views shipped, 122 integration tests pass*

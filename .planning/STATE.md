@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: executing
-stopped_at: Completed 17-04 players mobile view and desktop email removal
-last_updated: "2026-06-25T08:01:30Z"
+milestone: v3.0
+milestone_name: Mobile Version
+status: ready_to_plan
+stopped_at: Phase 17 complete — 4 mobile views shipped, all tests GREEN
+last_updated: "2026-06-25T00:00:00Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 8
-  completed_phases: 5
-  total_plans: 22
-  completed_plans: 20
-  percent: 91
+  completed_phases: 6
+  total_plans: 23
+  completed_plans: 23
+  percent: 75
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 17 — character-player-views
+**Current focus:** Phase 18 — dm-editing-secondary-quest-views
 
 ## Current Position
 
 Phase: 17 (character-player-views) — COMPLETE
 Plan: 4 of 4 — Plans 01, 02, 03, 04 COMPLETE
-Status: Phase 17 complete; ready for Phase 18
+Status: Phase 17 verified; next phase 18 (dm-editing-secondary-quest-views)
 Last activity: 2026-06-25
 
 Progress: [█████████░] 92%
