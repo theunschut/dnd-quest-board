@@ -51,10 +51,9 @@ Declared values (multiples of 4 only). Source: extracted from `mobile.css`, `dm-
 |-------|-------|-------|
 | xs | 4px | Icon-to-text gaps (`me-1`), small badge padding |
 | sm | 8px | Item row bottom margin (`mb-2`), list entry separator padding |
-| md | 12px | Glass card inner padding (compact form cards — `dm-create.mobile.css`) |
-| md+ | 16px | Glass card inner padding (photo-upload + form cards — `character-form.mobile.css`, `dm-profile.mobile.css`) |
-| lg | 24px | Section vertical spacing between cards (`mb-3` = 1rem = 16px; treat mb-3 as 16px Bootstrap step) |
-| xl | 32px | Page-level top margin (`mt-2` = 8px for container; form field group spacing via `mb-3`) |
+| md | 16px | Glass card inner padding — all four views (`p-3` = 16px Bootstrap step) |
+| lg | 24px | Section vertical spacing between cards |
+| xl | 32px | Page-level top margin, form field group spacing via `mb-3` |
 
 **Bootstrap utility mapping (in use across phases 12–17):**
 - `mb-2` = 8px, `mb-3` = 16px, `px-2` = 8px, `gap-2` = 8px, `mt-2` = 8px
@@ -65,6 +64,13 @@ Declared values (multiples of 4 only). Source: extracted from `mobile.css`, `dm-
 - Recap textarea: `rows="6"` (reduced from desktop `rows="10"`) — textarea remains scrollable; exact height is at executor's discretion per CONTEXT.md Discretion section.
 - Container horizontal padding: `px-2` (8px each side) — set globally by `mobile.css .container-fluid`.
 
+**Glass card padding per view (all 16px — `md` token):**
+- Quest Edit main form card: `padding: 16px`
+- CreateFollowUp main form card: `padding: 16px`
+- CreateFollowUp Pre-Approved Players card: `padding: 16px`
+- DM EditProfile form card: `padding: 16px`
+- QuestLog Details all cards: `padding: 16px`
+
 ---
 
 ## Typography
@@ -74,9 +80,11 @@ Source: `mobile.css` (baseline), `dm-profile.mobile.css`, `quest-log.mobile.css`
 | Role | Size | Weight | Line Height | Color |
 |------|------|--------|-------------|-------|
 | Body | 16px | 400 (regular) | 1.5 | `#F4E4BC` (parchment) on glass cards; `#1a0f08` on notice board outside cards |
-| Label / small meta | 14px (0.875rem) | 600 (semibold) | 1.3 | `rgba(244, 228, 188, 0.7)` (faded parchment) |
+| Label / small meta | 14px (0.875rem) | 400 (regular) | 1.3 | `rgba(244, 228, 188, 0.7)` (faded parchment) |
 | Card heading (h5/h6) | 20px (1.25rem) | 700 (bold) | 1.2 | `#F4E4BC` with text-shadow |
 | Page/section heading (h4) | 24px (1.5rem) | 700 (bold) — Cinzel serif | 1.2 | `#F4E4BC` with text-shadow |
+
+**Labels and meta text are distinguished from body by their 14px size and faded parchment color — a second weight is not needed.**
 
 **Text shadow for headings and parchment labels:**
 `2px 2px 4px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9)` — copy verbatim from existing files.
@@ -119,13 +127,6 @@ border: 1px solid rgba(255, 255, 255, 0.3);
 border-radius: 12px;
 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 ```
-
-**Glass card padding per view:**
-- Quest Edit main form card: `padding: 12px` (matches `dm-create.mobile.css` form card)
-- CreateFollowUp main form card: `padding: 12px`
-- CreateFollowUp Pre-Approved Players card: `padding: 12px`
-- DM EditProfile form card: `padding: 16px` (photo upload at top — wider padding matches `character-form.mobile.css`)
-- QuestLog Details all cards: `padding: 12px`
 
 ---
 
@@ -193,6 +194,9 @@ box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 ## Layout Structure
 
 ### Quest Edit (single column — D-01)
+
+**Focal point: h5 "Edit Quest: {Title}" card heading**
+
 ```
 container-fluid px-2 mt-2
   [alert-warning] — conditional on HasExistingSignups (D-02)
@@ -209,12 +213,15 @@ container-fluid px-2 mt-2
         [existing date rows — readonly+hidden+remove]
         [+ Add Another Date Option button]
       d-flex gap-2 action row
-        [Update Quest] [Cancel]
+        [Update Quest] [Back to Quest]
 ```
 
 **Omitted:** "Quest Editing Tips" sidebar — D-01 (follow Phase 15 pattern).
 
 ### CreateFollowUp (single column — D-09, D-10)
+
+**Focal point: h5 "Create Follow-Up Quest" card heading**
+
 ```
 container-fluid px-2 mt-2
   glass card (.quest-followup-card-mobile)
@@ -237,6 +244,9 @@ container-fluid px-2 mt-2
 ```
 
 ### DM EditProfile (photo top — D-12)
+
+**Focal point: h5 "Edit DM Profile" card heading**
+
 ```
 container-fluid px-2 mt-2
   glass card (.dm-editprofile-card-mobile)
@@ -255,6 +265,9 @@ container-fluid px-2 mt-2
 ```
 
 ### QuestLog Details (stacked — D-16)
+
+**Focal point: h5 Quest Title + CR badge card heading**
+
 ```
 container-fluid px-2 mt-2
   glass card (.quest-log-detail-main-card)
@@ -284,7 +297,7 @@ container-fluid px-2 mt-2
 |---------|------|--------|
 | Quest Edit page title | "Edit Quest: {Model.Quest.Title}" | Desktop view — preserved |
 | Quest Edit submit CTA | "Update Quest" | Desktop view — preserved |
-| Quest Edit cancel | "Cancel" | Desktop view — preserved |
+| Quest Edit cancel | "Back to Quest" | Fixed: generic "Cancel" replaced per checker Issue 1 |
 | Quest Edit signup warning heading | "Note:" | Desktop alert-warning — preserved (D-02) |
 | Quest Edit signup warning body | "Players have already signed up for this quest. Removing or significantly changing dates will notify affected players via email and remove their votes for those dates." | Desktop view — preserved (D-02) |
 | CreateFollowUp page title | "Create Follow-Up Quest" | Desktop view — preserved |
@@ -326,7 +339,7 @@ container-fluid px-2 mt-2
 | Tap "Remove" on date row | Removes row; calls `removeProposedDate(this)` (Quest Edit) or `removeDate(this)` → `renumberDates()` (CreateFollowUp) |
 | Tap "Submit" | Client-side validation via `_QuestFormScripts` partial (Quest Edit) or native HTML5 required (CreateFollowUp); server-side on post |
 | Tap file input (DM EditProfile) | Native file picker; JS validates size (5MB max) and type (JPG/PNG/GIF) on change |
-| Tap "Back" / "Cancel" | Navigates to `Url.Action("Manage", "Quest", ...)` or `Url.Action("Profile", "DungeonMaster", ...)` as appropriate |
+| Tap "Back" / "Back to Quest" / "Back to Profile" | Navigates to `Url.Action("Manage", "Quest", ...)` or `Url.Action("Profile", "DungeonMaster", ...)` as appropriate |
 
 ### QuestLog Details
 
@@ -347,8 +360,8 @@ Four new CSS files — one per view. No @media queries in any file (files are ex
 
 | File | Loaded by | Base pattern |
 |------|-----------|--------------|
-| `quest-edit.mobile.css` | `Quest/Edit.Mobile.cshtml` | `dm-create.mobile.css` (form card, 12px padding) |
-| `quest-followup.mobile.css` | `Quest/CreateFollowUp.Mobile.cshtml` | `dm-create.mobile.css` (form card, 12px padding) |
+| `quest-edit.mobile.css` | `Quest/Edit.Mobile.cshtml` | `dm-create.mobile.css` (form card, 16px padding) |
+| `quest-followup.mobile.css` | `Quest/CreateFollowUp.Mobile.cshtml` | `dm-create.mobile.css` (form card, 16px padding) |
 | `dm-editprofile.mobile.css` | `DungeonMaster/EditProfile.Mobile.cshtml` | `character-form.mobile.css` (16px padding, photo-at-top) |
 | `quest-log-detail.mobile.css` | `QuestLog/Details.Mobile.cshtml` | `quest-log.mobile.css` (glass card, parchment text) |
 
