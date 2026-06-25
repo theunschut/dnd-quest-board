@@ -55,7 +55,7 @@
 ### Character Views
 
 - [x] **CHAR-01**: GuildMembers/Details on mobile shows character stats (level, class/level badges, description, backstory), profile photo (or fa-user fallback), and owner actions (Edit / Retire-Reactivate / Delete) in a single-column glass card layout without overflow
-- [ ] **CHAR-02**: GuildMembers/Create on mobile is a single-column scrollable form with profile picture upload at the top, stacked class entries (class select + level input + remove button each on col-12), and all inputs meeting the 44px minimum touch target
+- [x] **CHAR-02**: GuildMembers/Create on mobile is a single-column scrollable form with profile picture upload at the top, stacked class entries (class select + level input + remove button each on col-12), and all inputs meeting the 44px minimum touch target
 - [x] **CHAR-03**: GuildMembers/Edit on mobile has identical structure to Create with the current portrait thumbnail shown above the file input; all owner-only fields are reachable by vertical scroll and all inputs meet the 44px minimum touch target
 
 ### Players Page
@@ -108,6 +108,6 @@
 | BROWSE-01 | Phase 16 | Complete |
 | BROWSE-02 | Phase 16 | Complete |
 | CHAR-01 | Phase 17 | Complete |
-| CHAR-02 | Phase 17 | Pending |
+| CHAR-02 | Phase 17 | Complete |
 | CHAR-03 | Phase 17 | Complete |
 | PLAYER-01 | Phase 17 | Pending |
