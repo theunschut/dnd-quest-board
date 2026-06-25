@@ -21,8 +21,8 @@
 
 ### Hangfire Infrastructure
 
-- [ ] **JOBS-01**: Hangfire is installed with SQL Server storage sharing the existing database; the `[HangFire]` schema is auto-created on startup — no EF Core migration required
-- [ ] **JOBS-02**: The Hangfire dashboard is accessible at `/hangfire` and requires the `Admin` role; unauthenticated or non-admin requests are rejected
+- [x] **JOBS-01**: Hangfire is installed with SQL Server storage sharing the existing database; the `[HangFire]` schema is auto-created on startup — no EF Core migration required
+- [x] **JOBS-02**: The Hangfire dashboard is accessible at `/hangfire` and requires the `Admin` role; unauthenticated or non-admin requests are rejected
 
 ### Admin Email Stats
 
@@ -53,6 +53,6 @@
 | REMIND-02 | Phase 22 | Pending |
 | REMIND-03 | Phase 22 | Pending |
 | REMIND-04 | Phase 22 | Pending |
-| JOBS-01 | Phase 20 | Pending |
-| JOBS-02 | Phase 20 | Pending |
+| JOBS-01 | Phase 20 | Complete |
+| JOBS-02 | Phase 20 | Complete |
 | STATS-01 | Phase 23 | Pending |
