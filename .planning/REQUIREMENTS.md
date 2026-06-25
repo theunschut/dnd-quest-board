@@ -42,7 +42,7 @@
 - [ ] **DMVIEW-03**: DM Profile page on mobile shows bio and photo in a single-column layout, readable without zooming
 - [ ] **DMVIEW-04**: Quest Edit on mobile is a single-column scrollable form; all fields (title, description, challenge rating, player count, DM session, proposed dates) are reachable by vertical scroll with no horizontal overflow
 - [x] **DMVIEW-05**: Create Follow-Up Quest on mobile is a single-column scrollable form with the pre-approved players panel rendered below the form; `datetime-local` date inputs are functional on mobile
-- [ ] **DMVIEW-06**: DM Edit Profile on mobile is a single-column form with photo upload at the top; bio textarea and file input are fully functional with no overflow
+- [x] **DMVIEW-06**: DM Edit Profile on mobile is a single-column form with photo upload at the top; bio textarea and file input are fully functional with no overflow
 
 ### Account Pages
 
@@ -111,7 +111,7 @@
 | DMVIEW-03 | Phase 15 | Pending |
 | DMVIEW-04 | Phase 18 | Pending |
 | DMVIEW-05 | Phase 18 | Complete |
-| DMVIEW-06 | Phase 18 | Pending |
+| DMVIEW-06 | Phase 18 | Complete |
 | ACCT-01 | Phase 16 | Complete |
 | ACCT-02 | Phase 16 | Complete |
 | ACCT-03 | Phase 16 | Complete |
