@@ -69,12 +69,17 @@
 
 - [x] **QLOG-01**: Quest Log Details on mobile shows the quest summary, adventurers list, and session recap in a single-column layout with stacked Quick Actions and Quest Statistics glass cards below
 
+### Admin & Shop Management
+
+- [ ] **ADMIN-01**: Admin user list and edit pages are usable on mobile without horizontal scrolling
+- [ ] **ADMIN-02**: Shop Management index, create, and edit pages are fully functional on mobile
+- [ ] **SHOPMGMT-01**: Shop item detail page renders in a single-column layout with no overflow
+
 ## Future Requirements
 
 - Tablet-specific views (`.Tablet.cshtml`) — defer; phone-first scope sufficient for v1
 - "Switch to desktop" cookie override — user-controlled escape hatch; natural extension of the expander but not needed for v1
 - PWA manifest and service worker — offline support; separate initiative
-- Admin views on mobile — low usage frequency; defer
 
 ## Out of Scope
 
@@ -82,7 +87,6 @@
 - **No desktop view changes** — mobile views are purely additive; desktop experience is unchanged
 - **No native mobile app** — this milestone delivers a mobile web experience, not an iOS/Android app
 - **PWA features** — offline support, push notifications, and home screen installation are a separate milestone
-- **Admin views** — admin actions are low-frequency and expected on desktop
 
 ## Traceability
 
@@ -122,3 +126,6 @@
 | CHAR-03 | Phase 17 | Complete |
 | PLAYER-01 | Phase 17 | Complete |
 | QLOG-01 | Phase 18 | Complete |
+| ADMIN-01 | Phase 19 | Pending |
+| ADMIN-02 | Phase 19 | Pending |
+| SHOPMGMT-01 | Phase 19 | Pending |
