@@ -1,17 +1,16 @@
 # D&D Quest Board — Milestone 3: Mobile Version
 
-## Current Milestone: v3.0 Mobile Version
+## Current Milestone: v4.0 Email Notifications
 
-**Goal:** Give the D&D Quest Board a purpose-built mobile experience using mobile-specific Razor views, keeping all controllers, data, and desktop views unchanged.
+**Goal:** Expand the quest board's email system with styled HTML templates, automated session reminders via Hangfire, digest batching, and live delivery stats — staying within the 100 emails/day Resend relay limit.
 
 **Target features:**
-- Mobile detection middleware + `IViewLocationExpander` (view engine checks `ViewName.Mobile.cshtml` first on mobile requests)
-- Mobile shared layout with hamburger navbar
-- Quest board: clean tap-list replacing the decorative poster/parchment images
-- Calendar: iPhone-style agenda view (day label + quests below, empty days skipped) replacing 7-column grid
-- All other pages: mobile-optimised layouts (Quest Details, Shop, Guild Members, DM Profile, Account, Admin views)
-
-**Paused from Milestone 2:** Phase 8 (Profile Picture Avatar Crop, issue #78) — deferred; resumes in a future milestone.
+- HTML email templates for all notifications (upgrade existing quest-finalization email + new reminder template)
+- 24h auto session reminder: Hangfire recurring job fires daily, finds quests with `FinalizedDate` = tomorrow, sends reminders to confirmed players
+- DM manual reminder trigger: button on quest manage page enqueues a Hangfire job immediately, same send logic as auto
+- Digest batching: player confirmed for multiple same-day quests receives one combined email, not N separate emails
+- Admin email stats dashboard: live sent/bounced/failed counts from Resend API (requires Resend API key)
+- Hangfire dashboard exposed at `/hangfire` (admin-only)
 
 ## What This Is
 
@@ -38,7 +37,16 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 
 ### Active
 
-#### Architecture Refactor
+#### Email System (Milestone 4)
+- [ ] HTML email templates replace all plain-text notifications
+- [ ] Quest-finalization email upgraded to HTML template
+- [ ] 24h session reminder delivered automatically via Hangfire recurring job
+- [ ] DM can manually trigger a session reminder from the quest manage page
+- [ ] Players confirmed for multiple same-day quests receive one combined reminder email (digest)
+- [ ] Admin email stats dashboard shows live sent/bounced/failed counts from Resend API
+- [ ] Hangfire dashboard accessible at `/hangfire` (admin role required)
+
+#### Previous Milestone — Architecture Refactor (Validated)
 - [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
 - [x] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers — Validated in Phase 02: email-service-consolidation
 - [x] Controllers reduced to: validate input → call service → return view/redirect — Validated in Phase 02: email-service-consolidation
@@ -115,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-25 — Phase 18 complete; Quest/Edit, CreateFollowUp, DungeonMaster/EditProfile, and QuestLog/Details mobile views shipped, 126 integration tests pass*
+*Last updated: 2026-06-25 — Milestone v4.0 (Email Notifications) started; Phase 19 (Mobile) complete, 134 integration tests pass*
