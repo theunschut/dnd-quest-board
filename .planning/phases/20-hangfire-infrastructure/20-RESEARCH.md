@@ -470,7 +470,7 @@ using Hangfire.Dashboard;
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does `AddHangfire` itself (without `AddHangfireServer`) attempt to create the SQL Server schema in the Testing environment?**
    - What we know: `AddHangfire` configures the storage; `AddHangfireServer` starts the worker. Schema creation happens in `SqlServerStorage` constructor, which is triggered at startup.

@@ -4,11 +4,11 @@ milestone: v4.0
 milestone_name: email-notifications
 current_phase: 20
 current_phase_name: hangfire-infrastructure
-status: context-ready
-stopped_at: "Phase 20 context gathered — ready to plan"
+status: planned
+stopped_at: "Phase 20 planned — 3 plans ready to execute"
 last_updated: "2026-06-25T00:00:00.000Z"
 last_activity: 2026-06-25
-last_activity_desc: Phase 20 context captured (Hangfire Infrastructure)
+last_activity_desc: Phase 20 planned (3 plans, 2 waves)
 progress:
   total_phases: 4
   completed_phases: 0
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 
 ## Current Position
 
-Phase: 20 — Hangfire Infrastructure (context ready)
-Plan: —
-Status: Context captured, ready for planning
-Last activity: 2026-06-25 — Phase 20 context captured
+Phase: 20 — Hangfire Infrastructure (planned)
+Plan: 3 plans / 2 waves
+Status: Ready to execute
+Last activity: 2026-06-25 — Phase 20 planned
 
 ```
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases complete
@@ -67,4 +67,4 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 
 Last session: 2026-06-25
 Stopped at: Roadmap created — Phase 20 ready to plan
-Resume file: .planning/phases/20-hangfire-infrastructure/20-CONTEXT.md
+Resume file: .planning/phases/20-hangfire-infrastructure/20-01-PLAN.md
