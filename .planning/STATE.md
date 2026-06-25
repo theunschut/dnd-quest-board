@@ -1,20 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: Mobile Version
-current_phase: 17
-current_phase_name: character-player-views
+milestone: v1.0
+milestone_name: milestone
 status: executing
-stopped_at: Phase 17 Plan 01 complete — requirements + test stubs shipped; Plans 02-04 ready
-last_updated: "2026-06-25T10:23:30.000Z"
+stopped_at: Completed 17-02 character detail mobile view
+last_updated: "2026-06-25T07:50:52.394Z"
 last_activity: 2026-06-25
-last_activity_desc: Phase 17 Plan 01 complete (CHAR-01..03 + PLAYER-01 requirements + 4 RED test stubs)
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 23
+  total_plans: 22
   completed_plans: 20
-  percent: 65
+  percent: 91
 ---
 
 # Project State
@@ -29,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-06-23)
 ## Current Position
 
 Phase: 17 (character-player-views) — EXECUTING
-Plan: 1 of 4 — Plan 01 COMPLETE
-Status: Plan 01 done (requirements + test stubs); Plans 02-04 Wave 2 ready to execute
-Last activity: 2026-06-25 — Phase 17 Plan 01 complete (CHAR-01..03 + PLAYER-01 requirements + 4 RED integration test stubs)
+Plan: 2 of 4 — Plan 01 COMPLETE
+Status: Ready to execute
+Last activity: 2026-06-25
 
 Progress: [████████░░] 65%
 
@@ -57,6 +54,7 @@ Progress: [████████░░] 65%
 | Phase 16-account-browse P02 | 7m | 4 tasks | 6 files |
 | Phase 16 P03 | 12 | 3 tasks | 2 files |
 | Phase 17 P01 | 3m | 2 tasks | 2 files |
+| Phase 17 P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -102,6 +100,7 @@ Recent decisions affecting current work:
 - Phase 17, Plan 01: Character detail/edit test stubs seed a CharacterEntity via TestDataHelper.CreateTestCharacterAsync to get valid character.Id for route parameters
 - Phase 17, Plan 01: Players Index test uses authenticated GET /Players — PlayersController carries [Authorize]; consistent with MobileGuildMembers pattern
 - Phase 17, Plan 01: MSB3492 transient error on --no-restore builds is a Windows file-lock artifact on .cache file; full build + test discovery confirmed 0 C# errors
+- [Phase ?]: Phase 17, Plan 02: Details.Mobile.cshtml follows @section Styles pattern; no Layout= or @inject; owner actions guard wraps entire glass card
 
 ### Roadmap Evolution
 
@@ -119,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-25T10:23:30.000Z
-Stopped at: Completed 17-01 requirements + test stubs
+Last session: 2026-06-25T07:50:52.387Z
+Stopped at: Completed 17-02 character detail mobile view
 Resume file: None
