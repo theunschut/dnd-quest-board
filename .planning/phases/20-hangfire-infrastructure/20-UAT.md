@@ -3,7 +3,7 @@ status: complete
 phase: 20-hangfire-infrastructure
 source: [20-VERIFICATION.md]
 started: 2026-06-25T00:00:00Z
-updated: 2026-06-25T12:00:00Z
+updated: 2026-06-25T18:00:00Z
 ---
 
 ## Current Test
@@ -48,16 +48,24 @@ blocked: 0
 ## Gaps
 
 - truth: "Unauthenticated users navigating to /hangfire are redirected to /Account/Login with HTTP 302"
-  status: failed
+  status: resolved
   reason: "User reported: getting a 401 error, not a redirect"
   severity: major
   test: 2
-  artifacts: []
+  artifacts:
+    - EuphoriaInn.Service/Authorization/AdminDashboardAuthFilter.cs
+    - EuphoriaInn.Service/Program.cs
+  root_cause: "AdminDashboardAuthFilter.Authorize() calls Response.Redirect() then returns false, but Hangfire's AspNetCoreDashboardMiddleware unconditionally overwrites Response.StatusCode to 401 after the filter returns false, discarding the redirect. Fix: add a pre-Hangfire app.Use() middleware in Program.cs that redirects /hangfire requests to /Account/Login for unauthenticated and non-Admin users before reaching UseHangfireDashboard. Remove Response.Redirect() calls from AdminDashboardAuthFilter — keep only the auth check returning true/false."
   missing: []
+  resolved_by: "20.1-01"
 - truth: "Authenticated non-Admin users navigating to /hangfire are redirected to /Account/Login"
-  status: failed
+  status: resolved
   reason: "User reported: 403, no redirect"
   severity: major
   test: 3
-  artifacts: []
+  artifacts:
+    - EuphoriaInn.Service/Authorization/AdminDashboardAuthFilter.cs
+    - EuphoriaInn.Service/Program.cs
+  root_cause: "Same root cause as test 2 — Hangfire overwrites the 302 redirect with 403. Same fix applies."
   missing: []
+  resolved_by: "20.1-01"
