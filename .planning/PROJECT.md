@@ -44,7 +44,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - [ ] DM can manually trigger a session reminder from the quest manage page
 - [ ] Players confirmed for multiple same-day quests receive one combined reminder email (digest)
 - [ ] Admin email stats dashboard shows live sent/bounced/failed counts from Resend API
-- [ ] Hangfire dashboard accessible at `/hangfire` (admin role required)
+- [ ] Hangfire dashboard accessible at `/hangfire` (admin role required) — Validated in Phase 20: hangfire-infrastructure
 
 #### Previous Milestone — Architecture Refactor (Validated)
 - [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
@@ -104,6 +104,8 @@ The codebase map is current (analysed 2026-04-15): `.planning/codebase/`.
 | Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | — Validated: phases 1-4 refactor complete, features landing on clean arch |
 | Bugs deferred to separate milestone | Bugs are isolated fixes; refactor may touch same code and create conflicts | — Standing |
 | No pagination this milestone | Group size makes it a non-issue; adds complexity to every list view | — Reversed in Phase 09: shop pagination added with server-side EF Core paging |
+| Hangfire dashboard redirect via pre-middleware | Hangfire's AspNetCoreDashboardMiddleware overwrites 302→401/403 when filter returns false; fix is app.Use() inside !IsEnvironment("Testing") block before UseHangfireDashboard | — Phase 20: IDashboardAuthorizationFilter is now defense-in-depth only (returns true/false, no redirects) |
+| IServiceScopeFactory for all Hangfire jobs | Scoped services (IEmailService, DbContext) cannot be injected via constructor in background jobs; must CreateAsyncScope() inside the job method | — Phase 20: SmokeTestJob establishes the pattern; all Phase 21+ jobs must follow it |
 
 ## Evolution
 
@@ -123,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-25 — Milestone v4.0 (Email Notifications) started; Phase 19 (Mobile) complete, 134 integration tests pass*
+*Last updated: 2026-06-25 after Phase 20 (hangfire-infrastructure)*
