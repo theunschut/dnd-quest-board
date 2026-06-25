@@ -60,7 +60,7 @@
 
 ### Players Page
 
-- [ ] **PLAYER-01**: Players/Index on mobile displays Dungeon Masters and Registered Players as separate single-column name lists in glass card containers; DM names tap-navigate to their DungeonMaster Profile page; no email column is shown; the desktop Players/Index.cshtml also has its email column removed
+- [x] **PLAYER-01**: Players/Index on mobile displays Dungeon Masters and Registered Players as separate single-column name lists in glass card containers; DM names tap-navigate to their DungeonMaster Profile page; no email column is shown; the desktop Players/Index.cshtml also has its email column removed
 
 ## Future Requirements
 
@@ -110,4 +110,4 @@
 | CHAR-01 | Phase 17 | Complete |
 | CHAR-02 | Phase 17 | Complete |
 | CHAR-03 | Phase 17 | Complete |
-| PLAYER-01 | Phase 17 | Pending |
+| PLAYER-01 | Phase 17 | Complete |

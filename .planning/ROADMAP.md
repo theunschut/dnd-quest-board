@@ -17,7 +17,7 @@ Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: M
 - [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
 - [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
 - [x] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens *(completed 2026-06-25: all 5 account views + shop + guild members — 50 integration tests pass)*
-- [ ] **Phase 17: Character & Player Views** - GuildMembers/Details, Create, Edit, and Players/Index mobile views
+- [x] **Phase 17: Character & Player Views** - GuildMembers/Details, Create, Edit, and Players/Index mobile views *(completed 2026-06-25: all 4 plans done — 122 integration tests pass)*
 - [ ] **Phase 18: DM Editing & Secondary Quest Views** - Quest/Edit, Quest/CreateFollowUp, QuestLog/Details, and DungeonMaster/EditProfile mobile views
 - [ ] **Phase 19: Admin & Shop Management Views** - Shop/Details, all Admin/*, and all ShopManagement/* mobile views
 
@@ -141,7 +141,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
-| 17. Character & Player Views | 3/4 | In Progress|  |
+| 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
 | 18. DM Editing & Secondary Quest Views | 0/0 | Not started | - |
 | 19. Admin & Shop Management Views | 0/0 | Not started | - |
 
@@ -156,13 +156,13 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
   2. The Create Character and Edit Character forms are single-column on mobile with all fields reachable by vertical scroll and inputs at minimum 44px height
   3. The Players list on mobile is a readable single-column list with no horizontal scrolling
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans executed
 
 Plans:
 - [x] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
 - [x] 17-02-PLAN.md — Create GuildMembers/Details.Mobile.cshtml and character-detail.mobile.css (Wave 2)
-- [ ] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
-- [ ] 17-04-PLAN.md — Create Players/Index.Mobile.cshtml, players.mobile.css, and remove email column from desktop Players/Index.cshtml (Wave 2)
+- [x] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
+- [x] 17-04-PLAN.md — Create Players/Index.Mobile.cshtml, players.mobile.css, and remove email column from desktop Players/Index.cshtml (Wave 2)
 
 ---
 

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 17-03 character form mobile views
-last_updated: "2026-06-25T07:55:13Z"
+stopped_at: Completed 17-04 players mobile view and desktop email removal
+last_updated: "2026-06-25T08:01:30Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 8
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-23)
 
 ## Current Position
 
-Phase: 17 (character-player-views) — EXECUTING
-Plan: 3 of 4 — Plans 01, 02, 03 COMPLETE
-Status: Ready to execute
+Phase: 17 (character-player-views) — COMPLETE
+Plan: 4 of 4 — Plans 01, 02, 03, 04 COMPLETE
+Status: Phase 17 complete; ready for Phase 18
 Last activity: 2026-06-25
 
-Progress: [████████░░] 65%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 65%
 | Phase 17 P01 | 3m | 2 tasks | 2 files |
 | Phase 17 P02 | 2min | 2 tasks | 2 files |
 | Phase 17 P03 | 3min | 2 tasks | 3 files |
+| Phase 17 P04 | 2.5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 17, Plan 02: Details.Mobile.cshtml follows @section Styles pattern; no Layout= or @inject; owner actions guard wraps entire glass card
 - Phase 17, Plan 03: character-form.mobile.css uses 16px padding (vs 12px for detail views) — matches account.mobile.css form-container convention
 - Phase 17, Plan 03: Create.Mobile.cshtml and Edit.Mobile.cshtml share character-form.mobile.css via @section Styles — shared CSS for related form views (D-12, D-13)
+- Phase 17, Plan 04: Non-tappable player rows use .players-row.no-link modifier (cursor default, no active bg) — preserves 44px min-height touch target without interaction affordance
+- Phase 17, Plan 04: Desktop Players/Index.cshtml Name <th> w-50 class removed after email column deletion — Name is sole column, no width constraint needed
 
 ### Roadmap Evolution
 
@@ -121,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-25T07:55:13Z
-Stopped at: Completed 17-03 character form mobile views (Create.Mobile.cshtml + Edit.Mobile.cshtml + character-form.mobile.css)
+Last session: 2026-06-25T08:01:30Z
+Stopped at: Completed 17-04 players mobile view (Index.Mobile.cshtml + players.mobile.css + desktop email removal)
 Resume file: None
