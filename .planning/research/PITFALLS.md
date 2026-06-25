@@ -32,7 +32,7 @@ Recommended canonical message format:
 ```
 All three fields in the HMAC input. Omphalos re-assembles from received query params; any mismatch returns 401.
 
-**Phase:** Phase 11 (token generation in Quest Board) and Phase 12 (validation in Omphalos)
+**Phase:** Phase 11 (token generation in Quest Board) and Phase 20 (validation in Omphalos)
 
 ---
 
@@ -74,7 +74,7 @@ All three fields in the HMAC input. Omphalos re-assembles from received query pa
 
 **Prevention:** Document that username is the authoritative link — any Omphalos account that already exists with a matching username is assumed to belong to that person. Provide an admin recovery path (admin can rename an Omphalos user if a collision occurs). Do NOT silently overwrite — fail loudly if a collision that cannot be resolved automatically is detected, and require manual admin resolution.
 
-**Phase:** Phase 12 (auto-provision logic in Omphalos)
+**Phase:** Phase 20 (auto-provision logic in Omphalos)
 
 ---
 
@@ -104,7 +104,7 @@ All three fields in the HMAC input. Omphalos re-assembles from received query pa
 
 **Prevention:** The token payload should include the Quest Board role. Omphalos's SSO endpoint maps Quest Board roles to Omphalos roles on provisioning: `DungeonMaster` or `Admin` → Omphalos `Admin`; `Player` → Omphalos `Player`. Define the mapping explicitly as a requirement; do not leave it implicit.
 
-**Phase:** Phase 12
+**Phase:** Phase 20
 
 ---
 
@@ -131,7 +131,7 @@ var jwtSecret = builder.Configuration["Jwt:Secret"]
 ```
 The shared secret must use the same pattern: fail fast at startup with a clear message, not at the first SSO attempt. Add `QUESTBOARD_SHARED_SECRET=change-me` to `.env.example`.
 
-**Phase:** Phase 12
+**Phase:** Phase 20
 
 ---
 
@@ -200,7 +200,7 @@ Additionally: the comment `// Secure = true ← enable once behind HTTPS` in `Au
 - If they cannot share an eTLD+1: change to `SameSite=None; Secure=true` in Omphalos and ensure HTTPS is configured for both.
 - Document the deployment topology requirement explicitly. Flag `Secure = true` as a production requirement (the TODO comment is already there — it must become a tracked requirement, not just a comment).
 
-**Phase:** Phase 12 — the cookie options must be verified against the actual deployment topology before the SSO endpoint ships
+**Phase:** Phase 20 — the cookie options must be verified against the actual deployment topology before the SSO endpoint ships
 
 ---
 
@@ -210,7 +210,7 @@ Additionally: the comment `// Secure = true ← enable once behind HTTPS` in `Au
 
 **Prevention:** The SPA auth guard must be in a "loading" state while `/api/auth/me` is in-flight, and only redirect to `/login` if the request resolves as unauthenticated. Do not redirect on the initial render before the async check completes. This is an Omphalos React concern; flag it in the phase spec so the frontend implementation handles it.
 
-**Phase:** Phase 12
+**Phase:** Phase 20
 
 ---
 
@@ -222,7 +222,7 @@ Additionally: the comment `// Secure = true ← enable once behind HTTPS` in `Au
 
 **Prevention:** After generating the migration for `ExternalQuestId`, read the generated migration file before applying it. Confirm the `Up` method contains only `migrationBuilder.AddColumn<int>()` (or `AddColumn<string>()`) for `external_quest_id` and nothing else modifying `SessionLog`. If any spurious `AlterColumn` appears on `jsonb` columns, hand-edit the migration to remove it.
 
-**Phase:** Phase 12 (Omphalos migration)
+**Phase:** Phase 20 (Omphalos migration)
 
 ---
 
@@ -237,7 +237,7 @@ Additionally: the comment `// Secure = true ← enable once behind HTTPS` in `Au
 
 The response redirect must include the resolved session ID. This is a design requirement, not just a pitfall — make it explicit in the phase spec.
 
-**Phase:** Phase 12
+**Phase:** Phase 20
 
 ---
 
@@ -247,7 +247,7 @@ The response redirect must include the resolved session ID. This is a design req
 
 **Prevention:** This is already handled by the auto-migrate pattern (`db.Database.MigrateAsync()` before `app.Run()`). The migration runs before any requests are served. The only failure mode is if someone deploys the SSO code without the migration file being in the image — which means a broken build, not a runtime surprise. Document: the migration file must be committed to the Omphalos repo and included in the Docker image before the SSO endpoint is deployed.
 
-**Phase:** Phase 12 — deployment sequence note
+**Phase:** Phase 20 — deployment sequence note
 
 ---
 

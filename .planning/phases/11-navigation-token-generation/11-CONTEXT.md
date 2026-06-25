@@ -20,7 +20,7 @@ This phase depends on `IAdminSettingService` from Phase 10 (compile-time depende
 - **D-02:** Username is normalized to lowercase before inclusion in both the MAC message and the URL parameter (TOKEN-04 requirement).
 
 ### Token Format (LOCKED — from STATE.md)
-- **D-03:** Canonical MAC message: `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` — keys alphabetical order, HMAC-SHA256, lowercase hex signature, TTL 300 seconds. This is fixed by the cross-repo contract with Omphalos (Phase 12).
+- **D-03:** Canonical MAC message: `expiry={unix_ts}&questId={id}&questTitle={url_encoded_title}&username={lower}` — keys alphabetical order, HMAC-SHA256, lowercase hex signature, TTL 300 seconds. This is fixed by the cross-repo contract with Omphalos (Phase 20).
 
 ### Button Placement on Quest Pages
 - **D-04:** Quest **Detail page** (`Details.cshtml`): "Open Session Notes" button goes inside the existing **"DM Controls" card** in the `col-lg-2` right sidebar, below the "Manage Quest" button. The card is already gated by `ViewBag.CanManage` — no new conditional needed for the card itself.

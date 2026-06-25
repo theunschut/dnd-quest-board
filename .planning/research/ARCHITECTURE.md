@@ -126,7 +126,7 @@ The shared `_Layout.cshtml` cannot receive controller-specific `ViewBag` values 
 
 ## Omphalos New Components
 
-### Phase 12: SSO Endpoint + Session Linking
+### Phase 20: SSO Endpoint + Session Linking
 
 **Goal:** Omphalos validates a Quest Board HMAC token, auto-provisions the DM account on first use, finds or creates the quest's `GameSession`, issues a JWT cookie, and redirects the user into the correct session.
 
@@ -229,7 +229,7 @@ app.MapSsoEndpoints();
 
 Omphalos reads the shared secret from config key `QuestBoard:Secret`. In Docker Compose, this maps to env var `QuestBoard__Secret` (double-underscore convention, consistent with how Omphalos already handles `Jwt__Secret`, `Admin__Username` etc.). The value must match the `OmphalosSharedSecret` stored in Quest Board's `AdminSettings` table. This is a deployment concern, not an architectural one.
 
-#### Modified Files (Phase 12 — Omphalos)
+#### Modified Files (Phase 20 — Omphalos)
 
 | File | Change |
 |------|--------|
@@ -241,7 +241,7 @@ Omphalos reads the shared secret from config key `QuestBoard:Secret`. In Docker 
 | `Omphalos.Services/Implementations/AuthService.cs` | Make `GenerateToken` public to satisfy interface |
 | `Omphalos.Web/Program.cs` | Register `ISsoService`; call `app.MapSsoEndpoints()` |
 
-#### New Files (Phase 12 — Omphalos)
+#### New Files (Phase 20 — Omphalos)
 
 | File | Purpose |
 |------|---------|
@@ -259,9 +259,9 @@ Omphalos reads the shared secret from config key `QuestBoard:Secret`. In Docker 
 
 Phase 11 has a hard compile-time dependency on Phase 10. `IIntegrationTokenService` calls `IAdminSettingService.GetValueAsync` — the service interface and entity must exist before Phase 11 compiles. The View Component for the navbar also calls `IAdminSettingService`. Phase 11 cannot start until the `AdminSetting` entity, migration, and service registration from Phase 10 are complete and merged.
 
-### Phase 12 is independent of Phases 10 and 11
+### Phase 20 is independent of Phases 10 and 11
 
-Phase 12 (Omphalos SSO endpoint) has no compile-time dependency on any Quest Board code. Both repos are independent deployments. Phase 12 can be developed and deployed to the Omphalos repo entirely in parallel with Quest Board Phase 10 work, provided the token format contract is agreed before either side begins implementation.
+Phase 20 (Omphalos SSO endpoint) has no compile-time dependency on any Quest Board code. Both repos are independent deployments. Phase 20 can be developed and deployed to the Omphalos repo entirely in parallel with Quest Board Phase 10 work, provided the token format contract is agreed before either side begins implementation.
 
 **Token format contract — must be agreed before any implementation begins:**
 
@@ -274,11 +274,11 @@ URL params: questId (int), user (string), expires (unix timestamp seconds), sig 
 Expiry:     5 minutes from generation time
 ```
 
-This contract is the sole coupling point between Phase 11 and Phase 12. Write it as a comment at the top of both `IntegrationTokenService.cs` and `SsoService.cs`.
+This contract is the sole coupling point between Phase 11 and Phase 20. Write it as a comment at the top of both `IntegrationTokenService.cs` and `SsoService.cs`.
 
 ### End-to-end test dependency
 
-The first end-to-end test requires both apps running and the shared secret configured in both. This is the only point where the two development streams converge. It cannot be tested until Phase 11 generates valid tokens and Phase 12 validates them in a shared environment.
+The first end-to-end test requires both apps running and the shared secret configured in both. This is the only point where the two development streams converge. It cannot be tested until Phase 11 generates valid tokens and Phase 20 validates them in a shared environment.
 
 ---
 
@@ -293,16 +293,16 @@ Phase 10: Admin Settings (Quest Board only)
     |       Depends on: IAdminSettingService, AdminSettingEntity migration
     |       Can start only after Phase 10 is merged
     |
-    +--> Phase 12: SSO Endpoint + Session Linking (Omphalos)
+    +--> Phase 20: SSO Endpoint + Session Linking (Omphalos)
             Depends on: agreed token format contract only
             Can start in PARALLEL with Phase 11 (independent repo)
                 |
-                | Both Phase 11 AND Phase 12 complete
+                | Both Phase 11 AND Phase 20 complete
                 |
             End-to-end integration test (both containers running)
 ```
 
-**Practical parallel work:** A developer working on Omphalos (Phase 12) has zero blocked time once the token format contract is written down. Phase 12 work on Omphalos can begin the moment the format is agreed during or immediately after Phase 10 planning. The Quest Board phases (10 then 11) are sequential in the same repo.
+**Practical parallel work:** A developer working on Omphalos (Phase 20) has zero blocked time once the token format contract is written down. Phase 20 work on Omphalos can begin the moment the format is agreed during or immediately after Phase 10 planning. The Quest Board phases (10 then 11) are sequential in the same repo.
 
 ---
 

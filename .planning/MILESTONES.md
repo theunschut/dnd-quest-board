@@ -55,7 +55,7 @@ DMs can open Omphalos session notes for any quest with one click — navigated a
 
 - Phase 10: Admin Settings (Quest Board)
 - Phase 11: External Tool Navigation + Deep Link (Quest Board)
-- Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos)
+- Phase 20: SSO Endpoint + Quest-Session Linking (Omphalos)
 
 ---
 *Updated: 2026-06-25*

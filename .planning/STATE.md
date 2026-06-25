@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 status: In progress
-stopped_at: Phase 11 complete — human-verify approved 2026-06-19; Phase 12 (Omphalos repo) next
+stopped_at: Phase 11 complete — human-verify approved 2026-06-19; Phase 20 (Omphalos repo) next
 last_updated: "2026-06-19T00:00:00Z"
 last_activity: 2026-06-19 — Phase 11 human-verify approved; all 15/15 must-haves + 4/4 UAT items pass
 progress:
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-18)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone v2.0 — Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos repo at C:\Repos\omphalos)
+**Current focus:** Milestone v2.0 — Phase 20: SSO Endpoint + Quest-Session Linking (Omphalos repo at C:\Repos\omphalos)
 
 ## Current Position
 
-Phase: Phase 12 — SSO Endpoint + Quest-Session Linking (Omphalos)
-Plan: Not yet planned — Phase 12 is in the Omphalos repository
-Status: Phase 11 complete (2026-06-19) — Quest Board Omphalos integration fully delivered; Phase 12 planned in Omphalos repo
+Phase: Phase 20 — SSO Endpoint + Quest-Session Linking (Omphalos)
+Plan: Not yet planned — Phase 20 is in the Omphalos repository
+Status: Phase 11 complete (2026-06-19) — Quest Board Omphalos integration fully delivered; Phase 20 planned in Omphalos repo
 Last activity: 2026-06-19 — Phase 11 human-verify approved (all 4 UAT items pass); phase marked complete
 
 Progress bar: [██████████] 100% (6/6 plans complete — Quest Board milestone work done)
@@ -99,4 +99,4 @@ None yet.
 
 Last session: 2026-06-19T00:00:00Z
 Stopped at: Phase 11 fully complete — human-verify approved. Quest Board work for Milestone 3 done.
-Next: Phase 12 (Omphalos SSO endpoint) in C:\Repos\omphalos — run /gsd-progress there to see the roadmap.
+Next: Phase 20 (Omphalos SSO endpoint) in C:\Repos\omphalos — run /gsd-progress there to see the roadmap.

@@ -68,7 +68,7 @@ created: 2026-06-18
 | "Open Omphalos" link appears in DM navbar dropdown and opens new tab | NAV-01, NAV-02 | Rendered HTML in layout requires browser/snapshot test; integration test covers smoke only | Log in as DM, check navbar dropdown shows "Open Omphalos" link; click to verify `target="_blank"` opens Omphalos URL |
 | "Open Session Notes" button visible on Details/Manage pages for DM | NAV-03, NAV-04 | ViewBag rendering in Razor view not easily testable in xunit integration tests | Log in as DM, navigate to Quest Details and Quest Manage pages; verify button appears when configured |
 | No Omphalos UI visible when integration disabled | NAV-05 | Requires toggling Admin Settings and re-checking pages | Disable integration in Admin Settings, navigate to both quest pages and navbar — verify no Omphalos elements |
-| Clicking "Open Session Notes" redirects with correct signed URL structure | TOKEN-01–05 | End-to-end requires a running Omphalos instance for full validation | Integration test covers redirect shape; full end-to-end tested at Phase 12 convergence |
+| Clicking "Open Session Notes" redirects with correct signed URL structure | TOKEN-01–05 | End-to-end requires a running Omphalos instance for full validation | Integration test covers redirect shape; full end-to-end tested at Phase 20 convergence |
 
 ---
 

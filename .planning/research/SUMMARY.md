@@ -9,7 +9,7 @@
 
 Milestone 3 connects two independent, already-functional apps (Quest Board on ASP.NET Core + SQL Server; Omphalos on .NET 10 Minimal API + PostgreSQL) via a browser-redirect SSO flow using a short-lived HMAC-SHA256 signed token. Neither app calls the other API directly in this milestone -- Quest Board generates a signed URL and issues a browser redirect; Omphalos receives and validates that redirect, auto-provisions the DM account on first use, finds or creates the quest session, and issues its JWT cookie. The entire cryptographic layer is BCL (System.Security.Cryptography.HMACSHA256) -- zero net-new NuGet packages required in either repo.
 
-The work breaks cleanly into three sequential Quest Board phases and one parallel Omphalos phase. Phase 10 (Admin Settings) is the sole blocker: it supplies IAdminSettingService which both subsequent Quest Board phases depend on at compile time. Phase 12 (Omphalos SSO) has no code dependency on Quest Board and can begin the moment the token format contract is written down. The two development streams converge only at end-to-end integration testing.
+The work breaks cleanly into three sequential Quest Board phases and one parallel Omphalos phase. Phase 10 (Admin Settings) is the sole blocker: it supplies IAdminSettingService which both subsequent Quest Board phases depend on at compile time. Phase 20 (Omphalos SSO) has no code dependency on Quest Board and can begin the moment the token format contract is written down. The two development streams converge only at end-to-end integration testing.
 
 The highest-risk items are all pre-implementation decisions that cannot be deferred: the canonical MAC message format (which fields, in what order, with what encoding), the username normalisation convention, and the deployment topology (same eTLD+1 vs different domains). These three decisions must be locked before any implementation begins; getting them wrong after the fact requires coordinated changes in both repos simultaneously.
 
@@ -124,7 +124,7 @@ The token payload must include the Quest Board role. Defaulting all provisioned 
 | EuphoriaInn.Service/Views/Shared/_Layout.cshtml | Service | Modified -- invoke OmphalosNavItem component |
 | EuphoriaInn.Domain/Extensions/ServiceExtensions.cs | Domain | Modified -- register IntegrationTokenService |
 
-**Phase 12 -- SSO Endpoint + Session Linking (Omphalos)**
+**Phase 20 -- SSO Endpoint + Session Linking (Omphalos)**
 
 | File | Layer | Status |
 |------|-------|--------|
@@ -166,11 +166,11 @@ Phase 10: Admin Settings (Quest Board)
         Hard compile-time dependency on IAdminSettingService from Phase 10.
         Cannot start until Phase 10 is merged.
     |
-    Both Phase 11 AND Phase 12 complete
+    Both Phase 11 AND Phase 20 complete
     |
     End-to-end integration test (both containers, shared secret configured)
 
-Phase 12: SSO Endpoint + Session Linking (Omphalos)   [PARALLEL to Phase 11]
+Phase 20: SSO Endpoint + Session Linking (Omphalos)   [PARALLEL to Phase 11]
     No compile-time dependency on Quest Board.
     Can start immediately after the token format contract is agreed.
 ```
@@ -178,9 +178,9 @@ Phase 12: SSO Endpoint + Session Linking (Omphalos)   [PARALLEL to Phase 11]
 Practical sequence:
 1. Lock the token format contract in writing (before any code)
 2. Phase 10 Quest Board Admin Settings -- unblocked
-3. Phase 12 Omphalos SSO -- begins in parallel after contract is agreed
+3. Phase 20 Omphalos SSO -- begins in parallel after contract is agreed
 4. Phase 11 Quest Board token generation + nav -- begins after Phase 10 merges
-5. End-to-end test -- requires Phase 11 and Phase 12 both complete
+5. End-to-end test -- requires Phase 11 and Phase 20 both complete
 
 ---
 
@@ -190,21 +190,21 @@ Practical sequence:
 The MAC canonical string, field encoding (URL-encode each component), signature encoding (lowercase hex), and username normalisation (lowercase both sides) must all be written down as a shared spec before either IntegrationTokenService.cs or SsoService.cs is started. A mismatch discovered after both sides are implemented requires coordinated edits in two repos. Write the spec as a block comment at the top of both files.
 
 **2. Username normalisation -- define once, apply everywhere (Phases 11 + 12)**
-Quest Board Identity UserName is mixed-case; Omphalos PostgreSQL comparisons are case-sensitive by default. If Quest Board sends "Theun" and Omphalos has stored "theun", auto-provision creates a duplicate and the unique index throws. Normalise to lowercase in the token payload (Phase 11) and before lookup in SsoService (Phase 12). This must be in the token format spec.
+Quest Board Identity UserName is mixed-case; Omphalos PostgreSQL comparisons are case-sensitive by default. If Quest Board sends "Theun" and Omphalos has stored "theun", auto-provision creates a duplicate and the unique index throws. Normalise to lowercase in the token payload (Phase 11) and before lookup in SsoService (Phase 20). This must be in the token format spec.
 
 **3. Secret field POST -- empty = keep existing, never overwrite with blank (Phase 10)**
 The GET must render the secret field empty. The POST must only call SetValueAsync for the secret if the submitted value is non-empty. Getting this wrong means the first save-without-changing-the-secret silently wipes the secret, breaking all subsequent SSO redirects with no obvious error.
 
-**4. Omphalos missing env var -- null HMAC key must fail-fast (Phase 12)**
+**4. Omphalos missing env var -- null HMAC key must fail-fast (Phase 20)**
 Follow the existing Omphalos pattern: builder.Configuration["QuestBoard:Secret"] ?? throw. If the code falls back to null, HMACSHA256 with a zero-length key still produces a valid HMAC -- meaning any forged token computed with the same empty key passes validation. Add QuestBoard__Secret=change-me to .env.example.
 
-**5. SameSite cookie and deployment topology (Phase 12)**
-omphalos_token uses SameSite=Lax. This works for redirects between subdomains of the same eTLD+1. If the apps are on different eTLD+1 domains, the cookie is silently blocked. The Secure = true TODO in AuthEndpoints.cs must become a hard requirement -- SameSite=None (needed for cross-eTLD+1) requires Secure=true. Verify deployment topology before Phase 12 begins.
+**5. SameSite cookie and deployment topology (Phase 20)**
+omphalos_token uses SameSite=Lax. This works for redirects between subdomains of the same eTLD+1. If the apps are on different eTLD+1 domains, the cookie is silently blocked. The Secure = true TODO in AuthEndpoints.cs must become a hard requirement -- SameSite=None (needed for cross-eTLD+1) requires Secure=true. Verify deployment topology before Phase 20 begins.
 
-**6. Review the Omphalos migration before applying (Phase 12)**
+**6. Review the Omphalos migration before applying (Phase 20)**
 GameSession has a jsonb column (SessionLog). Npgsql EF Core migrations have historically emitted spurious AlterColumn for jsonb columns when regenerating the model snapshot. After running the migration add command, read the generated Up() method and confirm it contains only AddColumn for external_quest_id. Remove any spurious AlterColumn on SessionLog before applying.
 
-**7. Include Quest Board role in token payload (Phase 12)**
+**7. Include Quest Board role in token payload (Phase 20)**
 Defaulting all auto-provisioned users to Omphalos UserRole.Player silently strips DMs of DM-only Omphalos permissions. The token must carry the Quest Board role; SsoService maps DungeonMaster/Admin to Omphalos Admin. Define the mapping in the token spec.
 
 ---
@@ -240,6 +240,6 @@ Enables a session-exists badge on the Quest Manage page. Requires a nullable str
 | Omphalos architecture | HIGH | Omphalos source directly inspected; flat structure is straightforward to extend |
 | Security pitfalls | HIGH | All pitfalls grounded in actual code and well-documented SSO patterns |
 | Deployment topology (SameSite cookie) | MEDIUM | Depends on how the operator deploys; cannot be resolved until deployment config is known |
-| React SPA auth guard behaviour | MEDIUM | Auth guard code not fully inspected; flagged as a Phase 12 frontend risk |
+| React SPA auth guard behaviour | MEDIUM | Auth guard code not fully inspected; flagged as a Phase 20 frontend risk |
 
-**Overall: HIGH confidence on the implementation path. MEDIUM on two deployment-environment assumptions that must be verified before Phase 12 ships.**
+**Overall: HIGH confidence on the implementation path. MEDIUM on two deployment-environment assumptions that must be verified before Phase 20 ships.**

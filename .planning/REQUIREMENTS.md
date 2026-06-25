@@ -31,7 +31,7 @@
 - [x] **TOKEN-04**: Username is normalized to lowercase before inclusion in both the MAC message and the URL parameter
 - [x] **TOKEN-05**: A new `QuestController.LaunchOmphalos(int id)` GET action generates the signed URL and returns `Redirect(signedUrl)`; returns 404 when integration is disabled
 
-### SSO Endpoint (Phase 12 — Omphalos)
+### SSO Endpoint (Phase 20 — Omphalos)
 
 - [ ] **SSO-01**: Omphalos exposes `GET /api/sso/open-quest` accepting query parameters `questId`, `questTitle`, `username`, `expiry`, `sig`
 - [ ] **SSO-02**: Endpoint validates the HMAC-SHA256 signature using the `QUEST_BOARD_SECRET` env var; invalid or missing signature returns HTTP 400
@@ -43,7 +43,7 @@
 - [ ] **SSO-08**: If `QUEST_BOARD_SECRET` is not set in the environment, the endpoint returns HTTP 503 with a descriptive message — Omphalos remains fully functional as a standalone app
 - [ ] **SSO-09**: The Omphalos JWT cookie `SameSite` attribute is configurable via an `OMPHALOS_SAMESITE` env var (defaults to `Lax`; when set to `None`, `Secure = true` is also applied)
 
-### Quest-Session Linking (Phase 12 — Omphalos)
+### Quest-Session Linking (Phase 20 — Omphalos)
 
 - [ ] **LINK-01**: `GameSession` entity has a nullable `int? ExternalQuestId` column with a unique partial index (non-null values only)
 - [ ] **LINK-02**: An EF Core migration adds `ExternalQuestId` and its unique index to the `game_sessions` table in PostgreSQL
@@ -95,18 +95,18 @@
 | TOKEN-03 | Phase 11 | Quest Board | Complete (11-01) |
 | TOKEN-04 | Phase 11 | Quest Board | Complete (11-01) |
 | TOKEN-05 | Phase 11 | Quest Board | Complete (11-01) |
-| SSO-01 | Phase 12 | Omphalos | Pending |
-| SSO-02 | Phase 12 | Omphalos | Pending |
-| SSO-03 | Phase 12 | Omphalos | Pending |
-| SSO-04 | Phase 12 | Omphalos | Pending |
-| SSO-05 | Phase 12 | Omphalos | Pending |
-| SSO-06 | Phase 12 | Omphalos | Pending |
-| SSO-07 | Phase 12 | Omphalos | Pending |
-| SSO-08 | Phase 12 | Omphalos | Pending |
-| SSO-09 | Phase 12 | Omphalos | Pending |
-| LINK-01 | Phase 12 | Omphalos | Pending |
-| LINK-02 | Phase 12 | Omphalos | Pending |
-| LINK-03 | Phase 12 | Omphalos | Pending |
+| SSO-01 | Phase 20 | Omphalos | Pending |
+| SSO-02 | Phase 20 | Omphalos | Pending |
+| SSO-03 | Phase 20 | Omphalos | Pending |
+| SSO-04 | Phase 20 | Omphalos | Pending |
+| SSO-05 | Phase 20 | Omphalos | Pending |
+| SSO-06 | Phase 20 | Omphalos | Pending |
+| SSO-07 | Phase 20 | Omphalos | Pending |
+| SSO-08 | Phase 20 | Omphalos | Pending |
+| SSO-09 | Phase 20 | Omphalos | Pending |
+| LINK-01 | Phase 20 | Omphalos | Pending |
+| LINK-02 | Phase 20 | Omphalos | Pending |
+| LINK-03 | Phase 20 | Omphalos | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total

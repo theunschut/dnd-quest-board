@@ -198,15 +198,15 @@ Plans:
 
 Milestone 3 connects two independent apps (Quest Board on ASP.NET Core + SQL Server; Omphalos on .NET 10 Minimal API + PostgreSQL) via a browser-redirect SSO flow using a short-lived HMAC-SHA256 signed token. Quest Board generates a signed URL and issues a browser redirect; Omphalos receives and validates that redirect, auto-provisions the DM account on first use, finds or creates the quest session, and issues its JWT cookie. Zero net-new NuGet packages are required in either repo — the entire cryptographic layer uses BCL (System.Security.Cryptography.HMACSHA256).
 
-Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies `IAdminSettingService` which both subsequent Quest Board phases depend on at compile time. Phase 12 (Omphalos SSO) has no code dependency on Quest Board and can begin in parallel once the token format contract is agreed. The two streams converge at end-to-end integration testing.
+Phase 10 (Admin Settings) is the sole blocker for Quest Board work: it supplies `IAdminSettingService` which both subsequent Quest Board phases depend on at compile time. Phase 20 (Omphalos SSO) has no code dependency on Quest Board and can begin in parallel once the token format contract is agreed. The two streams converge at end-to-end integration testing.
 
-**NOTE: Phase 12 is implemented in the Omphalos repository at `C:\Repos\omphalos`, not this Quest Board repo.**
+**NOTE: Phase 20 is implemented in the Omphalos repository at `C:\Repos\omphalos`, not this Quest Board repo.**
 
 ## Phases
 
 - [x] **Phase 10: Admin Settings** - Admin can configure Omphalos URL and shared secret; settings persisted in DB and protected by AdminOnly policy (completed 2026-06-18)
 - [x] **Phase 11: Navigation + Token Generation** - DM navbar and quest pages show Omphalos links; clicking "Open Session Notes" generates a short-lived HMAC-signed deep link and redirects (completed 2026-06-19)
-- [ ] **Phase 12: SSO Endpoint + Quest-Session Linking (Omphalos repo)** - Omphalos validates Quest Board tokens, auto-provisions DM accounts, finds or creates quest sessions, and issues JWT cookies
+- [ ] **Phase 20: SSO Endpoint + Quest-Session Linking (Omphalos repo)** - Omphalos validates Quest Board tokens, auto-provisions DM accounts, finds or creates quest sessions, and issues JWT cookies
 
 ## Phase Details
 
@@ -250,7 +250,7 @@ Plans:
 - [x] 11-02-PLAN.md — View wiring: OmphalosNavItemViewComponent + Default.cshtml + _Layout.cshtml DM dropdown + Details.cshtml DM Controls button + Manage.cshtml Session Notes card (NAV-01, NAV-02, NAV-03, NAV-04, NAV-05)
 **UI hint**: yes
 
-### Phase 12: SSO Endpoint + Quest-Session Linking
+### Phase 20: SSO Endpoint + Quest-Session Linking
 **REPO: Omphalos — `C:\Repos\omphalos` (NOT this Quest Board repo)**
 **Goal**: Omphalos accepts Quest Board SSO redirects, validates the HMAC-signed token, auto-provisions a DM account on first use, finds or creates the quest session, and issues its JWT cookie — Omphalos continues to function as a standalone app when the env var is absent
 **Depends on**: Token format contract agreed (can develop in parallel with Phase 11; converges at end-to-end test)

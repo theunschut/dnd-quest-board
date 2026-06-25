@@ -53,9 +53,9 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 
 ### Active
 
-*(Requirements for Milestone 3 — Phase 12 Omphalos work remaining)*
+*(Requirements for Milestone 3 — Phase 20 Omphalos work remaining)*
 
-- [ ] Omphalos validates the Quest Board token, auto-provisions DM account on first use, finds/creates quest session, issues JWT cookie — Phase 12 (Omphalos repo)
+- [ ] Omphalos validates the Quest Board token, auto-provisions DM account on first use, finds/creates quest session, issues JWT cookie — Phase 20 (Omphalos repo)
 
 ### Out of Scope
 
