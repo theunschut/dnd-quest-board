@@ -141,7 +141,7 @@ Note: Phases 13, 14, 15, and 16 are all independent of each other — each depen
 | 14. Calendar | 3/3 | Complete | 2026-06-24 |
 | 15. DM Views | 4/4 | Complete | 2026-06-24 |
 | 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
-| 17. Character & Player Views | 0/4 | Not started | - |
+| 17. Character & Player Views | 0/4 | Planned | - |
 | 18. DM Editing & Secondary Quest Views | 0/0 | Not started | - |
 | 19. Admin & Shop Management Views | 0/0 | Not started | - |
 

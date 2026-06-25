@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Mobile Version
-current_phase: 16
-current_phase_name: account-browse
-status: complete
-stopped_at: Phase 16 complete — all 5 mobile phases done (50 integration tests pass)
+current_phase: 17
+current_phase_name: character-player-views
+status: ready_to_execute
+stopped_at: Phase 17 planned — 4 plans in 2 waves ready to execute
 last_updated: "2026-06-25T00:00:00.000Z"
 last_activity: 2026-06-25
-last_activity_desc: Phase 16 verified and complete — Milestone 3 Mobile Version done
+last_activity_desc: Phase 17 planned (4 plans) — ready to execute
 progress:
-  total_phases: 5
+  total_phases: 8
   completed_phases: 5
-  total_plans: 19
+  total_plans: 23
   completed_plans: 19
-  percent: 100
+  percent: 62
 ---
 
 # Project State
@@ -24,16 +24,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-23)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 16 — account-browse
+**Current focus:** Phase 17 — character-player-views
 
 ## Current Position
 
-Phase: 16 (account-browse) — COMPLETE
-Plan: 4 of 4 — ALL DONE
-Status: Milestone 3 (Mobile Version) fully complete
-Last activity: 2026-06-25 — Phase 16 verified (10/10 must-haves, 50 integration tests pass)
+Phase: 17 (character-player-views) — READY TO EXECUTE
+Plan: 0 of 4 — PLANNED
+Status: 4 plans created (Wave 1: test stubs + requirements; Wave 2: 3 parallel mobile view plans)
+Last activity: 2026-06-25 — Phase 17 planned (CHAR-01..03 + PLAYER-01, 4 mobile views, 3 CSS files)
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 62%
 
 ## Performance Metrics
 
