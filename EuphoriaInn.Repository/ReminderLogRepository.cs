@@ -14,12 +14,21 @@ internal class ReminderLogRepository(QuestBoardContext dbContext) : IReminderLog
 
     public async Task AddAsync(int questId, int playerId, CancellationToken token = default)
     {
-        dbContext.ReminderLogs.Add(new ReminderLogEntity
+        try
         {
-            QuestId = questId,
-            PlayerId = playerId,
-            SentAt = DateTime.UtcNow
-        });
-        await dbContext.SaveChangesAsync(token);
+            dbContext.ReminderLogs.Add(new ReminderLogEntity
+            {
+                QuestId = questId,
+                PlayerId = playerId,
+                SentAt = DateTime.UtcNow
+            });
+            await dbContext.SaveChangesAsync(token);
+        }
+        catch (DbUpdateException ex)
+            when (ex.InnerException?.Message.Contains("IX_ReminderLogs_QuestId_PlayerId") == true
+               || ex.InnerException?.Message.Contains("unique") == true)
+        {
+            // Concurrent insertion — another job already logged this send. Safe to ignore.
+        }
     }
 }
