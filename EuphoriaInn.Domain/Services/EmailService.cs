@@ -109,4 +109,27 @@ Thanks for your understanding!
             logger.LogError(ex, "Failed to send quest date changed email for quest {QuestTitle}", questTitle);
         }
     }
+
+    public async Task SendAsync(string toEmail, string subject, string htmlBody)
+    {
+        try
+        {
+            using var client = CreateSmtpClient();
+            if (client == null) return;
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_settings.FromEmail, _settings.FromName),
+                Subject = subject,
+                Body = htmlBody,
+                IsBodyHtml = true
+            };
+            mailMessage.To.Add(toEmail);
+            await client.SendMailAsync(mailMessage);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send email to {ToEmail} with subject {Subject}", toEmail, subject);
+        }
+    }
 }
