@@ -646,11 +646,17 @@ public class QuestController(
             return Forbid();
         }
 
+        if (!quest.FinalizedDate.HasValue)
+        {
+            TempData["Error"] = "Quest has no finalized date. Please re-finalize the quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
         // D-08: DM trigger sends to Yes + Maybe voters for the finalized date only.
         // RESEARCH.md Pitfall 1: filter by finalized proposed date to avoid including
         // players who voted Yes/Maybe on a different proposed date.
         var finalizedProposedDate = quest.ProposedDates
-            .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate!.Value.Date);
+            .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
 
         var eligibleSignups = quest.PlayerSignups
             .Where(ps => ps.DateVotes.Any(dv =>
