@@ -1,0 +1,15 @@
+using EuphoriaInn.Domain.Interfaces;
+
+namespace EuphoriaInn.Service.Services;
+
+/// <summary>
+/// No-op implementation of IReminderJobDispatcher used in test environments
+/// where Hangfire is not registered (IBackgroundJobClient is unavailable).
+/// </summary>
+public class NullReminderJobDispatcher : IReminderJobDispatcher
+{
+    public void EnqueueSessionReminder(int questId, bool forceResend = false)
+    {
+        // No-op — Hangfire not available in Testing environment
+    }
+}
