@@ -476,17 +476,19 @@ CreateMap<UserEntity, User>();
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where exactly is `QuestFinalizedEmailJob` enqueued?**
    - What we know: Job signature takes `string[] recipientEmails` not `User[]`; guard cannot be inside the job.
    - What's unclear: The specific call site in `QuestController` or `QuestService` where recipients are built.
    - Recommendation: Planner should check `QuestController.Finalize` action to locate recipient-array construction; apply `.Where(u => u.EmailConfirmed)` before building the `recipientEmails` array.
+   - **RESOLVED**: Guard applied in `QuestService.FinalizeQuestAsync` (not QuestController) at the call site where `selectedSignups` are converted to recipient arrays. `QuestDateChangedEmailJob` guarded similarly in `QuestService.UpdateQuestPropertiesWithNotificationsAsync`. See Plan 24-05 Task 1.
 
 2. **Does the existing `UserService.GetAllAsync()` path load `EmailConfirmed` from the database?**
    - What we know: `UserEntity.EmailConfirmed` is stored in `AspNetUsers`; `EntityProfile` maps by convention; `UserService` uses `BaseService<User, UserEntity>` which calls `mapper.Map`.
    - What's unclear: Whether `BaseService.GetAllAsync()` includes `EmailConfirmed` in its SELECT without EF explicit configuration.
    - Recommendation: Since `EmailConfirmed` is a column on `AspNetUsers` and EF loads all columns by default, this should work. Verify with a quick test after implementation.
+   - **RESOLVED**: EF Core loads all columns by default (no explicit `.Select()` projection in BaseService). Convention mapping (`EntityProfile`) maps `UserEntity.EmailConfirmed` → `User.EmailConfirmed` automatically. No additional EF configuration required. Confirmed by `dotnet build` success in Plan 24-01.
 
 ---
 
