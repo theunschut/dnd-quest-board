@@ -3,16 +3,49 @@ using EuphoriaInn.Service.Controllers.QuestBoard;
 using EuphoriaInn.Service.ViewModels.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace EuphoriaInn.Service.Controllers.Admin;
 
-public class AccountController(IUserService userService) : Controller
+public class AccountController(IUserService userService, IIdentityService identityService) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmail(int userId, string token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        try
+        {
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            var result = await identityService.ConfirmEmailAsync(userId, decodedToken);
+
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "Email confirmed — you can now log in.";
+            }
+            else
+            {
+                TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
+            }
+        }
+        catch
+        {
+            TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
+        }
+
+        return RedirectToAction(nameof(Login));
     }
 
     [HttpPost]
