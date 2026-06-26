@@ -184,6 +184,13 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     // Seed basic shop data
     await SeedShopDataAsync(app);
+
+    // Register daily session reminder sweep — runs at 09:00 server local time (CET/CEST).
+    // Placed after ConfigureDatabase to ensure migrations have run before the job can fire (RESEARCH.md Pitfall 4).
+    RecurringJob.AddOrUpdate<DailyReminderJob>(
+        "daily-session-reminders",
+        job => job.ExecuteAsync(CancellationToken.None),
+        "0 9 * * *");
 }
 
 app.Run();
