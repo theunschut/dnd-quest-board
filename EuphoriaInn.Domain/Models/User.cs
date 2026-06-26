@@ -17,6 +17,8 @@ public class User : IModel
 
     public bool HasKey { get; set; }
 
+    public bool EmailConfirmed { get; set; }
+
     public IList<Quest> Quests { get; set; } = [];
 
     public IList<PlayerSignup> Signups { get; set; } = [];
@@ -27,11 +29,12 @@ public class User : IModel
                Id==user.Id&&
                Name==user.Name&&
                Email==user.Email&&
-               HasKey==user.HasKey;
+               HasKey==user.HasKey&&
+               EmailConfirmed==user.EmailConfirmed;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, Name, Email, HasKey);
+        return HashCode.Combine(Id, Name, Email, HasKey, EmailConfirmed);
     }
 }
