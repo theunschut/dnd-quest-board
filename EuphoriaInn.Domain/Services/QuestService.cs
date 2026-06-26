@@ -1,5 +1,6 @@
 using AutoMapper;
 using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Extensions;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
@@ -22,7 +23,8 @@ internal class QuestService(
 
         var selectedSignups = quest.PlayerSignups
             .Where(ps => (selectedPlayerSignupIds.Contains(ps.Id) || ps.Role == SignupRole.Spectator)
-                         && !string.IsNullOrEmpty(ps.Player.Email))
+                         && !string.IsNullOrEmpty(ps.Player.Email)
+                         && ps.Player.EmailConfirmed)
             .ToList();
 
         if (selectedSignups.Count == 0) return;
@@ -130,7 +132,7 @@ internal class QuestService(
         var quest = await repository.GetQuestWithDetailsAsync(questId, token);
         if (quest == null) return ServiceResult<int>.Ok(0);
 
-        var withEmail = affectedPlayers.Where(p => !string.IsNullOrEmpty(p.Email)).ToList();
+        var withEmail = affectedPlayers.WhereEmailConfirmed().Where(p => !string.IsNullOrEmpty(p.Email)).ToList();
         if (withEmail.Count == 0) return ServiceResult<int>.Ok(0);
 
         dispatcher.EnqueueDateChangedEmail(
