@@ -16,7 +16,7 @@
 
 - [x] **REMIND-01**: A Hangfire recurring job runs daily at 09:00 and sends session reminder emails to all players confirmed for quests whose session is the following day
 - [ ] **REMIND-02**: A player confirmed for multiple quests on the same day receives one combined digest email, not a separate email per quest
-- [ ] **REMIND-03**: A DM can manually trigger a session reminder from the quest manage page; it dispatches a Hangfire background job using the same send logic as the recurring job
+- [x] **REMIND-03**: A DM can manually trigger a session reminder from the quest manage page; it dispatches a Hangfire background job using the same send logic as the recurring job
 - [x] **REMIND-04**: Reminders are idempotent — if the Hangfire job retries after a partial failure, already-notified players are not emailed again (tracked via `ReminderSentAt` stored on the quest or a `ReminderLog` table)
 
 ### Hangfire Infrastructure
@@ -51,7 +51,7 @@
 | EMAIL-04 | Phase 22 | Pending |
 | REMIND-01 | Phase 22 | Complete (Plan 03: DailyReminderJob + RecurringJob.AddOrUpdate) |
 | REMIND-02 | Phase 22 | Pending |
-| REMIND-03 | Phase 22 | Pending |
+| REMIND-03 | Phase 22 | Complete (Plan 04: QuestController.SendReminder + Manage.cshtml button) |
 | REMIND-04 | Phase 22 | Complete (Plan 01: ReminderLog entity + IReminderLogRepository; Plan 03: ExistsAsync/AddAsync dedup in SessionReminderJob) |
 | JOBS-01 | Phase 20 | Complete |
 | JOBS-02 | Phase 20 | Complete |

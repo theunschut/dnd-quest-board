@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 22 Plan 03 complete — SessionReminderJob + DailyReminderJob implemented; Plans 04-05 remaining
-last_updated: "2026-06-26T19:30:00.000Z"
-last_activity: 2026-06-26 — Phase 22 Plan 03 complete (SessionReminderJob + DailyReminderJob + Program.cs recurring job, 6 files)
+stopped_at: Phase 22 Plan 04 complete — SendReminder controller action + Manage.cshtml button; Plan 05 remaining
+last_updated: "2026-06-26T19:25:00.000Z"
+last_activity: 2026-06-26 — Phase 22 Plan 04 complete (QuestController.SendReminder POST + Manage.cshtml Send Reminder button, 2 files)
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 47
-  completed_plans: 46
-  percent: 96
+  completed_plans: 47
+  percent: 97
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 22 — Session Reminders
-Plan: 03 complete — 2 plans remaining (Plans 04-05)
+Plan: 04 complete — 1 plan remaining (Plan 05)
 Status: Executing Phase 22
-Last activity: 2026-06-26 — Phase 22 Plan 03 complete (SessionReminderJob + DailyReminderJob + Program.cs recurring job, 6 files)
+Last activity: 2026-06-26 — Phase 22 Plan 04 complete (QuestController.SendReminder POST + Manage.cshtml Send Reminder button, 2 files)
 
 ```
-Progress: [████████████████████] Phase 22 Plan 03 complete
+Progress: [████████████████████] Phase 22 Plan 04 complete
 ```
 
 ## Accumulated Context
@@ -60,6 +60,12 @@ Progress: [████████████████████] Phase 2
 - [Phase 22 P02]: IReminderJobDispatcher placed in Domain.Interfaces (same layer as IQuestEmailDispatcher) — QuestController injects the interface without Service-layer dependency; HangfireReminderJobDispatcher forward-references SessionReminderJob (resolved in Plan 03)
     - [Phase 22 P03]: IReminderLogRepository resolved via C# using alias in SessionReminderJob to avoid ambiguous reference with Domain.Interfaces; same namespace isolation pattern as Plan 01 ServiceExtensions fix
     - [Phase 22 P03]: useYesMaybeVoters parameter added to IReminderJobDispatcher.EnqueueSessionReminder — automated path uses IsSelected, DM trigger path uses Yes+Maybe voters scoped to finalized proposed date
+    - [Phase 22 P04]: No controller-side log query for D-09 "already sent" warning — job handles per-player dedup; forceResend=true (from inline confirm form in TempData success block) bypasses log check inside SessionReminderJob
+
+### Roadmap Evolution
+
+- Phase 24 added: Email Confirmation Flow — admin button to manually resend confirmation email, EmailConfirmed guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow
+- Phase 25 added: Confirmation Email Razor Template — styled Razor component for confirmation email, matching QuestDateChanged style and the shared _EmailLayout
 
 ### Pending Todos
 
@@ -75,7 +81,7 @@ Progress: [████████████████████] Phase 2
 ## Session Continuity
 
 Last session: 2026-06-26
-Stopped at: Phase 22 Plan 03 complete — SessionReminderJob + DailyReminderJob implemented; Plans 04-05 remaining
+Stopped at: Phase 22 Plan 04 complete — SendReminder controller action + Manage.cshtml button; Plan 05 remaining
 Resume file: None
 
 ## Performance Metrics
@@ -91,3 +97,4 @@ Resume file: None
 | Phase 22 P01 | 4m | 2 tasks | 13 files |
 | Phase 22 P02 | 2m | 2 tasks | 4 files |
 | Phase 22 P03 | 3m | 2 tasks | 6 files |
+| Phase 22 P04 | 5m | 2 tasks | 2 files |

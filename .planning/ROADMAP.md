@@ -330,7 +330,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 22-03-PLAN.md — Jobs + recurring schedule: SessionReminderJob, DailyReminderJob, RecurringJob.AddOrUpdate at CRON "0 9 * * *" (Wave 2)
-- [ ] 22-04-PLAN.md — Controller + View: QuestController.SendReminder POST action, Manage.cshtml button and TempData feedback (Wave 2)
+- [x] 22-04-PLAN.md — Controller + View: QuestController.SendReminder POST action, Manage.cshtml button and TempData feedback (Wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
