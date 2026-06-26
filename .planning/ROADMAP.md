@@ -290,7 +290,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 21-02-PLAN.md — Razor email components: _EmailLayout, QuestFinalized, QuestDateChanged, SessionReminder (Wave 2)
+- [x] 21-02-PLAN.md — Razor email components: _EmailLayout, QuestFinalized, QuestDateChanged, SessionReminder (Wave 2)
 
 **Wave 3** *(blocked on Wave 1+2 completion)*
 

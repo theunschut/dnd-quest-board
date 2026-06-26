@@ -7,9 +7,9 @@
 
 ### Email Templates
 
-- [ ] **EMAIL-01**: An `IEmailRenderService` backed by `HtmlRenderer` (built-in .NET 10) renders Razor component templates to HTML strings; all outbound emails use this service
-- [ ] **EMAIL-02**: The quest-finalization email is sent as styled HTML; if a quest is re-opened and re-finalized with the **same confirmed date**, no duplicate notification is sent (tracked via `FinalizedEmailSentForDate` stored on the quest)
-- [ ] **EMAIL-03**: A single-quest session reminder renders as styled HTML using a dedicated Razor component template
+- [x] **EMAIL-01**: An `IEmailRenderService` backed by `HtmlRenderer` (built-in .NET 10) renders Razor component templates to HTML strings; all outbound emails use this service
+- [x] **EMAIL-02**: The quest-finalization email is sent as styled HTML; if a quest is re-opened and re-finalized with the **same confirmed date**, no duplicate notification is sent (tracked via `FinalizedEmailSentForDate` stored on the quest)
+- [x] **EMAIL-03**: A single-quest session reminder renders as styled HTML using a dedicated Razor component template
 - [ ] **EMAIL-04**: A digest session reminder renders multiple quests (same confirmed date, same player) as a single styled HTML email
 
 ### Session Reminders
@@ -45,9 +45,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMAIL-01 | Phase 21 | In Progress (Plan 01 complete: interface + FrameworkReference) |
-| EMAIL-02 | Phase 21 | In Progress (Plan 01 complete: migration + dedup repo method) |
-| EMAIL-03 | Phase 21 | Pending |
+| EMAIL-01 | Phase 21 | Complete (Plan 01: interface + FrameworkReference; Plan 02: components) |
+| EMAIL-02 | Phase 21 | Complete (Plan 01: migration + dedup repo method; Plan 03: job wires it up) |
+| EMAIL-03 | Phase 21 | Complete (Plan 02: SessionReminder.razor + all three email component templates) |
 | EMAIL-04 | Phase 22 | Pending |
 | REMIND-01 | Phase 22 | Pending |
 | REMIND-02 | Phase 22 | Pending |
