@@ -245,6 +245,8 @@ Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications sta
  (completed 2026-06-26)
 - [ ] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
+- [ ] **Phase 24: Email Confirmation Flow** - Admin button to manually resend confirmation email, `EmailConfirmed` guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow
+- [ ] **Phase 25: Confirmation Email Razor Template** - Styled HTML Razor component for the confirmation email, matching QuestDateChanged style and the shared `_EmailLayout`
 
 ## Phase Details
 
@@ -327,7 +329,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 22-03-PLAN.md — Jobs + recurring schedule: SessionReminderJob, DailyReminderJob, RecurringJob.AddOrUpdate at CRON "0 9 * * *" (Wave 2)
+- [x] 22-03-PLAN.md — Jobs + recurring schedule: SessionReminderJob, DailyReminderJob, RecurringJob.AddOrUpdate at CRON "0 9 * * *" (Wave 2)
 - [ ] 22-04-PLAN.md — Controller + View: QuestController.SendReminder POST action, Manage.cshtml button and TempData feedback (Wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -349,11 +351,38 @@ Plans:
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 24: Email Confirmation Flow
+
+**Goal**: Admin users can manually trigger a confirmation email for any unconfirmed user; all background email jobs skip users whose `EmailConfirmed` is false; confirmed users see no confirmation button
+**Depends on**: Phase 21 (email sending infrastructure), Phase 22 (jobs must guard on EmailConfirmed)
+**Success Criteria** (what must be TRUE):
+
+  1. The Admin/Users page shows a "Send Confirmation Email" button for every user where `EmailConfirmed == false`; the button is absent for already-confirmed users
+  2. Clicking the button POSTs to `AdminController.SendConfirmationEmail`, generates an ASP.NET Identity email confirmation token, builds a callback URL, and sends the email via `IEmailService.SendAsync` — a `TempData` success message confirms dispatch
+  3. The confirmation callback endpoint (`GET /Account/ConfirmEmail?userId=X&token=Y`) calls `UserManager.ConfirmEmailAsync`, sets `EmailConfirmed = true`, and shows a success or error page
+  4. Every Hangfire email job (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips any recipient whose `EmailConfirmed == false` — verified by unit tests
+
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 25: Confirmation Email Razor Template
+
+**Goal**: The confirmation email sent by Phase 24 uses a styled Razor component matching the existing `QuestFinalized` and `QuestDateChanged` templates instead of inline HTML
+**Depends on**: Phase 24
+**Success Criteria** (what must be TRUE):
+
+  1. A `ConfirmEmail.razor` Razor component exists alongside the other email templates and is rendered via `IEmailRenderService`
+  2. The rendered output uses `_EmailLayout`, matches the visual style of the other email templates (header, body text, button-styled CTA link), and contains the confirmation URL
+  3. `AdminController.SendConfirmationEmail` calls `emailRenderService.RenderAsync<ConfirmEmail>(...)` instead of inline HTML
+
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
 Phases execute in numeric order: 20 → 21 → 22 → 23
-Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any order after Phase 20 completes. The critical path is 20 → 21 → 22.
+Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any order after Phase 20 completes. Phase 24 depends on Phase 21 and should coordinate with Phase 22. Phase 25 depends on Phase 24. The critical path is 20 → 21 → 22.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -361,3 +390,5 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
+| 24. Email Confirmation Flow | 0/TBD | Not started | - |
+| 25. Confirmation Email Razor Template | 0/TBD | Not started | - |
