@@ -47,11 +47,11 @@ public class WebApplicationFactoryBase : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
 
-            // Add DbContext that uses the same SQLite in-memory connection as TestDatabase
+            // Add DbContext that uses the same InMemory database name as TestDatabase
             // This ensures all DbContext instances (test setup and web app) share the same database
             services.AddDbContext<QuestBoardContext>(options =>
             {
-                options.UseSqlite(Database.Connection);
+                options.UseInMemoryDatabase(Database.DatabaseName);
                 options.EnableSensitiveDataLogging();
             });
         });
