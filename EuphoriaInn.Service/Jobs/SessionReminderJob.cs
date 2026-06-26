@@ -5,7 +5,6 @@ using EuphoriaInn.Service.Components.Emails;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using IReminderLogRepository = EuphoriaInn.Repository.Interfaces.IReminderLogRepository;
 
 namespace EuphoriaInn.Service.Jobs;
 

@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using IReminderLogRepository = EuphoriaInn.Repository.Interfaces.IReminderLogRepository;
 
 namespace EuphoriaInn.UnitTests.Services;
 

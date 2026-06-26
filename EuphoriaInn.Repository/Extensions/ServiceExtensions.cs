@@ -23,7 +23,7 @@ public static class ServiceExtensions
         services.AddScoped<ITradeItemRepository, TradeItemRepository>();
         services.AddScoped<ICharacterRepository, CharacterRepository>();
         services.AddScoped<IDungeonMasterProfileRepository, DungeonMasterProfileRepository>();
-        services.AddScoped<Interfaces.IReminderLogRepository, ReminderLogRepository>();
+        services.AddScoped<IReminderLogRepository, ReminderLogRepository>();
 
         // Register IdentityService (wraps UserManager/SignInManager; depends on UserEntity)
         services.AddScoped<IIdentityService, IdentityService>();
