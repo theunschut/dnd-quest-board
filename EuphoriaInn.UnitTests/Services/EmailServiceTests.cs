@@ -82,4 +82,17 @@ public class EmailServiceTests
         var source = File.ReadAllText(sourcePath);
         source.Should().Contain("_settings.AppUrl", "EMAIL-03 requires AppUrl to drive the placeholder substitution");
     }
+
+    [Fact]
+    public async Task SendAsync_WhenSmtpNotConfigured_ReturnsWithoutException()
+    {
+        // Arrange — empty SmtpUsername causes CreateSmtpClient to return null → no send attempt
+        var service = Create(new EmailSettings { SmtpUsername = "", SmtpPassword = "x", FromEmail = "x@x" });
+
+        // Act
+        var act = async () => await service.SendAsync("to@example.com", "Test Subject", "<h1>Hello</h1>");
+
+        // Assert — no exception thrown when SMTP is not configured
+        await act.Should().NotThrowAsync();
+    }
 }

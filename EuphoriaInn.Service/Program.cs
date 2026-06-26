@@ -81,10 +81,13 @@ builder.Services
 
 // Email render service and job dispatcher (Service-layer registrations)
 builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
-builder.Services.AddScoped<IQuestEmailDispatcher, HangfireQuestEmailDispatcher>();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
+    // HangfireQuestEmailDispatcher requires IBackgroundJobClient which is only
+    // registered when Hangfire is active (non-Testing environments).
+    builder.Services.AddScoped<IQuestEmailDispatcher, HangfireQuestEmailDispatcher>();
+
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
         .UseSimpleAssemblyNameTypeSerializer()
@@ -104,6 +107,11 @@ if (!builder.Environment.IsEnvironment("Testing"))
     {
         options.WorkerCount = 2;
     });
+}
+else
+{
+    // In the Testing environment Hangfire is skipped, so use a no-op dispatcher.
+    builder.Services.AddScoped<IQuestEmailDispatcher, NullQuestEmailDispatcher>();
 }
 
 // Add automapper
