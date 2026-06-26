@@ -87,6 +87,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
     // HangfireQuestEmailDispatcher requires IBackgroundJobClient which is only
     // registered when Hangfire is active (non-Testing environments).
     builder.Services.AddScoped<IQuestEmailDispatcher, HangfireQuestEmailDispatcher>();
+    builder.Services.AddScoped<IReminderJobDispatcher, HangfireReminderJobDispatcher>();
 
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -112,6 +113,7 @@ else
 {
     // In the Testing environment Hangfire is skipped, so use a no-op dispatcher.
     builder.Services.AddScoped<IQuestEmailDispatcher, NullQuestEmailDispatcher>();
+    builder.Services.AddScoped<IReminderJobDispatcher, NullReminderJobDispatcher>();
 }
 
 // Add automapper
