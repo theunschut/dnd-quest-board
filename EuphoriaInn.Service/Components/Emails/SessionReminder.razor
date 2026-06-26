@@ -3,8 +3,8 @@
 <_EmailLayout Subject="@($"Reminder: {QuestTitle} is tomorrow")" PreviewText="@($"Session Tomorrow — {QuestTitle} on {QuestDate:dddd, MMMM d}")">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-image:url('@(AppUrl)/images/Blanks/Blanks%20w%20Shadow/Poster1.png');background-size:cover;background-position:center top;background-color:#F4E4BC;margin:0 auto;">
         <tr>
-            <td height="840" style="min-height:840px;">
-                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <td style="height:840px;overflow:hidden;">
+                <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
 
                     <!-- Row 1: CR Badge -->
                     <tr>
@@ -19,7 +19,7 @@
 
                     <!-- Row 2: Quest Title -->
                     <tr>
-                        <td style="padding:8px 16px 8px 16px;text-align:center;">
+                        <td style="padding:8px 16px;text-align:center;">
                             <table width="100%" border="0" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td style="font-size:38px;font-weight:700;font-family:'Cinzel',serif;color:#1a0f08;line-height:1.2;text-align:center;word-break:break-word;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">Your Quest Awaits Tomorrow</td>
@@ -34,56 +34,55 @@
                         </td>
                     </tr>
 
-                    <!-- Row 3: Description Section -->
-                    <tr>
-                        <td style="padding:16px 17% 8px 17%;text-align:left;">
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);padding-bottom:4px;">The Adventure:</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:15px;font-family:Georgia,serif;color:#1a0f08;line-height:1.6;font-style:italic;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">@QuestDescription</td>
-                                </tr>
-                            </table>
+                    <!-- Row 3: Description — fills remaining vertical space, scrolls if too long -->
+                    <tr style="height:100%;">
+                        <td style="padding:16px 20%;vertical-align:top;height:100%;">
+                            <div style="height:100%;overflow-y:auto;padding-right:6px;">
+                                <p style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);margin:0 0 4px 0;">The Adventure:</p>
+                                <p style="font-size:15px;font-family:Georgia,serif;color:#1a0f08;line-height:1.6;font-style:italic;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);margin:0;">@QuestDescription</p>
+                            </div>
                         </td>
                     </tr>
 
-                    <!-- Row 4: Gold Divider -->
+                    <!-- Row 4: Gold Divider (same width as description) -->
                     <tr>
-                        <td style="padding:0 16px;"><hr style="border:none;border-top:1px solid #FFD700;margin:0;" /></td>
+                        <td style="padding:0 20%;"><hr style="border:none;border-top:1px solid #FFD700;margin:0;" /></td>
                     </tr>
 
-                    <!-- Row 5: Metadata Labels -->
+                    <!-- Row 5: Metadata -->
                     <tr>
-                        <td style="padding:8px 17%;">
+                        <td style="padding:8px 20%;">
                             <table width="100%" border="0" cellpadding="4" cellspacing="0">
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">Dungeon Master:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);white-space:nowrap;width:45%;">Dungeon Master:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">@DmName</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">Session Date:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);white-space:nowrap;width:45%;">Session Date:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">@QuestDate.ToString("dddd, MMMM d")</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);" valign="top">Fellow Adventurers:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);white-space:nowrap;width:45%;">Fellow Adventurers:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);">@string.Join(", ", ConfirmedPlayerNames)</td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    <!-- Row 6: CTA Button -->
+                    <!-- Row 6: Wax Seal (left) + CTA Button (center) — same row = same height -->
                     <tr>
-                        <td style="padding:24px 16px;text-align:center;">
-                            <a href="@QuestUrl" style="background-color:#FFD700;color:#1a0f08;font-family:'Cinzel',serif;font-size:15px;font-weight:bold;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;border:2px solid #8B4513;text-align:center;">View Quest Details</a>
-                        </td>
-                    </tr>
-
-                    <!-- Row 7: Wax Seal -->
-                    <tr>
-                        <td style="padding:64px 16px 24px 16px;text-align:left;">
-                            <img src="@(AppUrl)/images/Wax%20Seals/Crown%20Seal.png" width="80" alt="Wax Seal" style="display:block;" />
+                        <td style="padding:16px 16px 96px 16px;">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td style="width:90px;vertical-align:bottom;">
+                                        <img src="@(AppUrl)/images/Wax%20Seals/Crown%20Seal.png" width="80" alt="Wax Seal" style="display:block;" />
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;">
+                                        <a href="@QuestUrl" style="background-color:#FFD700;color:#1a0f08;font-family:'Cinzel',serif;font-size:15px;font-weight:bold;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;border:2px solid #8B4513;text-align:center;">View Quest Details</a>
+                                    </td>
+                                    <td style="width:90px;"></td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
