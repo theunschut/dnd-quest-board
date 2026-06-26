@@ -53,6 +53,9 @@ public class EntityProfile : Profile
         CreateMap<ProposedDate, ProposedDateEntity>()
             .ReverseMap();
 
+        // ReminderLog mapping
+        CreateMap<ReminderLog, ReminderLogEntity>().ReverseMap();
+
         // PlayerDateVote mapping
         CreateMap<PlayerDateVote, PlayerDateVoteEntity>()
             .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.Vote.HasValue ? (int)src.Vote.Value : (int?)null));
