@@ -4,11 +4,11 @@ milestone: v4.0
 milestone_name: email-notifications
 current_phase: 21
 current_phase_name: HTML Email Templates
-status: verifying
-stopped_at: Phase 20 complete — all 5 UAT tests passed, transitioned to Phase 21
-last_updated: "2026-06-25T21:31:51.372Z"
-last_activity: 2026-06-25
-last_activity_desc: Phase 20 complete, transitioned to Phase 21
+status: planning
+stopped_at: Phase 21 context gathered
+last_updated: "2026-06-26T00:00:00.000Z"
+last_activity: 2026-06-26
+last_activity_desc: Phase 21 context discussion complete, ready to plan
 progress:
   total_phases: 12
   completed_phases: 9
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 Phase: 21 — HTML Email Templates
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-06-25 — Phase 20 complete, transitioned to Phase 21
+Last activity: 2026-06-26 — Phase 21 context discussion complete, ready to plan
 
 ```
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases complete
