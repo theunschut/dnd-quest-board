@@ -14,18 +14,18 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     public IActionResult Index()
     {
         var appUrl = $"{Request.Scheme}://{Request.Host}";
-        var html = $"""
+        var html = $$"""
             <!doctype html><html><head><meta charset="utf-8">
             <title>Email Preview — Admin</title>
-            <style>body{{font-family:sans-serif;padding:2rem;max-width:600px;margin:auto}}
-            h1{{margin-bottom:1rem}}ul{{list-style:none;padding:0}}
-            li{{margin:.5rem 0}}a{{color:#4a6cf7;text-decoration:none;font-size:1.1rem}}
-            a:hover{{text-decoration:underline}}</style></head>
+            <style>body{font-family:sans-serif;padding:2rem;max-width:600px;margin:auto}
+            h1{margin-bottom:1rem}ul{list-style:none;padding:0}
+            li{margin:.5rem 0}a{color:#4a6cf7;text-decoration:none;font-size:1.1rem}
+            a:hover{text-decoration:underline}</style></head>
             <body><h1>Email Template Previews</h1>
             <ul>
-              <li><a href="{appUrl}/EmailPreview/QuestFinalized">Quest Finalized</a></li>
-              <li><a href="{appUrl}/EmailPreview/QuestDateChanged">Quest Date Changed</a></li>
-              <li><a href="{appUrl}/EmailPreview/SessionReminder">Session Reminder</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/QuestFinalized">Quest Finalized</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/QuestDateChanged">Quest Date Changed</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/SessionReminder">Session Reminder</a></li>
             </ul></body></html>
             """;
         return Content(html, "text/html");
