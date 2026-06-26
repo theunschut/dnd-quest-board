@@ -5,10 +5,10 @@ milestone_name: email-notifications
 current_phase: 21
 current_phase_name: HTML Email Templates
 status: planning
-stopped_at: Phase 21 context gathered
+stopped_at: Phase 21 UI-SPEC approved
 last_updated: "2026-06-26T00:00:00.000Z"
 last_activity: 2026-06-26
-last_activity_desc: Phase 21 context discussion complete, ready to plan
+last_activity_desc: Phase 21 UI design contract approved — ready to plan
 progress:
   total_phases: 12
   completed_phases: 9
