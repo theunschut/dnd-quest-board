@@ -10,8 +10,8 @@ namespace EuphoriaInn.Service.Services;
 /// </summary>
 public class HangfireReminderJobDispatcher(IBackgroundJobClient jobClient) : IReminderJobDispatcher
 {
-    public void EnqueueSessionReminder(int questId, bool forceResend = false)
+    public void EnqueueSessionReminder(int questId, bool forceResend = false, bool useYesMaybeVoters = false)
     {
-        jobClient.Enqueue<SessionReminderJob>(j => j.ExecuteAsync(questId, forceResend, CancellationToken.None));
+        jobClient.Enqueue<SessionReminderJob>(j => j.ExecuteAsync(questId, forceResend, useYesMaybeVoters, CancellationToken.None));
     }
 }

@@ -6,5 +6,5 @@ namespace EuphoriaInn.Domain.Interfaces;
 /// </summary>
 public interface IReminderJobDispatcher
 {
-    void EnqueueSessionReminder(int questId, bool forceResend = false);
+    void EnqueueSessionReminder(int questId, bool forceResend = false, bool useYesMaybeVoters = false);
 }
