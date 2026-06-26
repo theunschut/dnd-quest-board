@@ -1,10 +1,11 @@
 ---
 phase: 21
 slug: html-email-templates
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-26
+reviewed_at: 2026-06-26
 ---
 
 # Phase 21 — UI Design Contract: HTML Email Templates
@@ -264,7 +265,7 @@ None — email templates contain no destructive actions.
 background-color: #FFD700;
 color: #1a0f08;
 font-family: 'Cinzel', serif;
-font-size: 16px;
+font-size: 15px;
 font-weight: bold;
 padding: 12px 24px;
 border-radius: 6px;
@@ -273,6 +274,8 @@ display: inline-block;
 border: 2px solid #8B4513;
 text-align: center;
 ```
+
+> `font-size: 15px` maps to the **body** tier in the Typography table above. Using body scale keeps the button readable and consistent with body text rhythm — 4 distinct sizes total (28px, 20px, 15px, 14px).
 
 Render as `<a href="{QuestUrl}" style="...">View Quest Details</a>` — never `<button>`. Email clients do not support form elements reliably.
 
@@ -308,7 +311,7 @@ All layout uses `<table>` + `<td>` with inline styles. No `display: flex`, `grid
 - [ ] Dimension 1 Copywriting: PASS
 - [ ] Dimension 2 Visuals: PASS
 - [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
+- [x] Dimension 4 Typography: RESOLVED — CTA button font-size changed from 16px to 15px (body tier); total distinct sizes remain 4 (28px, 20px, 15px, 14px)
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
