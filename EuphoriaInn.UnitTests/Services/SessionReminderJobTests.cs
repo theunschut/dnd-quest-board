@@ -65,10 +65,10 @@ public class SessionReminderJobTests
             ProposedDates = []
         };
 
-    private static PlayerSignup MakeSignup(Quest quest, int playerId, bool isSelected = true, string? email = "player@example.com") =>
+    private static PlayerSignup MakeSignup(Quest quest, int playerId, bool isSelected = true, string? email = "player@example.com", bool emailConfirmed = true) =>
         new()
         {
-            Player = new User { Id = playerId, Name = $"Player{playerId}", Email = email },
+            Player = new User { Id = playerId, Name = $"Player{playerId}", Email = email, EmailConfirmed = emailConfirmed },
             IsSelected = isSelected,
             DateVotes = [],
             Quest = quest
@@ -165,5 +165,45 @@ public class SessionReminderJobTests
         // Assert
         await act.Should().NotThrowAsync();
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    // ---------------------------------------------------------------------------
+    // REQ-24-04: EmailConfirmed guard in SessionReminderJob
+    // ---------------------------------------------------------------------------
+
+    [Fact]
+    public async Task ExecuteAsync_WhenPlayerEmailNotConfirmed_SkipsPlayer()
+    {
+        // Arrange: IsSelected=true, email present, but EmailConfirmed=false
+        var quest = MakeQuest(1);
+        var signup = MakeSignup(quest, playerId: 30, isSelected: true, emailConfirmed: false);
+        quest.PlayerSignups.Add(signup);
+
+        _questRepository.GetQuestWithDetailsAsync(1, Arg.Any<CancellationToken>()).Returns(quest);
+        _reminderLog.ExistsAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
+
+        // Act
+        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+
+        // Assert: no email sent for player with unconfirmed email
+        await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenPlayerEmailConfirmed_SendsEmailRegression()
+    {
+        // Arrange: IsSelected=true, email present, EmailConfirmed=true (regression — happy path)
+        var quest = MakeQuest(1);
+        var signup = MakeSignup(quest, playerId: 40, isSelected: true, emailConfirmed: true);
+        quest.PlayerSignups.Add(signup);
+
+        _questRepository.GetQuestWithDetailsAsync(1, Arg.Any<CancellationToken>()).Returns(quest);
+        _reminderLog.ExistsAsync(1, 40, Arg.Any<CancellationToken>()).Returns(false);
+
+        // Act
+        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+
+        // Assert: email IS sent for confirmed player
+        await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());
     }
 }

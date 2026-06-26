@@ -64,6 +64,8 @@ public class SessionReminderJob(
             targetSignups = quest.PlayerSignups.Where(ps => ps.IsSelected);
         }
 
+        targetSignups = targetSignups.Where(ps => ps.Player != null && ps.Player.EmailConfirmed);
+
         foreach (var signup in targetSignups)
         {
             if (string.IsNullOrEmpty(signup.Player?.Email))

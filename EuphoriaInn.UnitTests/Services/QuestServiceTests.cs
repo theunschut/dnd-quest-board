@@ -38,13 +38,13 @@ public class QuestServiceTests
             ProposedDates = []
         };
 
-    private static PlayerSignup MakeSignup(int id, string email, SignupRole role = SignupRole.Player, bool isSelected = true) =>
+    private static PlayerSignup MakeSignup(int id, string email, SignupRole role = SignupRole.Player, bool isSelected = true, bool emailConfirmed = true) =>
         new()
         {
             Id = id,
             Role = role,
             IsSelected = isSelected,
-            Player = new User { Id = id + 10, Name = $"Player {id}", Email = email },
+            Player = new User { Id = id + 10, Name = $"Player {id}", Email = email, EmailConfirmed = emailConfirmed },
             Quest = new Quest { Id = 1, Title = "T", Description = "D" }
         };
 
@@ -135,9 +135,9 @@ public class QuestServiceTests
         // Arrange
         var affectedPlayers = new List<User>
         {
-            new() { Id = 1, Name = "Alice", Email = "alice@x.com" },
-            new() { Id = 2, Name = "Bob", Email = "bob@x.com" },
-            new() { Id = 3, Name = "NoEmail", Email = "" } // should be skipped
+            new() { Id = 1, Name = "Alice",   Email = "alice@x.com", EmailConfirmed = true  },
+            new() { Id = 2, Name = "Bob",     Email = "bob@x.com",   EmailConfirmed = true  },
+            new() { Id = 3, Name = "NoEmail", Email = "",            EmailConfirmed = true  } // should be skipped (empty email)
         };
 
         _repository.UpdateQuestPropertiesWithNotificationsAsync(
