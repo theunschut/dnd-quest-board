@@ -355,6 +355,7 @@ Plans:
 
 **Goal**: Admin users can manually trigger a confirmation email for any unconfirmed user; all background email jobs skip users whose `EmailConfirmed` is false; confirmed users see no confirmation button
 **Depends on**: Phase 21 (email sending infrastructure), Phase 22 (jobs must guard on EmailConfirmed)
+**Requirements**: REQ-24-01, REQ-24-02, REQ-24-03, REQ-24-04
 **Success Criteria** (what must be TRUE):
 
   1. The Admin/Users page shows a "Send Confirmation Email" button for every user where `EmailConfirmed == false`; the button is absent for already-confirmed users
@@ -362,7 +363,20 @@ Plans:
   3. The confirmation callback endpoint (`GET /Account/ConfirmEmail?userId=X&token=Y`) calls `UserManager.ConfirmEmailAsync`, sets `EmailConfirmed = true`, and shows a success or error page
   4. Every Hangfire email job (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips any recipient whose `EmailConfirmed == false` — verified by unit tests
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1** *(independent — run in parallel)*
+
+- [ ] 24-01-PLAN.md — Domain foundation: User.EmailConfirmed + Equals/GetHashCode, WhereEmailConfirmed extension, UserManagementViewModel.EmailConfirmed, Wave 0 test stubs (Wave 1)
+- [ ] 24-02-PLAN.md — IIdentityService/IdentityService: GenerateEmailConfirmationAsync + ConfirmEmailAsync (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 24-03-PLAN.md — AdminController.SendConfirmationEmail action + Users.cshtml button & TempData banner (Wave 2, depends on 24-01, 24-02)
+- [ ] 24-04-PLAN.md — AccountController.ConfirmEmail callback + Login.cshtml TempData banner (Wave 2, depends on 24-02)
+- [ ] 24-05-PLAN.md — Job guards: QuestService dispatch sites + SessionReminderJob + unit tests for all four paths (Wave 2, depends on 24-01)
+
 **UI hint**: yes
 
 ### Phase 25: Confirmation Email Razor Template
