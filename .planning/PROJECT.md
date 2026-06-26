@@ -38,13 +38,13 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 ### Active
 
 #### Email System (Milestone 4)
-- [ ] HTML email templates replace all plain-text notifications
-- [ ] Quest-finalization email upgraded to HTML template
-- [ ] 24h session reminder delivered automatically via Hangfire recurring job
-- [ ] DM can manually trigger a session reminder from the quest manage page
-- [ ] Players confirmed for multiple same-day quests receive one combined reminder email (digest)
+- [x] HTML email templates replace all plain-text notifications — Validated in Phase 21: html-email-templates
+- [x] Quest-finalization email upgraded to HTML template — Validated in Phase 21: html-email-templates
+- [x] 24h session reminder delivered automatically via Hangfire recurring job — Validated in Phase 22: session-reminders
+- [x] DM can manually trigger a session reminder from the quest manage page — Validated in Phase 22: session-reminders
+- [ ] Players confirmed for multiple same-day quests receive one combined reminder email (digest) — deferred (digest dropped from scope, D-13; same-day quests have never occurred in one year of operation)
 - [ ] Admin email stats dashboard shows live sent/bounced/failed counts from Resend API
-- [ ] Hangfire dashboard accessible at `/hangfire` (admin role required) — Validated in Phase 20: hangfire-infrastructure
+- [x] Hangfire dashboard accessible at `/hangfire` (admin role required) — Validated in Phase 20: hangfire-infrastructure
 
 #### Previous Milestone — Architecture Refactor (Validated)
 - [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
@@ -125,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-25 after Phase 20 (hangfire-infrastructure)*
+*Last updated: 2026-06-26 after Phase 22 (session-reminders)*
