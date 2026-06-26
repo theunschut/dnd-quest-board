@@ -3,8 +3,8 @@
 <_EmailLayout Subject="@($"Your quest has been confirmed: {QuestTitle}")" PreviewText="@($"Quest Confirmed — {QuestTitle} on {QuestDate:dddd, MMMM d}")">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-image:url('@(AppUrl)/images/Blanks/Blanks%20w%20Shadow/Poster1.png');background-size:cover;background-position:center top;background-color:#F4E4BC;margin:0 auto;">
         <tr>
-            <td height="840" style="min-height:840px;">
-                <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+            <td>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
 
                     <!-- Row 1: CR Badge -->
                     <tr>
@@ -34,10 +34,12 @@
                         </td>
                     </tr>
 
-                    <!-- Row 3: Description — fills remaining vertical space -->
-                    <tr style="height:100%;">
-                        <td style="padding:16px 20%;vertical-align:top;height:100%;">
-                            <p style="font-size:15px;font-family:Georgia,serif;color:#1a0f08;line-height:1.6;font-style:italic;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);margin:0;">@QuestDescription</p>
+                    <!-- Row 3: Description — scrolls when content exceeds max-height -->
+                    <tr>
+                        <td style="padding:16px 20%;vertical-align:top;">
+                            <div style="max-height:150px;overflow-y:auto;padding-right:6px;">
+                                <p style="font-size:15px;font-family:Georgia,serif;color:#1a0f08;line-height:1.6;font-style:italic;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);margin:0;">@QuestDescription</p>
+                            </div>
                         </td>
                     </tr>
 
@@ -68,7 +70,7 @@
 
                     <!-- Row 6: Wax Seal (left) + CTA Button (center) — same row = same height -->
                     <tr>
-                        <td style="padding:16px 16px 32px 16px;">
+                        <td style="padding:16px 16px 96px 16px;">
                             <table width="100%" border="0" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td style="width:90px;vertical-align:bottom;">
