@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 21, Plan 03 complete — ready to execute 21-04
-last_updated: "2026-06-26T11:17:25Z"
-last_activity: 2026-06-26 — Plan 21-03 complete (render service, Hangfire jobs, QuestService wiring)
+stopped_at: Phase 21 complete — all 4 plans executed
+last_updated: "2026-06-26T11:24:09Z"
+last_activity: 2026-06-26 — Plan 21-04 complete (SendAsync test; NullQuestEmailDispatcher; 162/162 tests GREEN)
 progress:
   total_phases: 12
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 42
   completed_plans: 42
   percent: 100
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 21 — HTML Email Templates
-Plan: 21-03 complete; 21-04 remaining
-Status: Executing
-Last activity: 2026-06-26 — Plan 21-03 complete (render service, Hangfire jobs, QuestService wiring)
+Plan: 21-04 complete — Phase 21 complete
+Status: Ready for verification
+Last activity: 2026-06-26 — Plan 21-04 complete (SendAsync test; NullQuestEmailDispatcher; 162/162 tests GREEN)
 
 ```
-Progress: [███████████████░░░░░] 3/4 plans complete
+Progress: [████████████████████] 4/4 plans complete
 ```
 
 ## Accumulated Context
@@ -55,6 +55,7 @@ Progress: [███████████████░░░░░] 3/4 pla
 - [Phase 21 P01]: Legacy typed email methods (SendQuestFinalizedEmailAsync, SendQuestDateChangedEmailAsync) marked [Obsolete] and retained until QuestService decoupling (Plan 03)
 - [Phase 21 P03]: IQuestEmailDispatcher pattern used to decouple Domain from Service job types — define interface in Domain, implement in Service, inject at startup
 - [Phase 21 P03]: Pre-update quest fetch in UpdateQuestPropertiesWithNotificationsAsync — GetQuestWithDetailsAsync called before repo update to capture old proposed dates for email oldDate param
+- [Phase 21 P04]: NullQuestEmailDispatcher registered in Testing environment — HangfireQuestEmailDispatcher requires IBackgroundJobClient which Hangfire only provides in non-Testing; NullObject pattern avoids Hangfire dependency in test hosts
 
 ### Pending Todos
 
@@ -70,7 +71,7 @@ Progress: [███████████████░░░░░] 3/4 pla
 ## Session Continuity
 
 Last session: 2026-06-26
-Stopped at: Phase 21, Plan 03 complete — ready to execute 21-04
+Stopped at: Phase 21 complete — all 4 plans executed; ready for /gsd-verify-work
 Resume file: None
 
 ## Performance Metrics
@@ -82,3 +83,4 @@ Resume file: None
 | Phase 21 P01 | 5m | 2 tasks | 9 files |
 | Phase 21 P02 | 3m | 2 tasks | 4 files |
 | Phase 21 P03 | 7m | 2 tasks | 8 files |
+| Phase 21 P04 | 3m | 1 task | 3 files |

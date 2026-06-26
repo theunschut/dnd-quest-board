@@ -241,7 +241,7 @@ The critical infrastructure decision is `HtmlRenderer` (built into .NET 10) for 
 Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications starts at Phase 20.
 
 - [x] **Phase 20: Hangfire Infrastructure** - Install Hangfire with SQL Server storage, expose admin-only dashboard at `/hangfire`, and establish the `IServiceScopeFactory` pattern all subsequent jobs must follow (completed 2026-06-25)
-- [ ] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template
+- [x] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template (completed 2026-06-26)
 - [ ] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
 
@@ -298,7 +298,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 21-04-PLAN.md — Test fixes + regression gate: update QuestServiceTests, run full suite GREEN (Wave 4)
+- [x] 21-04-PLAN.md — Test fixes + regression gate: update QuestServiceTests, run full suite GREEN (Wave 4)
 
 **UI hint**: yes
 
@@ -341,6 +341,6 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 20. Hangfire Infrastructure | 4/4 | Complete    | 2026-06-25 |
-| 21. HTML Email Templates | 0/4 | In progress | - |
+| 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
 | 22. Session Reminders | 0/TBD | Not started | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
