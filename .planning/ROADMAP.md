@@ -323,7 +323,7 @@ Plans:
 **Wave 1** *(independent — run in parallel)*
 
 - [x] 22-01-PLAN.md — Repository foundation: ReminderLogEntity, QuestBoardContext, IReminderLogRepository, ReminderLogRepository, GetFinalizedQuestsForDateAsync, domain model, AutoMapper, DI, EF migration (Wave 1)
-- [ ] 22-02-PLAN.md — Dispatcher abstraction: IReminderJobDispatcher, HangfireReminderJobDispatcher, NullReminderJobDispatcher, Program.cs registration (Wave 1)
+- [x] 22-02-PLAN.md — Dispatcher abstraction: IReminderJobDispatcher, HangfireReminderJobDispatcher, NullReminderJobDispatcher, Program.cs registration (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
