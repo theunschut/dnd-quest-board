@@ -364,13 +364,13 @@ Plans:
   3. The confirmation callback endpoint (`GET /Account/ConfirmEmail?userId=X&token=Y`) calls `UserManager.ConfirmEmailAsync`, sets `EmailConfirmed = true`, and shows a success or error page
   4. Every Hangfire email job (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips any recipient whose `EmailConfirmed == false` — verified by unit tests
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 
 Plans:
 **Wave 1** *(independent — run in parallel)*
 
 - [x] 24-01-PLAN.md — Domain foundation: User.EmailConfirmed + Equals/GetHashCode, WhereEmailConfirmed extension, UserManagementViewModel.EmailConfirmed, Wave 0 test stubs (Wave 1)
-- [ ] 24-02-PLAN.md — IIdentityService/IdentityService: GenerateEmailConfirmationAsync + ConfirmEmailAsync (Wave 1)
+- [x] 24-02-PLAN.md — IIdentityService/IdentityService: GenerateEmailConfirmationAsync + ConfirmEmailAsync (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -405,5 +405,5 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
-| 24. Email Confirmation Flow | 1/5 | In Progress|  |
+| 24. Email Confirmation Flow | 2/5 | In Progress|  |
 | 25. Confirmation Email Razor Template | 0/TBD | Not started | - |
