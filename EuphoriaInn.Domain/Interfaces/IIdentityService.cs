@@ -21,5 +21,7 @@ public interface IIdentityService
     Task<IdentityResult> RemoveFromRoleAsync(int userId, string role);
     Task<IdentityResult> ResetPasswordAsync(int userId, string token, string newPassword);
     Task<IdentityResult> AdminResetPasswordAsync(ClaimsPrincipal adminUser, int targetUserId, string newPassword);
+    Task<string?> GenerateEmailConfirmationAsync(int userId);
+    Task<IdentityResult> ConfirmEmailAsync(int userId, string token);
     Task SignOutAsync();
 }
