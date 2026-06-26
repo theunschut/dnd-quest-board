@@ -241,7 +241,8 @@ The critical infrastructure decision is `HtmlRenderer` (built into .NET 10) for 
 Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications starts at Phase 20.
 
 - [x] **Phase 20: Hangfire Infrastructure** - Install Hangfire with SQL Server storage, expose admin-only dashboard at `/hangfire`, and establish the `IServiceScopeFactory` pattern all subsequent jobs must follow (completed 2026-06-25)
-- [x] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template (completed 2026-06-26)
+- [x] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template
+ (completed 2026-06-26)
 - [ ] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
 
@@ -315,7 +316,23 @@ Plans:
   4. If the Hangfire job retries after a partial failure, players who already received a reminder (tracked via `ReminderSentAt` on the quest or a `ReminderLog` table, added via EF Core migration) are not emailed again
   5. The date comparison in the reminder job accounts for the `FinalizedDate` timezone storage convention (UTC vs. local verified before implementation) so no quests are missed or triggered a day early
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+
+**Wave 1** *(independent — run in parallel)*
+
+- [ ] 22-01-PLAN.md — Repository foundation: ReminderLogEntity, QuestBoardContext, IReminderLogRepository, ReminderLogRepository, GetFinalizedQuestsForDateAsync, domain model, AutoMapper, DI, EF migration (Wave 1)
+- [ ] 22-02-PLAN.md — Dispatcher abstraction: IReminderJobDispatcher, HangfireReminderJobDispatcher, NullReminderJobDispatcher, Program.cs registration (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 22-03-PLAN.md — Jobs + recurring schedule: SessionReminderJob, DailyReminderJob, RecurringJob.AddOrUpdate at CRON "0 9 * * *" (Wave 2)
+- [ ] 22-04-PLAN.md — Controller + View: QuestController.SendReminder POST action, Manage.cshtml button and TempData feedback (Wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 22-05-PLAN.md — Test gate: SessionReminderJobTests, DailyReminderJobTests, QuestReminderTests, full suite green (Wave 3)
 
 ### Phase 23: Admin Email Stats
 
@@ -342,5 +359,5 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 |-------|----------------|--------|-----------|
 | 20. Hangfire Infrastructure | 4/4 | Complete    | 2026-06-25 |
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
-| 22. Session Reminders | 0/TBD | Not started | - |
+| 22. Session Reminders | 0/5 | Not started | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
