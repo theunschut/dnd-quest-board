@@ -25,6 +25,8 @@ public class Quest : IModel
 
     public bool IsFinalized { get; set; }
 
+    public DateTime? FinalizedEmailSentForDate { get; set; }
+
     public int TotalPlayerCount { get; set; }
 
     public bool DungeonMasterSession { get; set; }
