@@ -246,7 +246,7 @@ Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications sta
 
 - [x] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days (completed 2026-06-26)
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
-- [ ] **Phase 24: Email Confirmation Flow** - Admin button to manually resend confirmation email, `EmailConfirmed` guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow
+- [x] **Phase 24: Email Confirmation Flow** - Admin button to manually resend confirmation email, `EmailConfirmed` guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow (completed 2026-06-26)
 - [ ] **Phase 25: Confirmation Email Razor Template** - Styled HTML Razor component for the confirmation email, matching QuestDateChanged style and the shared `_EmailLayout`
 
 ## Phase Details
@@ -364,7 +364,7 @@ Plans:
   3. The confirmation callback endpoint (`GET /Account/ConfirmEmail?userId=X&token=Y`) calls `UserManager.ConfirmEmailAsync`, sets `EmailConfirmed = true`, and shows a success or error page
   4. Every Hangfire email job (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips any recipient whose `EmailConfirmed == false` — verified by unit tests
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 
 Plans:
 **Wave 1** *(independent — run in parallel)*
@@ -376,7 +376,7 @@ Plans:
 
 - [x] 24-03-PLAN.md — AdminController.SendConfirmationEmail action + Users.cshtml button & TempData banner (Wave 2, depends on 24-01, 24-02)
 - [x] 24-04-PLAN.md — AccountController.ConfirmEmail callback + Login.cshtml TempData banner (Wave 2, depends on 24-02)
-- [ ] 24-05-PLAN.md — Job guards: QuestService dispatch sites + SessionReminderJob + unit tests for all four paths (Wave 2, depends on 24-01)
+- [x] 24-05-PLAN.md — Job guards: QuestService dispatch sites + SessionReminderJob + unit tests for all four paths (Wave 2, depends on 24-01)
 
 **UI hint**: yes
 
@@ -405,5 +405,5 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
-| 24. Email Confirmation Flow | 4/5 | In Progress|  |
+| 24. Email Confirmation Flow | 5/5 | Complete   | 2026-06-26 |
 | 25. Confirmation Email Razor Template | 0/TBD | Not started | - |
