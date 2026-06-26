@@ -1,10 +1,11 @@
 ---
 phase: 23
 slug: admin-email-stats
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-26
+reviewed_at: 2026-06-26
 ---
 
 # Phase 23 — UI Design Contract: Admin Email Stats
