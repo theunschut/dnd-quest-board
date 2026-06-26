@@ -30,10 +30,10 @@
 
 ### Email Confirmation Flow
 
-- [ ] **REQ-24-01**: The Admin/Users page shows a "Send Confirmation Email" button for every user where `EmailConfirmed == false`; the button is absent for already-confirmed users
+- [x] **REQ-24-01**: The Admin/Users page shows a "Send Confirmation Email" button for every user where `EmailConfirmed == false`; the button is absent for already-confirmed users
 - [ ] **REQ-24-02**: Clicking the button POSTs to `AdminController.SendConfirmationEmail`, generates an ASP.NET Identity confirmation token, builds a callback URL, and sends the email via `IEmailService.SendAsync` — a `TempData["Success"]` banner confirms dispatch
 - [ ] **REQ-24-03**: The confirmation callback `GET /Account/ConfirmEmail?userId=X&token=Y` calls `UserManager.ConfirmEmailAsync` (via `IIdentityService`), sets `EmailConfirmed = true`, and redirects to Login with a `TempData` success or error banner
-- [ ] **REQ-24-04**: Every email path (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips recipients whose `EmailConfirmed == false` — verified by unit tests
+- [x] **REQ-24-04**: Every email path (`QuestFinalizedEmailJob`, `QuestDateChangedEmailJob`, `SessionReminderJob`, `DailyReminderJob`) skips recipients whose `EmailConfirmed == false` — verified by unit tests
 
 ## Future Requirements
 
@@ -63,7 +63,7 @@
 | JOBS-01 | Phase 20 | Complete |
 | JOBS-02 | Phase 20 | Complete |
 | STATS-01 | Phase 23 | Pending |
-| REQ-24-01 | Phase 24 | Pending |
+| REQ-24-01 | Phase 24 | Complete |
 | REQ-24-02 | Phase 24 | Pending |
 | REQ-24-03 | Phase 24 | Pending |
-| REQ-24-04 | Phase 24 | Pending |
+| REQ-24-04 | Phase 24 | Complete |

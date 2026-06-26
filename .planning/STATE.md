@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 23
-current_phase_name: next
-status: Ready to plan Phase 23
+current_phase: 24
+current_phase_name: email-confirmation-flow
+status: executing
 stopped_at: Phase 23 context gathered
-last_updated: "2026-06-26T20:07:17.516Z"
+last_updated: "2026-06-26T20:11:14.486Z"
 last_activity: 2026-06-26
-last_activity_desc: Phase 22 verified and human-approved (172 tests green, 5 plans complete)
+last_activity_desc: Phase 24 execution started
 progress:
   total_phases: 14
   completed_phases: 11
   total_plans: 52
-  completed_plans: 47
+  completed_plans: 48
   percent: 79
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-25)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 23 — Admin Email Stats
+**Current focus:** Phase 24 — email-confirmation-flow
 
 ## Current Position
 
-Phase: 23 — Admin Email Stats (next)
-Plan: Not started
-Status: Ready to plan Phase 23 — requires Resend API key provisioning first
-Last activity: 2026-06-26 — Phase 22 verified and human-approved (172 tests green, 5 plans complete)
+Phase: 24 (email-confirmation-flow) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-06-26 — Phase 24 execution started
 
 ```
 Progress: [████████████████████] Phase 22 complete — advancing to Phase 23
@@ -66,6 +66,8 @@ Progress: [████████████████████] Phase 2
     - [Phase 22 P04]: No controller-side log query for D-09 "already sent" warning — job handles per-player dedup; forceResend=true (from inline confirm form in TempData success block) bypasses log check inside SessionReminderJob
     - [Phase 22 P05]: IBackgroundJobClient.Enqueue<T> is an extension method — unit tests assert via underlying .Create() call count on IBackgroundJobClient mock (NSubstitute cannot intercept extension methods)
     - [Phase 22 P05]: AsyncServiceScope is a struct — mocked via new AsyncServiceScope(Substitute.For<IServiceScope>()) wrapping a substitute scope
+- [Phase ?]: AutoMapper convention maps UserEntity.EmailConfirmed to User.EmailConfirmed — no ForMember or migration needed
+- [Phase ?]: UserManagementViewModel.EmailConfirmed is a flat bool per UI-SPEC contract for view button visibility
 
 ### Roadmap Evolution
 
@@ -85,7 +87,7 @@ Progress: [████████████████████] Phase 2
 
 ## Session Continuity
 
-Last session: 2026-06-26T20:07:17.487Z
+Last session: 2026-06-26T20:11:08.582Z
 Stopped at: Phase 23 context gathered
 Resume file: .planning/phases/23-admin-email-stats/23-CONTEXT.md
 
@@ -104,3 +106,4 @@ Resume file: .planning/phases/23-admin-email-stats/23-CONTEXT.md
 | Phase 22 P03 | 3m | 2 tasks | 6 files |
 | Phase 22 P04 | 5m | 2 tasks | 2 files |
 | Phase 22 P05 | 8m | 2 tasks | 3 files |
+| Phase 24 P01 | 8m | 2 tasks | 5 files |
