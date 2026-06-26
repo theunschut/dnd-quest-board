@@ -4,7 +4,7 @@
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-image:url('@(AppUrl)/images/Blanks/Blanks%20w%20Shadow/Poster1.png');background-size:cover;background-position:center top;background-color:#F4E4BC;margin:0 auto;">
         <tr>
             <td style="aspect-ratio:5/7;overflow:hidden;">
-                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
 
                     <!-- Row 1: CR Badge -->
                     <tr>
@@ -34,9 +34,9 @@
                         </td>
                     </tr>
 
-                    <!-- Row 3: Description — scrolls when content exceeds max-height -->
-                    <tr>
-                        <td style="padding:16px 20%;vertical-align:top;">
+                    <!-- Row 3: Description — fills remaining vertical space, scrolls if too long -->
+                    <tr style="height:100%;">
+                        <td style="padding:16px 20%;vertical-align:top;height:100%;">
                             <div style="max-height:150px;overflow-y:auto;padding-right:6px;">
                                 <p style="font-size:15px;font-family:Georgia,serif;color:#1a0f08;line-height:1.6;font-style:italic;text-shadow:2px 2px 4px rgba(255,255,255,0.9),1px 1px 6px rgba(0,0,0,0.5);margin:0;">@QuestDescription</p>
                             </div>
@@ -53,15 +53,15 @@
                         <td style="padding:8px 20%;">
                             <table width="100%" border="0" cellpadding="4" cellspacing="0">
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);">Dungeon Master:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);white-space:nowrap;">Dungeon Master:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);">@DmName</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);">Session Date:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);white-space:nowrap;">Session Date:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);">@QuestDate.ToString("dddd, MMMM d")</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);" valign="top">Confirmed Adventurers:</td>
+                                    <td style="font-size:14px;font-weight:700;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);white-space:nowrap;" valign="top">Confirmed Adventurers:</td>
                                     <td style="font-size:14px;font-family:Georgia,serif;color:#1a0f08;text-shadow:2px 2px 4px rgba(255,255,255,0.9);">@string.Join(", ", ConfirmedPlayerNames)</td>
                                 </tr>
                             </table>
