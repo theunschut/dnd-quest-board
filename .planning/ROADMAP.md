@@ -243,7 +243,7 @@ Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications sta
 - [x] **Phase 20: Hangfire Infrastructure** - Install Hangfire with SQL Server storage, expose admin-only dashboard at `/hangfire`, and establish the `IServiceScopeFactory` pattern all subsequent jobs must follow (completed 2026-06-25)
 - [x] **Phase 21: HTML Email Templates** - Implement `IEmailRenderService` backed by `HtmlRenderer`, upgrade quest-finalization email to styled HTML with deduplication, and add the single-quest reminder template
  (completed 2026-06-26)
-- [ ] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days
+- [x] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days (completed 2026-06-26)
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
 - [ ] **Phase 24: Email Confirmation Flow** - Admin button to manually resend confirmation email, `EmailConfirmed` guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow
 - [ ] **Phase 25: Confirmation Email Razor Template** - Styled HTML Razor component for the confirmation email, matching QuestDateChanged style and the shared `_EmailLayout`
@@ -334,7 +334,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 22-05-PLAN.md — Test gate: SessionReminderJobTests, DailyReminderJobTests, QuestReminderTests, full suite green (Wave 3)
+- [x] 22-05-PLAN.md — Test gate: SessionReminderJobTests, DailyReminderJobTests, QuestReminderTests, full suite green (Wave 3)
 
 ### Phase 23: Admin Email Stats
 

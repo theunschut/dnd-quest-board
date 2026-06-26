@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 24 context gathered
-last_updated: "2026-06-26T20:00:00.000Z"
-last_activity: 2026-06-26 — Phase 24 discuss-phase complete; context captured in 24-CONTEXT.md
+status: phase-complete
+stopped_at: Phase 22 complete — all 5 plans done; 172 tests green
+last_updated: "2026-06-26T19:36:00.000Z"
+last_activity: 2026-06-26 — Phase 22 Plan 05 complete (SessionReminderJobTests + DailyReminderJobTests + QuestReminderTests, 3 test files, 10 new tests)
 progress:
-  total_phases: 12
-  completed_phases: 10
+  total_phases: 14
+  completed_phases: 11
   total_plans: 47
   completed_plans: 47
-  percent: 97
+  percent: 100
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 22 — Session Reminders
-Plan: 04 complete — 1 plan remaining (Plan 05)
-Status: Executing Phase 22
-Last activity: 2026-06-26 — Phase 22 Plan 04 complete (QuestController.SendReminder POST + Manage.cshtml Send Reminder button, 2 files)
+Plan: 05 complete — Phase 22 fully complete (all 5 plans done)
+Status: Phase 22 complete; awaiting Phase 23 Resend API key provisioning
+Last activity: 2026-06-26 — Phase 22 Plan 05 complete (SessionReminderJobTests + DailyReminderJobTests + QuestReminderTests, 3 test files, 10 new tests)
 
 ```
-Progress: [████████████████████] Phase 22 Plan 04 complete
+Progress: [████████████████████] Phase 22 complete — 172/172 tests green
 ```
 
 ## Accumulated Context
@@ -61,6 +61,8 @@ Progress: [████████████████████] Phase 2
     - [Phase 22 P03]: IReminderLogRepository resolved via C# using alias in SessionReminderJob to avoid ambiguous reference with Domain.Interfaces; same namespace isolation pattern as Plan 01 ServiceExtensions fix
     - [Phase 22 P03]: useYesMaybeVoters parameter added to IReminderJobDispatcher.EnqueueSessionReminder — automated path uses IsSelected, DM trigger path uses Yes+Maybe voters scoped to finalized proposed date
     - [Phase 22 P04]: No controller-side log query for D-09 "already sent" warning — job handles per-player dedup; forceResend=true (from inline confirm form in TempData success block) bypasses log check inside SessionReminderJob
+    - [Phase 22 P05]: IBackgroundJobClient.Enqueue<T> is an extension method — unit tests assert via underlying .Create() call count on IBackgroundJobClient mock (NSubstitute cannot intercept extension methods)
+    - [Phase 22 P05]: AsyncServiceScope is a struct — mocked via new AsyncServiceScope(Substitute.For<IServiceScope>()) wrapping a substitute scope
 
 ### Roadmap Evolution
 
@@ -81,7 +83,7 @@ Progress: [████████████████████] Phase 2
 ## Session Continuity
 
 Last session: 2026-06-26
-Stopped at: Phase 22 Plan 04 complete — SendReminder controller action + Manage.cshtml button; Plan 05 remaining
+Stopped at: Phase 22 complete — all 5 plans executed; Phase 23 requires Resend API key provisioning first
 Resume file: None
 
 ## Performance Metrics
@@ -98,3 +100,4 @@ Resume file: None
 | Phase 22 P02 | 2m | 2 tasks | 4 files |
 | Phase 22 P03 | 3m | 2 tasks | 6 files |
 | Phase 22 P04 | 5m | 2 tasks | 2 files |
+| Phase 22 P05 | 8m | 2 tasks | 3 files |
