@@ -52,7 +52,7 @@
 | REMIND-01 | Phase 22 | Pending |
 | REMIND-02 | Phase 22 | Pending |
 | REMIND-03 | Phase 22 | Pending |
-| REMIND-04 | Phase 22 | Pending |
+| REMIND-04 | Phase 22 | In progress (Plan 01: ReminderLog entity, IReminderLogRepository, migration — job dedup in Plan 03) |
 | JOBS-01 | Phase 20 | Complete |
 | JOBS-02 | Phase 20 | Complete |
 | STATS-01 | Phase 23 | Pending |

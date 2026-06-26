@@ -322,7 +322,7 @@ Plans:
 
 **Wave 1** *(independent — run in parallel)*
 
-- [ ] 22-01-PLAN.md — Repository foundation: ReminderLogEntity, QuestBoardContext, IReminderLogRepository, ReminderLogRepository, GetFinalizedQuestsForDateAsync, domain model, AutoMapper, DI, EF migration (Wave 1)
+- [x] 22-01-PLAN.md — Repository foundation: ReminderLogEntity, QuestBoardContext, IReminderLogRepository, ReminderLogRepository, GetFinalizedQuestsForDateAsync, domain model, AutoMapper, DI, EF migration (Wave 1)
 - [ ] 22-02-PLAN.md — Dispatcher abstraction: IReminderJobDispatcher, HangfireReminderJobDispatcher, NullReminderJobDispatcher, Program.cs registration (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -359,5 +359,5 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 |-------|----------------|--------|-----------|
 | 20. Hangfire Infrastructure | 4/4 | Complete    | 2026-06-25 |
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
-| 22. Session Reminders | 0/5 | Not started | - |
+| 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
