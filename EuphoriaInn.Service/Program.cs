@@ -1,10 +1,12 @@
 using EuphoriaInn.Repository.Automapper;
 using EuphoriaInn.Domain.Extensions;
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Extensions;
 using EuphoriaInn.Service.Authorization;
 using EuphoriaInn.Service.Automapper;
 using EuphoriaInn.Service.Middleware;
+using EuphoriaInn.Service.Services;
 using EuphoriaInn.Service.ViewExpanders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -76,6 +78,10 @@ builder.Services.AddSession(options =>
 builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices(builder.Configuration);
+
+// Email render service and job dispatcher (Service-layer registrations)
+builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
+builder.Services.AddScoped<IQuestEmailDispatcher, HangfireQuestEmailDispatcher>();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
@@ -168,10 +174,6 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     // Seed basic shop data
     await SeedShopDataAsync(app);
-
-    // Smoke-test: proves IServiceScopeFactory pattern resolves before real jobs land
-    // REMOVE THIS in Phase 21 once real jobs exist
-    BackgroundJob.Enqueue<SmokeTestJob>(j => j.RunAsync(CancellationToken.None));
 }
 
 app.Run();
