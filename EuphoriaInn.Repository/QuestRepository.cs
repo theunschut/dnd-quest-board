@@ -206,6 +206,14 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         return Mapper.Map<IList<Quest>>(entities);
     }
 
+    public async Task<IList<Quest>> GetFinalizedQuestsForDateAsync(DateTime date, CancellationToken token = default)
+    {
+        var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
+            .Where(q => q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date == date.Date)
+            .ToListAsync(token);
+        return Mapper.Map<IList<Quest>>(entities);
+    }
+
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
     {
         return Math.Abs((date1 - date2).TotalMinutes) <= DateMatchWindowMinutes;

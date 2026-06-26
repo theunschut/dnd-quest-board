@@ -32,4 +32,6 @@ public interface IQuestRepository : IBaseRepository<Quest>
     Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default);
 
     Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default);
+
+    Task<IList<Quest>> GetFinalizedQuestsForDateAsync(DateTime date, CancellationToken token = default);
 }
