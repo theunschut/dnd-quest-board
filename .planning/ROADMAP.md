@@ -294,7 +294,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 1+2 completion)*
 
-- [ ] 21-03-PLAN.md — Jobs + QuestService rewire: RazorEmailRenderService, QuestFinalizedEmailJob, QuestDateChangedEmailJob, SmokeTestJob removal, DI registration (Wave 3)
+- [x] 21-03-PLAN.md — Jobs + QuestService rewire: RazorEmailRenderService, QuestFinalizedEmailJob, QuestDateChangedEmailJob, SmokeTestJob removal, DI registration (Wave 3)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

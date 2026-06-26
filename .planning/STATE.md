@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 21, Plan 02 complete — ready to execute 21-03
-last_updated: "2026-06-26T11:09:00Z"
-last_activity: 2026-06-26 — Plan 21-02 complete (Razor email components)
+stopped_at: Phase 21, Plan 03 complete — ready to execute 21-04
+last_updated: "2026-06-26T11:17:25Z"
+last_activity: 2026-06-26 — Plan 21-03 complete (render service, Hangfire jobs, QuestService wiring)
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 42
-  completed_plans: 41
-  percent: 98
+  completed_plans: 42
+  percent: 100
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 21 — HTML Email Templates
-Plan: 21-02 complete; 21-03 and 21-04 remaining
+Plan: 21-03 complete; 21-04 remaining
 Status: Executing
-Last activity: 2026-06-26 — Plan 21-02 complete (four Razor email components)
+Last activity: 2026-06-26 — Plan 21-03 complete (render service, Hangfire jobs, QuestService wiring)
 
 ```
-Progress: [██████████░░░░░░░░░░] 2/4 plans complete
+Progress: [███████████████░░░░░] 3/4 plans complete
 ```
 
 ## Accumulated Context
@@ -53,6 +53,8 @@ Progress: [██████████░░░░░░░░░░] 2/4 pla
 - [Phase 20]: AdminDashboardAuthFilter Response.Redirect() calls removed — filter now returns true/false only (defense-in-depth)
 - [Phase 21 P01]: Domain.csproj requires FrameworkReference to Microsoft.AspNetCore.App for IEmailRenderService to constrain on IComponent — plain Microsoft.NET.Sdk doesn't include aspnetcore types
 - [Phase 21 P01]: Legacy typed email methods (SendQuestFinalizedEmailAsync, SendQuestDateChangedEmailAsync) marked [Obsolete] and retained until QuestService decoupling (Plan 03)
+- [Phase 21 P03]: IQuestEmailDispatcher pattern used to decouple Domain from Service job types — define interface in Domain, implement in Service, inject at startup
+- [Phase 21 P03]: Pre-update quest fetch in UpdateQuestPropertiesWithNotificationsAsync — GetQuestWithDetailsAsync called before repo update to capture old proposed dates for email oldDate param
 
 ### Pending Todos
 
@@ -68,7 +70,7 @@ Progress: [██████████░░░░░░░░░░] 2/4 pla
 ## Session Continuity
 
 Last session: 2026-06-26
-Stopped at: Phase 21, Plan 02 complete — ready to execute 21-03
+Stopped at: Phase 21, Plan 03 complete — ready to execute 21-04
 Resume file: None
 
 ## Performance Metrics
@@ -79,3 +81,4 @@ Resume file: None
 | Phase 20 P20.1-01 | 5m | 3 tasks | 2 files |
 | Phase 21 P01 | 5m | 2 tasks | 9 files |
 | Phase 21 P02 | 3m | 2 tasks | 4 files |
+| Phase 21 P03 | 7m | 2 tasks | 8 files |
