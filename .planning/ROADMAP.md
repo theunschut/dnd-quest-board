@@ -281,7 +281,25 @@ Plans:
   4. A shared email layout Razor component (`_EmailLayout.razor`) and a quest-finalization Razor component (`QuestFinalized.razor`) exist and are used by the finalization send path
   5. A single-quest session reminder Razor component (`SessionReminder.razor`) renders a complete HTML email that Phase 22 can use without modification
 
-**Plans**: TBD
+**Plans**: 4 plans in 4 waves
+
+Plans:
+**Wave 1**
+
+- [ ] 21-01-PLAN.md — Foundation: EF migration, entity/model/repo changes, IEmailRenderService interface, IEmailService.SendAsync (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 21-02-PLAN.md — Razor email components: _EmailLayout, QuestFinalized, QuestDateChanged, SessionReminder (Wave 2)
+
+**Wave 3** *(blocked on Wave 1+2 completion)*
+
+- [ ] 21-03-PLAN.md — Jobs + QuestService rewire: RazorEmailRenderService, QuestFinalizedEmailJob, QuestDateChangedEmailJob, SmokeTestJob removal, DI registration (Wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 21-04-PLAN.md — Test fixes + regression gate: update QuestServiceTests, run full suite GREEN (Wave 4)
+
 **UI hint**: yes
 
 ### Phase 22: Session Reminders
@@ -323,6 +341,6 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 20. Hangfire Infrastructure | 4/4 | Complete    | 2026-06-25 |
-| 21. HTML Email Templates | 0/TBD | Not started | - |
+| 21. HTML Email Templates | 0/4 | In progress | - |
 | 22. Session Reminders | 0/TBD | Not started | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
