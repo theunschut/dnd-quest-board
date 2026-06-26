@@ -45,8 +45,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMAIL-01 | Phase 21 | Pending |
-| EMAIL-02 | Phase 21 | Pending |
+| EMAIL-01 | Phase 21 | In Progress (Plan 01 complete: interface + FrameworkReference) |
+| EMAIL-02 | Phase 21 | In Progress (Plan 01 complete: migration + dedup repo method) |
 | EMAIL-03 | Phase 21 | Pending |
 | EMAIL-04 | Phase 22 | Pending |
 | REMIND-01 | Phase 22 | Pending |

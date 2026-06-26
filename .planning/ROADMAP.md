@@ -286,7 +286,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 21-01-PLAN.md — Foundation: EF migration, entity/model/repo changes, IEmailRenderService interface, IEmailService.SendAsync (Wave 1)
+- [x] 21-01-PLAN.md — Foundation: EF migration, entity/model/repo changes, IEmailRenderService interface, IEmailService.SendAsync (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

@@ -1,20 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.0
-milestone_name: email-notifications
-current_phase: 21
-current_phase_name: HTML Email Templates
-status: ready_to_execute
-stopped_at: Phase 21 plans created and verified
-last_updated: "2026-06-26T00:00:00.000Z"
-last_activity: 2026-06-26
-last_activity_desc: Phase 21 planning complete — 4 plans in 4 waves, verification passed
+milestone: v1.0
+milestone_name: milestone
+status: executing
+stopped_at: Phase 20 complete, ready to plan Phase 21
+last_updated: "2026-06-26T11:02:18.868Z"
+last_activity: 2026-06-26 — Phase 21 planning complete, verification passed (0 blockers)
 progress:
   total_phases: 12
   completed_phases: 9
-  total_plans: 38
-  completed_plans: 38
-  percent: 75
+  total_plans: 42
+  completed_plans: 39
+  percent: 93
 ---
 
 # Project State
@@ -29,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 ## Current Position
 
 Phase: 21 — HTML Email Templates
-Plan: 4 plans created (21-01 through 21-04)
-Status: Ready to execute
-Last activity: 2026-06-26 — Phase 21 planning complete, verification passed (0 blockers)
+Plan: 21-01 complete; 21-02 through 21-04 remaining
+Status: Executing
+Last activity: 2026-06-26 — Plan 21-01 complete (data model, interfaces, email plumbing)
 
 ```
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases complete
+Progress: [█████░░░░░░░░░░░░░░░] 1/4 plans complete
 ```
 
 ## Accumulated Context
@@ -54,6 +51,8 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 - [Phase 20]: UseHangfireDashboard must also be guarded by !IsEnvironment(Testing) — Hangfire calls ThrowIfNotConfigured inside UseHangfireDashboard which fails when AddHangfire was skipped
 - [Phase 20]: Pre-Hangfire redirect middleware placed inside !IsEnvironment('Testing') block to preserve test isolation
 - [Phase 20]: AdminDashboardAuthFilter Response.Redirect() calls removed — filter now returns true/false only (defense-in-depth)
+- [Phase 21 P01]: Domain.csproj requires FrameworkReference to Microsoft.AspNetCore.App for IEmailRenderService to constrain on IComponent — plain Microsoft.NET.Sdk doesn't include aspnetcore types
+- [Phase 21 P01]: Legacy typed email methods (SendQuestFinalizedEmailAsync, SendQuestDateChangedEmailAsync) marked [Obsolete] and retained until QuestService decoupling (Plan 03)
 
 ### Pending Todos
 
@@ -68,8 +67,8 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 pha
 
 ## Session Continuity
 
-Last session: 2026-06-25
-Stopped at: Phase 20 complete, ready to plan Phase 21
+Last session: 2026-06-26
+Stopped at: Phase 21, Plan 01 complete — ready to execute 21-02
 Resume file: None
 
 ## Performance Metrics
@@ -78,3 +77,4 @@ Resume file: None
 |-------|------|----------|-------|
 | Phase 20 P03 | 3 | 2 tasks | 1 files |
 | Phase 20 P20.1-01 | 5m | 3 tasks | 2 files |
+| Phase 21 P01 | 5m | 2 tasks | 9 files |
