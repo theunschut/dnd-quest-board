@@ -79,6 +79,15 @@ builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices(builder.Configuration);
 
+// Named HttpClient for Resend API stats (D-10)
+// Authorization header is NOT set here — added per-request in AdminController.GetResendStatsAsync (Pitfall 4)
+builder.Services.AddHttpClient("Resend", client =>
+{
+    client.BaseAddress = new Uri("https://api.resend.com/");
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
 // Email render service and job dispatcher (Service-layer registrations)
 builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
 

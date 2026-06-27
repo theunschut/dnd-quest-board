@@ -10,4 +10,5 @@ public record EmailSettings
     public string FromEmail { get; init; } = string.Empty;
     public string FromName { get; init; } = "D&D Quest Board";
     public string AppUrl { get; init; } = string.Empty;
+    public string ResendApiKey { get; init; } = string.Empty;
 }
