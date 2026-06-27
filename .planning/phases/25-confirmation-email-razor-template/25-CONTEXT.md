@@ -30,6 +30,10 @@ All three Phase 25 ROADMAP success criteria are satisfied. Only the test file is
 - **D-05:** Follow the `SessionReminderJobTests` `IServiceScopeFactory` mocking pattern exactly: `Substitute.For<IServiceProvider>()` → `Substitute.For<IServiceScope>()` → `Substitute.For<IServiceScopeFactory>()` returning `new AsyncServiceScope(scope)`.
 - **D-06:** Mock `IOptions<EmailSettings>` with `AppUrl = "https://example.com"` (same as `SessionReminderJobTests`).
 
+### Obsolete Method Removal
+- **D-07:** Remove `SendQuestFinalizedEmailAsync` and `SendQuestDateChangedEmailAsync` from `IEmailService` and `EmailService`. These were marked `[Obsolete]` in Phase 21 with the note "Will be removed in a future phase" — all call sites were migrated to `SendAsync` in Phase 21. No callers remain outside the interface declaration, implementation, and their own unit tests.
+- **D-08:** Delete the two corresponding tests in `EuphoriaInn.UnitTests/Services/EmailServiceTests.cs` (`SendQuestFinalizedEmailAsync_WhenUsernameEmpty_ReturnsWithoutThrowing` and `SendQuestDateChangedEmailAsync_WhenUsernameEmpty_ReturnsWithoutThrowing`) — they test code that no longer exists.
+
 </decisions>
 
 <canonical_refs>
@@ -42,6 +46,11 @@ All three Phase 25 ROADMAP success criteria are satisfied. Only the test file is
 
 ### The Job Being Tested
 - `EuphoriaInn.Service/Jobs/ConfirmationEmailJob.cs` — full implementation; 3 services resolved from scope (`IEmailRenderService`, `IEmailService`, `IOptions<EmailSettings>`)
+
+### Obsolete Method Removal Targets
+- `EuphoriaInn.Domain/Interfaces/IEmailService.cs` — remove `SendQuestFinalizedEmailAsync` and `SendQuestDateChangedEmailAsync` declarations (lines 9–12, both with `[Obsolete]`)
+- `EuphoriaInn.Domain/Services/EmailService.cs` — remove corresponding method bodies
+- `EuphoriaInn.UnitTests/Services/EmailServiceTests.cs` — remove the 2 tests that cover the deleted methods
 
 ### The Razor Component
 - `EuphoriaInn.Service/Components/Emails/ConfirmEmail.razor` — parameter names: `UserName`, `CallbackUrl`, `AppUrl` (used as dictionary keys in `RenderAsync`)
