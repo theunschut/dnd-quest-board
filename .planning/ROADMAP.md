@@ -247,7 +247,7 @@ Continues from Milestone 3 (Phases 12–19). Milestone 4 Email Notifications sta
 - [x] **Phase 22: Session Reminders** - Add `ReminderSentAt` idempotency column, implement the daily recurring reminder job and DM manual trigger, with digest batching for players on multi-quest days (completed 2026-06-26)
 - [ ] **Phase 23: Admin Email Stats** - Add admin-only stats dashboard pulling live sent/bounced/failed counts from the Resend REST API
 - [x] **Phase 24: Email Confirmation Flow** - Admin button to manually resend confirmation email, `EmailConfirmed` guard in all email jobs to skip unconfirmed users, confirmation landing endpoint using ASP.NET Identity token flow (completed 2026-06-26)
-- [ ] **Phase 25: Confirmation Email Razor Template** - Styled HTML Razor component for the confirmation email, matching QuestDateChanged style and the shared `_EmailLayout`
+- [x] **Phase 25: Confirmation Email Razor Template** - Styled HTML Razor component for the confirmation email, matching QuestDateChanged style and the shared `_EmailLayout` (completed 2026-06-27)
 
 ## Phase Details
 
@@ -392,12 +392,12 @@ Plans:
 
 **Note**: Criteria 1–3 were already satisfied during Phase 24 execution (`ConfirmEmail.razor`, `ConfirmationEmailJob`, and the `SendConfirmationEmail` → enqueue wiring all landed ahead of schedule). Phase 25's remaining work is test coverage for `ConfirmationEmailJob` plus removal of the Phase-21 `[Obsolete]` typed email methods (D-07/D-08).
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans complete
 Plans:
 **Wave 1** *(independent — run in parallel)*
 
 - [x] 25-01-PLAN.md — Add ConfirmationEmailJobTests.cs (RenderAsync + SendAsync wiring, D-01..D-06) (Wave 1)
-- [ ] 25-02-PLAN.md — Remove obsolete SendQuestFinalizedEmailAsync/SendQuestDateChangedEmailAsync from IEmailService + EmailService and delete their 2 tests (D-07, D-08) (Wave 1)
+- [x] 25-02-PLAN.md — Remove obsolete SendQuestFinalizedEmailAsync/SendQuestDateChangedEmailAsync from IEmailService + EmailService and delete their 2 tests (D-07, D-08) (Wave 1)
 
 **UI hint**: yes
 
@@ -414,4 +414,4 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
 | 24. Email Confirmation Flow | 5/5 | Complete   | 2026-06-26 |
-| 25. Confirmation Email Razor Template | 1/2 | In Progress|  |
+| 25. Confirmation Email Razor Template | 2/2 | Complete   | 2026-06-27 |
