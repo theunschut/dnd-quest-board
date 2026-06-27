@@ -1,16 +1,22 @@
 using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Service.Jobs;
+using EuphoriaInn.Service.Services;
 using EuphoriaInn.Service.ViewModels.AdminViewModels;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 
 namespace EuphoriaInn.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -265,5 +271,86 @@ public class AdminController(IUserService userService, IQuestService questServic
 
         await questService.RemoveAsync(quest);
         return Ok();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EmailStats(bool force = false, CancellationToken token = default)
+    {
+        var apiKey = emailOptions.Value.ResendApiKey;
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+            return View(EmailStatsViewModel.MissingKey());
+
+        const string cacheKey = "resend-email-stats";
+
+        if (!force && cache.TryGetValue(cacheKey, out EmailStatsViewModel? cached) && cached is not null)
+            return View(cached);
+
+        cache.Remove(cacheKey);
+
+        var (viewModel, error) = await GetResendStatsAsync(apiKey, token);
+
+        if (error)
+            return View(EmailStatsViewModel.ApiError());
+
+        cache.Set(cacheKey, viewModel,
+            new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+        return View(viewModel);
+    }
+
+    private async Task<(EmailStatsViewModel stats, bool error)> GetResendStatsAsync(
+        string apiKey, CancellationToken token)
+    {
+        try
+        {
+            var client = httpClientFactory.CreateClient("Resend");
+            var cutoff = DateTime.UtcNow.AddDays(-30);
+            var collected = new List<ResendEmailRecord>();
+            string? afterId = null;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var url = afterId == null ? "emails?limit=100" : $"emails?limit=100&after={afterId}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+                var response = await client.SendAsync(request, token);
+                if (!response.IsSuccessStatusCode)
+                    return (new EmailStatsViewModel(), true);
+
+                var json = await response.Content.ReadAsStringAsync(token);
+                var result = JsonSerializer.Deserialize<ResendEmailListResponse>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (result?.Data == null || result.Data.Count == 0) break;
+
+                bool reachedCutoff = false;
+                foreach (var email in result.Data)
+                {
+                    if (email.CreatedAt < cutoff) { reachedCutoff = true; break; }
+                    collected.Add(email);
+                }
+
+                if (reachedCutoff || result.Data.Count < 100) hasMore = false;
+                else afterId = result.Data[^1].Id;
+            }
+
+            var counts = ResendStatsAggregator.Aggregate(collected, cutoff);
+
+            return (new EmailStatsViewModel
+            {
+                Sent = counts.Sent,
+                Delivered = counts.Delivered,
+                Bounced = counts.Bounced,
+                Failed = counts.Failed,
+                AsOf = DateTime.UtcNow
+            }, false);
+        }
+        catch
+        {
+            return (new EmailStatsViewModel(), true);
+        }
     }
 }
