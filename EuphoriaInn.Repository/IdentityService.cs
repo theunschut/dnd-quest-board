@@ -43,7 +43,8 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(entity, "Player");
-            await signInManager.SignInAsync(entity, isPersistent: false);
+            // Do not sign in until email is confirmed — the admin must send a confirmation
+            // link first (via AdminController.SendConfirmationEmail).
         }
 
         return result;
