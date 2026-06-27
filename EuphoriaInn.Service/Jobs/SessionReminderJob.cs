@@ -55,8 +55,17 @@ public class SessionReminderJob(
             var finalizedProposedDate = quest.ProposedDates
                 .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
 
+            if (finalizedProposedDate == null)
+            {
+                logger.LogWarning(
+                    "SessionReminderJob: quest {QuestId} has no ProposedDate matching FinalizedDate {Date}; " +
+                    "cannot resolve Yes/Maybe voters. Skipping useYesMaybeVoters path.",
+                    questId, quest.FinalizedDate.Value.Date);
+                return;
+            }
+
             targetSignups = quest.PlayerSignups.Where(ps => ps.DateVotes.Any(dv =>
-                dv.ProposedDate?.Id == finalizedProposedDate?.Id &&
+                dv.ProposedDate?.Id == finalizedProposedDate.Id &&
                 (dv.Vote == VoteType.Yes || dv.Vote == VoteType.Maybe)));
         }
         else
