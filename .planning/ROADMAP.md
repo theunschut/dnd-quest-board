@@ -349,7 +349,17 @@ Plans:
   3. The `ResendApiKey` is read from `EmailSettings` in `appsettings.json`; the page renders an actionable error message if the key is missing or the API returns an error (not an unhandled exception)
   4. A non-admin user cannot access the stats page (protected by the existing `"AdminOnly"` authorization policy)
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+**Wave 1** *(independent)*
+
+- [ ] 23-01-PLAN.md — Foundation: EmailSettings.ResendApiKey (D-09), appsettings placeholder, named Resend HttpClient (D-10), ResendStatsAggregator + unit tests (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 23-02-PLAN.md — EmailStatsViewModel + AdminController.EmailStats action (cache/force/pagination/degraded states), EmailStats.cshtml view, Admin nav link, auth integration tests (Wave 2)
+
 **UI hint**: yes
 
 ### Phase 24: Email Confirmation Flow
@@ -412,6 +422,6 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 20. Hangfire Infrastructure | 4/4 | Complete    | 2026-06-25 |
 | 21. HTML Email Templates | 4/4 | Complete   | 2026-06-26 |
 | 22. Session Reminders | 1/5 | In progress | - |
-| 23. Admin Email Stats | 0/TBD | Not started | - |
+| 23. Admin Email Stats | 0/2 | Planned | - |
 | 24. Email Confirmation Flow | 5/5 | Complete   | 2026-06-26 |
 | 25. Confirmation Email Razor Template | 2/2 | Complete    | 2026-06-27 |
