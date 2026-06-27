@@ -4,11 +4,12 @@ using EuphoriaInn.Service.ViewModels.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 namespace EuphoriaInn.Service.Controllers.Admin;
 
-public class AccountController(IUserService userService, IIdentityService identityService) : Controller
+public class AccountController(IUserService userService, IIdentityService identityService, ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
@@ -40,8 +41,9 @@ public class AccountController(IUserService userService, IIdentityService identi
                 TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
             }
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogError(ex, "ConfirmEmail failed for userId {UserId}", userId);
             TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
         }
 
