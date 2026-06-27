@@ -13,9 +13,7 @@ public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService>
 
     private SmtpClient? CreateSmtpClient()
     {
-        if (string.IsNullOrEmpty(_settings.SmtpUsername) ||
-            string.IsNullOrEmpty(_settings.SmtpPassword) ||
-            string.IsNullOrEmpty(_settings.FromEmail))
+        if (string.IsNullOrEmpty(_settings.FromEmail))
         {
             logger.LogWarning("Email settings not configured. Skipping email notification.");
             return null;
@@ -23,9 +21,12 @@ public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService>
 
         var client = new SmtpClient(_settings.SmtpServer, _settings.SmtpPort)
         {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(_settings.SmtpUsername, _settings.SmtpPassword)
+            EnableSsl = _settings.EnableSsl
         };
+
+        if (!string.IsNullOrEmpty(_settings.SmtpUsername))
+            client.Credentials = new NetworkCredential(_settings.SmtpUsername, _settings.SmtpPassword);
+
         return client;
     }
 
@@ -130,6 +131,7 @@ Thanks for your understanding!
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to send email to {ToEmail} with subject {Subject}", toEmail, subject);
+            throw;
         }
     }
 }

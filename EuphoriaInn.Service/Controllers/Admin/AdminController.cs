@@ -1,5 +1,7 @@
 using EuphoriaInn.Domain.Interfaces;
+using EuphoriaInn.Service.Jobs;
 using EuphoriaInn.Service.ViewModels.AdminViewModels;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -8,7 +10,7 @@ using System.Text;
 namespace EuphoriaInn.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IEmailService emailService) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -233,16 +235,8 @@ public class AdminController(IUserService userService, IQuestService questServic
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
         var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId, token = encodedToken }, Request.Scheme);
 
-        var safeName = System.Net.WebUtility.HtmlEncode(user.Name);
-        var html = $"""
-            <p>Hi {safeName},</p>
-            <p>Click the button below to confirm your email address and activate your Quest Board account.</p>
-            <p><a href="{callbackUrl}" style="display:inline-block;padding:10px 20px;background:#0dcaf0;color:#000;text-decoration:none;border-radius:4px;">Confirm Email</a></p>
-            <p>If you did not request this, you can ignore this email.</p>
-            """;
-
-        await emailService.SendAsync(user.Email!, "Confirm your D&D Quest Board account", html);
-        TempData["Success"] = $"Confirmation email sent to {user.Name}.";
+        jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, CancellationToken.None));
+        TempData["Success"] = $"Confirmation email queued for {user.Name}.";
         return RedirectToAction(nameof(Users));
     }
 
