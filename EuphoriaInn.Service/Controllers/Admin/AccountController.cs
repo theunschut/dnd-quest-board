@@ -20,7 +20,7 @@ public class AccountController(IUserService userService, IIdentityService identi
     [HttpGet]
     public async Task<IActionResult> ConfirmEmail(int userId, string token)
     {
-        if (string.IsNullOrEmpty(token))
+        if (userId <= 0 || string.IsNullOrEmpty(token))
         {
             TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
             return RedirectToAction(nameof(Login));
