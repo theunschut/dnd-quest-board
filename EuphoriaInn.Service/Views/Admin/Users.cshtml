@@ -135,8 +135,8 @@
                             </form>
                         }
                         
-                        @* Send Confirmation Email button - only for unconfirmed users *@
-                        @if (!userModel.EmailConfirmed)
+                        @* Send Confirmation Email button - only for unconfirmed users with an email address *@
+                        @if (!userModel.EmailConfirmed && !string.IsNullOrEmpty(userModel.User.Email))
                         {
                             <form asp-action="SendConfirmationEmail" method="post" class="d-inline me-2">
                                 <input type="hidden" name="userId" value="@userModel.User.Id" />
