@@ -390,7 +390,15 @@ Plans:
   2. The rendered output uses `_EmailLayout`, matches the visual style of the other email templates (header, body text, button-styled CTA link), and contains the confirmation URL
   3. `AdminController.SendConfirmationEmail` calls `emailRenderService.RenderAsync<ConfirmEmail>(...)` instead of inline HTML
 
-**Plans**: TBD
+**Note**: Criteria 1–3 were already satisfied during Phase 24 execution (`ConfirmEmail.razor`, `ConfirmationEmailJob`, and the `SendConfirmationEmail` → enqueue wiring all landed ahead of schedule). Phase 25's remaining work is test coverage for `ConfirmationEmailJob` plus removal of the Phase-21 `[Obsolete]` typed email methods (D-07/D-08).
+
+**Plans**: 2 plans
+Plans:
+**Wave 1** *(independent — run in parallel)*
+
+- [ ] 25-01-PLAN.md — Add ConfirmationEmailJobTests.cs (RenderAsync + SendAsync wiring, D-01..D-06) (Wave 1)
+- [ ] 25-02-PLAN.md — Remove obsolete SendQuestFinalizedEmailAsync/SendQuestDateChangedEmailAsync from IEmailService + EmailService and delete their 2 tests (D-07, D-08) (Wave 1)
+
 **UI hint**: yes
 
 ## Progress
@@ -406,4 +414,4 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
 | 24. Email Confirmation Flow | 5/5 | Complete   | 2026-06-26 |
-| 25. Confirmation Email Razor Template | 0/TBD | Not started | - |
+| 25. Confirmation Email Razor Template | 0/2 | Not started | - |
