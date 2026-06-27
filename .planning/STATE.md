@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 25
+current_phase: 23
+current_phase_name: admin-email-stats
 status: executing
 stopped_at: Phase 25 context gathered
-last_updated: "2026-06-27T15:25:23.908Z"
+last_updated: "2026-06-27T15:47:40.887Z"
 last_activity: 2026-06-27
-last_activity_desc: Phase 25 complete
+last_activity_desc: Phase 23 execution started
 progress:
   total_phases: 14
   completed_phases: 13
-  total_plans: 55
-  completed_plans: 54
+  total_plans: 56
+  completed_plans: 55
   percent: 93
-current_phase_name: email-confirmation-flow
 ---
 
 # Project State
@@ -24,14 +24,14 @@ current_phase_name: email-confirmation-flow
 See: .planning/PROJECT.md (updated 2026-06-25)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 24 complete — email confirmation flow verified end-to-end
+**Current focus:** Phase 23 — admin-email-stats
 
 ## Current Position
 
-Phase: 25
-Plan: Not started
+Phase: 23 (admin-email-stats) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-06-27 — Phase 25 complete
+Last activity: 2026-06-27 — Phase 23 execution started
 
 ```
 Progress: [████████████████████] Phase 22 complete — advancing to Phase 23
@@ -71,6 +71,9 @@ Progress: [████████████████████] Phase 2
 - [Phase ?]: [Phase 24 P04]: Malformed Base64Url token caught in try/catch in ConfirmEmail — surfaced as error banner not 500 (T-24-10)
 - [Phase ?]: Used object.Equals() instead of null-propagating ?. in Arg.Is expression tree predicate (CS8072 restriction)
 - [Phase ?]: IEmailService trimmed to single SendAsync contract; obsolete typed methods removed along with their tests
+- [Phase ?]: ResendStatsAggregator in Service.Services as pure static class
+- [Phase ?]: opened and clicked last_event values count as Delivered (Pitfall 5 avoided)
+- [Phase ?]: Resend HttpClient registered without Authorization header; set per-request in Plan 02 (T-23-02 mitigated)
 
 ### Roadmap Evolution
 
@@ -90,7 +93,7 @@ Progress: [████████████████████] Phase 2
 
 ## Session Continuity
 
-Last session: 2026-06-27T15:13:20.446Z
+Last session: 2026-06-27T15:47:32.100Z
 Stopped at: Phase 25 context gathered
 Resume file: .planning/phases/25-confirmation-email-razor-template/25-CONTEXT.md
 
@@ -116,3 +119,4 @@ Resume file: .planning/phases/25-confirmation-email-razor-template/25-CONTEXT.md
 | Phase 24 P05 | 3m | 2 tasks | 5 files |
 | Phase 25 P01 | 2m | 1 tasks | 1 files |
 | Phase 25 P02 | 4m | 2 tasks | 3 files |
+| Phase 23 P01 | 10m | 2 tasks | 5 files |

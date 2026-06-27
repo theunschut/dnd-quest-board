@@ -26,7 +26,7 @@
 
 ### Admin Email Stats
 
-- [ ] **STATS-01**: Admin users can view email delivery statistics (sent, delivered, bounced, and failed counts) pulled from the Resend API using a plain `HttpClient` and a configurable `ResendApiKey` in `appsettings`
+- [x] **STATS-01**: Admin users can view email delivery statistics (sent, delivered, bounced, and failed counts) pulled from the Resend API using a plain `HttpClient` and a configurable `ResendApiKey` in `appsettings`
 
 ### Email Confirmation Flow
 
@@ -62,7 +62,7 @@
 | REMIND-04 | Phase 22 | Complete (Plan 01: ReminderLog entity + IReminderLogRepository; Plan 03: ExistsAsync/AddAsync dedup in SessionReminderJob) |
 | JOBS-01 | Phase 20 | Complete |
 | JOBS-02 | Phase 20 | Complete |
-| STATS-01 | Phase 23 | Pending |
+| STATS-01 | Phase 23 | Complete |
 | REQ-24-01 | Phase 24 | Complete |
 | REQ-24-02 | Phase 24 | Complete |
 | REQ-24-03 | Phase 24 | Complete |
