@@ -414,4 +414,4 @@ Note: Phase 23 is fully independent of Phases 21–22 and can be executed in any
 | 22. Session Reminders | 1/5 | In progress | - |
 | 23. Admin Email Stats | 0/TBD | Not started | - |
 | 24. Email Confirmation Flow | 5/5 | Complete   | 2026-06-26 |
-| 25. Confirmation Email Razor Template | 2/2 | Complete   | 2026-06-27 |
+| 25. Confirmation Email Razor Template | 2/2 | Complete    | 2026-06-27 |

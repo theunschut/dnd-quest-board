@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 24
-current_phase_name: email-confirmation-flow
+current_phase: 25
 status: verifying
 stopped_at: Phase 25 context gathered
-last_updated: "2026-06-27T15:13:23.546Z"
-last_activity: 2026-06-26
-last_activity_desc: Phase 24 execution started
+last_updated: "2026-06-27T15:16:20.034Z"
+last_activity: 2026-06-27
+last_activity_desc: Phase 25 complete
 progress:
   total_phases: 14
   completed_phases: 13
   total_plans: 55
   completed_plans: 54
   percent: 93
+current_phase_name: email-confirmation-flow
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-25)
 
 ## Current Position
 
-Phase: 24 (email-confirmation-flow) — EXECUTING
-Plan: 5 of 5
+Phase: 25
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-26 — Phase 24 execution started
+Last activity: 2026-06-27 — Phase 25 complete
 
 ```
 Progress: [████████████████████] Phase 22 complete — advancing to Phase 23
