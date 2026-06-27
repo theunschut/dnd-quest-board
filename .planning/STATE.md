@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 24
 current_phase_name: email-confirmation-flow
 status: completed
-stopped_at: Completed 24-04-PLAN.md
-last_updated: "2026-06-27T14:41:31.918Z"
+stopped_at: Phase 25 context gathered
+last_updated: "2026-06-27T14:52:59.942Z"
 last_activity: 2026-06-26
 last_activity_desc: Phase 24 execution started
 progress:
   total_phases: 14
   completed_phases: 12
-  total_plans: 52
+  total_plans: 53
   completed_plans: 52
   percent: 86
 ---
@@ -88,9 +88,9 @@ Progress: [████████████████████] Phase 2
 
 ## Session Continuity
 
-Last session: 2026-06-26T20:28:04.678Z
-Stopped at: Completed 24-04-PLAN.md
-Resume file: None
+Last session: 2026-06-27T14:52:59.930Z
+Stopped at: Phase 25 context gathered
+Resume file: .planning/phases/25-confirmation-email-razor-template/25-CONTEXT.md
 
 ## Performance Metrics
 
