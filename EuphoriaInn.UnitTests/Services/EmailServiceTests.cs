@@ -22,22 +22,6 @@ public class EmailServiceTests
     }
 
     [Fact]
-    public async Task SendQuestFinalizedEmailAsync_WhenUsernameEmpty_ReturnsWithoutThrowing()
-    {
-        var service = Create(new EmailSettings { SmtpUsername = "", SmtpPassword = "x", FromEmail = "x@x" });
-        var act = async () => await service.SendQuestFinalizedEmailAsync("to@x", "p", "q", "dm", DateTime.UtcNow);
-        await act.Should().NotThrowAsync();
-    }
-
-    [Fact]
-    public async Task SendQuestDateChangedEmailAsync_WhenUsernameEmpty_ReturnsWithoutThrowing()
-    {
-        var service = Create(new EmailSettings { SmtpUsername = "", SmtpPassword = "x", FromEmail = "x@x" });
-        var act = async () => await service.SendQuestDateChangedEmailAsync("to@x", "p", "q", "dm");
-        await act.Should().NotThrowAsync();
-    }
-
-    [Fact]
     public void EmailService_ConstructorUsesIOptionsEmailSettings()
     {
         var constructor = typeof(EmailService).GetConstructors().Single();
@@ -66,33 +50,34 @@ public class EmailServiceTests
     }
 
     [Fact]
-    public void EmailServiceSource_ContainsAppUrlSubstitution()
+    public void EmailServiceSource_SendAsyncSendsHtmlBody()
     {
+        // EMAIL-03: SendAsync passes the caller-rendered HTML body through as IsBodyHtml = true.
+        // AppUrl substitution is now the responsibility of individual Hangfire jobs, not EmailService.
         var sourcePath = Path.Combine(
             AppContext.BaseDirectory, "..", "..", "..", "..",
             "EuphoriaInn.Domain", "Services", "EmailService.cs");
         if (!File.Exists(sourcePath))
         {
-            var constructor = typeof(EmailService).GetConstructors().Single();
-            constructor.GetParameters()[0].ParameterType.Should().Be(typeof(IOptions<EmailSettings>),
-                "EMAIL-03 requires AppUrl to drive the placeholder substitution");
+            var sendMethod = typeof(EmailService).GetMethod("SendAsync");
+            sendMethod.Should().NotBeNull("EMAIL-03 requires a public SendAsync method on EmailService");
             return;
         }
 
         var source = File.ReadAllText(sourcePath);
-        source.Should().Contain("_settings.AppUrl", "EMAIL-03 requires AppUrl to drive the placeholder substitution");
+        source.Should().Contain("IsBodyHtml = true", "EMAIL-03 requires SendAsync to mark the body as HTML");
     }
 
     [Fact]
-    public async Task SendAsync_WhenSmtpNotConfigured_ReturnsWithoutException()
+    public async Task SendAsync_WhenEmailNotConfigured_ReturnsWithoutException()
     {
-        // Arrange — empty SmtpUsername causes CreateSmtpClient to return null → no send attempt
-        var service = Create(new EmailSettings { SmtpUsername = "", SmtpPassword = "x", FromEmail = "x@x" });
+        // Arrange — empty FromEmail causes CreateSmtpClient to return null → no send attempt
+        var service = Create(new EmailSettings { SmtpUsername = "", SmtpPassword = "", FromEmail = "" });
 
         // Act
         var act = async () => await service.SendAsync("to@example.com", "Test Subject", "<h1>Hello</h1>");
 
-        // Assert — no exception thrown when SMTP is not configured
+        // Assert — no exception thrown when email is not configured
         await act.Should().NotThrowAsync();
     }
 }
