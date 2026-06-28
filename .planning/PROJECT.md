@@ -1,20 +1,16 @@
-# D&D Quest Board — Milestone 4: Email Notifications
+# D&D Quest Board
 
-## Current Milestone: v4.0 Email Notifications
+## Current State: v4.0.0 Shipped
 
-**Goal:** Expand the quest board's email system with styled HTML templates, automated session reminders via Hangfire, digest batching, and live delivery stats — staying within the 100 emails/day Resend relay limit.
+**Shipped:** 2026-06-28
+**Stack:** ASP.NET Core 10 MVC + SQL Server + EF Core + Hangfire
+**Deployment:** Single container on Linux host (`/opt/questboard/`), Postfix for email relay via Resend SMTP
 
-**Target features:**
-- HTML email templates for all notifications (upgrade existing quest-finalization email + new reminder template)
-- 24h auto session reminder: Hangfire recurring job fires daily, finds quests with `FinalizedDate` = tomorrow, sends reminders to confirmed players
-- DM manual reminder trigger: button on quest manage page enqueues a Hangfire job immediately, same send logic as auto
-- Digest batching: player confirmed for multiple same-day quests receives one combined email, not N separate emails
-- Admin email stats dashboard: live sent/bounced/failed counts from Resend API (requires Resend API key)
-- Hangfire dashboard exposed at `/hangfire` (admin-only)
+---
 
 ## What This Is
 
-A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 10 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
+A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications (HTML-templated, Hangfire-dispatched, Resend-relayed). Built with ASP.NET Core 10 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted Linux environment.
 
 ## Core Value
 
@@ -34,95 +30,77 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - ✓ Monthly calendar view for quest scheduling — existing
 - ✓ Admin panel for user and quest management — existing
 - ✓ Docker deployment with SQL Server — existing
+- ✓ Domain layer must not depend directly on Repository entities — v1.x (Phase 01)
+- ✓ Business logic lives in services, not controllers — v1.x (Phase 02)
+- ✓ Controllers reduced to: validate input → call service → return view/redirect — v1.x (Phase 02)
+- ✓ Dead code removed (SecurityConfiguration, magic numbers, UpdateQuestPropertiesAsync) — v1.x (Phase 03)
+- ✓ Account lockout (5 attempts, 15-min lock), 8-char minimum password — v1.x (Phase 04)
+- ✓ DM profile page (photo, name, bio) — v2.x (Phase 07)
+- ✓ Shop filter and sort by price/rarity — v2.x (Phase 05)
+- ✓ Follow-up quest creation (pre-filled players, new date required) — v2.x (Phase 06)
+- ✓ Purpose-built mobile views via `.Mobile.cshtml` + view-location expander — v3.0 (Phases 12–19)
+- ✓ HTML email templates (Razor + HtmlRenderer) replacing all plain-text emails — v4.0 (Phase 21)
+- ✓ Hangfire infrastructure — SQL Server storage, admin dashboard at `/hangfire` — v4.0 (Phase 20)
+- ✓ 24h automated session reminders via Hangfire CRON + DM manual trigger — v4.0 (Phase 22)
+- ✓ Idempotent reminder dedup via ReminderLog table — v4.0 (Phase 22)
+- ✓ Admin email stats dashboard (Resend API: sent/delivered/bounced/failed) — v4.0 (Phase 23)
+- ✓ Email confirmation flow — admin resend button, job guards, callback endpoint — v4.0 (Phase 24)
 
 ### Active
 
-#### Email System (Milestone 4)
-- [x] HTML email templates replace all plain-text notifications — Validated in Phase 21: html-email-templates
-- [x] Quest-finalization email upgraded to HTML template — Validated in Phase 21: html-email-templates
-- [x] 24h session reminder delivered automatically via Hangfire recurring job — Validated in Phase 22: session-reminders
-- [x] DM can manually trigger a session reminder from the quest manage page — Validated in Phase 22: session-reminders
-- [ ] Players confirmed for multiple same-day quests receive one combined reminder email (digest) — deferred (digest dropped from scope, D-13; same-day quests have never occurred in one year of operation)
-- [ ] Admin email stats dashboard shows live sent/bounced/failed counts from Resend API
-- [x] Hangfire dashboard accessible at `/hangfire` (admin role required) — Validated in Phase 20: hangfire-infrastructure
-
-#### Previous Milestone — Architecture Refactor (Validated)
-- [x] Domain layer must not depend directly on Repository entities — fix dependency direction — Validated in Phase 01: layer-dependency-fix
-- [x] Business logic (email sending, finalize logic, shop transactions) must live in services, not controllers — Validated in Phase 02: email-service-consolidation
-- [x] Controllers reduced to: validate input → call service → return view/redirect — Validated in Phase 02: email-service-consolidation
-
-#### Code Quality & Dead Code — Validated in Phase 03: code-quality-dead-code
-- [x] Remove `SecurityConfiguration` class and its unused `appsettings.json` section
-- [x] Remove dead `UpdateQuestPropertiesAsync` (non-notification variant) from interface and service
-- [x] Replace `SignupRole == 1` magic number with named enum reference throughout
-- [x] Extract 30-minute `IsSameDateTime` window as a named constant with comment
-- [x] Rename `CharacterViewModels/GuildMembersIndexViewModel.cs` to match its actual class name
-
-#### Security — Validated in Phase 04: security-hardening
-- [x] Enable account lockout on login (`lockoutOnFailure: true`, 5 attempts, 15-min lock)
-- [x] Increase minimum password length to 8 characters
-- [x] Remove `Password` property from `User` domain model
-- [x] Add `.env` to `.gitignore`; keep only `.env.example` tracked
-- Note: `HasKey` remains on user-facing edit — it is informational (who holds a physical building key), not a permission
-
-#### New Features
-- [x] DM profile page (issue #98) — photo, name, bio so players can learn each DM's style — Validated in Phase 07: dm-profile-page
-- [x] Shop filter and sort by price/rarity (issue #96) — Validated in Phase 05: shop-filter-sort
-- [x] Follow-up quest creation (issue #49) — creates part 2 with existing players pre-filled, new date required — Validated in Phase 06: follow-up-quest
-- [ ] Profile picture crop/avatar selection for guild member page (issue #78) — deferred to future milestone
+- [ ] Digest batching for session reminders — single combined email when player has multiple same-day quests (EMAIL-04/REMIND-02 — deferred; same-day quests have never occurred in one year)
+- [ ] Profile picture crop/avatar selection for guild member page (issue #78) — paused from v2.x; SkiaSharp native lib availability needs verification on deployment host
 
 ### Out of Scope
 
 - D&D Beyond PDF character sheet parser (#84) — large standalone feature, future milestone
 - 5etools integration (#82) — large standalone feature, future milestone
 - Miniature request page (#59) — large standalone feature, future milestone
-- Email verification on registration — deferred; small group, trust is assumed
-- ~~Pagination on list views — deferred; group is small enough that unbounded lists are fine now~~ — Shop pagination implemented in Phase 09 with server-side EF Core paging (12 items/page) and search
-- Image blob storage migration — deferred; performance acceptable at current scale
+- Email verification on registration — small trusted group; manual confirmation flow added instead
+- Resend SDK for sending — delivery path stays SmtpClient → Postfix → Resend SMTP relay
+- Webhook-based delivery tracking — polling sufficient at current scale (17 members)
+- Per-user email opt-out preferences — defer; small trusted group
+- Image blob storage migration — performance acceptable at current scale
 
 ## Context
 
-The codebase was built iteratively with AI assistance without upfront planning. It is functional but has accumulated architectural drift:
+**Codebase:** ~31 000 lines added in v4.0 (211 files touched). Full codebase estimated 15 000–20 000 LOC C#/Razor.
 
-- **Layer boundary violation:** `EuphoriaInn.Domain` services directly reference `EuphoriaInn.Repository` entity types and depend on the repository layer for EF-specific constructs. The intended direction is Domain ← Repository (Domain defines interfaces, Repository implements them) but in practice Domain knows too much about Repository internals.
-- **Controller bloat:** Quest finalization, email dispatch, shop transactions, and other multi-step operations are partially or fully implemented inside controller actions rather than delegated to services.
-- **30 documented concerns** catalogued in `.planning/codebase/CONCERNS.md` — this milestone addresses the architecture, code quality, and security subsets.
+**Tech stack:**
+- ASP.NET Core 10 MVC with Razor views (`.cshtml`) and Razor components (`.razor`) for email templates
+- SQL Server via EF Core 10 (auto-migrated on startup)
+- Hangfire 1.8 with SQL Server storage (2 workers) for background jobs
+- Resend SMTP relay via Postfix; Resend REST API for stats
+- HtmlRenderer (`Microsoft.AspNetCore.Components.Web`) for email template rendering in job context
 
-The codebase map is current (analysed 2026-04-15): `.planning/codebase/`.
+**Deployment:** Linux host at `/opt/questboard/`, env overrides at `/etc/questboard/.env`. Postfix for outbound mail → Resend SMTP relay. No Docker required — direct `dotnet run` on host.
+
+**Known issues / tech debt:**
+- `NoOpBackgroundJobClient` stub registered in test factory alongside NullObject dispatchers — AdminController takes `IBackgroundJobClient` directly as constructor arg (fixed 2026-06-28)
+- `FinalizedDate` stored as server local time (CET/CEST) — reminder job uses `DateTime.Today.AddDays(1)` which is correct for LXC host timezone but should be reviewed if deployment timezone changes
+- Resend API stats only paginate backwards from now; historical data beyond 30 days not surfaced
 
 ## Constraints
 
-- **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work after the refactor
-- **Tech stack:** Stay on ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes (upgraded from .NET 8 during Milestone 3)
-- **Deployment:** Must remain deployable via `docker-compose up` with no additional setup steps
+- **Compatibility:** No user-facing functionality may be removed or broken
+- **Tech stack:** ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes
+- **Deployment:** Must remain deployable via single `dotnet run` / `docker-compose up`; no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
+- **Email:** 100 emails/day, 3 000/month Resend relay limit; 17 members — batch-first design
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Refactor + new features in same milestone | Avoids two sequential code-freeze windows; features land on clean architecture | — Validated: phases 1-4 refactor complete, features landing on clean arch |
-| Bugs deferred to separate milestone | Bugs are isolated fixes; refactor may touch same code and create conflicts | — Standing |
-| No pagination this milestone | Group size makes it a non-issue; adds complexity to every list view | — Reversed in Phase 09: shop pagination added with server-side EF Core paging |
-| Hangfire dashboard redirect via pre-middleware | Hangfire's AspNetCoreDashboardMiddleware overwrites 302→401/403 when filter returns false; fix is app.Use() inside !IsEnvironment("Testing") block before UseHangfireDashboard | — Phase 20: IDashboardAuthorizationFilter is now defense-in-depth only (returns true/false, no redirects) |
-| IServiceScopeFactory for all Hangfire jobs | Scoped services (IEmailService, DbContext) cannot be injected via constructor in background jobs; must CreateAsyncScope() inside the job method | — Phase 20: SmokeTestJob establishes the pattern; all Phase 21+ jobs must follow it |
-
-## Evolution
-
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+| Refactor + new features in same milestone (v1.x) | Avoids two sequential code-freeze windows | ✓ Validated: phases 1-4 refactor complete, features landed on clean arch |
+| HtmlRenderer for email templates | IRazorViewEngine throws NullReferenceException in background job context | ✓ Good — stable across all 4 email jobs |
+| IServiceScopeFactory in all Hangfire jobs | Scoped services (DbContext, IEmailService) cannot be constructor-injected in jobs | ✓ Good — established in Phase 20, followed consistently |
+| IDashboardAuthorizationFilter for Hangfire dashboard | LocalRequestsOnlyAuthorizationFilter bypassed by Docker reverse proxy | ✓ Good — admin-only enforcement works behind nginx |
+| NullObject dispatchers in Testing env | Hangfire not registered in Testing; NullQuestEmailDispatcher / NullReminderJobDispatcher satisfy interface contracts | ✓ Good — 191 tests green |
+| Resend stats via plain HttpClient (no SDK) | Read-only stats endpoint; avoids unnecessary package dependency | ✓ Good — simple, maintainable |
+| Dropped digest batching (EMAIL-04/REMIND-02) | Same-day quests have never occurred in one year; complexity not justified yet | — Pending: revisit when scheduling density increases |
+| Profile picture crop paused | SkiaSharp native lib availability on deployment host unverified | — Pending: verify libSkiaSharp on aspnet:10 Debian Bookworm before resuming |
 
 ---
-*Last updated: 2026-06-26 after Phase 22 (session-reminders)*
+
+*Last updated: 2026-06-28 after v4.0 milestone*
