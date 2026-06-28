@@ -1,5 +1,55 @@
 # Milestones — D&D Quest Board
 
+## v1.0 — Architecture & Features
+
+**Shipped:** prior to 2026-06
+**Phases:** 1–7, 9 (Phase 8 deferred) | **Plans:** 19
+
+### Delivered
+
+Restored correct layer boundaries (Domain compiles without Repository reference), moved business logic from controllers into services, removed dead code and security gaps, then added four features on the clean architecture: shop filter/sort, follow-up quest creation, DM profile page, and server-side shop pagination. Phase 8 (avatar crop) was deferred pending SkiaSharp native lib verification.
+
+### Key Accomplishments
+
+1. Domain layer no longer references Repository — `EntityProfile.cs` moved, all repository interfaces relocated to Domain
+2. `QuestController.Finalize` reduced to <20 lines — all email and finalization logic moved to QuestService
+3. Dead code removed: `SecurityConfiguration`, `UpdateQuestPropertiesAsync`, magic number in `SignupRole == 1`
+4. Account lockout (5 attempts, 15-min), 8-character minimum password, `.env` removed from git
+5. Shop filter/sort by rarity and price with URL-persisted state
+6. Follow-up quest creation pre-filling finalized player list
+7. DM profile page with bio and photo, editable by Admin
+
+### Archive
+
+- `.planning/milestones/v1.0-ROADMAP.md`
+- `.planning/milestones/v1.0-phases/` (phases 01–07, 09)
+
+---
+
+## v3.0 — Mobile Version
+
+**Shipped:** 2026-06-25
+**Phases:** 12–19 | **Plans:** 34 | **Tests:** 139 integration tests
+
+### Delivered
+
+Added purpose-built `.Mobile.cshtml` view variants for all player, DM, admin, and shop pages via a `MobileDetectionMiddleware` + `MobileViewLocationExpander` pipeline. Zero changes to controllers, ViewModels, repositories, or domain services — the entire feature is additive to the Service layer's Views directory and static assets.
+
+### Key Accomplishments
+
+1. Mobile detection + view-expander infrastructure — one-time middleware enabling all subsequent phases
+2. `mobile.css` baseline with 44px touch targets enforced site-wide
+3. Agenda-style mobile calendar replacing 7-column grid — fully readable on small screens
+4. 19 `.Mobile.cshtml` view files + 14 dedicated mobile CSS files across all app areas
+5. 139 integration tests covering all mobile view routes with mobile User-Agent header
+
+### Archive
+
+- `.planning/milestones/v3.0-ROADMAP.md`
+- `.planning/milestones/v3.0-phases/` (phases 12–19)
+
+---
+
 ## v4.0.0 — Email Notifications
 
 **Shipped:** 2026-06-28

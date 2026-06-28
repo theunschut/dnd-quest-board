@@ -2,11 +2,41 @@
 
 ## Milestones
 
-- ✅ **v1.0–v2.x Architecture & Features** — Phases 1–11 (shipped prior to 2026-06)
+- ✅ **v1.0 Architecture & Features** — Phases 1–7, 9 (shipped prior to 2026-06)
+- 🚧 **v2.0 Omphalos Integration** — Phases 10–11 (in progress — branch: `milestone/3-omphalos-integration`)
 - ✅ **v3.0 Mobile Version** — Phases 12–19 (shipped 2026-06-25)
 - ✅ **v4.0 Email Notifications** — Phases 20–25 (shipped 2026-06-28)
 
+_Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it is not assigned to any active milestone._
+
 ## Phases
+
+<details>
+<summary>✅ v1.0 Architecture & Features (Phases 1–7, 9) — SHIPPED prior to 2026-06</summary>
+
+**Overview:** Restored correct layer boundaries (Domain ← Repository), consolidated business logic into services, removed dead code and security gaps, then added four backlog features on the clean architecture. Phase 8 (avatar crop) was deferred.
+
+- [x] Phase 1: Layer Dependency Fix — 2/2 plans — complete
+- [x] Phase 2: Email & Service Consolidation — 3/3 plans — complete
+- [x] Phase 3: Code Quality & Dead Code — 2/2 plans — complete
+- [x] Phase 4: Security Hardening — 4/4 plans — complete
+- [x] Phase 5: Shop Filter & Sort — 2/2 plans — completed 2026-04-21
+- [x] Phase 6: Follow-Up Quest — 2/2 plans — completed 2026-06-16
+- [x] Phase 7: DM Profile Page — 2/2 plans — completed 2026-06-17
+- [ ] Phase 8: Profile Picture Avatar Crop — deferred (SkiaSharp native lib unverified on host)
+- [x] Phase 9: Shop Pagination — 2/2 plans — complete
+
+</details>
+
+<details>
+<summary>🚧 v2.0 Omphalos Integration (Phases 10–11) — IN PROGRESS (branch: milestone/3-omphalos-integration)</summary>
+
+**Overview:** Integrates the Omphalos SSO system for guest navigation token generation. Work is on a separate branch and will be merged after v4.0 lands on main.
+
+- [ ] Phase 10: Omphalos Integration (details on branch `milestone/3-omphalos-integration`)
+- [ ] Phase 11: Navigation Token Generation (details on branch `milestone/3-omphalos-integration`)
+
+</details>
 
 <details>
 <summary>✅ v3.0 Mobile Version (Phases 12–19) — SHIPPED 2026-06-25</summary>
@@ -42,6 +72,17 @@
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
+| 1. Layer Dependency Fix | v1.0 | 2/2 | Complete | — |
+| 2. Email & Service Consolidation | v1.0 | 3/3 | Complete | — |
+| 3. Code Quality & Dead Code | v1.0 | 2/2 | Complete | — |
+| 4. Security Hardening | v1.0 | 4/4 | Complete | — |
+| 5. Shop Filter & Sort | v1.0 | 2/2 | Complete | 2026-04-21 |
+| 6. Follow-Up Quest | v1.0 | 2/2 | Complete | 2026-06-16 |
+| 7. DM Profile Page | v1.0 | 2/2 | Complete | 2026-06-17 |
+| 8. Profile Picture Avatar Crop | v1.0 | 0/? | Deferred | — |
+| 9. Shop Pagination | v1.0 | 2/2 | Complete | — |
+| 10. Omphalos Integration | v2.0 | — | In progress (other branch) | — |
+| 11. Navigation Token Generation | v2.0 | — | In progress (other branch) | — |
 | 12. Mobile Infrastructure | v3.0 | 3/3 | Complete | 2026-06-24 |
 | 13. Core Player Views | v3.0 | 4/4 | Complete | 2026-06-24 |
 | 14. Calendar | v3.0 | 3/3 | Complete | 2026-06-24 |
