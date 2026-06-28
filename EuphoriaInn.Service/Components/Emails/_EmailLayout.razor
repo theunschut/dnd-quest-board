@@ -6,6 +6,14 @@
     <title>@Subject</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        /* White halo text-shadow — matches the quest board card styling for readability on parchment backgrounds */
+        td, p {
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.95),
+                         -1px -1px 2px rgba(255,255,255,0.95),
+                         1px 1px 6px rgba(0,0,0,0.65) !important;
+        }
+    </style>
 </head>
 <body style="margin:0;padding:0;background-color:#F4E4BC;">
     @if (!string.IsNullOrEmpty(PreviewText))
