@@ -49,7 +49,7 @@ public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService>
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send email to {ToEmail} with subject {Subject}", toEmail, subject);
+            logger.LogError(ex, "Failed to send email with subject {Subject}", subject);
             throw;
         }
     }
