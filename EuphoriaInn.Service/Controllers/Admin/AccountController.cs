@@ -1,6 +1,8 @@
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Service.Controllers.QuestBoard;
+using EuphoriaInn.Service.Jobs;
 using EuphoriaInn.Service.ViewModels.AccountViewModels;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -9,7 +11,7 @@ using System.Text;
 
 namespace EuphoriaInn.Service.Controllers.Admin;
 
-public class AccountController(IUserService userService, IIdentityService identityService, ILogger<AccountController> logger) : Controller
+public class AccountController(IUserService userService, IIdentityService identityService, IBackgroundJobClient jobClient, ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
@@ -96,6 +98,17 @@ public class AccountController(IUserService userService, IIdentityService identi
 
             if (result.Succeeded)
             {
+                var userId = await identityService.GetIdByEmailAsync(model.Email);
+                if (userId.HasValue)
+                {
+                    var rawToken = await identityService.GenerateEmailConfirmationAsync(userId.Value);
+                    if (rawToken != null)
+                    {
+                        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
+                        jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
+                    }
+                }
                 return RedirectToLocal(returnUrl);
             }
 

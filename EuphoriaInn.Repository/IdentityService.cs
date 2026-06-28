@@ -109,6 +109,12 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         return await userManager.ResetPasswordAsync(entity, resetToken, newPassword);
     }
 
+    public async Task<int?> GetIdByEmailAsync(string email)
+    {
+        var entity = await userManager.FindByEmailAsync(email);
+        return entity?.Id;
+    }
+
     public async Task<string?> GenerateEmailConfirmationAsync(int userId)
     {
         var entity = await userManager.FindByIdAsync(userId.ToString());
