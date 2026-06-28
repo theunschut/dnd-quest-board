@@ -27,6 +27,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
               <li><a href="{{appUrl}}/EmailPreview/QuestDateChanged">Quest Date Changed</a></li>
               <li><a href="{{appUrl}}/EmailPreview/SessionReminder">Session Reminder</a></li>
               <li><a href="{{appUrl}}/EmailPreview/ConfirmEmail">Confirm Email</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/ChangeEmailConfirm">Change Email Confirm</a></li>
             </ul></body></html>
             """;
         return Content(html, "text/html");
@@ -75,6 +76,19 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
             [nameof(Components.Emails.ConfirmEmail.UserName)] = "Arannis",
             [nameof(Components.Emails.ConfirmEmail.CallbackUrl)] = $"{appUrl}/Account/ConfirmEmail?userId=preview&token=preview-token",
             [nameof(Components.Emails.ConfirmEmail.AppUrl)] = appUrl,
+        });
+        return Content(html, "text/html");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ChangeEmailConfirm()
+    {
+        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var html = await emailRenderService.RenderAsync<Components.Emails.ChangeEmailConfirm>(new()
+        {
+            [nameof(Components.Emails.ChangeEmailConfirm.UserName)] = "Arannis",
+            [nameof(Components.Emails.ChangeEmailConfirm.CallbackUrl)] = $"{appUrl}/Account/ConfirmEmailChange?userId=preview&newEmail=new%40example.com&token=preview-token",
+            [nameof(Components.Emails.ChangeEmailConfirm.AppUrl)] = appUrl,
         });
         return Content(html, "text/html");
     }

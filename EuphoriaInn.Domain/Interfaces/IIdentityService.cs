@@ -23,6 +23,8 @@ public interface IIdentityService
     Task<IdentityResult> AdminResetPasswordAsync(ClaimsPrincipal adminUser, int targetUserId, string newPassword);
     Task<string?> GenerateEmailConfirmationAsync(int userId);
     Task<IdentityResult> ConfirmEmailAsync(int userId, string token);
+    Task<string?> GenerateChangeEmailTokenAsync(int userId, string newEmail);
+    Task<IdentityResult> ChangeEmailAsync(int userId, string newEmail, string token);
     Task<int?> GetIdByEmailAsync(string email);
     Task SignOutAsync();
 }

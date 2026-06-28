@@ -146,13 +146,30 @@ public class AdminController(IUserService userService, IQuestService questServic
                 return RedirectToAction(nameof(Users));
             }
 
+            var emailChanged = !string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase);
+
             user.Name = model.Name;
-            user.Email = model.Email;
             user.HasKey = model.HasKey;
+            if (!emailChanged)
+                user.Email = model.Email;
 
             // Role changes are handled through dedicated promotion/demotion buttons
 
             await userService.UpdateAsync(user);
+
+            if (emailChanged && !string.IsNullOrEmpty(model.Email))
+            {
+                var rawToken = await identityService.GenerateChangeEmailTokenAsync(user.Id, model.Email);
+                if (rawToken != null)
+                {
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+                    var callbackUrl = Url.Action("ConfirmEmailChange", "Account",
+                        new { userId = user.Id, newEmail = model.Email, token = encodedToken }, Request.Scheme);
+                    jobClient.Enqueue<ChangeEmailConfirmationJob>(j => j.ExecuteAsync(model.Email, user.Name, callbackUrl!, CancellationToken.None));
+                    TempData["Success"] = $"A confirmation email has been sent to {model.Email} for {user.Name}. The address will update once confirmed.";
+                    return RedirectToAction(nameof(Users));
+                }
+            }
 
             return RedirectToAction(nameof(Users));
         }
