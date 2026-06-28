@@ -78,3 +78,4 @@ EMAIL-04 / REMIND-02 — digest batching (single combined email for multiple sam
 
 - `.planning/milestones/v4.0-ROADMAP.md`
 - `.planning/milestones/v4.0-REQUIREMENTS.md`
+- `.planning/milestones/v4.0-phases/` (phases 20–25)
