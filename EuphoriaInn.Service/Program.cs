@@ -1,16 +1,22 @@
 using EuphoriaInn.Repository.Automapper;
+using EuphoriaInn.Service.Extensions;
 using EuphoriaInn.Domain.Extensions;
+using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Repository.Entities;
 using EuphoriaInn.Repository.Extensions;
 using EuphoriaInn.Service.Authorization;
 using EuphoriaInn.Service.Automapper;
 using EuphoriaInn.Service.Middleware;
+using EuphoriaInn.Service.Services;
 using EuphoriaInn.Service.ViewExpanders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
+using Hangfire.SqlServer;
+using EuphoriaInn.Service.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,15 +80,64 @@ builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices(builder.Configuration);
 
+// Named HttpClient for Resend API stats (D-10)
+// Authorization header is NOT set here — added per-request in AdminController.GetResendStatsAsync (Pitfall 4)
+builder.Services.AddHttpClient("Resend", client =>
+{
+    client.BaseAddress = new Uri("https://api.resend.com/");
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+// Email render service and job dispatcher (Service-layer registrations)
+builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
+
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    // HangfireQuestEmailDispatcher requires IBackgroundJobClient which is only
+    // registered when Hangfire is active (non-Testing environments).
+    builder.Services.AddScoped<IQuestEmailDispatcher, HangfireQuestEmailDispatcher>();
+    builder.Services.AddScoped<IReminderJobDispatcher, HangfireReminderJobDispatcher>();
+
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.Zero,
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            }));
+
+    builder.Services.AddHangfireServer(options =>
+    {
+        options.WorkerCount = 2;
+    });
+}
+else
+{
+    // In the Testing environment Hangfire is skipped, so use a no-op dispatcher.
+    builder.Services.AddScoped<IQuestEmailDispatcher, NullQuestEmailDispatcher>();
+    builder.Services.AddScoped<IReminderJobDispatcher, NullReminderJobDispatcher>();
+}
+
 // Add automapper
 builder.Services.AddAutoMapper(config =>
 {
-    config.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ikx1Y2t5UGVubnlTb2Z0d2FyZUxpY2Vuc2VLZXkvYmJiMTNhY2I1OTkwNGQ4OWI0Y2IxYzg1ZjA4OGNjZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2x1Y2t5cGVubnlzb2Z0d2FyZS5jb20iLCJhdWQiOiJMdWNreVBlbm55U29mdHdhcmUiLCJleHAiOiIxODA4MjY1NjAwIiwiaWF0IjoiMTc3NjgwNzM1MyIsImFjY291bnRfaWQiOiIwMTlkYjFmODQzMGE3ZTRhYWMzZmU1N2Q5M2ZjMzY3OCIsImN1c3RvbWVyX2lkIjoiY3RtXzAxa3Byemg3ZmdhZnRhOHZkOTU3NXg4dmpqIiwic3ViX2lkIjoiLSIsImVkaXRpb24iOiIwIiwidHlwZSI6IjIifQ.eW0lnu0panAyi5lyjRYbHP1a2q9VDo-QJDrJQqzgXgIcl6lrOzk2Yld7XI_sTyrr-lPtCp8KmsHI5kUMtk_ZEpTxEHyl5rvpDia9cJ9Pj-KPW-hFQU-XphEzNtnbzelCkX9UBTmmZSK9ZYpeQrlfjlbApocIFl-rGuKgTzyJEGlLDN_zo4xNVk_WcMA-YrFL2xOFJ4xtbkXYEZu25LjBg4hYaLGvGoS6sWm0258eU_m1Sd5UAkpkUaoQju6L6yq1G4hCQHFNv6395oezBzC9JV8WCTc6tEXp4GzRgLyBBmI_ZHFblNMEcR_k8xaWqd2LMVXjESSN3SOhhe6_VJCkjw";
+    config.LicenseKey = builder.Configuration["AutoMapper:LicenseKey"];
     config.AddProfile<ViewModelProfile>();
     config.AddProfile<EntityProfile>();
 });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+    app.Configuration.DumpConfiguration();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -101,6 +156,34 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/hangfire"))
+        {
+            if (context.User.Identity?.IsAuthenticated != true)
+            {
+                context.Response.Redirect("/Account/Login");
+                return;
+            }
+
+            if (!context.User.IsInRole("Admin"))
+            {
+                context.Response.Redirect("/Account/Login");
+                return;
+            }
+        }
+
+        await next();
+    });
+
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new AdminDashboardAuthFilter() }
+    });
+}
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -114,6 +197,13 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     // Seed basic shop data
     await SeedShopDataAsync(app);
+
+    // Register daily session reminder sweep — runs at 09:00 server local time (CET/CEST).
+    // Placed after ConfigureDatabase to ensure migrations have run before the job can fire (RESEARCH.md Pitfall 4).
+    RecurringJob.AddOrUpdate<DailyReminderJob>(
+        "daily-session-reminders",
+        job => job.ExecuteAsync(CancellationToken.None),
+        "0 9 * * *");
 }
 
 app.Run();

@@ -15,7 +15,8 @@ public class QuestController(
     IMapper mapper,
     IPlayerSignupService playerSignupService,
     IQuestService questService,
-    ICharacterService characterService
+    ICharacterService characterService,
+    IReminderJobDispatcher reminderJobDispatcher
     ) : Controller
 {
     [HttpGet]
@@ -614,6 +615,67 @@ public class QuestController(
         // Open the quest using the specialized service method
         await questService.OpenQuestAsync(id);
 
+        return RedirectToAction("Manage", new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "DungeonMasterOnly")]
+    public async Task<IActionResult> SendReminder(int id, bool forceResend = false, CancellationToken token = default)
+    {
+        var quest = await questService.GetQuestWithDetailsAsync(id);
+        if (quest == null)
+        {
+            return NotFound();
+        }
+
+        if (!quest.IsFinalized)
+        {
+            TempData["Error"] = "Only finalized quests can send reminders.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        var currentUser = await userService.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        if (!currentUser.Equals(quest.DungeonMaster) && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
+        if (!quest.FinalizedDate.HasValue)
+        {
+            TempData["Error"] = "Quest has no finalized date. Please re-finalize the quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // D-08: DM trigger sends to Yes + Maybe voters for the finalized date only.
+        // RESEARCH.md Pitfall 1: filter by finalized proposed date to avoid including
+        // players who voted Yes/Maybe on a different proposed date.
+        var finalizedProposedDate = quest.ProposedDates
+            .FirstOrDefault(pd => pd.Date.Date == quest.FinalizedDate.Value.Date);
+
+        var eligibleSignups = quest.PlayerSignups
+            .Where(ps => ps.DateVotes.Any(dv =>
+                dv.ProposedDate?.Id == finalizedProposedDate?.Id &&
+                (dv.Vote == VoteType.Yes || dv.Vote == VoteType.Maybe)))
+            .ToList();
+
+        if (eligibleSignups.Count == 0)
+        {
+            TempData["Error"] = "No eligible players found for this quest.";
+            return RedirectToAction("Manage", new { id });
+        }
+
+        // D-11: Enqueue a fire-and-forget Hangfire job.
+        // The job itself checks the ReminderLog per-player before sending (REMIND-04 idempotency).
+        // The forceResend flag (from the confirm button) bypasses the log check in the job.
+        reminderJobDispatcher.EnqueueSessionReminder(id, forceResend, useYesMaybeVoters: true);
+
+        TempData["Success"] = $"Reminder queued for {eligibleSignups.Count} eligible players.";
         return RedirectToAction("Manage", new { id });
     }
 

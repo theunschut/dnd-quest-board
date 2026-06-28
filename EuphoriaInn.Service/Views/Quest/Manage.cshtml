@@ -37,7 +37,23 @@ else
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
-                    
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mb-2" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <form asp-action="SendReminder" asp-route-id="@Model.Id" method="post" class="mb-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="forceResend" value="true" />
+                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-redo me-1"></i>Send again (bypasses duplicate check)
+                            </button>
+                        </form>
+                    }
+
                     @if (Model.IsFinalized)
                     {
                         <h6>Selected Date:</h6>
@@ -502,6 +518,12 @@ else
                                         <i class="fas fa-scroll me-2"></i>Create Follow-Up Quest
                                     </a>
                                 }
+                                <form asp-action="SendReminder" asp-route-id="@Model.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-info">
+                                        <i class="fas fa-envelope me-1"></i>Send Reminder
+                                    </button>
+                                </form>
                             </div>
                             <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh Data</button>
                         </div>

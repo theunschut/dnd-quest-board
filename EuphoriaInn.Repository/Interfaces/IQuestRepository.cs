@@ -17,4 +17,6 @@ public interface IQuestRepository : IBaseRepository<QuestEntity>
     Task<QuestEntity?> GetQuestWithManageDetailsAsync(int id, CancellationToken token = default);
 
     Task<QuestEntity?> GetQuestWithManageViewDetailsAsync(int id, CancellationToken token = default);
+
+    Task<IList<QuestEntity>> GetFinalizedQuestsForDateAsync(DateTime date, CancellationToken token = default);
 }

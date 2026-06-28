@@ -28,6 +28,8 @@ public class QuestEntity : IEntity
 
     public bool IsFinalized { get; set; }
 
+    public DateTime? FinalizedEmailSentForDate { get; set; }
+
     public int TotalPlayerCount { get; set; }
 
     public bool DungeonMasterSession { get; set; }

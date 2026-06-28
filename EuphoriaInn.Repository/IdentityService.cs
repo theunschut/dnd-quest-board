@@ -43,7 +43,8 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(entity, "Player");
-            await signInManager.SignInAsync(entity, isPersistent: false);
+            // Do not sign in until email is confirmed — the admin must send a confirmation
+            // link first (via AdminController.SendConfirmationEmail).
         }
 
         return result;
@@ -106,6 +107,21 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
 
         var resetToken = await userManager.GeneratePasswordResetTokenAsync(entity);
         return await userManager.ResetPasswordAsync(entity, resetToken, newPassword);
+    }
+
+    public async Task<string?> GenerateEmailConfirmationAsync(int userId)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null) return null;
+        return await userManager.GenerateEmailConfirmationTokenAsync(entity);
+    }
+
+    public async Task<IdentityResult> ConfirmEmailAsync(int userId, string token)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null)
+            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+        return await userManager.ConfirmEmailAsync(entity, token);
     }
 
     public Task SignOutAsync() => signInManager.SignOutAsync();

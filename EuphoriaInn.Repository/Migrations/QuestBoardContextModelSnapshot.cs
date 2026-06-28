@@ -252,6 +252,9 @@ namespace EuphoriaInn.Repository.Migrations
                     b.Property<DateTime?>("FinalizedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("FinalizedEmailSentForDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsFinalized")
                         .HasColumnType("bit");
 
@@ -278,6 +281,33 @@ namespace EuphoriaInn.Repository.Migrations
                         .HasFilter("[OriginalQuestId] IS NOT NULL");
 
                     b.ToTable("Quests");
+                });
+
+            modelBuilder.Entity("EuphoriaInn.Repository.Entities.ReminderLogEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("QuestId", "PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("ReminderLogs");
                 });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.ShopItemEntity", b =>
@@ -767,6 +797,25 @@ namespace EuphoriaInn.Repository.Migrations
                     b.Navigation("DungeonMaster");
 
                     b.Navigation("OriginalQuest");
+                });
+
+            modelBuilder.Entity("EuphoriaInn.Repository.Entities.ReminderLogEntity", b =>
+                {
+                    b.HasOne("EuphoriaInn.Repository.Entities.UserEntity", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EuphoriaInn.Repository.Entities.QuestEntity", "Quest")
+                        .WithMany()
+                        .HasForeignKey("QuestId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Quest");
                 });
 
             modelBuilder.Entity("EuphoriaInn.Repository.Entities.ShopItemEntity", b =>

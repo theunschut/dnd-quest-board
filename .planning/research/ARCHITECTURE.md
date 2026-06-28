@@ -1,8 +1,8 @@
 # Architecture Research
 
-**Domain:** Mobile-specific Razor views in ASP.NET Core 8 MVC using IViewLocationExpander
-**Researched:** 2026-06-23
-**Confidence:** MEDIUM
+**Domain:** Hangfire background jobs + HTML email system in ASP.NET Core 10 MVC clean architecture
+**Researched:** 2026-06-25
+**Confidence:** HIGH
 
 ---
 
@@ -11,502 +11,745 @@
 ### System Overview
 
 ```
-HTTP Request (mobile User-Agent)
-        │
-        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  MobileDetectionMiddleware                                  │
-│  Reads User-Agent → HttpContext.Items["IsMobile"] = true    │
-│  (runs before UseRouting)                                   │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  MVC Pipeline (UseRouting → UseAuthorization)               │
-│  Controller executes, returns ViewResult with ViewModel     │
-│  No controller changes required                             │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  RazorViewEngine — view resolution                          │
-│                                                             │
-│  MobileViewLocationExpander.PopulateValues()                │
-│    reads HttpContext.Items["IsMobile"]                      │
-│    stores in context.Values["isMobile"]  ← cache key       │
-│                                                             │
-│  MobileViewLocationExpander.ExpandViewLocations()           │
-│    for each location yields:                                │
-│      1. /Views/{1}/{0}.Mobile.cshtml  ← checked first      │
-│      2. /Views/{1}/{0}.cshtml         ← desktop fallback    │
-│    for Shared yields:                                       │
-│      1. /Views/Shared/{0}.Mobile.cshtml                     │
-│      2. /Views/Shared/{0}.cshtml                            │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  _ViewStart.cshtml                                          │
-│  Sets Layout = mobile or desktop based on HttpContext.Items │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-               View renders with shared ViewModel
-         (same ViewModel type — no controller changes)
+┌─────────────────────────────────────────────────────────────────────┐
+│  EuphoriaInn.Service  (Presentation Layer)                          │
+│                                                                     │
+│  Controllers/          Views/Emails/          Hangfire              │
+│  ┌─────────────┐       ┌──────────────────┐   ┌───────────────────┐ │
+│  │ QuestCtrl   │       │ QuestFinalized   │   │ Dashboard /hangfire│ │
+│  │ AdminCtrl   │       │ SessionReminder  │   │ (AdminOnly policy) │ │
+│  │ (enqueue)   │       │ DigestReminder   │   └────────┬──────────┘ │
+│  └──────┬──────┘       └──────────────────┘            │            │
+│         │              (Razor → HTML string)            │            │
+│  ┌──────▼──────────────────────────────────────────────▼──────────┐ │
+│  │  Jobs/                                                          │ │
+│  │  SessionReminderJob   (IServiceScopeFactory consumer)           │ │
+│  └──────────────────────────────────┬───────────────────────────── │ │
+│                                     │                              │ │
+│  IBackgroundJobClient (enqueue)     │                              │ │
+│  IRecurringJobManager (register)    │                              │ │
+└─────────────────────────────────────│──────────────────────────────┘
+                                      │ (resolves scoped services)
+┌─────────────────────────────────────▼──────────────────────────────┐
+│  EuphoriaInn.Domain  (Business Logic Layer)                        │
+│                                                                     │
+│  Interfaces/                    Services/                           │
+│  ┌─────────────────────┐        ┌──────────────────────────────┐    │
+│  │ IEmailService       │◄───────│ EmailService                 │    │
+│  │  SendQuestFinalized │        │  (switches SMTP→Resend API)  │    │
+│  │  SendReminder       │        └──────────────────────────────┘    │
+│  │  SendDigestReminder │                                             │
+│  │  GetEmailStats      │        ┌──────────────────────────────┐    │
+│  └─────────────────────┘        │ QuestService                 │    │
+│                                 │  FinalizeQuestAsync          │    │
+│  ┌─────────────────────┐        │  GetQuestsDueTomorrow (new)  │    │
+│  │ IEmailRenderService │        └──────────────────────────────┘    │
+│  │  RenderToString<T>  │                                             │
+│  └─────────────────────┘                                             │
+│                                                                     │
+│  Models/                                                            │
+│  ┌─────────────┐  ┌──────────────────┐  ┌────────────────────┐     │
+│  │ EmailSettings│  │ ReminderEmailData│  │ EmailStatsSummary  │     │
+│  │ (+ ResendKey)│  │ (digest model)   │  │ (sent/bounced/fail)│     │
+│  └─────────────┘  └──────────────────┘  └────────────────────┘     │
+└────────────────────────────────────────────────────────────────────┘
+                                      │
+┌─────────────────────────────────────▼──────────────────────────────┐
+│  EuphoriaInn.Repository  (Data Layer)                              │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  QuestRepository.GetQuestsDueTomorrowAsync() (new method)    │   │
+│  │  Returns: Quest[] with PlayerSignups, DungeonMaster included │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│  SQL Server (same DB — Hangfire adds its own [HangFire] schema)     │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Responsibilities
 
-| Component | Responsibility | Location |
-|-----------|----------------|----------|
-| `MobileDetectionMiddleware` | Parse User-Agent, set `HttpContext.Items["IsMobile"]` | `EuphoriaInn.Service/Middleware/MobileDetectionMiddleware.cs` |
-| `MobileViewLocationExpander` | Inject `.Mobile.cshtml` paths into view resolution chain | `EuphoriaInn.Service/ViewExpanders/MobileViewLocationExpander.cs` |
-| `_Layout.Mobile.cshtml` | Shared mobile HTML shell, slim navbar, mobile CSS | `EuphoriaInn.Service/Views/Shared/_Layout.Mobile.cshtml` |
-| `_ViewStart.cshtml` | Conditionally sets `Layout` to mobile or desktop | `EuphoriaInn.Service/Views/_ViewStart.cshtml` (modified) |
-| `*.Mobile.cshtml` views | Mobile-specific page content, opt-in per page | `EuphoriaInn.Service/Views/{Controller}/` alongside desktop views |
-| `mobile.css` | Mobile-specific stylesheet | `EuphoriaInn.Service/wwwroot/css/mobile.css` (new) |
+| Component | Responsibility | Layer | New or Modified |
+|-----------|----------------|-------|-----------------|
+| `SessionReminderJob` | Recurring job: scan quests due tomorrow, group by player for digest, call `IEmailService` | Service | NEW |
+| `IEmailService` (expanded) | Contract for all email operations including reminder, digest, stats | Domain | MODIFIED |
+| `EmailService` (replaced) | Send HTML emails via Resend SDK; fetch stats from Resend API | Domain | REPLACED |
+| `IEmailRenderService` | Render a Razor view name + model to an HTML string | Domain | NEW (interface) |
+| `RazorEmailRenderService` | Implement `IEmailRenderService` using `IRazorViewEngine` | Service | NEW (impl) |
+| `IQuestService.GetQuestsDueTomorrowAsync` | Return finalized quests with `FinalizedDate.Date == tomorrow` | Domain | NEW method |
+| `IQuestRepository.GetQuestsDueTomorrowAsync` | EF Core query for tomorrow's finalized quests | Domain interface | NEW method |
+| `QuestRepository.GetQuestsDueTomorrowAsync` | EF Core implementation with eager-loaded signups + DM | Repository | NEW method |
+| `EmailSettings` | Add `ResendApiKey` property | Domain | MODIFIED |
+| `EmailStatsSummary` | Model for admin stats (sent, delivered, bounced, failed counts) | Domain | NEW |
+| Hangfire Dashboard | `/hangfire` endpoint, admin-only `IDashboardAuthorizationFilter` | Service | NEW |
+| Email Razor templates | `Views/Emails/QuestFinalized.cshtml`, `SessionReminder.cshtml`, `DigestReminder.cshtml` | Service | NEW |
+| Admin stats view | `Views/Admin/EmailStats.cshtml` — calls `IEmailService.GetEmailStatsAsync` | Service | NEW |
 
 ---
 
-## Architectural Patterns
+## Layer-by-Layer Integration Analysis
 
-### Pattern 1: IViewLocationExpander — suffix injection with fallback
+### What goes in Repository
 
-**What:** A class implementing `IViewLocationExpander` that prepends `.Mobile.cshtml` paths ahead of every default location. The Razor engine tries paths in yield order — the first file that exists wins. Because every mobile path is paired with its desktop fallback in the same yield block, missing `.Mobile.cshtml` files automatically fall through to the desktop view.
+**Only:** The new query method for tomorrow's quests.
 
-**When to use:** Any time you want optional per-page overrides without modifying controllers. This is the canonical ASP.NET Core mechanism for view location customisation.
+```
+EuphoriaInn.Repository/
+  Interfaces → IQuestRepository (existing) gains:
+    Task<IList<QuestEntity>> GetQuestsDueTomorrowAsync(CancellationToken token = default);
 
-**Two-method contract:**
+  Repositories → QuestRepository gains the implementation:
+    - WHERE IsFinalized = true
+    - AND CAST(FinalizedDate AS DATE) = CAST(DATEADD(day, 1, GETUTCDATE()) AS DATE)
+    - Include PlayerSignups → Player (Email, Name)
+    - Include DungeonMaster
+```
 
-- `PopulateValues` runs on every request. It writes values into `context.Values` which form the cache key. Two requests with identical `context.Values` skip `ExpandViewLocations` and reuse cached paths. **This is where mobile detection state must be written.**
-- `ExpandViewLocations` runs only on cache miss (new unique key combination). It receives the default location list and returns an expanded list. Order determines priority.
+Hangfire's SQL Server storage schema is **NOT** managed through EF Core migrations. Hangfire creates its own `[HangFire]` schema tables (`[HangFire].[Job]`, `[HangFire].[State]`, etc.) via `PrepareSchemaIfNecessary = true` (the default), which runs on first startup. This requires no EF migration and does not interfere with the application schema.
 
-**Complete implementation:**
+### What goes in Domain
+
+**Interfaces (public contracts):**
+
+```
+EuphoriaInn.Domain/Interfaces/
+  IEmailService.cs         ← MODIFIED: add SendSessionReminderAsync, SendDigestReminderAsync,
+                                        GetEmailStatsAsync
+  IEmailRenderService.cs   ← NEW: Task<string> RenderAsync<TModel>(string viewName, TModel model)
+  IQuestRepository.cs      ← MODIFIED: add GetQuestsDueTomorrowAsync
+  IQuestService.cs         ← MODIFIED: add GetQuestsDueTomorrowAsync
+```
+
+**Models (data contracts):**
+
+```
+EuphoriaInn.Domain/Models/
+  EmailSettings.cs         ← MODIFIED: add ResendApiKey, ResendAudienceId (optional)
+  EmailStatsSummary.cs     ← NEW: record { int Sent; int Delivered; int Bounced; int Failed; }
+  ReminderQuestData.cs     ← NEW: POCO for passing quest data to reminder email templates
+```
+
+**Services (business logic — internal implementations):**
+
+```
+EuphoriaInn.Domain/Services/
+  EmailService.cs          ← REPLACED: now uses IResend (Resend SDK) instead of SmtpClient
+                              Calls IEmailRenderService to get HTML body
+                              Implements GetEmailStatsAsync by calling Resend list/retrieve endpoints
+```
+
+The `EmailService` constructor changes from `SmtpClient` to `IResend` + `IEmailRenderService`. Both `IResend` and `IEmailRenderService` are injected — Domain does not reference Resend SDK directly. See integration decision below.
+
+**Digest batching logic lives in Domain.** `SessionReminderJob` (Service layer) calls `IQuestService.GetQuestsDueTomorrowAsync()` to get all quests. The grouping by player — "player X appears in quest A and quest B, send one email not two" — is a business rule and belongs in Domain (specifically inside the `SendSessionReminderAsync` overload that accepts a list of quests for one player, or inside the job itself before delegating to the service).
+
+Recommended: job groups by `player.Email` in memory, then calls `IEmailService.SendDigestReminderAsync(player, quests[])`. The batching decision is made in the job (Service layer) because it requires aggregating results from a repository query — pure orchestration, not business logic.
+
+### What goes in Service
+
+**Hangfire job class:**
+
+```
+EuphoriaInn.Service/Jobs/
+  SessionReminderJob.cs    ← NEW
+```
+
+`SessionReminderJob` takes `IServiceScopeFactory` in its constructor (registered as a singleton-safe dependency). Each execution creates its own scope to resolve `IQuestService` and `IEmailService`. This is mandatory because both services are registered as `Scoped` and Hangfire resolves job classes from the root container — direct `Scoped` injection would result in a captured/stale scope.
+
+**Razor email render service (implementation):**
+
+```
+EuphoriaInn.Service/Services/
+  RazorEmailRenderService.cs  ← NEW: implements IEmailRenderService
+```
+
+`RazorEmailRenderService` depends on `IRazorViewEngine`, `ITempDataProvider`, `IServiceScopeFactory`. It creates a synthetic `ActionContext` with an empty `HttpContext`, locates the view by name, renders to a `StringWriter`, and returns the HTML string. This lives in Service because it depends on `IRazorViewEngine` — an ASP.NET Core MVC type — which must not appear in Domain.
+
+**Razor email template views:**
+
+```
+EuphoriaInn.Service/Views/Emails/
+  QuestFinalized.cshtml       ← NEW (replaces plain-text body)
+  SessionReminder.cshtml      ← NEW
+  DigestReminder.cshtml       ← NEW (multiple quests listed)
+  _EmailLayout.cshtml         ← NEW (shared HTML shell: header, footer, D&D styling)
+```
+
+Email template ViewModels (small, focused):
+
+```
+EuphoriaInn.Service/ViewModels/EmailViewModels/
+  QuestFinalizedEmailViewModel.cs
+  SessionReminderEmailViewModel.cs
+  DigestReminderEmailViewModel.cs
+```
+
+These ViewModels are in Service (not Domain) because they feed Razor views — a presentation-layer concern. They are mapped from Domain models inside `EmailService.SendXxxAsync()` methods (or passed directly since `EmailService` is in Domain and will receive the domain models — see design decision below).
+
+**Hangfire Dashboard authorization:**
+
+```
+EuphoriaInn.Service/Authorization/
+  HangfireAdminAuthFilter.cs  ← NEW: IDashboardAuthorizationFilter
+```
 
 ```csharp
-// EuphoriaInn.Service/ViewExpanders/MobileViewLocationExpander.cs
-using Microsoft.AspNetCore.Mvc.Razor;
-
-namespace EuphoriaInn.Service.ViewExpanders;
-
-public class MobileViewLocationExpander : IViewLocationExpander
+public class HangfireAdminAuthFilter : IDashboardAuthorizationFilter
 {
-    private const string IsMobileKey = "isMobile";
-
-    // Step 1 — runs every request, determines cache key.
-    // Read the flag set by middleware; store it so the cache splits
-    // desktop (isMobile=false) and mobile (isMobile=true) path sets.
-    public void PopulateValues(ViewLocationExpanderContext context)
+    public bool Authorize(DashboardContext context)
     {
-        var isMobile = context.ActionContext.HttpContext.Items["IsMobile"] is true;
-        context.Values[IsMobileKey] = isMobile.ToString();
-    }
-
-    // Step 2 — runs only when cache misses (i.e. first desktop request
-    // and first mobile request per view name).
-    // For mobile requests, prepend .Mobile.cshtml ahead of each default path.
-    // For desktop requests, return the original locations unchanged.
-    public IEnumerable<string> ExpandViewLocations(
-        ViewLocationExpanderContext context,
-        IEnumerable<string> viewLocations)
-    {
-        if (!context.Values.TryGetValue(IsMobileKey, out var isMobileStr)
-            || isMobileStr != "True")
-        {
-            return viewLocations;
-        }
-
-        return ExpandForMobile(viewLocations);
-    }
-
-    private static IEnumerable<string> ExpandForMobile(IEnumerable<string> viewLocations)
-    {
-        foreach (var location in viewLocations)
-        {
-            // Yield the .Mobile.cshtml variant first, then the original.
-            // The engine picks the first path that resolves to a real file.
-            yield return location.Replace(".cshtml", ".Mobile.cshtml",
-                StringComparison.OrdinalIgnoreCase);
-            yield return location;
-        }
+        var httpContext = context.GetHttpContext();
+        return httpContext.User.IsInRole("Admin");
     }
 }
 ```
 
-**Registration in Program.cs** — add before `builder.Build()`:
+**Program.cs additions:**
 
-```csharp
-// Program.cs — add alongside AddControllersWithViews()
-builder.Services.AddControllersWithViews();
-builder.Services.Configure<RazorViewEngineOptions>(options =>
-{
-    options.ViewLocationExpanders.Add(new MobileViewLocationExpander());
-});
-```
+1. `services.AddHangfire(...)` with `UseSqlServerStorage` pointing at `DefaultConnection`
+2. `services.AddHangfireServer()` — registers background server as `IHostedService`
+3. `services.AddScoped<IEmailRenderService, RazorEmailRenderService>()`
+4. `services.AddResend(o => o.ApiToken = config["EmailSettings:ResendApiKey"]!)`
+5. `app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = [new HangfireAdminAuthFilter()] })`
+6. Register `SessionReminderJob` recurring job after `app.Build()`
 
----
+**Admin stats controller action:**
 
-### Pattern 2: Mobile detection middleware — set once, read everywhere
-
-**What:** A lightweight middleware that runs before routing and sets a typed flag in `HttpContext.Items`. Controllers, views, layout, and the expander all read from the same place. No action filter needed; no DI service needed.
-
-**Why middleware, not inside the expander:** `PopulateValues` is called by the view engine, not the request pipeline. Doing User-Agent string parsing inside `PopulateValues` would duplicate work on every view resolution call (partials, layouts, the main view). Middleware runs exactly once per request. The expander reads the already-computed result.
-
-**Why not an action filter:** Action filters run after model binding and authorize attributes. Middleware runs earlier and is unconditional — it applies to all routes consistently. The flag is also needed in `_ViewStart.cshtml` which runs outside the action filter lifecycle.
-
-**Why not a third-party library:** The project constraint is no framework changes. The User-Agent `Mobi` keyword is specified in the W3C mobile browser spec and is present in all modern mobile browser UAs (iOS Safari, Chrome for Android, Samsung Internet). A six-keyword check is reliable enough for layout selection; it does not need to be precise device identification.
-
-**Implementation:**
-
-```csharp
-// EuphoriaInn.Service/Middleware/MobileDetectionMiddleware.cs
-namespace EuphoriaInn.Service.Middleware;
-
-public class MobileDetectionMiddleware(RequestDelegate next)
-{
-    // RFC 2616 compliant mobile UA keywords. Covers iOS, Android, Windows Phone,
-    // and generic "Mobi" (W3C spec for mobile browsers).
-    private static readonly string[] MobileKeywords =
-        ["Mobi", "Android", "iPhone", "iPad", "Windows Phone", "BlackBerry"];
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        var userAgent = context.Request.Headers.UserAgent.ToString();
-        var isMobile = MobileKeywords.Any(kw =>
-            userAgent.Contains(kw, StringComparison.OrdinalIgnoreCase));
-
-        context.Items["IsMobile"] = isMobile;
-
-        await next(context);
-    }
-}
-```
-
-**Registration in Program.cs** — add in the middleware pipeline, before `UseRouting`:
-
-```csharp
-app.UseStaticFiles();
-
-// Must come before UseRouting so IsMobile is set before
-// any view resolution begins.
-app.UseMiddleware<MobileDetectionMiddleware>();
-
-app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
-```
+The existing `AdminController` gains a new `EmailStats` action that calls `IEmailService.GetEmailStatsAsync()` and returns a view. No new controller needed.
 
 ---
 
-### Pattern 3: Mobile layout — _ViewStart.cshtml conditional selection
+## Design Decisions with Rationale
 
-**What:** `_ViewStart.cshtml` is executed before every full view (not partials). Set `Layout` conditionally based on `HttpContext.Items["IsMobile"]`. This is the authoritative place for layout selection — it means individual mobile views do **not** need to specify `@{ Layout = "..." }`.
+### Decision 1: EmailService stays in Domain, IEmailRenderService is in Domain (interface), RazorEmailRenderService is in Service (implementation)
 
-**Updated _ViewStart.cshtml:**
+**Problem:** `EmailService` is an internal Domain service. It needs to produce HTML email bodies. Razor rendering requires `IRazorViewEngine`, which is an `Microsoft.AspNetCore.Mvc.Razor` type — allowed only in Service.
 
-```cshtml
-@{
-    var isMobile = Context.Items["IsMobile"] is true;
-    Layout = isMobile
-        ? "~/Views/Shared/_Layout.Mobile.cshtml"
-        : "_Layout";
-}
-```
+**Solution:** Domain defines `IEmailRenderService` (a pure C# interface with no MVC types). Service provides `RazorEmailRenderService` implementing it. `EmailService` constructor receives `IEmailRenderService` via DI — Domain calls it without ever knowing about Razor. Layer dependency rules remain intact.
 
-**_Layout.Mobile.cshtml structure:**
+**Alternative rejected:** Put `EmailService` in Service. This would require moving `IEmailService` to Service too, breaking the existing injection pattern throughout Domain (e.g., `QuestService` calls `IEmailService` directly — it would need to take a Service-layer dependency, inverting the dependency direction).
 
-```cshtml
-@using EuphoriaInn.Domain.Interfaces
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - D&D Quest Board</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
-    @await RenderSectionAsync("Styles", required: false)
-</head>
-<body class="mobile-layout">
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                <i class="fas fa-dice-d20"></i> Quest Board
-            </a>
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#mobileNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
+### Decision 2: Resend SDK (IResend) is injected into EmailService — not called from Domain directly
 
-    <!-- Off-canvas nav for mobile (replaces dropdown-heavy desktop nav) -->
-    <div class="offcanvas offcanvas-end" id="mobileNav">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            @* Same nav logic as _Layout.cshtml — copy auth-conditional nav items *@
-        </div>
-    </div>
+**Problem:** Domain must not reference the `Resend` NuGet package because it would introduce a third-party assembly into the Domain project.
 
-    <div class="container-fluid px-2 mt-2">
-        @RenderBody()
-    </div>
+**Resolution:** `IResend` is registered in DI from Program.cs (Service layer). Domain's `EmailService` declares `IResend` in its constructor — `IResend` is a pure interface from the `Resend` package. Because the `Resend` package is added as a dependency to the **Domain** project (one assembly reference), this is acceptable given the project's pragmatic constraints: the alternative (wrapping `IResend` in yet another Domain interface) adds a layer with no benefit at this scale.
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
-```
+**If stricter isolation is needed:** Define `IResendEmailClient` in Domain, implement it as `ResendEmailClientAdapter` in Service, inject that instead. The current milestone does not require this level of isolation.
 
-Key differences from `_Layout.cshtml`:
-- Loads `mobile.css` only (not the five desktop stylesheets that include desktop-specific rules)
-- Uses Bootstrap offcanvas for nav instead of collapse — offcanvas is a better mobile pattern for deep nav menus
-- `container-fluid px-2` instead of `container mt-3` — full-width, tighter padding on small screens
-- The five desktop CSS files (`site.css`, `calendar.css`, `quests.css`, `shop.css`, `guild-members.css`) are not loaded; `mobile.css` provides mobile-appropriate overrides
+### Decision 3: Hangfire uses the same SQL Server database as EF Core
+
+**Problem:** The project uses one `DefaultConnection` connection string, one database. Adding a separate Hangfire database would require additional Docker configuration and operational burden.
+
+**Solution:** Pass `DefaultConnection` to `UseSqlServerStorage`. Hangfire creates its own `[HangFire]` schema — completely separate from the EF Core tables (which use `[dbo]`). No migration conflict. No EF awareness of Hangfire tables.
+
+**Pitfall:** Do NOT add Hangfire EF Core entity types to `QuestBoardContext`. Hangfire manages its own schema independently.
+
+### Decision 4: Digest batching is orchestrated in SessionReminderJob, not inside IEmailService
+
+**Rationale:** Digest batching requires: (1) load all tomorrow's quests from the repository, (2) group by player email in memory, (3) for single-quest players call `SendSessionReminderAsync`, (4) for multi-quest players call `SendDigestReminderAsync`. Steps 1-2 are orchestration logic that depends on a repository result — appropriate for the job class (Service layer). The email services (Domain) receive pre-grouped data and do not know about batching.
+
+### Decision 5: Email template ViewModels are thin POCOs in Service/ViewModels/EmailViewModels/
+
+**Rationale:** Domain models already contain all needed data (Quest, PlayerSignup, User). The EmailViewModels are flattening projections for Razor template consumption — a presentation concern. They do not contain business logic. AutoMapper is not used here; the job maps domain objects to email ViewModels inline before calling `IEmailService` methods.
 
 ---
 
-### Pattern 4: File naming convention — ViewName.Mobile.cshtml alongside desktop view
+## Data Flow Diagrams
 
-**Recommended convention:** Place mobile views in the same controller folder as their desktop counterpart, with the `.Mobile.cshtml` suffix:
+### Flow 1: Recurring daily reminder (automated)
 
 ```
-Views/
-├── Home/
-│   ├── Index.cshtml             ← desktop (unchanged)
-│   └── Index.Mobile.cshtml      ← mobile override (new)
-├── Quest/
-│   ├── Details.cshtml           ← desktop (unchanged)
-│   ├── Details.Mobile.cshtml    ← mobile override (new)
-│   ├── _QuestCard.cshtml        ← desktop partial (unchanged)
-│   └── _QuestCard.Mobile.cshtml ← mobile partial (only if needed)
-├── Calendar/
-│   ├── Index.cshtml             ← desktop (unchanged)
-│   └── Index.Mobile.cshtml      ← mobile override (new — agenda view)
-└── Shared/
-    ├── _Layout.cshtml           ← desktop layout (unchanged)
-    └── _Layout.Mobile.cshtml    ← mobile layout (new)
+[Hangfire scheduler — daily at 08:00]
+    │
+    ▼
+SessionReminderJob.ExecuteAsync()
+    creates IServiceScope
+    │
+    ▼
+IQuestService.GetQuestsDueTomorrowAsync()
+    │
+    ▼
+IQuestRepository.GetQuestsDueTomorrowAsync()
+    EF Core query: IsFinalized=true AND FinalizedDate.Date = tomorrow
+    includes: PlayerSignups.Player, DungeonMaster
+    │
+    ▼
+[In-memory grouping by player email]
+    player → list of Quest
+    │
+    ├── single quest → IEmailService.SendSessionReminderAsync(player, quest)
+    │       │
+    │       ▼
+    │   IEmailRenderService.RenderAsync<SessionReminderEmailViewModel>
+    │       ("Emails/SessionReminder", viewModel)
+    │       │
+    │       ▼
+    │   IRazorViewEngine locates Views/Emails/SessionReminder.cshtml
+    │   Renders to string
+    │       │
+    │       ▼
+    │   IResend.EmailSendAsync(EmailMessage { HtmlBody = renderedHtml })
+    │       → Resend API → player inbox
+    │
+    └── multiple quests → IEmailService.SendDigestReminderAsync(player, quests[])
+            → same render + send flow, using DigestReminder.cshtml
 ```
 
-**Why not a separate `/Views/Mobile/` folder:** A parallel folder structure means every path transform in `ExpandViewLocations` needs controller-subfolder logic. The suffix approach lets the expander do a simple string replace on the incoming location list — one line of code, no edge cases. It also keeps related views physically co-located.
+### Flow 2: DM manual reminder trigger
 
----
+```
+DM clicks "Send Reminder" on Quest/Manage page
+    │ POST /Quest/SendReminder/{id}
+    ▼
+QuestController.SendReminder(int id)
+    [Authorize(Policy = "DungeonMasterOnly")]
+    │
+    ▼
+IBackgroundJobClient.Enqueue<SessionReminderJob>(
+    job => job.SendReminderForQuestAsync(id))
+    │ (non-blocking — returns immediately to user)
+    ▼
+HTTP redirect back to Quest/Manage/{id}
+    │
+    [Background — Hangfire executes within seconds]
+    ▼
+SessionReminderJob.SendReminderForQuestAsync(questId)
+    creates IServiceScope
+    │
+    ▼
+IQuestService.GetQuestWithManageDetailsAsync(questId)
+    selects only IsSelected=true players
+    │
+    ▼
+IEmailService.SendSessionReminderAsync(player, quest)
+    per selected player — no digest (single quest context)
+```
 
-### Pattern 5: Partial view strategy — only create mobile partials when they differ substantially
+### Flow 3: HTML email rendering (shared sub-flow)
 
-**How partials interact with the expander:** `ExpandViewLocations` is called for every view lookup, including partials rendered via `<partial name="..." />` and `@Html.PartialAsync(...)`. The expander will therefore look for `_QuestCard.Mobile.cshtml` before `_QuestCard.cshtml` on a mobile request. This is automatic — no extra code needed.
+```
+IEmailService.SendXxxAsync(...)
+    │
+    ▼
+builds EmailViewModel (POCO, inline mapping from domain model)
+    │
+    ▼
+IEmailRenderService.RenderAsync<TViewModel>("Emails/ViewName", viewModel)
+    │
+    ▼
+RazorEmailRenderService.RenderAsync<T>(viewName, model)
+    creates ActionContext with synthetic HttpContext (no real request)
+    calls IRazorViewEngine.FindView(actionContext, viewName, isMainPage: false)
+    creates ViewContext with StringWriter
+    calls view.RenderAsync(viewContext)
+    returns writer.ToString()
+    │
+    ▼
+HTML string passed to IResend.EmailSendAsync as HtmlBody
+```
 
-**Recommendation:**
-- Partials that are purely structural scaffolding (e.g. `_QuestFormScripts.cshtml`) — no mobile variant needed. The scripts work the same.
-- Partials that render complex layout (`_QuestCard.cshtml`, `_Calendar.cshtml`) — create a mobile variant only if the desktop markup is too wide or image-heavy to work on small screens. Favour CSS-only fixes over duplicate markup where possible.
-- Partials rendered inside a mobile page view that is itself already a `.Mobile.cshtml` — those are only reached from the mobile view, so they can reference the desktop partial if the calling view already adapts the outer structure.
+### Flow 4: Admin email stats
+
+```
+Admin navigates to /Admin/EmailStats
+    │
+    ▼
+AdminController.EmailStats()
+    [Authorize(Policy = "AdminOnly")]
+    │
+    ▼
+IEmailService.GetEmailStatsAsync(DateTime from, DateTime to)
+    │
+    ▼
+IResend.EmailsList() — paginated list of sent emails
+    iterates, counts by last_event field:
+      "delivered" → Delivered
+      "bounced"   → Bounced
+      "failed"    → Failed
+    │
+    ▼
+EmailStatsSummary { Sent, Delivered, Bounced, Failed }
+    │
+    ▼
+AdminController maps to EmailStatsViewModel
+    returns View("EmailStats", viewModel)
+```
+
+Note: Resend's `/emails` list endpoint returns individual email records with `last_event` status — no aggregate endpoint exists. The stats query loops over pages, grouping by status. For the small email volume (100/day limit), this is acceptable without caching.
 
 ---
 
 ## Recommended Project Structure (new files only)
 
 ```
-EuphoriaInn.Service/
-├── Middleware/
-│   └── MobileDetectionMiddleware.cs        ← NEW
-├── ViewExpanders/
-│   └── MobileViewLocationExpander.cs       ← NEW
-├── Views/
-│   ├── _ViewStart.cshtml                   ← MODIFIED (conditional layout only)
-│   ├── Shared/
-│   │   └── _Layout.Mobile.cshtml           ← NEW
-│   ├── Home/
-│   │   └── Index.Mobile.cshtml             ← NEW (phase 2)
-│   ├── Calendar/
-│   │   └── Index.Mobile.cshtml             ← NEW (phase 2, agenda view)
-│   ├── Quest/
-│   │   ├── Details.Mobile.cshtml           ← NEW (phase 3)
-│   │   └── _QuestCard.Mobile.cshtml        ← NEW if needed
-│   └── [other controllers]/
-│       └── *.Mobile.cshtml                 ← NEW per phase
-└── wwwroot/
-    └── css/
-        └── mobile.css                      ← NEW
-```
+EuphoriaInn.Domain/
+  Interfaces/
+    IEmailService.cs              ← MODIFIED (add 3 new method signatures)
+    IEmailRenderService.cs        ← NEW
+    IQuestRepository.cs           ← MODIFIED (add GetQuestsDueTomorrowAsync)
+    IQuestService.cs              ← MODIFIED (add GetQuestsDueTomorrowAsync)
+  Models/
+    EmailSettings.cs              ← MODIFIED (add ResendApiKey)
+    EmailStatsSummary.cs          ← NEW
+  Services/
+    EmailService.cs               ← REPLACED (SMTP → Resend + render service)
 
-**Files that must NOT be modified:** All existing `*.cshtml` views (except `_ViewStart.cshtml`), all controllers, all ViewModels, all repository/domain/service layer files.
+EuphoriaInn.Repository/
+  Repositories/
+    QuestRepository.cs            ← MODIFIED (add GetQuestsDueTomorrowAsync)
+
+EuphoriaInn.Service/
+  Authorization/
+    HangfireAdminAuthFilter.cs    ← NEW
+  Jobs/
+    SessionReminderJob.cs         ← NEW
+  Services/
+    RazorEmailRenderService.cs    ← NEW
+  ViewModels/
+    EmailViewModels/
+      QuestFinalizedEmailViewModel.cs    ← NEW
+      SessionReminderEmailViewModel.cs   ← NEW
+      DigestReminderEmailViewModel.cs    ← NEW
+  Views/
+    Emails/
+      _EmailLayout.cshtml               ← NEW (HTML shell, D&D styling)
+      QuestFinalized.cshtml             ← NEW
+      SessionReminder.cshtml            ← NEW
+      DigestReminder.cshtml             ← NEW
+    Admin/
+      EmailStats.cshtml                 ← NEW
+  Program.cs                           ← MODIFIED (Hangfire setup, Resend DI, job registration)
+
+EuphoriaInn.Service/
+  EuphoriaInn.Service.csproj            ← MODIFIED (add Hangfire.AspNetCore, Hangfire.SqlServer)
+EuphoriaInn.Domain/
+  EuphoriaInn.Domain.csproj             ← MODIFIED (add Resend package)
+```
 
 ---
 
-## Data Flow
+## Architectural Patterns
 
-### Mobile request — full path
+### Pattern 1: Hangfire job with scoped services via IServiceScopeFactory
 
-```
-Browser sends GET /  (User-Agent: Mozilla/5.0 ... iPhone ...)
-    │
-    ▼
-MobileDetectionMiddleware
-    HttpContext.Items["IsMobile"] = true
-    │
-    ▼
-HomeController.Index()
-    returns View(viewModel)   ← no change to controller
-    │
-    ▼
-RazorViewEngine begins view resolution for "Index"
-    │
-    ▼
-MobileViewLocationExpander.PopulateValues()
-    reads HttpContext.Items["IsMobile"] → true
-    context.Values["isMobile"] = "True"   ← unique cache key
-    │
-    ▼
-Cache miss for ("Index", isMobile=True)?
-    YES → MobileViewLocationExpander.ExpandViewLocations()
-        yields: /Views/Home/Index.Mobile.cshtml  ← checked first
-        yields: /Views/Home/Index.cshtml
-    │
-    ▼
-File system check: /Views/Home/Index.Mobile.cshtml exists?
-    YES → render it
-    NO  → fall through to /Views/Home/Index.cshtml
-    │
-    ▼
-_ViewStart.cshtml executes
-    Context.Items["IsMobile"] is true
-    Layout = "~/Views/Shared/_Layout.Mobile.cshtml"
-    │
-    ▼
-Response rendered with mobile layout + mobile view content
-    ViewModel is identical to what desktop view would receive
+**What:** Hangfire resolves job classes from the root DI container. Scoped services (`IQuestService`, `IEmailService`, `QuestBoardContext`) cannot be constructor-injected directly into a job class registered as singleton (which Hangfire treats job classes as). The correct pattern is to inject `IServiceScopeFactory` (singleton-safe) and create a scope per job execution.
+
+**When to use:** Every Hangfire job class that needs scoped services (any EF Core / domain service access).
+
+**Example:**
+
+```csharp
+// EuphoriaInn.Service/Jobs/SessionReminderJob.cs
+public class SessionReminderJob(IServiceScopeFactory scopeFactory)
+{
+    [AutomaticRetry(Attempts = 3, DelaysInSeconds = [300, 600, 1800])]
+    public async Task ExecuteDailyReminderAsync()
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var questService = scope.ServiceProvider.GetRequiredService<IQuestService>();
+        var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+        var quests = await questService.GetQuestsDueTomorrowAsync();
+
+        // Group confirmed players across all tomorrow's quests
+        var playerQuestGroups = quests
+            .SelectMany(q => q.PlayerSignups
+                .Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.Player.Email))
+                .Select(ps => (Player: ps.Player, Quest: q)))
+            .GroupBy(x => x.Player.Email);
+
+        foreach (var group in playerQuestGroups)
+        {
+            var player = group.First().Player;
+            var playerQuests = group.Select(x => x.Quest).ToList();
+
+            if (playerQuests.Count == 1)
+                await emailService.SendSessionReminderAsync(player, playerQuests[0]);
+            else
+                await emailService.SendDigestReminderAsync(player, playerQuests);
+        }
+    }
+
+    [AutomaticRetry(Attempts = 3)]
+    public async Task SendReminderForQuestAsync(int questId)
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var questService = scope.ServiceProvider.GetRequiredService<IQuestService>();
+        var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+        var quest = await questService.GetQuestWithManageDetailsAsync(questId);
+        if (quest == null) return;
+
+        var confirmedPlayers = quest.PlayerSignups
+            .Where(ps => ps.IsSelected && !string.IsNullOrEmpty(ps.Player.Email));
+
+        foreach (var signup in confirmedPlayers)
+            await emailService.SendSessionReminderAsync(signup.Player, quest);
+    }
+}
 ```
 
-### Desktop request — path
+**Trade-offs:** Slightly more verbose than direct injection. The `CreateAsyncScope()` call is cheap and ensures proper disposal of `DbContext` after each job run — essential for correctness.
 
+### Pattern 2: IRazorViewEngine render-to-string (no real HTTP context required)
+
+**What:** Render a `.cshtml` file to an HTML string by constructing a synthetic `ActionContext` and `ViewContext`, bypassing the request pipeline. The view engine resolves the file from `Views/Emails/` using standard view location conventions.
+
+**When to use:** Generating HTML for emails, PDFs, or any out-of-band rendering that is not a direct response to an HTTP request.
+
+**Implementation:**
+
+```csharp
+// EuphoriaInn.Service/Services/RazorEmailRenderService.cs
+public class RazorEmailRenderService(
+    IRazorViewEngine viewEngine,
+    ITempDataProvider tempDataProvider,
+    IServiceScopeFactory scopeFactory) : IEmailRenderService
+{
+    public async Task<string> RenderAsync<TModel>(string viewName, TModel model)
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var httpContext = new DefaultHttpContext
+            { RequestServices = scope.ServiceProvider };
+        var actionContext = new ActionContext(
+            httpContext,
+            new RouteData(),
+            new ActionDescriptor());
+
+        var viewResult = viewEngine.FindView(actionContext, viewName, isMainPage: false);
+        if (!viewResult.Success)
+            throw new InvalidOperationException($"Email view '{viewName}' not found.");
+
+        var viewData = new ViewDataDictionary<TModel>(
+            new EmptyModelMetadataProvider(),
+            new ModelStateDictionary()) { Model = model };
+
+        await using var writer = new StringWriter();
+        var viewContext = new ViewContext(
+            actionContext,
+            viewResult.View,
+            viewData,
+            new TempDataDictionary(httpContext, tempDataProvider),
+            writer,
+            new HtmlHelperOptions());
+
+        await viewResult.View.RenderAsync(viewContext);
+        return writer.ToString();
+    }
+}
 ```
-Browser sends GET /  (User-Agent: Mozilla/5.0 ... Chrome/Windows ...)
-    │
-    ▼
-MobileDetectionMiddleware
-    HttpContext.Items["IsMobile"] = false
-    │
-    ▼
-MobileViewLocationExpander.PopulateValues()
-    context.Values["isMobile"] = "False"   ← different cache key
-    │
-    ▼
-MobileViewLocationExpander.ExpandViewLocations()
-    isMobile is false → returns viewLocations unchanged
-    │
-    ▼
-Normal resolution: /Views/Home/Index.cshtml
-_ViewStart.cshtml → Layout = "_Layout"  (desktop layout)
+
+**Razor view location:** `Views/Emails/SessionReminder.cshtml` is found by the default view engine convention `Views/{viewName}.cshtml` when `viewName` is passed as `"Emails/SessionReminder"`. The email layout is set in `_ViewStart.cshtml` **only for the Emails folder** — or each template sets `@{ Layout = "~/Views/Emails/_EmailLayout.cshtml"; }` explicitly (preferred to avoid affecting the global `_ViewStart`).
+
+**Important:** Email templates must NOT inherit the main site `_Layout.cshtml`. Each email `.cshtml` file sets its own layout explicitly:
+
+```cshtml
+@* Views/Emails/SessionReminder.cshtml *@
+@model EuphoriaInn.Service.ViewModels.EmailViewModels.SessionReminderEmailViewModel
+@{ Layout = "~/Views/Emails/_EmailLayout.cshtml"; }
+
+<h2>Reminder: @Model.QuestTitle</h2>
+...
 ```
+
+### Pattern 3: Hangfire dashboard with role-based authorization
+
+**What:** The Hangfire dashboard is exposed at `/hangfire`. Access is restricted to the `Admin` role using a custom `IDashboardAuthorizationFilter`. The filter reads `HttpContext.User` from the dashboard context.
+
+**When to use:** Any time the Hangfire dashboard is added to an app with existing ASP.NET Core Identity authentication.
+
+**Registration:**
+
+```csharp
+// Program.cs — after app.UseAuthentication(); app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAdminAuthFilter()],
+    DashboardTitle = "Quest Board — Background Jobs"
+});
+```
+
+**Filter:**
+
+```csharp
+// EuphoriaInn.Service/Authorization/HangfireAdminAuthFilter.cs
+public class HangfireAdminAuthFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context)
+    {
+        var httpContext = context.GetHttpContext();
+        return httpContext.User.Identity?.IsAuthenticated == true
+               && httpContext.User.IsInRole("Admin");
+    }
+}
+```
+
+**Ordering matters:** `app.UseHangfireDashboard` must come AFTER `app.UseAuthentication()` and `app.UseAuthorization()` so `HttpContext.User` is populated when the filter runs.
+
+### Pattern 4: Recurring job registration at startup
+
+**What:** The daily reminder job is registered as a recurring Hangfire job using `IRecurringJobManager`. Registration happens after `app.Build()` (not in services) so the Hangfire storage is already initialized.
+
+```csharp
+// Program.cs — after app.Run() setup, before app.Run()
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider
+        .GetRequiredService<IRecurringJobManager>();
+
+    recurringJobManager.AddOrUpdate<SessionReminderJob>(
+        "daily-session-reminder",
+        job => job.ExecuteDailyReminderAsync(),
+        "0 8 * * *",  // 08:00 UTC daily
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+}
+```
+
+**Why not `RecurringJob.AddOrUpdate` static API:** The static API uses `GlobalConfiguration` which is less testable. The `IRecurringJobManager` interface is DI-injectable and follows the project's DI-first conventions.
 
 ---
 
 ## Integration Points
 
-### Program.cs — complete registration diff
+### External Services
 
-Three additions in order:
+| Service | Integration Pattern | Layer | Notes |
+|---------|---------------------|-------|-------|
+| Resend API (send) | `IResend` from `Resend` NuGet package via DI | Domain (uses interface) | API key from `EmailSettings:ResendApiKey` env var |
+| Resend API (stats) | `IResend.EmailsList()` + iterate `last_event` field | Domain (`EmailService`) | No aggregate endpoint; must page through sent emails |
+| Hangfire SQL storage | `services.AddHangfire(...).UseSqlServerStorage(connStr)` | Service (Program.cs) | Shares `DefaultConnection`; creates `[HangFire]` schema automatically |
+
+### Internal Boundaries
+
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| Job → Domain services | `IServiceScopeFactory` → create scope → resolve | Mandatory for scoped services in Hangfire jobs |
+| EmailService → Razor rendering | `IEmailRenderService.RenderAsync<T>` (Domain interface) | Keeps MVC types out of Domain |
+| Controller → Hangfire | `IBackgroundJobClient.Enqueue<SessionReminderJob>(...)` | Fire-and-forget; controller does not await job completion |
+| Domain → Resend SDK | `IResend` constructor injection | Domain.csproj references Resend package |
+| Admin stats → Resend list API | `IResend.EmailsList()` | Per-page iteration; not cached at this scale |
+
+### Program.cs Registration Order (complete additions)
 
 ```csharp
-// 1. Register expander (add alongside AddControllersWithViews)
-builder.Services.AddControllersWithViews();
-builder.Services.Configure<RazorViewEngineOptions>(options =>
+// --- After existing builder.Services.AddControllersWithViews() ---
+
+// Hangfire
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new SqlServerStorageOptions
+        {
+            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+            QueuePollInterval = TimeSpan.Zero,
+            UseRecommendedIsolationLevel = true,
+            DisableGlobalLocks = true
+        }));
+builder.Services.AddHangfireServer();
+
+// Resend email API
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
 {
-    options.ViewLocationExpanders.Add(new MobileViewLocationExpander());
+    o.ApiToken = builder.Configuration["EmailSettings:ResendApiKey"] ?? string.Empty;
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+
+// Razor email renderer
+builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
+
+// --- In middleware pipeline, after app.UseAuthorization() ---
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAdminAuthFilter()],
+    DashboardTitle = "Quest Board — Background Jobs"
 });
 
-// ... all existing service registrations unchanged ...
+// --- After existing startup tasks (migrations, seed) ---
 
-var app = builder.Build();
-
-// 2. Middleware pipeline — add after UseStaticFiles, before UseRouting
-app.UseStaticFiles();
-app.UseMiddleware<MobileDetectionMiddleware>();   // ← ADD THIS LINE
-app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
-```
-
-### _ViewStart.cshtml — single conditional
-
-```cshtml
-@{
-    var isMobile = Context.Items["IsMobile"] is true;
-    Layout = isMobile
-        ? "~/Views/Shared/_Layout.Mobile.cshtml"
-        : "_Layout";
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider
+        .GetRequiredService<IRecurringJobManager>();
+    recurringJobManager.AddOrUpdate<SessionReminderJob>(
+        "daily-session-reminder",
+        job => job.ExecuteDailyReminderAsync(),
+        Cron.Daily(8),  // 08:00 UTC
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 }
 ```
 
-This is the **only** modification to existing view infrastructure. The existing `_Layout.cshtml` is not touched.
-
 ---
 
-## Build Order (respects dependency chain)
+## Build Order
+
+The features have two independent tracks that merge at the email send step. Recommended sequence:
 
 | Step | Deliverable | Depends On | Notes |
-|------|------------|------------|-------|
-| 1 | `MobileDetectionMiddleware` + Program.cs registration | Nothing | Foundation — all other components read from `HttpContext.Items["IsMobile"]` |
-| 2 | `MobileViewLocationExpander` + Program.cs registration | Step 1 (HttpContext.Items must be set before expander reads it) | Core mechanism — enables `.Mobile.cshtml` fallback |
-| 3 | `_Layout.Mobile.cshtml` + `mobile.css` | Step 2 | Shared shell; every mobile page needs this to render correctly |
-| 4 | `_ViewStart.cshtml` update | Step 3 (layout file must exist before _ViewStart references it) | Activates mobile layout for all views |
-| 5 | `Home/Index.Mobile.cshtml` | Steps 1–4 | First page; proves the full pipeline end-to-end before building more |
-| 6 | `Calendar/Index.Mobile.cshtml` | Steps 1–4 | Highest complexity; agenda view is a significant departure from desktop grid |
-| 7 | `Quest/Details.Mobile.cshtml` | Steps 1–4 | High-traffic page for players |
-| 8+ | Remaining `*.Mobile.cshtml` views | Steps 1–4 | Each is independent; can be added in any order |
+|------|-------------|------------|-------|
+| 1 | `IEmailRenderService` interface + `RazorEmailRenderService` | Nothing (new types) | Foundation for all HTML emails |
+| 2 | `_EmailLayout.cshtml` + `QuestFinalized.cshtml` template | Step 1 | First template proves rendering pipeline end-to-end |
+| 3 | `EmailService` rewrite (SMTP → Resend + render) | Steps 1–2 | Replace existing, keep same interface contract |
+| 4 | `QuestFinalized.cshtml` wired into existing finalize flow | Step 3 | Upgrade existing email; no new features yet |
+| 5 | Hangfire: install packages, `AddHangfire`, `AddHangfireServer`, dashboard | Step 3 (shared DB) | Infrastructure; no jobs yet |
+| 6 | `GetQuestsDueTomorrowAsync` in Repository + Domain interface | Step 5 (needs DB) | New query needed by reminder job |
+| 7 | `SessionReminderJob` (both `ExecuteDailyReminderAsync` and `SendReminderForQuestAsync`) | Steps 3, 5, 6 | Core job logic; needs Hangfire + email + query |
+| 8 | `SessionReminder.cshtml` + `DigestReminder.cshtml` templates | Steps 1–2, 7 | Templates needed for job to send anything |
+| 9 | Recurring job registration at startup + DM manual trigger button | Steps 5, 7, 8 | Activates the automation |
+| 10 | Admin email stats (`GetEmailStatsAsync` + `EmailStats.cshtml` view) | Step 3 (IResend already wired) | Independent of job track |
 
-Steps 1–4 are a single atomic unit — do not split across phases. They produce no user-visible change until step 5 adds a first mobile view. This is intentional: the infrastructure is safe to ship before mobile views exist because all mobile requests silently fall through to desktop views.
+Steps 1–4 are the "upgrade existing email" track — they can be validated independently.
+Steps 5–9 are the "Hangfire automation" track — they depend on Steps 1–4 for the email sending.
+Step 10 is independent after Step 3.
 
 ---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Mobile detection inside ExpandViewLocations
+### Anti-Pattern 1: Inject scoped services directly into Hangfire job constructors
 
-**What people do:** Read `context.ActionContext.HttpContext.Request.Headers.UserAgent` inside `ExpandViewLocations` to decide whether to inject mobile paths.
+**What people do:** Constructor-inject `IQuestService` or `IEmailService` directly into the job class, relying on Hangfire's DI integration.
 
-**Why it's wrong:** `ExpandViewLocations` is only called on cache miss. On a cache hit the User-Agent is never read again — but the cached paths from the previous call (which may have been a desktop request) are reused. The expander cache then serves desktop paths to mobile users until the cache expires.
+**Why it's wrong:** Hangfire resolves job instances from the root `IServiceProvider`. Scoped services resolved from the root become effective singletons for the lifetime of the application — they are never disposed. `QuestBoardContext` holds a stale connection and stale change tracker state across all job executions. This causes incorrect query results, `ObjectDisposedException`, or silent data corruption on the second run.
 
-**Do this instead:** Always detect in `PopulateValues` and store in `context.Values`. The values dictionary IS the cache key — different values guarantee different cache entries and force `ExpandViewLocations` to run per device type.
+**Do this instead:** Inject `IServiceScopeFactory` (which IS singleton-safe). Create `await using var scope = scopeFactory.CreateAsyncScope()` at the top of each job method. Resolve scoped services from `scope.ServiceProvider`.
 
----
+### Anti-Pattern 2: Hangfire dashboard added before UseAuthentication
 
-### Anti-Pattern 2: Setting Layout inside each mobile view
+**What people do:** Mount `app.UseHangfireDashboard(...)` early in the pipeline, before `app.UseAuthentication()`.
 
-**What people do:** Every `.Mobile.cshtml` begins with `@{ Layout = "~/Views/Shared/_Layout.Mobile.cshtml"; }`.
+**Why it's wrong:** `HttpContext.User` is not populated until `UseAuthentication` runs. `HangfireAdminAuthFilter.Authorize()` will see an unauthenticated user and return `false` for every request — even admins cannot access the dashboard.
 
-**Why it's wrong:** Brittle — if the layout path changes, every mobile view needs updating. Also requires all desktop views to explicitly set their layout, removing the convention provided by `_ViewStart.cshtml`.
+**Do this instead:** `app.UseHangfireDashboard` must come after `app.UseAuthentication()` and `app.UseAuthorization()`.
 
-**Do this instead:** Set layout in `_ViewStart.cshtml` based on `HttpContext.Items["IsMobile"]`. Mobile views inherit automatically.
+### Anti-Pattern 3: Email templates inherit the site layout
 
----
+**What people do:** Rely on `_ViewStart.cshtml` to set the layout for email templates — the email template is rendered with the full `_Layout.cshtml` (navigation bar, scripts, etc.).
 
-### Anti-Pattern 3: Separate `/Views/Mobile/` folder hierarchy
+**Why it's wrong:** The rendered HTML string includes the full site chrome (nav, Bootstrap scripts, etc.). The email client receives a 50 KB HTML document with JavaScript and server-relative static file URLs. Both are unusable in email.
 
-**What people do:** Create `/Views/Mobile/Home/Index.cshtml` and modify `ExpandViewLocations` to prepend the `Mobile/` directory.
+**Do this instead:** Each email template explicitly sets its own layout: `@{ Layout = "~/Views/Emails/_EmailLayout.cshtml"; }`. The email layout contains only inline-compatible HTML — no `<script>` tags, no server-relative static file references, CSS inlined or from absolute CDN URLs that work in email clients.
 
-**Why it's wrong:** Requires path manipulation that must account for controller subdirectories, Area routes, and shared views. The expander logic becomes non-trivial. Co-location is also lost — desktop and mobile views for the same page are in different folders.
+### Anti-Pattern 4: Storing sent email IDs in QuestBoardContext for stats
 
-**Do this instead:** Use the `.Mobile.cshtml` suffix in the same controller folder. The expander is a one-line string replace. Co-location is preserved.
+**What people do:** Add an `EmailLog` EF Core entity to track every sent email's Resend ID, then query the log table for stats.
 
----
+**Why it's wrong:** Unnecessary schema addition. Resend already stores sent email records and exposes them via the list API. Duplicate storage creates sync problems (what if an email was sent but the DB write failed?).
 
-### Anti-Pattern 4: Reading HttpContext.Items in view code with inline conditionals
+**Do this instead:** Query Resend's list API directly for stats. At 100 emails/day the pagination overhead is negligible. If the quota grows, add a lightweight caching layer (`IMemoryCache` with a 15-minute TTL) in `GetEmailStatsAsync`.
 
-**What people do:** `@if (Context.Items["IsMobile"] is true)` blocks scattered throughout desktop views to conditionally render mobile markup inline.
+### Anti-Pattern 5: Registering recurring jobs in AddDomainServices()
 
-**Why it's wrong:** Defeats the purpose of separate mobile views. Desktop views become bloated with device-conditional branches. Violates the constraint that desktop views must not be modified.
+**What people do:** Call `RecurringJob.AddOrUpdate(...)` inside the Domain's `AddDomainServices` extension method.
 
-**Do this instead:** Create a `.Mobile.cshtml` file only when the layout changes substantially. If only a CSS tweak is needed, handle it in `mobile.css` via media queries (no view change at all).
+**Why it's wrong:** `RecurringJob.AddOrUpdate` is a static API that depends on Hangfire storage being initialized. At service registration time, `AddHangfire` may not have run yet (ordering dependency). Also, it introduces a Hangfire dependency into Domain's extension method.
+
+**Do this instead:** Register recurring jobs in `Program.cs` after `app.Build()`, using the `IRecurringJobManager` interface resolved from a scope. This guarantees Hangfire storage is ready and keeps the Domain extension method free of Hangfire knowledge.
 
 ---
 
@@ -514,22 +757,23 @@ Steps 1–4 are a single atomic unit — do not split across phases. They produc
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| Current (small group) | Single middleware, single expander, per-page opt-in mobile views — appropriate |
-| Medium | Add a cookie-based override (let users force desktop on mobile) — middleware reads cookie before User-Agent; sets `HttpContext.Items["IsMobile"]` to cookie value if present |
-| Large | Add tablet as a third device class — add `DeviceType` string to `context.Values` and yield `.Tablet.cshtml` before `.cshtml` in the expander |
+| Current (small group, 100 emails/day) | Single Hangfire server co-located with web process; SQL Server storage; no caching on stats API |
+| Medium (multiple DMs, 500+ emails/day) | Add `IMemoryCache` TTL on `GetEmailStatsAsync`; consider dedicated Hangfire worker process |
+| Large (multi-tenant) | Separate Hangfire database; Redis storage; multiple worker processes; Resend webhooks instead of polling for stats |
 
 ---
 
 ## Sources
 
-- [IViewLocationExpander Interface — Microsoft Learn (ASP.NET Core 8)](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.iviewlocationexpander?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [IViewLocationExpander.ExpandViewLocations Method — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.iviewlocationexpander.expandviewlocations?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [ViewLocationExpanderContext.ActionContext Property — Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.razor.viewlocationexpandercontext.actioncontext?view=aspnetcore-8.0) — MEDIUM confidence (official docs)
-- [Layout in ASP.NET Core — Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/layout?view=aspnetcore-8.0) — MEDIUM confidence (official docs); confirmed _ViewStart.cshtml conditional Layout pattern
-- [IViewLocationExpander.cs source — dotnet/aspnetcore on GitHub](https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.Razor/src/IViewLocationExpander.cs) — MEDIUM confidence (source of truth for interface contract)
-- [Extending The Razor View Engine With View Location Expanders — Jack Histon](https://jackhiston.com/2017/10/24/extending-the-razor-view-engine-with-view-location-expanders/) — LOW confidence (community blog, pre-.NET 8; registration pattern confirmed against official docs)
-- [Searched Locations For The Razor View Engine — Khalid Abuhakmeh](https://khalidabuhakmeh.com/searched-locations-razor-view-engine-aspdotnet) — LOW confidence (community); confirmed default format patterns `/Views/{1}/{0}.cshtml`
+- Hangfire ASP.NET Core integration: Context7 `/hangfireio/hangfire.documentation` — HIGH confidence
+- Hangfire dashboard authorization (`IDashboardAuthorizationFilter`): `https://docs.hangfire.io/en/latest/configuration/using-dashboard.html` — HIGH confidence
+- Hangfire SQL Server storage options: Context7 `/hangfireio/hangfire.documentation` — HIGH confidence
+- Hangfire DI scoped services / `IServiceScopeFactory` pattern: `https://www.codegenes.net/blog/hangfire-dependency-injection-lifetime-scope/` — MEDIUM confidence (verified against Hangfire docs)
+- Resend .NET SDK (`IResend`, `ResendClient`): `https://resend.com/docs/send-with-dotnet` + `https://github.com/resend/resend-dotnet` — HIGH confidence
+- Resend list emails endpoint (`last_event` field): `https://resend.com/docs/api-reference/emails/list-emails` — HIGH confidence
+- Razor render-to-string pattern (`IRazorViewEngine`, synthetic `ActionContext`): `https://www.endpointdev.com/blog/2024/04/using-razor-templates-to-render-emails-dotnet/` — MEDIUM confidence (pattern is well-established; verified against ASP.NET Core source)
 
 ---
-*Architecture research for: Mobile Razor views, ASP.NET Core 8 MVC*
-*Researched: 2026-06-23*
+
+*Architecture research for: Hangfire + enhanced email system, ASP.NET Core 10 MVC clean architecture*
+*Researched: 2026-06-25*

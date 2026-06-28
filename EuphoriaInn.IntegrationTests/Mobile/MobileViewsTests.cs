@@ -272,7 +272,9 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_cal04", "dm_cal04@test.com", name: "DM Cal04");
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL04");
-        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, DateTime.UtcNow.AddDays(3));
+        // Use day 5 of the current month so the date stays within the queried month regardless of when the test runs.
+        var cal04Date = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 5, 19, 0, 0, DateTimeKind.Utc);
+        await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, cal04Date);
 
         var (response, html) = await GetWithUserAgentAsync(
             $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);

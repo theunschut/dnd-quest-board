@@ -12,7 +12,7 @@ public class QuestServiceTests
 {
     private readonly IQuestRepository _repository;
     private readonly IPlayerSignupRepository _playerSignupRepository;
-    private readonly IEmailService _emailService;
+    private readonly IQuestEmailDispatcher _dispatcher;
     private readonly IMapper _mapper;
     private readonly QuestService _sut;
 
@@ -20,10 +20,10 @@ public class QuestServiceTests
     {
         _repository = Substitute.For<IQuestRepository>();
         _playerSignupRepository = Substitute.For<IPlayerSignupRepository>();
-        _emailService = Substitute.For<IEmailService>();
+        _dispatcher = Substitute.For<IQuestEmailDispatcher>();
         _mapper = Substitute.For<IMapper>();
 
-        _sut = new QuestService(_repository, _playerSignupRepository, _emailService, _mapper);
+        _sut = new QuestService(_repository, _playerSignupRepository, _dispatcher, _mapper);
     }
 
     // Helper: create a quest with specified signups
@@ -38,13 +38,13 @@ public class QuestServiceTests
             ProposedDates = []
         };
 
-    private static PlayerSignup MakeSignup(int id, string email, SignupRole role = SignupRole.Player, bool isSelected = true) =>
+    private static PlayerSignup MakeSignup(int id, string email, SignupRole role = SignupRole.Player, bool isSelected = true, bool emailConfirmed = true) =>
         new()
         {
             Id = id,
             Role = role,
             IsSelected = isSelected,
-            Player = new User { Id = id + 10, Name = $"Player {id}", Email = email },
+            Player = new User { Id = id + 10, Name = $"Player {id}", Email = email, EmailConfirmed = emailConfirmed },
             Quest = new Quest { Id = 1, Title = "T", Description = "D" }
         };
 
@@ -64,13 +64,14 @@ public class QuestServiceTests
         // Act
         await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, [42], TestContext.Current.CancellationToken);
 
-        // Assert
-        await _emailService.DidNotReceive().SendQuestFinalizedEmailAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>());
+        // Assert: dispatcher is not called when quest re-fetch returns null
+        _dispatcher.DidNotReceive().EnqueueFinalizedEmail(
+            Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
+            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>());
     }
 
     [Fact]
-    public async Task FinalizeQuestAsync_WithMixedSelectedAndSpectatorSignups_SendsToBoth()
+    public async Task FinalizeQuestAsync_WithMixedSelectedAndSpectatorSignups_DispatchesJobWithBothEmails()
     {
         // Arrange: signup 1 is selected player, signup 2 is spectator (auto-included), signup 3 is unselected player
         var signups = new List<PlayerSignup>
@@ -91,15 +92,16 @@ public class QuestServiceTests
         // Act
         await _sut.FinalizeQuestAsync(1, DateTime.UtcNow, selectedIds, TestContext.Current.CancellationToken);
 
-        // Assert: emails sent to signup 1 (selected) and signup 2 (spectator), NOT signup 3
-        await _emailService.Received(2).SendQuestFinalizedEmailAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>());
-        await _emailService.Received(1).SendQuestFinalizedEmailAsync(
-            "player1@x.com", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>());
-        await _emailService.Received(1).SendQuestFinalizedEmailAsync(
-            "spectator@x.com", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>());
-        await _emailService.DidNotReceive().SendQuestFinalizedEmailAsync(
-            "player3@x.com", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>());
+        // Assert: dispatcher receives one enqueue call with 2 emails (player1 + spectator), NOT player3
+        _dispatcher.Received(1).EnqueueFinalizedEmail(
+            1,
+            Arg.Any<DateTime>(),
+            Arg.Is<string[]>(emails => emails.Contains("player1@x.com") && emails.Contains("spectator@x.com") && !emails.Contains("player3@x.com")),
+            Arg.Any<string[]>(),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<int>());
     }
 
     // ---------------------------------------------------------------------------
@@ -122,19 +124,20 @@ public class QuestServiceTests
         // Assert
         result.Success.Should().BeTrue();
         result.Data.Should().Be(0);
-        await _emailService.DidNotReceive().SendQuestDateChangedEmailAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        _dispatcher.DidNotReceive().EnqueueDateChangedEmail(
+            Arg.Any<int>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
+            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>(), Arg.Any<DateTime>());
     }
 
     [Fact]
-    public async Task UpdateQuestPropertiesWithNotificationsAsync_WithAffectedPlayers_SendsEmailAndReturnsCount()
+    public async Task UpdateQuestPropertiesWithNotificationsAsync_WithAffectedPlayers_DispatchesJobAndReturnsCount()
     {
         // Arrange
         var affectedPlayers = new List<User>
         {
-            new() { Id = 1, Name = "Alice", Email = "alice@x.com" },
-            new() { Id = 2, Name = "Bob", Email = "bob@x.com" },
-            new() { Id = 3, Name = "NoEmail", Email = "" } // should be skipped
+            new() { Id = 1, Name = "Alice",   Email = "alice@x.com", EmailConfirmed = true  },
+            new() { Id = 2, Name = "Bob",     Email = "bob@x.com",   EmailConfirmed = true  },
+            new() { Id = 3, Name = "NoEmail", Email = "",            EmailConfirmed = true  } // should be skipped (empty email)
         };
 
         _repository.UpdateQuestPropertiesWithNotificationsAsync(
@@ -150,17 +153,17 @@ public class QuestServiceTests
         // Act
         var result = await _sut.UpdateQuestPropertiesWithNotificationsAsync(1, "Title", "Desc", 5, 4, false, token: TestContext.Current.CancellationToken);
 
-        // Assert: only players with non-empty email get emailed
+        // Assert: only players with non-empty email are included in the dispatch
         result.Success.Should().BeTrue();
         result.Data.Should().Be(2, "only Alice and Bob have non-empty emails");
 
-        await _emailService.Received(2).SendQuestDateChangedEmailAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-        await _emailService.Received(1).SendQuestDateChangedEmailAsync(
-            "alice@x.com", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-        await _emailService.Received(1).SendQuestDateChangedEmailAsync(
-            "bob@x.com", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-        await _emailService.DidNotReceive().SendQuestDateChangedEmailAsync(
-            "", Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        _dispatcher.Received(1).EnqueueDateChangedEmail(
+            1,
+            Arg.Is<string[]>(emails => emails.Contains("alice@x.com") && emails.Contains("bob@x.com") && !emails.Contains("")),
+            Arg.Is<string[]>(names => names.Contains("Alice") && names.Contains("Bob")),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<DateTime>(),
+            Arg.Any<DateTime>());
     }
 }

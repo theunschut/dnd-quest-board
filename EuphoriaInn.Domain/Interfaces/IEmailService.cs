@@ -2,6 +2,6 @@ namespace EuphoriaInn.Domain.Interfaces;
 
 public interface IEmailService
 {
-    Task SendQuestFinalizedEmailAsync(string toEmail, string playerName, string questTitle, string dmName, DateTime questDate);
-    Task SendQuestDateChangedEmailAsync(string toEmail, string playerName, string questTitle, string dmName);
+    // Generic method — used by all Hangfire jobs (Phase 21+)
+    Task SendAsync(string toEmail, string subject, string htmlBody);
 }

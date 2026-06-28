@@ -9,4 +9,5 @@ public class UserManagementViewModel
     public bool IsAdmin { get; set; }
     public bool IsDungeonMaster { get; set; }
     public bool IsPlayer { get; set; }
+    public bool EmailConfirmed { get; set; }
 }

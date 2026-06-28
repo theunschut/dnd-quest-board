@@ -1,226 +1,99 @@
-# Roadmap: D&D Quest Board — Milestone 3: Mobile Version
+# Roadmap: D&D Quest Board
 
-## Overview
+## Milestones
 
-Milestone 3 delivers a purpose-built mobile experience by adding `.Mobile.cshtml` view variants alongside all existing desktop views. No controllers, ViewModels, repositories, or domain services are modified — every change is strictly additive to the Service layer's Views directory and static assets. A single middleware + view-expander infrastructure block (Phase 12) must land first; once in place each subsequent phase delivers independently verifiable mobile views.
+- ✅ **v1.0 Architecture & Features** — Phases 1–7, 9 (shipped prior to 2026-06)
+- 🚧 **v2.0 Omphalos Integration** — Phases 10–11 (in progress — branch: `milestone/3-omphalos-integration`)
+- ✅ **v3.0 Mobile Version** — Phases 12–19 (shipped 2026-06-25)
+- ✅ **v4.0 Email Notifications** — Phases 20–25 (shipped 2026-06-28)
+
+_Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it is not assigned to any active milestone._
 
 ## Phases
 
-**Phase Numbering:**
-Continues from previous milestones (Phases 1–9: Milestone 2; Phases 10–11: Milestone 3 Omphalos Integration). Milestone 3 Mobile Version starts at Phase 12.
+<details>
+<summary>✅ v1.0 Architecture & Features (Phases 1–7, 9) — SHIPPED prior to 2026-06</summary>
 
-- Integer phases (12, 13, 14…): Planned milestone work
-- Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
+**Overview:** Restored correct layer boundaries (Domain ← Repository), consolidated business logic into services, removed dead code and security gaps, then added four backlog features on the clean architecture. Phase 8 (avatar crop) was deferred.
 
-- [x] **Phase 12: Mobile Infrastructure** - Wire mobile detection middleware, view-location expander, mobile layout shell, and mobile.css baseline — zero user-visible change until mobile views are added *(Plan 01 complete: middleware + expander + registration; Plan 02 complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + integration tests; Plan 03 complete: mobile.css 44px touch targets + MobileCssTests — Phase 12 fully done)*
-- [x] **Phase 13: Core Player Views** - Quest board and quest detail pages on mobile with tap-friendly card list, voting controls, and quest log (completed 2026-06-24)
-- [x] **Phase 14: Calendar** - Agenda/list view replacing the 7-column desktop grid — the highest-complexity structural adaptation in this milestone *(completed 2026-06-24: agenda view + CSS + vote partial + Details update — all 107 tests pass)*
-- [x] **Phase 15: DM Views** - Quest Create, Quest Manage, and DM Profile pages adapted for touch-screen input *(completed 2026-06-24: Create + Manage + Profile mobile views — all 110 tests pass)*
-- [x] **Phase 16: Account & Browse** - Login, Register, Profile, Shop, and Guild Members pages usable on small screens *(completed 2026-06-25: all 5 account views + shop + guild members — 50 integration tests pass)*
-- [x] **Phase 17: Character & Player Views** - GuildMembers/Details, Create, Edit, and Players/Index mobile views *(completed 2026-06-25: all 4 plans done — 122 integration tests pass)*
-- [x] **Phase 18: DM Editing & Secondary Quest Views** - Quest/Edit, Quest/CreateFollowUp, QuestLog/Details, and DungeonMaster/EditProfile mobile views *(completed 2026-06-25: all 4 views + integration tests — 126 integration tests pass)*
-- [x] **Phase 19: Admin & Shop Management Views** - Shop/Details, all Admin/*, and all ShopManagement/* mobile views (completed 2026-06-25)
+- [x] Phase 1: Layer Dependency Fix — 2/2 plans — complete
+- [x] Phase 2: Email & Service Consolidation — 3/3 plans — complete
+- [x] Phase 3: Code Quality & Dead Code — 2/2 plans — complete
+- [x] Phase 4: Security Hardening — 4/4 plans — complete
+- [x] Phase 5: Shop Filter & Sort — 2/2 plans — completed 2026-04-21
+- [x] Phase 6: Follow-Up Quest — 2/2 plans — completed 2026-06-16
+- [x] Phase 7: DM Profile Page — 2/2 plans — completed 2026-06-17
+- [ ] Phase 8: Profile Picture Avatar Crop — deferred (SkiaSharp native lib unverified on host)
+- [x] Phase 9: Shop Pagination — 2/2 plans — complete
 
-## Phase Details
+</details>
 
-### Phase 12: Mobile Infrastructure
+<details>
+<summary>🚧 v2.0 Omphalos Integration (Phases 10–11) — IN PROGRESS (branch: milestone/3-omphalos-integration)</summary>
 
-**Goal**: The mobile detection pipeline is live; every mobile request routes through `_Layout.Mobile.cshtml` and can resolve `.Mobile.cshtml` view variants with no action required in individual views or controllers
-**Depends on**: Nothing (first Milestone 3 Mobile phase)
-**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
-**Success Criteria** (what must be TRUE):
+**Overview:** Integrates the Omphalos SSO system for guest navigation token generation. Work is on a separate branch and will be merged after v4.0 lands on main.
 
-  1. Visiting any page from a mobile User-Agent (e.g. iPhone Safari) returns an HTML response that includes the offcanvas nav element; the same page from a desktop browser does not include that element
-  2. A `.Mobile.cshtml` file placed alongside any existing view is served automatically on mobile requests and never served on desktop requests — without touching the view's controller action
-  3. A desktop browser visiting any route sees no change to layout, markup, or styles compared to before Phase 12
-  4. `mobile.css` is loaded on mobile pages; touch targets in that stylesheet are at minimum 44px in height
+- [ ] Phase 10: Omphalos Integration (details on branch `milestone/3-omphalos-integration`)
+- [ ] Phase 11: Navigation Token Generation (details on branch `milestone/3-omphalos-integration`)
 
-**Plans**: Plan 01 (complete: MobileDetectionMiddleware + MobileViewLocationExpander + Program.cs registration), Plan 02 (complete: _Layout.Mobile.cshtml + _ViewStart conditional routing + INFRA-02/04/05 integration tests), Plan 03 (complete: mobile.css baseline + MobileCssTests — all INFRA requirements satisfied)
-**UI hint**: yes
+</details>
 
-### Phase 13: Core Player Views
+<details>
+<summary>✅ v3.0 Mobile Version (Phases 12–19) — SHIPPED 2026-06-25</summary>
 
-**Goal**: Players browsing the quest board and checking quest details on a phone can read, navigate, and interact without pinching, zooming, or horizontal scrolling
-**Depends on**: Phase 12
-**Requirements**: HOME-01, HOME-02, HOME-03, HOME-04, QVIEW-01, QVIEW-02, QVIEW-03
-**Success Criteria** (what must be TRUE):
+**Overview:** Added purpose-built `.Mobile.cshtml` view variants alongside all desktop views via a mobile detection middleware + view-location expander. No controllers, ViewModels, repositories, or domain services were modified.
 
-  1. The quest board on mobile shows a vertical card list — no poster/parchment images — and each card displays title, challenge rating, DM name, and status
-  2. A quest the logged-in player has signed up for shows a visible indicator (badge or icon) on its card; no wax seal imagery is used
-  3. Tapping a quest card navigates to Quest Details; tapping a DM's own quest navigates to Quest Manage
-  4. Quest Details voting buttons (Yes / No / Maybe) are at least 44px tall and spaced to avoid accidental taps
-  5. The participant list on Quest Details renders as a stacked single-column list (name + character + role per row) rather than a horizontal table
+- [x] Phase 12: Mobile Infrastructure — 3/3 plans — completed 2026-06-24
+- [x] Phase 13: Core Player Views — 4/4 plans — completed 2026-06-24
+- [x] Phase 14: Calendar — 3/3 plans — completed 2026-06-24
+- [x] Phase 15: DM Views — 4/4 plans — completed 2026-06-24
+- [x] Phase 16: Account & Browse — 4/4 plans — completed 2026-06-25
+- [x] Phase 17: Character & Player Views — 4/4 plans — completed 2026-06-25
+- [x] Phase 18: DM Editing & Secondary Quest Views — 5/5 plans — completed 2026-06-25
+- [x] Phase 19: Admin & Shop Management Views — 7/7 plans — completed 2026-06-25
 
-**Plans**: Plan 01 (test stubs: MobileViewsTests.cs), Plan 02 (Home/Index.Mobile.cshtml + home.mobile.css), Plan 03 (Quest/Details.Mobile.cshtml + quests.mobile.css), Plan 04 (QuestLog/Index.Mobile.cshtml + quest-log.mobile.css)
-**UI hint**: yes
+</details>
 
-### Phase 14: Calendar
+<details>
+<summary>✅ v4.0 Email Notifications (Phases 20–25) — SHIPPED 2026-06-28</summary>
 
-**Goal**: Players can see which quests are scheduled this month on a phone without the 7-column grid overflowing the screen
-**Depends on**: Phase 12
-**Requirements**: CAL-01, CAL-02, CAL-03, CAL-04, CAL-05
-**Success Criteria** (what must be TRUE):
+**Overview:** Styled HTML email templates (Razor + HtmlRenderer), Hangfire background jobs for automated session reminders, admin email stats dashboard backed by Resend REST API, and email confirmation flow with admin resend button.
 
-  1. The mobile calendar renders as a vertical agenda list, not a 7-column day grid
-  2. Each agenda entry shows a day label (e.g. SATURDAY, JUNE 14), the quest name, and the time
-  3. Days with no quests are not rendered; only days that have at least one quest appear
-  4. Tapping any quest entry in the agenda navigates to that quest's Details page
-  5. The _Calendar partial used inside Quest Details renders as a vertical per-date list with tap-friendly Yes/No/Maybe vote buttons — replacing both the broken desktop grid (Choose a Date) and the Phase 13 simplified quest-level buttons (Update Your Vote)
+- [x] Phase 20: Hangfire Infrastructure — 4/4 plans — completed 2026-06-25
+- [x] Phase 21: HTML Email Templates — 4/4 plans — completed 2026-06-26
+- [x] Phase 22: Session Reminders — 5/5 plans — completed 2026-06-26
+- [x] Phase 23: Admin Email Stats — 2/2 plans — completed 2026-06-27
+- [x] Phase 24: Email Confirmation Flow — 5/5 plans — completed 2026-06-26
+- [x] Phase 25: Confirmation Email Razor Template — 2/2 plans — completed 2026-06-27
 
-**Notes**:
-
-  - CAL-05 requires creating `Views/Shared/_Calendar.Mobile.cshtml` — the MobileViewLocationExpander serves it automatically on mobile; no controller changes needed
-  - CAL-05 also requires replacing the custom 3-button block in `Details.Mobile.cshtml` (Update Your Vote section) with the same `@await Html.PartialAsync("_Calendar", calendarMonth)` call already used in the Choose a Date section
-
-**Plans**: 3 plans
-Plans:
-
-- [x] 14-01-PLAN.md — Add CAL-05 to REQUIREMENTS.md and create integration test stubs (Wave 1)
-- [x] 14-02-PLAN.md — Create calendar.mobile.css and Calendar/Index.Mobile.cshtml (Wave 2)
-- [x] 14-03-PLAN.md — Create _Calendar.Mobile.cshtml, update Details.Mobile.cshtml, append quests.mobile.css (Wave 2)
-
-**UI hint**: yes
-
-### Phase 15: DM Views
-
-**Goal**: Dungeon Masters can create quests, manage player selection, and present their profile page entirely from a phone without form controls overflowing or requiring horizontal scroll
-**Depends on**: Phase 12
-**Requirements**: DMVIEW-01, DMVIEW-02, DMVIEW-03
-**Success Criteria** (what must be TRUE):
-
-  1. The Quest Create form on mobile is a single-column layout; date/time inputs use native touch pickers and all fields are reachable by vertical scroll only
-  2. Quest Manage on mobile lets a DM select or deselect players and tap Finalize without any horizontal overflow
-  3. The DM Profile page on mobile shows bio text and the profile photo in a single-column layout at a readable font size without requiring zoom
-
-**Plans**: 4 plans
-Plans:
-
-- [x] 15-01-PLAN.md — Add DMVIEW integration test stubs to MobileViewsTests.cs (Wave 1)
-- [x] 15-02-PLAN.md — Create Quest/Create.Mobile.cshtml and dm-create.mobile.css (Wave 2)
-- [x] 15-03-PLAN.md — Create Quest/Manage.Mobile.cshtml and dm-manage.mobile.css (Wave 2)
-- [x] 15-04-PLAN.md — Create DungeonMaster/Profile.Mobile.cshtml and dm-profile.mobile.css (Wave 2)
-
-**UI hint**: yes
-
-### Phase 16: Account & Browse
-
-**Goal**: Players can log in, register, edit their profile, browse the shop, and view the guild directory from a phone without layout breakage
-**Depends on**: Phase 12
-**Requirements**: ACCT-01, ACCT-02, ACCT-03, BROWSE-01, BROWSE-02
-**Success Criteria** (what must be TRUE):
-
-  1. The Login and Register forms on mobile are full-width single-column; input fields and the submit button are clearly tappable (minimum 44px height)
-  2. The User Profile edit page is scrollable and all fields are editable on a small screen
-  3. The Shop index on mobile displays items in a single-column or 2-column list; filter and sort controls are accessible without horizontal scrolling
-  4. The Guild Members directory on mobile displays character cards in a single-column or 2-column layout with no overflow
-
-**Plans**: 4/4 plans executed
-Plans:
-**Wave 1**
-
-- [x] 16-01-PLAN.md — Integration test stubs for ACCT-01..03 + BROWSE-01..02 in MobileViewsTests.cs (Wave 1)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 16-02-PLAN.md — Account mobile views (Login, Register, Edit, Profile, ChangePassword) + account.mobile.css (Wave 2)
-- [x] 16-03-PLAN.md — Shop/Index.Mobile.cshtml + shop.mobile.css (Wave 2)
-- [x] 16-04-PLAN.md — GuildMembers/Index.Mobile.cshtml + guild-members.mobile.css (Wave 2)
-
-**UI hint**: yes
+</details>
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 12 → 13 → 14 → 15 → 16
-Note: Phases 13, 14, 15, and 16 are all independent of each other — each depends only on Phase 12 and can be executed in any order after Phase 12 completes.
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 12. Mobile Infrastructure | 3/3 | Complete | 2026-06-24 |
-| 13. Core Player Views | 4/4 | Complete   | 2026-06-24 |
-| 14. Calendar | 3/3 | Complete | 2026-06-24 |
-| 15. DM Views | 4/4 | Complete | 2026-06-24 |
-| 16. Account & Browse | 4/4 | Complete | 2026-06-25 |
-| 17. Character & Player Views | 4/4 | Complete | 2026-06-25 |
-| 18. DM Editing & Secondary Quest Views | 5/5 | Complete | 2026-06-25 |
-| 19. Admin & Shop Management Views | 7/7 | Complete   | 2026-06-25 |
-
-### Phase 17: Character & Player Views
-
-**Goal:** Players can view character details, create new characters, edit existing characters, and browse the player list on a phone without layout breakage
-**Depends on:** Phase 12 (mobile infrastructure)
-**Requirements**: CHAR-01, CHAR-02, CHAR-03, PLAYER-01
-**Success Criteria** (what must be TRUE):
-
-  1. The Guild Member detail page on mobile shows character stats, profile photo, class/level, and backstory in a single-column layout without overflow
-  2. The Create Character and Edit Character forms are single-column on mobile with all fields reachable by vertical scroll and inputs at minimum 44px height
-  3. The Players list on mobile is a readable single-column list with no horizontal scrolling
-
-**Plans:** 4/4 plans executed
-
-Plans:
-
-- [x] 17-01-PLAN.md — Add CHAR-01..03 + PLAYER-01 to REQUIREMENTS.md and append Phase 17 integration test stubs (Wave 1)
-- [x] 17-02-PLAN.md — Create GuildMembers/Details.Mobile.cshtml and character-detail.mobile.css (Wave 2)
-- [x] 17-03-PLAN.md — Create GuildMembers/Create.Mobile.cshtml, Edit.Mobile.cshtml, and character-form.mobile.css (Wave 2)
-- [x] 17-04-PLAN.md — Create Players/Index.Mobile.cshtml, players.mobile.css, and remove email column from desktop Players/Index.cshtml (Wave 2)
-
----
-
-### Phase 18: DM Editing & Secondary Quest Views
-
-**Goal:** Dungeon Masters can edit quests, create follow-up quests, and edit their DM profile on a phone; players can view individual quest log entries — all without layout breakage or horizontal scrolling
-**Depends on:** Phase 12 (mobile infrastructure)
-**Requirements**: DMVIEW-04, DMVIEW-05, DMVIEW-06, QLOG-01
-**Success Criteria** (what must be TRUE):
-
-  1. The Quest Edit form on mobile is a single-column layout with all fields reachable by vertical scroll
-  2. The Create Follow-Up Quest form pre-fills existing player list and is usable on a small screen
-  3. The DM Edit Profile page (bio, photo upload) is fully functional on mobile with no overflow
-  4. The Quest Log detail page renders the quest summary and player list in a single-column layout
-
-**Plans:** 5/5 plans executed
-
-Plans:
-**Wave 1**
-
-- [x] 18-01-PLAN.md — Quest/Edit.Mobile.cshtml + quest-edit.mobile.css (Wave 1)
-- [x] 18-02-PLAN.md — Quest/CreateFollowUp.Mobile.cshtml + quest-followup.mobile.css (Wave 1)
-- [x] 18-03-PLAN.md — DungeonMaster/EditProfile.Mobile.cshtml + dm-editprofile.mobile.css (Wave 1)
-- [x] 18-04-PLAN.md — QuestLog/Details.Mobile.cshtml + quest-log-detail.mobile.css (Wave 1)
-
-**Wave 2**
-
-- [x] 18-05-PLAN.md — Integration tests for all 4 Phase 18 mobile views (Wave 2)
-
----
-
-### Phase 19: Admin & Shop Management Views
-
-**Goal:** Admins can manage users, quests, and shop items from a phone; the Shop item detail page is readable on small screens
-**Depends on:** Phase 12 (mobile infrastructure)
-**Requirements**: ADMIN-01, ADMIN-02, SHOPMGMT-01
-**Success Criteria** (what must be TRUE):
-
-  1. The Admin user list and edit pages are usable on mobile without horizontal scrolling
-  2. The Shop Management index, create, and edit pages are fully functional on mobile
-  3. The Shop item detail page renders in a single-column layout with no overflow
-
-**Plans:** 7/7 plans complete
-
-Plans:
-**Wave 1**
-
-- [x] 19-01-PLAN.md — Add ADMIN-01/ADMIN-02/SHOPMGMT-01 to REQUIREMENTS.md + RED integration test stubs
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 19-02-PLAN.md — Admin Users + Admin Quests mobile list views (delete-fetch JS)
-- [x] 19-03-PLAN.md — Admin EditUser + ResetPassword mobile forms (shared admin-form CSS)
-- [x] 19-04-PLAN.md — ShopManagement Create + Edit mobile forms (pricing JS, button-free price)
-- [x] 19-05-PLAN.md — ShopManagement Index mobile flat list (modals, auth-guarded actions)
-- [x] 19-06-PLAN.md — Shop/Details mobile view (inlined non-modal content, toasts)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 19-07-PLAN.md — Phase integration test gate (all 8 mobile-view tests GREEN)
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Layer Dependency Fix | v1.0 | 2/2 | Complete | — |
+| 2. Email & Service Consolidation | v1.0 | 3/3 | Complete | — |
+| 3. Code Quality & Dead Code | v1.0 | 2/2 | Complete | — |
+| 4. Security Hardening | v1.0 | 4/4 | Complete | — |
+| 5. Shop Filter & Sort | v1.0 | 2/2 | Complete | 2026-04-21 |
+| 6. Follow-Up Quest | v1.0 | 2/2 | Complete | 2026-06-16 |
+| 7. DM Profile Page | v1.0 | 2/2 | Complete | 2026-06-17 |
+| 8. Profile Picture Avatar Crop | v1.0 | 0/? | Deferred | — |
+| 9. Shop Pagination | v1.0 | 2/2 | Complete | — |
+| 10. Omphalos Integration | v2.0 | — | In progress (other branch) | — |
+| 11. Navigation Token Generation | v2.0 | — | In progress (other branch) | — |
+| 12. Mobile Infrastructure | v3.0 | 3/3 | Complete | 2026-06-24 |
+| 13. Core Player Views | v3.0 | 4/4 | Complete | 2026-06-24 |
+| 14. Calendar | v3.0 | 3/3 | Complete | 2026-06-24 |
+| 15. DM Views | v3.0 | 4/4 | Complete | 2026-06-24 |
+| 16. Account & Browse | v3.0 | 4/4 | Complete | 2026-06-25 |
+| 17. Character & Player Views | v3.0 | 4/4 | Complete | 2026-06-25 |
+| 18. DM Editing & Secondary Quest Views | v3.0 | 5/5 | Complete | 2026-06-25 |
+| 19. Admin & Shop Management Views | v3.0 | 7/7 | Complete | 2026-06-25 |
+| 20. Hangfire Infrastructure | v4.0 | 4/4 | Complete | 2026-06-25 |
+| 21. HTML Email Templates | v4.0 | 4/4 | Complete | 2026-06-26 |
+| 22. Session Reminders | v4.0 | 5/5 | Complete | 2026-06-26 |
+| 23. Admin Email Stats | v4.0 | 2/2 | Complete | 2026-06-27 |
+| 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
+| 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |

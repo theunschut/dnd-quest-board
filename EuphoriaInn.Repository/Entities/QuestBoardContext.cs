@@ -28,6 +28,8 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<DungeonMasterProfileImageEntity> DungeonMasterProfileImages { get; set; }
 
+    public DbSet<ReminderLogEntity> ReminderLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -162,5 +164,22 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .HasForeignKey<QuestEntity>(q => q.OriginalQuestId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .IsRequired(false);
+
+        // ReminderLog FK relationships — NoAction to prevent cascade cycles (T-22-01)
+        modelBuilder.Entity<ReminderLogEntity>()
+            .HasOne(r => r.Quest)
+            .WithMany()
+            .HasForeignKey(r => r.QuestId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ReminderLogEntity>()
+            .HasOne(r => r.Player)
+            .WithMany()
+            .HasForeignKey(r => r.PlayerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ReminderLogEntity>()
+            .HasIndex(r => new { r.QuestId, r.PlayerId })
+            .IsUnique();
     }
 }

@@ -1,4 +1,7 @@
 using EuphoriaInn.IntegrationTests.Helpers;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -47,17 +50,21 @@ public class WebApplicationFactoryBase : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
 
-            // Add DbContext that uses the same SQLite in-memory connection as TestDatabase
+            // Add DbContext that uses the same InMemory database name as TestDatabase
             // This ensures all DbContext instances (test setup and web app) share the same database
             services.AddDbContext<QuestBoardContext>(options =>
             {
-                options.UseSqlite(Database.Connection);
+                options.UseInMemoryDatabase(Database.DatabaseName);
                 options.EnableSensitiveDataLogging();
             });
         });
 
         builder.ConfigureTestServices(services =>
         {
+            // Hangfire is not registered in the Testing environment, but AdminController depends on
+            // IBackgroundJobClient — register a no-op stub so the controller can be instantiated.
+            services.AddSingleton<IBackgroundJobClient>(new NoOpBackgroundJobClient());
+
             // Replace IAntiforgery with a decorator that validates everything but delegates token generation
             var antiforgeryDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(Microsoft.AspNetCore.Antiforgery.IAntiforgery));
             if (antiforgeryDescriptor != null)
@@ -99,6 +106,15 @@ public class WebApplicationFactoryBase : WebApplicationFactory<Program>
         }
         base.Dispose(disposing);
     }
+}
+
+/// <summary>
+/// No-op Hangfire client used in integration tests (Hangfire itself is not configured in Testing env).
+/// </summary>
+public class NoOpBackgroundJobClient : IBackgroundJobClient
+{
+    public string Create(Job job, IState state) => "test-job-id";
+    public bool ChangeState(string jobId, IState state, string? expectedStateName) => true;
 }
 
 /// <summary>

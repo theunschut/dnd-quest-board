@@ -1,5 +1,6 @@
 using AutoMapper;
 using EuphoriaInn.Domain.Enums;
+using EuphoriaInn.Domain.Extensions;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Domain.Models;
 using EuphoriaInn.Domain.Models.QuestBoard;
@@ -9,7 +10,7 @@ namespace EuphoriaInn.Domain.Services;
 internal class QuestService(
     IQuestRepository repository,
     IPlayerSignupRepository playerSignupRepository,
-    IEmailService emailService,
+    IQuestEmailDispatcher dispatcher,
     IMapper mapper) : BaseService<Quest>(repository, mapper), IQuestService
 {
     public async Task FinalizeQuestAsync(int questId, DateTime finalizedDate, IList<int> selectedPlayerSignupIds, CancellationToken token = default)
@@ -22,17 +23,24 @@ internal class QuestService(
 
         var selectedSignups = quest.PlayerSignups
             .Where(ps => (selectedPlayerSignupIds.Contains(ps.Id) || ps.Role == SignupRole.Spectator)
-                         && !string.IsNullOrEmpty(ps.Player.Email));
+                         && !string.IsNullOrEmpty(ps.Player.Email)
+                         && ps.Player.EmailConfirmed)
+            .ToList();
 
-        foreach (var signup in selectedSignups)
-        {
-            await emailService.SendQuestFinalizedEmailAsync(
-                signup.Player.Email!,
-                signup.Player.Name,
-                quest.Title,
-                quest.DungeonMaster?.Name ?? "Unknown DM",
-                finalizedDate);
-        }
+        if (selectedSignups.Count == 0) return;
+
+        var recipientEmails = selectedSignups.Select(s => s.Player.Email!).ToArray();
+        var playerNames     = selectedSignups.Select(s => s.Player.Name).ToArray();
+
+        dispatcher.EnqueueFinalizedEmail(
+            quest.Id,
+            finalizedDate,
+            recipientEmails,
+            playerNames,
+            quest.Title,
+            quest.DungeonMaster?.Name ?? "Unknown DM",
+            quest.Description,
+            quest.ChallengeRating);
     }
 
     public async Task<IList<Quest>> GetQuestsWithDetailsAsync(CancellationToken token = default)
@@ -102,6 +110,19 @@ internal class QuestService(
         bool dungeonMasterSession, bool updateProposedDates = false, IList<DateTime>? proposedDates = null,
         CancellationToken token = default)
     {
+        // Capture old proposed dates before the update so we can report what changed in the email
+        DateTime oldDate = default;
+        DateTime newDate = default;
+        if (updateProposedDates && proposedDates is { Count: > 0 })
+        {
+            var questBefore = await repository.GetQuestWithDetailsAsync(questId, token);
+            if (questBefore?.ProposedDates is { Count: > 0 })
+            {
+                oldDate = questBefore.ProposedDates.OrderBy(d => d.Date).First().Date;
+            }
+            newDate = proposedDates.OrderBy(d => d).First();
+        }
+
         var affectedPlayers = await repository.UpdateQuestPropertiesWithNotificationsAsync(
             questId, title, description, challengeRating, totalPlayerCount, dungeonMasterSession,
             updateProposedDates, proposedDates, token);
@@ -111,18 +132,19 @@ internal class QuestService(
         var quest = await repository.GetQuestWithDetailsAsync(questId, token);
         if (quest == null) return ServiceResult<int>.Ok(0);
 
-        var emailed = 0;
-        foreach (var player in affectedPlayers.Where(p => !string.IsNullOrEmpty(p.Email)))
-        {
-            await emailService.SendQuestDateChangedEmailAsync(
-                player.Email!,
-                player.Name,
-                quest.Title,
-                quest.DungeonMaster?.Name ?? "Unknown DM");
-            emailed++;
-        }
+        var withEmail = affectedPlayers.WhereEmailConfirmed().Where(p => !string.IsNullOrEmpty(p.Email)).ToList();
+        if (withEmail.Count == 0) return ServiceResult<int>.Ok(0);
 
-        return ServiceResult<int>.Ok(emailed);
+        dispatcher.EnqueueDateChangedEmail(
+            questId,
+            withEmail.Select(p => p.Email!).ToArray(),
+            withEmail.Select(p => p.Name).ToArray(),
+            quest.Title,
+            quest.DungeonMaster?.Name ?? "Unknown DM",
+            oldDate,
+            newDate);
+
+        return ServiceResult<int>.Ok(withEmail.Count);
     }
 
     public async Task<IList<Quest>> GetCompletedQuestsAsync(CancellationToken token = default)

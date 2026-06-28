@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Environment
 
+**Platform**: Development is done on **Windows**. Use Windows-style paths and line endings (CRLF) when creating or editing files. Avoid Unix-only shell syntax.
+
 **Important**: SQL Server runs on the Windows host, not in WSL. Use `localhost` in the connection string for local development; Docker uses the `sqlserver` service name.
 
 ## Development Commands
@@ -108,16 +110,16 @@ All new views must use the modern card pattern with these CSS classes: `modern-c
 
 ## Project
 
-**D&D Quest Board — Milestone 2: Refactor + Feature Expansion**
+**D&D Quest Board — Milestone 4: Email Notifications**
 
-A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 8 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
+A D&D campaign management web application for a group of players and Dungeon Masters. It handles quest creation and scheduling, player signup with date voting, a character/guild system, a shop with gold economy, and email notifications. Built with ASP.NET Core 10 MVC, SQL Server, and Docker — deployed as a single container to a self-hosted environment.
 
 **Core Value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
 
 ### Constraints
 
 - **Compatibility:** No user-facing functionality may be removed or broken — all existing flows must work after the refactor
-- **Tech stack:** Stay on ASP.NET Core 8 MVC + SQL Server + EF Core — no framework changes
+- **Tech stack:** Stay on ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes
 - **Deployment:** Must remain deployable via `docker-compose up` with no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
 

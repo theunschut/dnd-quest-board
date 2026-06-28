@@ -182,6 +182,15 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         await DbContext.SaveChangesAsync(token);
     }
 
+    public async Task SetFinalizedEmailSentForDateAsync(int questId, DateTime date, CancellationToken token = default)
+    {
+        var entity = await DbContext.Quests.FindAsync([questId], cancellationToken: token);
+        if (entity == null) return;
+
+        entity.FinalizedEmailSentForDate = date;
+        await DbContext.SaveChangesAsync(token);
+    }
+
     public async Task<bool> HasFollowUpQuestAsync(int questId, CancellationToken token = default)
     {
         return await DbContext.Quests.AnyAsync(q => q.OriginalQuestId == questId, token);
@@ -193,6 +202,14 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
             .Include(q => q.DungeonMaster)
             .Where(q => q.DungeonMasterId == dmUserId)
             .OrderByDescending(q => q.FinalizedDate ?? q.CreatedAt)
+            .ToListAsync(token);
+        return Mapper.Map<IList<Quest>>(entities);
+    }
+
+    public async Task<IList<Quest>> GetFinalizedQuestsForDateAsync(DateTime date, CancellationToken token = default)
+    {
+        var entities = await ProjectWithoutCharacterImages(DbContext.Quests)
+            .Where(q => q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date == date.Date)
             .ToListAsync(token);
         return Mapper.Map<IList<Quest>>(entities);
     }
