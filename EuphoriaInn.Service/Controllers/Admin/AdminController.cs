@@ -318,9 +318,14 @@ public class AdminController(IUserService userService, IQuestService questServic
 
                 var response = await client.SendAsync(request, token);
                 if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync(token);
+                    Console.Error.WriteLine($"[Resend] {(int)response.StatusCode} {response.StatusCode} — {body}");
                     return (new EmailStatsViewModel(), true);
+                }
 
                 var json = await response.Content.ReadAsStringAsync(token);
+                Console.Error.WriteLine($"[Resend] raw: {json[..Math.Min(500, json.Length)]}");
                 var result = JsonSerializer.Deserialize<ResendEmailListResponse>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -329,7 +334,7 @@ public class AdminController(IUserService userService, IQuestService questServic
                 bool reachedCutoff = false;
                 foreach (var email in result.Data)
                 {
-                    if (email.CreatedAt < cutoff) { reachedCutoff = true; break; }
+                    if (email.CreatedAt.UtcDateTime < cutoff) { reachedCutoff = true; break; }
                     collected.Add(email);
                 }
 
@@ -348,8 +353,9 @@ public class AdminController(IUserService userService, IQuestService questServic
                 AsOf = DateTime.UtcNow
             }, false);
         }
-        catch
+        catch (Exception ex)
         {
+            Console.Error.WriteLine($"[Resend] Exception: {ex.GetType().Name}: {ex.Message}");
             return (new EmailStatsViewModel(), true);
         }
     }

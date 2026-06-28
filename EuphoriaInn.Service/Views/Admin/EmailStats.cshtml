@@ -33,7 +33,7 @@
                     <div class="card modern-card text-center p-3">
                         <i class="fas fa-paper-plane fa-2x mb-2 text-primary"></i>
                         <div class="fs-1 fw-bold text-primary">@Model.Sent</div>
-                        <div class="small text-muted">Sent (last 30 days)</div>
+                        <div class="small text-muted">In Transit</div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
@@ -60,7 +60,7 @@
             </div>
             <p class="small text-muted mt-2 mb-0">
                 <i class="fas fa-clock me-1"></i>
-                Stats as of @Model.AsOf?.ToString("g") — refreshes every 5 minutes
+                Stats as of @Model.AsOf?.ToString("g") — cached for 5 minutes
             </p>
         }
 

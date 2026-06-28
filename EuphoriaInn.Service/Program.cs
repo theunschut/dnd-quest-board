@@ -1,4 +1,5 @@
 using EuphoriaInn.Repository.Automapper;
+using EuphoriaInn.Service.Extensions;
 using EuphoriaInn.Domain.Extensions;
 using EuphoriaInn.Domain.Interfaces;
 using EuphoriaInn.Repository.Entities;
@@ -134,6 +135,9 @@ builder.Services.AddAutoMapper(config =>
 });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+    app.Configuration.DumpConfiguration();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
