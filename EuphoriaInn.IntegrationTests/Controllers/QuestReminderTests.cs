@@ -5,7 +5,7 @@ using EuphoriaInn.Service.Controllers.QuestBoard;
 namespace EuphoriaInn.IntegrationTests.Controllers;
 
 #pragma warning disable CS9113 // Parameter is unread.
-public class QuestReminderTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class QuestReminderTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 #pragma warning restore CS9113 // Parameter is unread.
 {
     // REMIND-03: Verify controller constructor uses IReminderJobDispatcher (not IBackgroundJobClient directly)
