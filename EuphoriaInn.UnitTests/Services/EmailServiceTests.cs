@@ -80,4 +80,24 @@ public class EmailServiceTests
         // Assert — no exception thrown when email is not configured
         await act.Should().NotThrowAsync();
     }
+
+    [Fact]
+    public async Task SendAsync_WhenFromEmailIsEmpty_DoesNotAttemptSmtpConnection()
+    {
+        // This test proves no SMTP connection is ever attempted in unit/integration tests.
+        // The SmtpServer is deliberately set to a non-routable address — if EmailService
+        // tried to connect it would throw SocketException. An empty FromEmail causes
+        // CreateSmtpClient() to return null and SendAsync to return early.
+        var service = Create(new EmailSettings
+        {
+            SmtpServer   = "192.0.2.1",  // TEST-NET-1, guaranteed non-routable (RFC 5737)
+            SmtpPort     = 587,
+            FromEmail    = "",            // guard: empty → skip
+        });
+
+        var act = async () => await service.SendAsync("to@example.com", "Subject", "<h1>Body</h1>");
+
+        await act.Should().NotThrowAsync(
+            "because an empty FromEmail must prevent any SMTP connection attempt");
+    }
 }

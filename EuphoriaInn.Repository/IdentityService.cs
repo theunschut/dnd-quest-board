@@ -130,5 +130,25 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         return await userManager.ConfirmEmailAsync(entity, token);
     }
 
+    public async Task<string?> GenerateChangeEmailTokenAsync(int userId, string newEmail)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null) return null;
+        return await userManager.GenerateChangeEmailTokenAsync(entity, newEmail);
+    }
+
+    public async Task<IdentityResult> ChangeEmailAsync(int userId, string newEmail, string token)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null)
+            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+
+        var result = await userManager.ChangeEmailAsync(entity, newEmail, token);
+        if (result.Succeeded)
+            await userManager.SetUserNameAsync(entity, newEmail);
+
+        return result;
+    }
+
     public Task SignOutAsync() => signInManager.SignOutAsync();
 }

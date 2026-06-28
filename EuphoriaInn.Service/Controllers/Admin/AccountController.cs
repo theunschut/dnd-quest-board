@@ -177,19 +177,50 @@ public class AccountController(IUserService userService, IIdentityService identi
         {
             var user = await userService.GetUserAsync(User);
 
+            var emailChanged = !string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase);
+
             user.Name = model.Name;
-            user.Email = model.Email;
             user.HasKey = model.HasKey;
+            if (!emailChanged)
+                user.Email = model.Email;
 
             // Role changes are now handled only through Admin User Management
 
             await userService.UpdateAsync(user);
+
+            if (emailChanged && !string.IsNullOrEmpty(model.Email))
+            {
+                var rawToken = await identityService.GenerateChangeEmailTokenAsync(user.Id, model.Email);
+                if (rawToken != null)
+                {
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+                    var callbackUrl = Url.Action(nameof(ConfirmEmailChange), "Account",
+                        new { userId = user.Id, newEmail = model.Email, token = encodedToken }, Request.Scheme);
+                    jobClient.Enqueue<ChangeEmailConfirmationJob>(j => j.ExecuteAsync(model.Email, user.Name, callbackUrl!, CancellationToken.None));
+                    TempData["InfoMessage"] = $"A confirmation email has been sent to {model.Email}. Click the link to complete the change.";
+                    return RedirectToAction(nameof(Profile));
+                }
+            }
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
             return RedirectToAction(nameof(Profile));
         }
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmailChange(int userId, string newEmail, string token)
+    {
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+        var result = await identityService.ChangeEmailAsync(userId, newEmail, decodedToken);
+
+        if (result.Succeeded)
+            TempData["SuccessMessage"] = "Email address updated. Please sign in with your new address.";
+        else
+            TempData["ErrorMessage"] = "Email confirmation failed. The link may have expired.";
+
+        return RedirectToAction(nameof(Login));
     }
 
     [HttpGet]
