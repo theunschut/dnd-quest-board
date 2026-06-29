@@ -8,6 +8,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Important**: SQL Server runs on the Windows host, not in WSL. Use `localhost` in the connection string for local development; Docker uses the `sqlserver` service name.
 
+## Branching
+
+**Never commit directly to `main`.** Main has branch protection rules. All work — including planning docs, migrations, and feature code — must go on a feature branch.
+
+- Milestone work: `milestone/v<N>-<name>` (e.g. `milestone/v5-multi-tenancy`)
+- Feature work: `feature/<short-description>`
+
+If you realize commits have landed on `main` by mistake: create the branch from current `main`, then `git reset --hard <pre-commit-sha>` on `main` to remove them.
+
 ## Development Commands
 
 ```bash
