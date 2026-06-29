@@ -4,7 +4,7 @@
 
 **Previous milestone shipped:** v4.0.0 — 2026-06-28
 **Stack:** ASP.NET Core 10 MVC + SQL Server + EF Core + Hangfire
-**Deployment:** Single container on Linux host (`/opt/questboard/`), Postfix for email relay via Resend SMTP
+**Deployment:** LXC container on Linux host (`/opt/questboard/`), Postfix for email relay via Resend SMTP
 
 ---
 
@@ -98,7 +98,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 
 - **Compatibility:** No user-facing functionality may be removed or broken
 - **Tech stack:** ASP.NET Core 10 MVC + SQL Server + EF Core — no framework changes
-- **Deployment:** Must remain deployable via single `dotnet run` / `docker-compose up`; no additional setup steps
+- **Deployment:** Must remain deployable via `dotnet run` on LXC Linux host; no additional setup steps
 - **Database:** All schema changes require EF Core migrations; auto-applied on startup
 - **Email:** 100 emails/day, 3 000/month Resend relay limit; 17 members — batch-first design
 
