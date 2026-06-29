@@ -117,7 +117,7 @@ After=network.target
 [Service]
 User=questboard
 WorkingDirectory=/opt/questboard
-ExecStart=/usr/bin/dotnet /opt/questboard/EuphoriaInn.Service.dll
+ExecStart=/usr/bin/dotnet /opt/questboard/QuestBoard.Service.dll
 Restart=always
 RestartSec=10
 EnvironmentFile=/etc/questboard/env

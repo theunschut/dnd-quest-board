@@ -22,7 +22,7 @@ If you realize commits have landed on `main` by mistake: create the branch from 
 ```bash
 # Build and run
 dotnet build
-dotnet run --project EuphoriaInn.Service
+dotnet run --project QuestBoard.Service
 
 # Docker
 docker-compose up -d
@@ -32,28 +32,28 @@ docker-compose logs -f questboard
 Migrations are **auto-applied on startup** via `context.Database.Migrate()` — no manual `database update` needed in dev.
 
 ```bash
-# Add/remove migrations (run from EuphoriaInn.Service/)
-dotnet ef migrations add MigrationName --project ../EuphoriaInn.Repository
-dotnet ef migrations remove --project ../EuphoriaInn.Repository
+# Add/remove migrations (run from QuestBoard.Service/)
+dotnet ef migrations add MigrationName --project ../QuestBoard.Repository
+dotnet ef migrations remove --project ../QuestBoard.Repository
 ```
 
 ## Architecture
 
 Three-layer clean architecture: **Service → Domain → Repository** (strict one-way dependency).
 
-- `EuphoriaInn.Service` — MVC controllers, Razor views, ViewModels, authorization handlers
-- `EuphoriaInn.Domain` — business logic, domain models, service interfaces
-- `EuphoriaInn.Repository` — EF Core entities, repositories, `QuestBoardContext`, migrations
+- `QuestBoard.Service` — MVC controllers, Razor views, ViewModels, authorization handlers
+- `QuestBoard.Domain` — business logic, domain models, service interfaces
+- `QuestBoard.Repository` — EF Core entities, repositories, `QuestBoardContext`, migrations
 
 AutoMapper runs at two boundaries:
-- Entity ↔ DomainModel: `EuphoriaInn.Domain/Automapper/EntityProfile.cs`
-- DomainModel ↔ ViewModel: `EuphoriaInn.Service/Automapper/ViewModelProfile.cs`
+- Entity ↔ DomainModel: `QuestBoard.Domain/Automapper/EntityProfile.cs`
+- DomainModel ↔ ViewModel: `QuestBoard.Service/Automapper/ViewModelProfile.cs`
 
 Authorization policies: `"DungeonMasterOnly"` (DungeonMaster or Admin role), `"AdminOnly"` (Admin role only).
 
 ## Entity Framework
 
-**IMPORTANT**: EF packages belong only in `EuphoriaInn.Repository` — never add them to the Service project.
+**IMPORTANT**: EF packages belong only in `QuestBoard.Repository` — never add them to the Service project.
 
 ## Code Navigation — RIP MCP
 
