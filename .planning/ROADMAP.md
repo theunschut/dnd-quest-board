@@ -118,7 +118,19 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   4. AspNetUserRoles contains no Player, DungeonMaster, or Admin entries after migration — only SuperAdmin assignments remain
   5. All migrations apply cleanly on a fresh database and on the existing production schema
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Wave 1**
+
+- [ ] 27-01-PLAN.md — GroupRole enum + Group/UserGroup entities & domain models + GroupId FK on Quest/ShopItem + UserGroups nav + QuestBoardContext config + EntityProfile mapping (model layer, build gate)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 27-02-PLAN.md — atomic AddGroupSchema migration (8 FK-safe steps) + TestDataHelper GroupId=1 + full 191-test gate
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 27-03-PLAN.md — apply migration on dev SQL Server + verify GROUP-04/05/06 seeding + document Phase 27-29 co-deployment constraint
 
 ### Phase 28: Tenant Isolation
 
@@ -198,7 +210,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
-| 27. Group Schema Foundation | v5.0 | 0/? | Not started | — |
+| 27. Group Schema Foundation | v5.0 | 0/3 | Not started | — |
 | 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
