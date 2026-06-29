@@ -671,17 +671,19 @@ This phase is a migration phase with data transformation. All five categories ar
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Down() migration fidelity for AspNetUserRoles**
    - What we know: The Up() migration deletes Player/DM/Admin entries from AspNetUserRoles. To fully reverse, Down() must re-insert them — but the original entries are gone.
    - What's unclear: Is a fully reversible Down() required, or is a "drops tables/columns only" Down() acceptable?
    - Recommendation: Implement Down() that re-inserts AspNetUserRoles rows from UserGroups data for completeness. If deemed impractical, document explicitly in migration comments that Down() is a schema-only rollback and data is not restored.
+   - **RESOLVED:** Plan 02 implements Down() that re-inserts AspNetUserRoles from UserGroups before dropping tables/columns. If re-insertion is impractical in practice, migration comment documents that Down() is schema-only rollback and data is not restored.
 
 2. **Production deployment constraint (Phase 27 alone breaks auth)**
    - What we know: Deleting Player/DM/Admin from AspNetUserRoles means the existing DungeonMasterHandler/AdminHandler fail on new logins after Phase 27 is deployed without Phase 29.
    - What's unclear: Will Phase 27–29 be deployed as a batch, or will Phase 27 be deployed standalone?
    - Recommendation: Plan must include a deployment note: Phase 27 is safe ONLY if deployed with Phases 28–29 simultaneously, OR if deployed during a maintenance window where no users will log in until Phase 29 is also deployed.
+   - **RESOLVED:** Phase 27 must deploy with Phases 28–29 or during a maintenance window. Documented in AddGroupSchema migration comment per Plan 03 Task 1, which includes a blocking deployment checklist checkpoint.
 
 ---
 
