@@ -1,35 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.0
-milestone_name: Email Notifications
-current_phase: 25
-current_phase_name: confirmation-email-razor-template
-status: complete
-stopped_at: Milestone v4.0 archived (2026-06-28)
-last_updated: "2026-06-28T18:00:00.000Z"
-last_activity: 2026-06-28
-last_activity_desc: Milestone v4.0 complete — archived to .planning/milestones/
+milestone: v5.0
+milestone_name: Multi-Tenancy
+status: planning
+last_updated: "2026-06-29T15:38:08.962Z"
+last_activity: 2026-06-29
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-28 after v4.0 milestone)
+See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Milestone complete — start `/gsd-new-milestone` for next milestone
+**Current focus:** v5.0 Multi-Tenancy — defining requirements
 
 ## Current Position
 
-Milestone: v4.0 — COMPLETE AND ARCHIVED
-All 6 phases (20–25), 22 plans — shipped 2026-06-28.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-29 — Milestone v5.0 started
 
 ## Deferred Items
 
@@ -59,6 +57,6 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-28
-Stopped at: Milestone v4.0 archived
-Next step: /gsd-new-milestone
+Last session: 2026-06-29
+Stopped at: Milestone v5.0 requirements definition
+Next step: /gsd-discuss-phase 26 or /gsd-plan-phase 26 after REQUIREMENTS.md + ROADMAP.md are created

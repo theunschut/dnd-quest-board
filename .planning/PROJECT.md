@@ -1,10 +1,24 @@
 # D&D Quest Board
 
-## Current State: v4.0.0 Shipped
+## Current State: v5.0 In Progress
 
-**Shipped:** 2026-06-28
+**Previous milestone shipped:** v4.0.0 — 2026-06-28
 **Stack:** ASP.NET Core 10 MVC + SQL Server + EF Core + Hangfire
 **Deployment:** Single container on Linux host (`/opt/questboard/`), Postfix for email relay via Resend SMTP
+
+---
+
+## Current Milestone: v5.0 Multi-Tenancy
+
+**Goal:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform.
+
+**Target features:**
+- Full rename: EuphoriaInn → QuestBoard (namespaces, project files, config, CI — existing "EuphoriaInn" group name in data is unchanged)
+- Group entity with EF Core Global Query Filters — all content (quests, shop, characters) scoped per group
+- Many-to-many user↔group membership via junction table; all existing users seeded into "EuphoriaInn" group
+- Active-group context and group-picker (persistence mechanism TBD by planner; not /superadmin route)
+- SuperAdmin role — system-wide access, dedicated group-management area (route TBD, e.g. /groups)
+- Admin-only user creation — self-registration removed; group admins create accounts within their group
 
 ---
 
@@ -101,6 +115,23 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 | Dropped digest batching (EMAIL-04/REMIND-02) | Same-day quests have never occurred in one year; complexity not justified yet | — Pending: revisit when scheduling density increases |
 | Profile picture crop paused | SkiaSharp native lib availability on deployment host unverified | — Pending: verify libSkiaSharp on aspnet:10 Debian Bookworm before resuming |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
 
-*Last updated: 2026-06-28 after v4.0 milestone*
+*Last updated: 2026-06-29 — started v5.0 Multi-Tenancy milestone*
