@@ -93,7 +93,9 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   2. All project files (.csproj), the solution file (.slnx), and directory names reflect the QuestBoard naming
   3. All config files (appsettings*.json), GitHub Actions workflows, and deployment references are updated
   4. `dotnet build` succeeds and all 191 existing tests pass with zero behavioral change
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 26-01-PLAN.md — git mv directory/solution/project renames + bulk EuphoriaInn→QuestBoard content replace + dotnet build gate
+- [ ] 26-02-PLAN.md — full 191-test gate + final grep-clean + human verify + single atomic commit (D-05) + documented production systemd pre-deploy step
 
 ### Phase 27: Group Schema Foundation
 **Goal**: The database schema supports multiple groups — GroupEntity and UserGroups tables exist, GroupId FKs are on shared-resource entities, and all existing data is correctly seeded into the EuphoriaInn group
@@ -175,7 +177,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 23. Admin Email Stats | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
-| 26. Namespace Rename | v5.0 | 0/? | Not started | — |
+| 26. Namespace Rename | v5.0 | 0/2 | Planned | — |
 | 27. Group Schema Foundation | v5.0 | 0/? | Not started | — |
 | 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
