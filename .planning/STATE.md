@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: planning
-last_updated: "2026-06-29T15:38:08.962Z"
+last_updated: "2026-06-29T16:00:00.000Z"
 last_activity: 2026-06-29
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** v5.0 Multi-Tenancy — defining requirements
+**Current focus:** v5.0 Multi-Tenancy — roadmap created, ready to plan Phase 26
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 26 — Namespace Rename (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-29 — Milestone v5.0 started
+Status: Roadmap created — awaiting phase planning
+Last activity: 2026-06-29 — ROADMAP.md written for v5.0 (Phases 26–30)
+
+```
+v5.0 Progress [                    ] 0% (0/5 phases)
+Phase 26 Namespace Rename       [ ] not started
+Phase 27 Group Schema Foundation [ ] not started
+Phase 28 Tenant Isolation        [ ] not started
+Phase 29 SuperAdmin + Mgmt Area  [ ] not started
+Phase 30 Group UX + User Mgmt   [ ] not started
+```
 
 ## Deferred Items
 
@@ -49,6 +58,17 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - FinalizedDate stored as server local time — DateTime.Today.AddDays(1) comparison correct for CET/CEST host
 - Resend stats: plain HttpClient GET /emails with Bearer token; no SDK; 5-min IMemoryCache
 
+### Key Architectural Decisions (v5.0)
+
+- IActiveGroupContext defined in Domain layer (not Service) — QuestBoardContext in Repository must consume it; Repository depends on Domain
+- ActiveGroupContextService in Service layer reads ActiveGroupId from ASP.NET Core Session; returns null when user holds SuperAdmin role
+- EF Core Global Query Filters applied to QuestEntity and ShopItemEntity only — UserEntity must NOT receive a filter (breaks Identity)
+- Per-group roles live in UserGroups.GroupRole — AspNetUserRoles is used only for SuperAdmin (system-wide)
+- AdminHandler and DungeonMasterHandler read GroupRole from UserGroups for the active group; SuperAdmin Identity role bypasses both handlers
+- SuperAdmin management area routed at /platform (not /superadmin)
+- Phase 26 is a pure rename — zero behavior change required; all 191 tests must pass before merging
+- Phase 28 is highest complexity — test factory stub and Hangfire adaptation must land in same PR as HasQueryFilter
+
 ### Pending for Next Milestone
 
 - Profile picture crop/avatar selection (issue #78) — paused from v2.x; verify SkiaSharp native lib on aspnet:10 Debian Bookworm
@@ -58,5 +78,5 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 ## Session Continuity
 
 Last session: 2026-06-29
-Stopped at: Milestone v5.0 requirements definition
-Next step: /gsd-discuss-phase 26 or /gsd-plan-phase 26 after REQUIREMENTS.md + ROADMAP.md are created
+Stopped at: Roadmap created for v5.0 (Phases 26–30)
+Next step: /gsd-plan-phase 26

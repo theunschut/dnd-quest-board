@@ -82,8 +82,41 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 
 ## Traceability
 
-_Filled by roadmapper — maps each REQ-ID to a phase._
-
-| REQ-ID | Phase |
-|--------|-------|
-| (pending) | |
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| RENAME-01 | Phase 26 | Pending |
+| RENAME-02 | Phase 26 | Pending |
+| RENAME-03 | Phase 26 | Pending |
+| RENAME-04 | Phase 26 | Pending |
+| GROUP-01 | Phase 27 | Pending |
+| GROUP-02 | Phase 27 | Pending |
+| GROUP-03 | Phase 27 | Pending |
+| GROUP-04 | Phase 27 | Pending |
+| GROUP-05 | Phase 27 | Pending |
+| GROUP-06 | Phase 27 | Pending |
+| TENANT-01 | Phase 28 | Pending |
+| TENANT-02 | Phase 28 | Pending |
+| TENANT-03 | Phase 28 | Pending |
+| TENANT-04 | Phase 28 | Pending |
+| TENANT-05 | Phase 28 | Pending |
+| AUTH-01 | Phase 29 | Pending |
+| AUTH-02 | Phase 29 | Pending |
+| AUTH-03 | Phase 29 | Pending |
+| AUTH-04 | Phase 29 | Pending |
+| AUTH-05 | Phase 29 | Pending |
+| MGMT-01 | Phase 29 | Pending |
+| MGMT-02 | Phase 29 | Pending |
+| MGMT-03 | Phase 29 | Pending |
+| MGMT-04 | Phase 29 | Pending |
+| MGMT-05 | Phase 29 | Pending |
+| MGMT-06 | Phase 29 | Pending |
+| MGMT-07 | Phase 30 | Pending |
+| MGMT-08 | Phase 30 | Pending |
+| UX-01 | Phase 30 | Pending |
+| UX-02 | Phase 30 | Pending |
+| UX-03 | Phase 30 | Pending |
+| UX-04 | Phase 30 | Pending |
+| UX-05 | Phase 30 | Pending |
+| REG-01 | Phase 30 | Pending |
+| REG-02 | Phase 30 | Pending |
+| REG-03 | Phase 30 | Pending |

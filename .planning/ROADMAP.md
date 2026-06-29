@@ -6,6 +6,7 @@
 - 🚧 **v2.0 Omphalos Integration** — Phases 10–11 (in progress — branch: `milestone/3-omphalos-integration`)
 - ✅ **v3.0 Mobile Version** — Phases 12–19 (shipped 2026-06-25)
 - ✅ **v4.0 Email Notifications** — Phases 20–25 (shipped 2026-06-28)
+- 🚧 **v5.0 Multi-Tenancy** — Phases 26–30 (in progress)
 
 _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it is not assigned to any active milestone._
 
@@ -68,6 +69,83 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 </details>
 
+<details>
+<summary>🚧 v5.0 Multi-Tenancy (Phases 26–30) — IN PROGRESS</summary>
+
+**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, and admin-only user creation.
+
+- [ ] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change
+- [ ] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group
+- [ ] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub
+- [ ] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management
+- [ ] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation
+
+</details>
+
+## Phase Details
+
+### Phase 26: Namespace Rename
+**Goal**: The codebase uses QuestBoard.* namespaces consistently with no behavior change and all 191 tests pass
+**Depends on**: Nothing (first phase of v5.0)
+**Requirements**: RENAME-01, RENAME-02, RENAME-03, RENAME-04
+**Success Criteria** (what must be TRUE):
+  1. Every C# file uses QuestBoard.* namespaces — no EuphoriaInn.* string remains in source or migration Designer files
+  2. All project files (.csproj), the solution file (.slnx), and directory names reflect the QuestBoard naming
+  3. All config files (appsettings*.json), GitHub Actions workflows, and deployment references are updated
+  4. `dotnet build` succeeds and all 191 existing tests pass with zero behavioral change
+**Plans**: TBD
+
+### Phase 27: Group Schema Foundation
+**Goal**: The database schema supports multiple groups — GroupEntity and UserGroups tables exist, GroupId FKs are on shared-resource entities, and all existing data is correctly seeded into the EuphoriaInn group
+**Depends on**: Phase 26
+**Requirements**: GROUP-01, GROUP-02, GROUP-03, GROUP-04, GROUP-05, GROUP-06
+**Success Criteria** (what must be TRUE):
+  1. GroupEntity table exists with Id, Name, CreatedAt; EuphoriaInn group is seeded as GroupId = 1
+  2. UserGroups junction table exists with UserId, GroupId, GroupRole (Player/DungeonMaster/Admin enum); all existing users are assigned to EuphoriaInn with their current role
+  3. QuestEntity and ShopItemEntity have a non-nullable GroupId FK pointing to GroupEntity
+  4. AspNetUserRoles contains no Player, DungeonMaster, or Admin entries after migration — only SuperAdmin assignments remain
+  5. All migrations apply cleanly on a fresh database and on the existing production schema
+**Plans**: TBD
+
+### Phase 28: Tenant Isolation
+**Goal**: All quests and shop items are scoped to the active group via EF Core Global Query Filters; Hangfire jobs cross-group correctly; all 191 tests pass with the filter in place
+**Depends on**: Phase 27
+**Requirements**: TENANT-01, TENANT-02, TENANT-03, TENANT-04, TENANT-05
+**Success Criteria** (what must be TRUE):
+  1. IActiveGroupContext is defined in the Domain layer; ActiveGroupContextService reads the active group from ASP.NET Core Session in the Service layer
+  2. A user in Group A cannot see quests or shop items belonging to Group B under any normal navigation path
+  3. All four Hangfire email jobs send correctly scoped emails without relying on Session (explicit groupId parameter or cross-group sweep where appropriate)
+  4. The integration test factory registers a stub IActiveGroupContext returning GroupId = 1; all 191 existing tests pass after filter addition
+  5. UserEntity has no query filter — login, password reset, and email confirmation continue to work correctly
+**Plans**: TBD
+
+### Phase 29: SuperAdmin Role & Management Area
+**Goal**: A SuperAdmin can log in, reach a dedicated management area, and fully manage groups and their members; existing Admin and DungeonMaster authorization continues to work via per-group roles in UserGroups
+**Depends on**: Phase 28
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, MGMT-01, MGMT-02, MGMT-03, MGMT-04, MGMT-05, MGMT-06
+**Success Criteria** (what must be TRUE):
+  1. SuperAdmin Identity role exists in AspNetRoles and is seedable at startup; a SuperAdminOnly authorization policy protects the management area
+  2. Admin-scoped pages (AdminOnly policy) correctly authorize users whose UserGroups.GroupRole is Admin for the active group; SuperAdmin bypasses group role checks entirely
+  3. DM-scoped pages (DungeonMasterOnly policy) correctly authorize users whose UserGroups.GroupRole is DungeonMaster or Admin for the active group; SuperAdmin bypasses
+  4. SuperAdmin can view all groups with member counts, create a new group, edit a group name, and delete an empty group via the /platform area
+  5. SuperAdmin can add any existing user to any group with a specified GroupRole and remove a user from a group via the /platform area
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 30: Group UX & Admin User Creation
+**Goal**: Users land in the right group context after login, can switch groups, see the active group in navigation, and group admins can create new users — self-registration is no longer publicly available
+**Depends on**: Phase 29
+**Requirements**: UX-01, UX-02, UX-03, UX-04, UX-05, MGMT-07, MGMT-08, REG-01, REG-02, REG-03
+**Success Criteria** (what must be TRUE):
+  1. A user in exactly one group is automatically placed in that group's context after login with no picker shown; a user in multiple groups sees a group-picker page
+  2. SuperAdmin always sees the group-picker after login and can enter any group or navigate directly to the management area
+  3. The active group name and a "Switch group" link are visible in the navigation bar; clicking "Switch group" returns the user to the group-picker
+  4. The active group selection persists in ASP.NET Core Session across requests until the session expires or the user switches groups
+  5. A group admin can create a new user account within their group (assigning a GroupRole), which triggers the existing email confirmation flow; that user cannot self-register via the public registration page
+  6. A group admin can promote or demote users within their group between Player, DungeonMaster, and Admin roles
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -97,3 +175,8 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 23. Admin Email Stats | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
+| 26. Namespace Rename | v5.0 | 0/? | Not started | — |
+| 27. Group Schema Foundation | v5.0 | 0/? | Not started | — |
+| 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
+| 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
+| 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
