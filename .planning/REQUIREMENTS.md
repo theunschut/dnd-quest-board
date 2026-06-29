@@ -10,7 +10,7 @@
 - [ ] **RENAME-01**: All `EuphoriaInn.*` namespaces renamed to `QuestBoard.*` across every C# file
 - [ ] **RENAME-02**: Project files (`.csproj`), solution file (`.slnx`), and directory names renamed to match `QuestBoard.*`
 - [ ] **RENAME-03**: All config files (`appsettings*.json`), GitHub Actions workflows, and any deployment references updated
-- [ ] **RENAME-04**: All EF Core migration `*.Designer.cs` files updated with new namespace; `dotnet build` + all 191 tests pass with zero behavior change
+- [x] **RENAME-04**: All EF Core migration `*.Designer.cs` files updated with new namespace; `dotnet build` + all 191 tests pass with zero behavior change
 
 ### Group Schema
 
@@ -87,7 +87,7 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | RENAME-01 | Phase 26 | Pending |
 | RENAME-02 | Phase 26 | Pending |
 | RENAME-03 | Phase 26 | Pending |
-| RENAME-04 | Phase 26 | Pending |
+| RENAME-04 | Phase 26 | Complete |
 | GROUP-01 | Phase 27 | Pending |
 | GROUP-02 | Phase 27 | Pending |
 | GROUP-03 | Phase 27 | Pending |

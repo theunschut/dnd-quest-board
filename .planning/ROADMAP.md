@@ -96,14 +96,14 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   3. All config files (appsettings*.json), GitHub Actions workflows, and deployment references are updated
   4. `dotnet build` succeeds and all 191 existing tests pass with zero behavioral change
 
-**Plans**: 2 plans
+**Plans**: 2/2 plans complete
 **Wave 1**
 
-- [ ] 26-01-PLAN.md — git mv directory/solution/project renames + bulk EuphoriaInn→QuestBoard content replace + dotnet build gate
+- [x] 26-01-PLAN.md — git mv directory/solution/project renames + bulk EuphoriaInn→QuestBoard content replace + dotnet build gate
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 26-02-PLAN.md — full 191-test gate + final grep-clean + human verify + single atomic commit (D-05) + documented production systemd pre-deploy step
+- [x] 26-02-PLAN.md — full 191-test gate + final grep-clean + human verify + single atomic commit (D-05) + documented production systemd pre-deploy step
 
 ### Phase 27: Group Schema Foundation
 
@@ -197,7 +197,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 23. Admin Email Stats | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
-| 26. Namespace Rename | v5.0 | 0/2 | Planned | — |
+| 26. Namespace Rename | v5.0 | 2/2 | Complete   | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 0/? | Not started | — |
 | 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
