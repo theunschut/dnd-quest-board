@@ -30,6 +30,10 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
 
     public DbSet<ReminderLogEntity> ReminderLogs { get; set; }
 
+    public DbSet<GroupEntity> Groups { get; set; }
+
+    public DbSet<UserGroupEntity> UserGroups { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -181,5 +185,45 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
         modelBuilder.Entity<ReminderLogEntity>()
             .HasIndex(r => new { r.QuestId, r.PlayerId })
             .IsUnique();
+
+        // Group entity relationships
+
+        // Groups.Name must be unique across the tenant (D-08)
+        modelBuilder.Entity<GroupEntity>()
+            .HasIndex(g => g.Name)
+            .IsUnique();
+
+        // UserGroups: one membership row per user per group (D-06)
+        modelBuilder.Entity<UserGroupEntity>()
+            .HasIndex(ug => new { ug.UserId, ug.GroupId })
+            .IsUnique();
+
+        // Quest → Group: NoAction to prevent cascade cycles (D-10, GROUP-03)
+        modelBuilder.Entity<QuestEntity>()
+            .HasOne(q => q.Group)
+            .WithMany()
+            .HasForeignKey(q => q.GroupId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // ShopItem → Group: NoAction to prevent cascade cycles (D-10, GROUP-03)
+        modelBuilder.Entity<ShopItemEntity>()
+            .HasOne(si => si.Group)
+            .WithMany()
+            .HasForeignKey(si => si.GroupId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // UserGroup → User: Cascade — removing a user removes their memberships (D-09)
+        modelBuilder.Entity<UserGroupEntity>()
+            .HasOne(ug => ug.User)
+            .WithMany(u => u.UserGroups)
+            .HasForeignKey(ug => ug.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // UserGroup → Group: Cascade — removing a group removes all memberships (D-09)
+        modelBuilder.Entity<UserGroupEntity>()
+            .HasOne(ug => ug.Group)
+            .WithMany(g => g.UserGroups)
+            .HasForeignKey(ug => ug.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

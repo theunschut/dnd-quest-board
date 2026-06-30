@@ -116,5 +116,15 @@ public class EntityProfile : Profile
 
         CreateMap<DungeonMasterProfile, DungeonMasterProfileEntity>()
             .ForMember(dest => dest.ProfileImage, opt => opt.Ignore());
+
+        // Group mapping
+        CreateMap<GroupEntity, Group>().ReverseMap();
+
+        // UserGroup mapping with GroupRole int↔enum conversion
+        CreateMap<UserGroupEntity, UserGroup>()
+            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (GroupRole)src.GroupRole));
+
+        CreateMap<UserGroup, UserGroupEntity>()
+            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (int)src.GroupRole));
     }
 }
