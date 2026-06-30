@@ -23,6 +23,20 @@ internal class GroupRepository(QuestBoardContext dbContext, IMapper mapper)
             .ToListAsync(token);
     }
 
+    public async Task<IList<GroupWithMemberCount>> GetGroupsForUserAsync(int userId, CancellationToken token = default)
+    {
+        return await DbContext.Groups
+            .Where(g => g.UserGroups.Any(ug => ug.UserId == userId))
+            .Select(g => new GroupWithMemberCount
+            {
+                Id = g.Id,
+                Name = g.Name,
+                CreatedAt = g.CreatedAt,
+                MemberCount = g.UserGroups.Count
+            })
+            .ToListAsync(token);
+    }
+
     public async Task<bool> HasMembersAsync(int groupId, CancellationToken token = default)
         => await DbContext.UserGroups.AnyAsync(ug => ug.GroupId == groupId, token);
 

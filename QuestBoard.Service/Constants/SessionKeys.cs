@@ -6,4 +6,5 @@ namespace QuestBoard.Service.Constants;
 public static class SessionKeys
 {
     public const string ActiveGroupId = "ActiveGroupId";
+    public const string ActiveGroupName = "ActiveGroupName";
 }

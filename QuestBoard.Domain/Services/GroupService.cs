@@ -11,6 +11,9 @@ internal class GroupService(IGroupRepository repository, IMapper mapper)
     public async Task<IList<GroupWithMemberCount>> GetAllWithMemberCountAsync(CancellationToken token = default)
         => await repository.GetAllWithMemberCountAsync(token);
 
+    public async Task<IList<GroupWithMemberCount>> GetGroupsForUserAsync(int userId, CancellationToken token = default)
+        => await repository.GetGroupsForUserAsync(userId, token);
+
     public async Task<bool> HasMembersAsync(int groupId, CancellationToken token = default)
         => await repository.HasMembersAsync(groupId, token);
 
