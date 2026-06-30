@@ -134,7 +134,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 ### Phase 28: Tenant Isolation
 
-**Goal**: All quests and shop items are scoped to the active group via EF Core Global Query Filters; Hangfire jobs cross-group correctly; all 191 tests pass with the filter in place
+**Goal**: All quests and shop items are scoped to the active group via EF Core Global Query Filters; Hangfire jobs cross-group correctly; all existing tests pass with the filter in place
 **Depends on**: Phase 27
 **Requirements**: TENANT-01, TENANT-02, TENANT-03, TENANT-04, TENANT-05
 **Success Criteria** (what must be TRUE):
@@ -142,10 +142,22 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   1. IActiveGroupContext is defined in the Domain layer; ActiveGroupContextService reads the active group from ASP.NET Core Session in the Service layer
   2. A user in Group A cannot see quests or shop items belonging to Group B under any normal navigation path
   3. All four Hangfire email jobs send correctly scoped emails without relying on Session (explicit groupId parameter or cross-group sweep where appropriate)
-  4. The integration test factory registers a stub IActiveGroupContext returning GroupId = 1; all 191 existing tests pass after filter addition
+  4. The integration test factory registers a stub IActiveGroupContext returning GroupId = 1; all existing tests pass after filter addition
   5. UserEntity has no query filter — login, password reset, and email confirmation continue to work correctly
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Wave 1**
+
+- [ ] 28-01-PLAN.md — IActiveGroupContext (Domain) + ActiveGroupContextService + SessionKeys + MutableGroupContext + TestDatabase fix + WebApplicationFactoryBase stub + QuestBoardContext HasQueryFilter + Program.cs DI registration
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 28-02-PLAN.md — IQuestRepository cross-group method + QuestRepository IgnoreQueryFilters impl + dispatcher interface/concrete/null groupId threading + job SetGroupId wiring + DailyReminderJob cross-group sweep + unit test updates
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 28-03-PLAN.md — cross-group isolation integration tests + full suite gate + human verify checkpoint
 
 ### Phase 29: SuperAdmin Role & Management Area
 
@@ -210,7 +222,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
-| 27. Group Schema Foundation | v5.0 | 1/3 | In progress | — |
-| 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
+| 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
+| 28. Tenant Isolation | v5.0 | 0/3 | Not started | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
