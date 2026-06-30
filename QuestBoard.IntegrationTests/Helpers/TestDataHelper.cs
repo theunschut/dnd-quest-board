@@ -28,6 +28,7 @@ public static class TestDataHelper
             FinalizedDate = finalizedDate,
             DungeonMasterSession = dungeonMasterSession,
             TotalPlayerCount = 4,
+            GroupId = 1,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -104,6 +105,7 @@ public static class TestDataHelper
             Rarity = (int)rarity,
             Status = 1, // Published status (required for items to show in shop)
             CreatedByDmId = createdByDmId,
+            GroupId = 1,
             CreatedAt = DateTime.UtcNow
         };
 
