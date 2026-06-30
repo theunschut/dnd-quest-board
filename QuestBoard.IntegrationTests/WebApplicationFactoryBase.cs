@@ -1,3 +1,4 @@
+using QuestBoard.Domain.Interfaces;
 using QuestBoard.IntegrationTests.Helpers;
 using Hangfire;
 using Hangfire.Common;
@@ -11,6 +12,7 @@ namespace QuestBoard.IntegrationTests;
 public class WebApplicationFactoryBase : WebApplicationFactory<Program>
 {
     public TestDatabase Database { get; }
+    public MutableGroupContext TestGroupContext { get; } = new MutableGroupContext();
 
     public WebApplicationFactoryBase()
     {
@@ -64,6 +66,7 @@ public class WebApplicationFactoryBase : WebApplicationFactory<Program>
             // Hangfire is not registered in the Testing environment, but AdminController depends on
             // IBackgroundJobClient — register a no-op stub so the controller can be instantiated.
             services.AddSingleton<IBackgroundJobClient>(new NoOpBackgroundJobClient());
+            services.AddSingleton<IActiveGroupContext>(TestGroupContext);
 
             // Replace IAntiforgery with a decorator that validates everything but delegates token generation
             var antiforgeryDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(Microsoft.AspNetCore.Antiforgery.IAntiforgery));

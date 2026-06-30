@@ -92,6 +92,13 @@ builder.Services.AddHttpClient("Resend", client =>
 // Email render service and job dispatcher (Service-layer registrations)
 builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
 
+// IActiveGroupContext — registered as Scoped; same scope as QuestBoardContext.
+// In Testing environment the WebApplicationFactoryBase overrides this with MutableGroupContext singleton.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ActiveGroupContextService>();
+builder.Services.AddScoped<IActiveGroupContext>(sp =>
+    sp.GetRequiredService<ActiveGroupContextService>());
+
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     // HangfireQuestEmailDispatcher requires IBackgroundJobClient which is only

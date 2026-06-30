@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using QuestBoard.Domain.Interfaces;
 
 namespace QuestBoard.Repository.Entities;
 
-public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : IdentityDbContext<UserEntity, IdentityRole<int>, int>(options)
+public class QuestBoardContext(
+    DbContextOptions<QuestBoardContext> options,
+    IActiveGroupContext activeGroupContext)
+    : IdentityDbContext<UserEntity, IdentityRole<int>, int>(options)
 {
     public DbSet<QuestEntity> Quests { get; set; }
 
@@ -225,5 +229,23 @@ public class QuestBoardContext(DbContextOptions<QuestBoardContext> options) : Id
             .WithMany(g => g.UserGroups)
             .HasForeignKey(ug => ug.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // TENANT-03: Global query filters for group isolation
+        // Null = see all (Phase 28 intentional; Phase 29 tightens with IsSuperAdmin check)
+        // Lambda closes over activeGroupContext instance — re-evaluated per query, not at startup
+        // CRITICAL: Do NOT capture activeGroupContext.ActiveGroupId into a local var here.
+        //           That captures the value once (null at model-build time). Always reference the service.
+        modelBuilder.Entity<QuestEntity>()
+            .HasQueryFilter(e =>
+                activeGroupContext.ActiveGroupId == null ||
+                e.GroupId == activeGroupContext.ActiveGroupId);
+
+        modelBuilder.Entity<ShopItemEntity>()
+            .HasQueryFilter(e =>
+                activeGroupContext.ActiveGroupId == null ||
+                e.GroupId == activeGroupContext.ActiveGroupId);
+
+        // UserEntity intentionally excluded — HasQueryFilter on UserEntity breaks ASP.NET Core Identity
+        // (login, password reset, and email confirmation all fail silently)
     }
 }
