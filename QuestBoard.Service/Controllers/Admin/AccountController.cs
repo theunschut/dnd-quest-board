@@ -64,7 +64,7 @@ public class AccountController(IUserService userService, IIdentityService identi
 
             if (result.Succeeded)
             {
-                return RedirectToLocal(returnUrl);
+                return RedirectToAction("Index", "GroupPicker", new { returnUrl });
             }
 
             if (result.IsLockedOut)
@@ -74,48 +74,6 @@ public class AccountController(IUserService userService, IIdentityService identi
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        }
-
-        return View(model);
-    }
-
-    [HttpGet]
-    public IActionResult Register(string? returnUrl = null)
-    {
-        ViewData["ReturnUrl"] = returnUrl;
-        return View();
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
-    {
-        ViewData["ReturnUrl"] = returnUrl;
-
-        if (ModelState.IsValid)
-        {
-            var result = await userService.CreateAsync(model.Email, model.Name, model.Password);
-
-            if (result.Succeeded)
-            {
-                var userId = await identityService.GetIdByEmailAsync(model.Email);
-                if (userId.HasValue)
-                {
-                    var rawToken = await identityService.GenerateEmailConfirmationAsync(userId.Value);
-                    if (rawToken != null)
-                    {
-                        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
-                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
-                        jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
-                    }
-                }
-                return RedirectToLocal(returnUrl);
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
         }
 
         return View(model);
