@@ -98,6 +98,11 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
   VALUES (<userId>, 4);
   ```
 
+### Roadmap Evolution
+
+- Phase 31 added: Unauthenticated landing redirect — unauthenticated requests to group-scoped pages should redirect to login, not expose a specific group's content
+- Phase 32 added: First-login password flow — admin-created users set their own password via a password-reset link in the welcome email; removes admin-set password from CreateUser form
+
 ### Pending for Next Milestone
 
 - Profile picture crop/avatar selection (issue #78) — paused from v2.x; verify SkiaSharp native lib on aspnet:10 Debian Bookworm
