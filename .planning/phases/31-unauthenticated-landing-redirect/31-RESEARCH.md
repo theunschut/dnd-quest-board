@@ -643,17 +643,17 @@ No service dependencies needed. The landing page view is static HTML.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`/groups/pick` vs `/GroupPicker/Index` — which URL does the middleware actually need to exempt?**
    - What we know: `GroupPickerController.cs` has no `[Route]` attribute. Default MVC route produces `/GroupPicker/Index` (or `/GroupPicker` since Index is the default action).
    - What's unclear: The CONTEXT.md says exempt `/groups/pick`, but that URL doesn't match the actual controller route without a custom route attribute.
-   - Recommendation: Use `StartsWithSegments("/GroupPicker")` in the middleware exempt list to match the actual route. If a custom route `/groups/pick` is desired as a vanity URL, add `[Route("groups/pick")]` to `GroupPickerController.Index` in this phase.
+   - RESOLVED: Add `[Route("groups/pick")]` to `GroupPickerController.Index` so the vanity URL becomes real. Middleware exempts BOTH `/groups/pick` and `/GroupPicker` via `StartsWithSegments` to cover both the conventional and vanity routes. Implemented in Plan 31-03.
 
 2. **`QuestController` — class-level or action-level `[Authorize]` for the new `Index`?**
    - What we know: All existing actions in `QuestController` have individual `[Authorize]` or `[Authorize(Policy = ...)]` attributes. There is no class-level `[Authorize]`.
    - What's unclear: Should Phase 31 add a class-level `[Authorize]` to `QuestController` (covering `Details` GET which currently has no auth attribute and works for unauthenticated users), or add an action-level `[Authorize]` only to the new `Index` action?
-   - Recommendation: Add `[Authorize]` at the action level to the new `Index` action only. Adding class-level would change the auth behavior of `QuestController.Details` GET (currently accessible without auth) and `QuestController.GetDMProfilePicture` style routes — a scope expansion beyond Phase 31. Defer class-level hardening to a future phase.
+   - RESOLVED: Action-level `[Authorize]` on the new `Index` action only. Class-level would change auth behavior of `QuestController.Details` GET beyond Phase 31 scope. Implemented in Plan 31-02.
 
 ---
 
