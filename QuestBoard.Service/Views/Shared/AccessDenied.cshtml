@@ -43,13 +43,6 @@
                         <i class="fas fa-home me-2"></i>
                         Back to Quest Board
                     </a>
-                    @if (User.Identity?.IsAuthenticated != true)
-                    {
-                        <a asp-controller="Account" asp-action="Register" class="btn btn-warning">
-                            <i class="fas fa-user-plus me-2"></i>
-                            Register as DM
-                        </a>
-                    }
                 </div>
             </div>
         </div>
