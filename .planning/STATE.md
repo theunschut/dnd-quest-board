@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-status: ready to execute
-stopped_at: Phase 29 planning complete — 5 plans in 4 waves
-last_updated: "2026-06-30T00:00:00Z"
-last_activity: 2026-06-30 — Phase 29 planned (5 plans: auth handler rewrite, SuperAdmin migration, GroupService/Repository, Platform MVC Area, integration tests)
+status: executing
+stopped_at: Phase 29 Plan 01 complete — auth handlers rewritten, UserGroups role queries, SuperAdminOnly policy
+last_updated: "2026-06-30T14:00:00Z"
+last_activity: 2026-06-30 — Phase 29 Plan 01 executed (auth handler rewrite, IUserService extensions, AdminController fix, SuperAdminOnly policy)
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 14
-  completed_plans: 9
-  percent: 60
+  completed_plans: 10
+  percent: 67
 ---
 
 # Project State
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 29 planned — ready to execute
-Plan: 29-01 through 29-05 created (5 plans, 4 waves)
-Status: Ready to execute Phase 29
-Last activity: 2026-06-30 — Phase 29 planned (auth handlers, SuperAdmin migration, GroupService, Platform Area, integration tests)
+Phase: 29 executing — Plan 01 complete
+Plan: 29-02 is next (SuperAdmin role migration)
+Status: Executing Phase 29 (1/5 plans done)
+Last activity: 2026-06-30 — Phase 29 Plan 01 complete (auth handlers, UserGroups queries, SuperAdminOnly policy; 197/197 tests pass)
 
 ```
-v5.0 Progress [============        ] 60% (3/5 phases, 9/14 plans in phases 26-29)
+v5.0 Progress [===========         ] 67% (3/5 phases, 10/14 plans in phases 26-29)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [p] planned (5 plans, 4 waves)
+Phase 29 SuperAdmin + Mgmt Area  [~] executing (1/5 plans done — auth handlers done)
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -79,6 +79,8 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - QuestController passes activeGroupContext.ActiveGroupId ?? 1 to EnqueueSessionReminder — null means no session (Phase 28 temporary); GroupId=1 is correct single-group fallback until Phase 30 enforces group selection
 - TestDataHelper.ClearDatabaseAsync preferred over factory.ResetDatabase() in isolation tests — former also seeds roles and Group 1 FK dependency preventing FK constraint failures
 - Phase 28 human verify: quest list, shop, Send Reminder all confirmed working; empty /players is pre-existing dev-DB issue (AspNetUserRoles empty after Phase 26 rename + DB reset) not caused by Phase 28
+- Phase 29 Plan 01: AuthenticationHelper must seed UserGroups rows for DM/Admin test users (group ID 1) alongside AspNetUserRoles — auth handlers now read UserGroups.GroupRole exclusively; tests that set "DungeonMaster"/"Admin" in the auth header must have matching UserGroups membership
+- Phase 29 Plan 01: xUnit v3 IAsyncLifetime requires ValueTask return types (not Task) — TenantIsolationTests fixed
 
 ### Pending for Next Milestone
 
@@ -88,9 +90,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T00:00:00Z
-Stopped at: Phase 29 planning complete — 5 plans verified and ready
-Next step: Execute Phase 29 — SuperAdmin Role & Management Area (plans ready)
+Last session: 2026-06-30T14:00:00Z
+Stopped at: Phase 29 Plan 01 complete — auth handler rewrite, UserGroups role queries, AdminController fix, SuperAdminOnly policy
+Next step: Execute Phase 29 Plan 02 — SuperAdmin role migration (EF Core InsertData into AspNetRoles)
 
 ## Performance Metrics
 
@@ -103,3 +105,4 @@ Next step: Execute Phase 29 — SuperAdmin Role & Management Area (plans ready)
 | Phase 28 P01 | 4 | 2 tasks | 9 files |
 | Phase 28 P02 | 6 | 2 tasks | 17 files |
 | Phase 28 P03 | 41 | 1 task + checkpoint | 1 file |
+| Phase 29 P01 | 8 | 3 tasks | 10 files |
