@@ -187,7 +187,7 @@ if (!app.Environment.IsEnvironment("Testing"))
                 return;
             }
 
-            if (!context.User.IsInRole("Admin"))
+            if (!context.User.IsInRole("Admin") && !context.User.IsInRole("SuperAdmin"))
             {
                 context.Response.Redirect("/Account/Login");
                 return;
