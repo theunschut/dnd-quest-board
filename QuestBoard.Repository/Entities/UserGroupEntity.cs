@@ -17,6 +17,7 @@ public class UserGroupEntity : IEntity
     public int GroupId { get; set; }
 
     [Required]
+    [Range(0, 2, ErrorMessage = "GroupRole must be a valid GroupRole enum value (0=Player, 1=DungeonMaster, 2=Admin).")]
     public int GroupRole { get; set; }
 
     [ForeignKey(nameof(UserId))]
