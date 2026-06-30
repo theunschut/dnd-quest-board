@@ -51,5 +51,10 @@ public class ShopItemEntity : IEntity
     [ForeignKey(nameof(CreatedByDmId))]
     public virtual UserEntity CreatedByDm { get; set; } = null!;
 
+    public int GroupId { get; set; }
+
+    [ForeignKey(nameof(GroupId))]
+    public virtual GroupEntity Group { get; set; } = null!;
+
     public virtual ICollection<UserTransactionEntity> Transactions { get; set; } = [];
 }

@@ -14,4 +14,6 @@ public class UserEntity : IdentityUser<int>, IEntity
     public virtual ICollection<QuestEntity> Quests { get; set; } = [];
 
     public ICollection<PlayerSignupEntity> Signups { get; set; } = [];
+
+    public virtual ICollection<UserGroupEntity> UserGroups { get; set; } = [];
 }

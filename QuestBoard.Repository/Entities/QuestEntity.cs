@@ -46,6 +46,11 @@ public class QuestEntity : IEntity
     [ForeignKey(nameof(DungeonMasterId))]
     public virtual UserEntity DungeonMaster { get; set; } = null!;
 
+    public int GroupId { get; set; }
+
+    [ForeignKey(nameof(GroupId))]
+    public virtual GroupEntity Group { get; set; } = null!;
+
     public virtual ICollection<ProposedDateEntity> ProposedDates { get; set; } = [];
 
     public virtual ICollection<PlayerSignupEntity> PlayerSignups { get; set; } = [];
