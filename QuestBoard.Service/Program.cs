@@ -95,6 +95,16 @@ builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
 // IActiveGroupContext — registered as Scoped; same scope as QuestBoardContext.
 // In Testing environment the WebApplicationFactoryBase overrides this with MutableGroupContext singleton.
 builder.Services.AddHttpContextAccessor();
+
+// D-09 dual registration pattern (see STATE.md):
+//   1. AddScoped<ActiveGroupContextService>() — registers the CONCRETE type so that Hangfire
+//      jobs (QuestFinalizedEmailJob, SessionReminderJob) can resolve it by concrete type and
+//      call SetGroupId(groupId), which is NOT on the IActiveGroupContext interface.
+//   2. AddScoped<IActiveGroupContext>(factory) — satisfies constructor-injected IActiveGroupContext
+//      in controllers and domain services; the factory delegates to the SAME scoped instance,
+//      so SetGroupId mutations are immediately visible to QuestBoardContext within the same scope.
+// IMPORTANT: both registrations must stay in sync. Do NOT replace with AddScoped<IActiveGroupContext,
+// ActiveGroupContextService>() alone — that breaks concrete-type resolution in the Hangfire jobs.
 builder.Services.AddScoped<ActiveGroupContextService>();
 builder.Services.AddScoped<IActiveGroupContext>(sp =>
     sp.GetRequiredService<ActiveGroupContextService>());
