@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: ready to execute
-stopped_at: Phase 28 Plan 03 complete — Phase 28 DONE
-last_updated: "2026-06-30T08:04:00Z"
-last_activity: 2026-06-30 — Phase 28 Plan 03 executed (cross-group isolation integration tests + human verify; Phase 28 complete; 197 tests pass)
+stopped_at: Phase 29 planning complete — 5 plans in 4 waves
+last_updated: "2026-06-30T00:00:00Z"
+last_activity: 2026-06-30 — Phase 29 planned (5 plans: auth handler rewrite, SuperAdmin migration, GroupService/Repository, Platform MVC Area, integration tests)
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 9
+  total_plans: 14
   completed_plans: 9
   percent: 60
 ---
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 28 complete — next: Phase 29
-Plan: 28-03 complete (Phase 28 done)
+Phase: 29 planned — ready to execute
+Plan: 29-01 through 29-05 created (5 plans, 4 waves)
 Status: Ready to execute Phase 29
-Last activity: 2026-06-30 — Phase 28 Plan 03 complete (cross-group isolation tests + human verify; 197 tests pass)
+Last activity: 2026-06-30 — Phase 29 planned (auth handlers, SuperAdmin migration, GroupService, Platform Area, integration tests)
 
 ```
-v5.0 Progress [============        ] 60% (3/5 phases, 9/9 plans in phases 26-28)
+v5.0 Progress [============        ] 60% (3/5 phases, 9/14 plans in phases 26-29)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [ ] not started
+Phase 29 SuperAdmin + Mgmt Area  [p] planned (5 plans, 4 waves)
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -88,9 +88,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T08:04:00Z
-Stopped at: Phase 28 Plan 03 complete — cross-group isolation integration tests; human verify approved; 197 tests pass
-Next step: Execute Phase 29 — SuperAdmin Role & Management Area (planning needed first)
+Last session: 2026-06-30T00:00:00Z
+Stopped at: Phase 29 planning complete — 5 plans verified and ready
+Next step: Execute Phase 29 — SuperAdmin Role & Management Area (plans ready)
 
 ## Performance Metrics
 
