@@ -19,6 +19,8 @@ If you realize commits have landed on `main` by mistake: create the branch from 
 
 ## Development Commands
 
+**Build failures due to locked files**: If `dotnet build` or `dotnet test` fails because output files are in use, Visual Studio is most likely running the app under the debugger. Ask the user to stop the debugger (Shift+F5) before retrying the build.
+
 ```bash
 # Build and run
 dotnet build
