@@ -20,7 +20,7 @@ public class DailyReminderJob(
         await using var scope = scopeFactory.CreateAsyncScope();
         var questRepository = scope.ServiceProvider.GetRequiredService<IQuestRepository>();
 
-        var quests = await questRepository.GetFinalizedQuestsForDateAsync(tomorrow, cancellationToken);
+        var quests = await questRepository.GetQuestsForTomorrowAllGroupsAsync(tomorrow, cancellationToken);
 
         if (quests.Count == 0)
         {
@@ -33,7 +33,7 @@ public class DailyReminderJob(
         foreach (var quest in quests)
         {
             backgroundJobClient.Enqueue<SessionReminderJob>(
-                job => job.ExecuteAsync(quest.Id, false, false, CancellationToken.None));
+                job => job.ExecuteAsync(quest.Id, quest.GroupId, false, false, CancellationToken.None));
 
             logger.LogInformation(
                 "DailyReminderJob: queued SessionReminderJob for quest {QuestId} on {Date}.",

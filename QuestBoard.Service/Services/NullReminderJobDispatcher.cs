@@ -8,7 +8,7 @@ namespace QuestBoard.Service.Services;
 /// </summary>
 public class NullReminderJobDispatcher : IReminderJobDispatcher
 {
-    public void EnqueueSessionReminder(int questId, bool forceResend = false, bool useYesMaybeVoters = false)
+    public void EnqueueSessionReminder(int questId, int groupId, bool forceResend = false, bool useYesMaybeVoters = false)
     {
         // No-op — Hangfire not available in Testing environment
     }

@@ -34,10 +34,11 @@ public class DailyReminderJobTests
         _sut = new DailyReminderJob(_scopeFactory, _backgroundJobClient, logger);
     }
 
-    private static Quest MakeQuest(int id) =>
+    private static Quest MakeQuest(int id, int groupId = 1) =>
         new()
         {
             Id = id,
+            GroupId = groupId,
             Title = $"Quest {id}",
             Description = "Desc",
             IsFinalized = true,
@@ -56,7 +57,7 @@ public class DailyReminderJobTests
     {
         // Arrange
         var quests = new List<Quest> { MakeQuest(1), MakeQuest(2) };
-        _questRepository.GetFinalizedQuestsForDateAsync(Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+        _questRepository.GetQuestsForTomorrowAllGroupsAsync(Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(quests);
 
         // Act
@@ -71,7 +72,7 @@ public class DailyReminderJobTests
     public async Task ExecuteAsync_WhenNoQuestsForTomorrow_EnqueuesNoJobs()
     {
         // Arrange
-        _questRepository.GetFinalizedQuestsForDateAsync(Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+        _questRepository.GetQuestsForTomorrowAllGroupsAsync(Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(new List<Quest>());
 
         // Act

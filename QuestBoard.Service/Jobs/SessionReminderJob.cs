@@ -2,6 +2,7 @@ using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Service.Components.Emails;
+using QuestBoard.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,9 +13,19 @@ public class SessionReminderJob(
     IServiceScopeFactory scopeFactory,
     ILogger<SessionReminderJob> logger)
 {
-    public async Task ExecuteAsync(int questId, bool forceResend = false, bool useYesMaybeVoters = false, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(
+        int questId,
+        int groupId,                  // NEW — D-06, D-09
+        bool forceResend = false,
+        bool useYesMaybeVoters = false,
+        CancellationToken cancellationToken = default)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
+
+        // D-09: inject concrete type to call SetGroupId before any repository call
+        var groupContext = scope.ServiceProvider.GetRequiredService<ActiveGroupContextService>();
+        groupContext.SetGroupId(groupId);
+
         var questRepository = scope.ServiceProvider.GetRequiredService<IQuestRepository>();
         var reminderLog     = scope.ServiceProvider.GetRequiredService<IReminderLogRepository>();
         var renderService   = scope.ServiceProvider.GetRequiredService<IEmailRenderService>();

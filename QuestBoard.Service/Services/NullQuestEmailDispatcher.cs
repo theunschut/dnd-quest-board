@@ -10,6 +10,7 @@ public class NullQuestEmailDispatcher : IQuestEmailDispatcher
 {
     public void EnqueueFinalizedEmail(
         int questId,
+        int groupId,
         DateTime finalizedDate,
         string[] recipientEmails,
         string[] playerNames,

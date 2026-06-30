@@ -12,6 +12,7 @@ public class HangfireQuestEmailDispatcher(IBackgroundJobClient jobClient) : IQue
 {
     public void EnqueueFinalizedEmail(
         int questId,
+        int groupId,
         DateTime finalizedDate,
         string[] recipientEmails,
         string[] playerNames,
@@ -21,7 +22,7 @@ public class HangfireQuestEmailDispatcher(IBackgroundJobClient jobClient) : IQue
         int challengeRating)
     {
         jobClient.Enqueue<QuestFinalizedEmailJob>(j => j.ExecuteAsync(
-            questId, finalizedDate, recipientEmails, playerNames,
+            questId, groupId, finalizedDate, recipientEmails, playerNames,
             questTitle, dmName, questDescription, challengeRating,
             CancellationToken.None));
     }

@@ -2,6 +2,8 @@ using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Domain.Models.QuestBoard;
 using QuestBoard.Service.Jobs;
+using QuestBoard.Service.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,7 +31,12 @@ public class SessionReminderJobTests
         emailOptions.Value.Returns(new EmailSettings { AppUrl = "https://example.com" });
 
         // Build the IServiceScopeFactory → IServiceScope → IServiceProvider chain
+        // D-09: ActiveGroupContextService must be resolvable — job calls GetRequiredService<ActiveGroupContextService>()
+        var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        var groupContextService = new ActiveGroupContextService(httpContextAccessor);
+
         var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(ActiveGroupContextService)).Returns(groupContextService);
         serviceProvider.GetService(typeof(IQuestRepository)).Returns(_questRepository);
         serviceProvider.GetService(typeof(IReminderLogRepository)).Returns(_reminderLog);
         serviceProvider.GetService(typeof(IEmailRenderService)).Returns(_renderService);
@@ -90,7 +97,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
 
         // Assert: email not sent, log entry not added
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -109,7 +116,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: true);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: true);
 
         // Assert: email IS sent and log IS added despite ExistsAsync returning true
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());
@@ -128,7 +135,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
 
         // Assert: email sent and log entry added
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());
@@ -147,7 +154,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
 
         // Assert: no email sent for player with null email
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -160,7 +167,7 @@ public class SessionReminderJobTests
         _questRepository.GetQuestWithDetailsAsync(999, Arg.Any<CancellationToken>()).Returns((Quest?)null);
 
         // Act — must not throw
-        var act = async () => await _sut.ExecuteAsync(questId: 999, forceResend: false);
+        var act = async () => await _sut.ExecuteAsync(questId: 999, groupId: 1, forceResend: false);
 
         // Assert
         await act.Should().NotThrowAsync();
@@ -183,7 +190,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
 
         // Assert: no email sent for player with unconfirmed email
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -201,7 +208,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 40, Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
 
         // Assert: email IS sent for confirmed player
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());

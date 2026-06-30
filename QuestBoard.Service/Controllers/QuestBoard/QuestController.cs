@@ -16,7 +16,8 @@ public class QuestController(
     IPlayerSignupService playerSignupService,
     IQuestService questService,
     ICharacterService characterService,
-    IReminderJobDispatcher reminderJobDispatcher
+    IReminderJobDispatcher reminderJobDispatcher,
+    IActiveGroupContext activeGroupContext
     ) : Controller
 {
     [HttpGet]
@@ -673,7 +674,7 @@ public class QuestController(
         // D-11: Enqueue a fire-and-forget Hangfire job.
         // The job itself checks the ReminderLog per-player before sending (REMIND-04 idempotency).
         // The forceResend flag (from the confirm button) bypasses the log check in the job.
-        reminderJobDispatcher.EnqueueSessionReminder(id, forceResend, useYesMaybeVoters: true);
+        reminderJobDispatcher.EnqueueSessionReminder(id, activeGroupContext.ActiveGroupId ?? 1, forceResend, useYesMaybeVoters: true);
 
         TempData["Success"] = $"Reminder queued for {eligibleSignups.Count} eligible players.";
         return RedirectToAction("Manage", new { id });

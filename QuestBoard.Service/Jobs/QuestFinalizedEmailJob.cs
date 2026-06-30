@@ -1,6 +1,7 @@
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Service.Components.Emails;
+using QuestBoard.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,6 +14,7 @@ public class QuestFinalizedEmailJob(
 {
     public async Task ExecuteAsync(
         int questId,
+        int groupId,                  // NEW — D-06, D-09
         DateTime finalizedDate,
         string[] recipientEmails,
         string[] playerNames,
@@ -23,6 +25,12 @@ public class QuestFinalizedEmailJob(
         CancellationToken cancellationToken = default)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
+
+        // D-09: inject concrete type (not interface) to call SetGroupId — interface has no SetGroupId
+        // SetGroupId MUST be called before any repository resolution to ensure the filter is active
+        var groupContext = scope.ServiceProvider.GetRequiredService<ActiveGroupContextService>();
+        groupContext.SetGroupId(groupId);
+
         var questRepository = scope.ServiceProvider.GetRequiredService<IQuestRepository>();
         var renderService   = scope.ServiceProvider.GetRequiredService<IEmailRenderService>();
         var emailService    = scope.ServiceProvider.GetRequiredService<IEmailService>();
