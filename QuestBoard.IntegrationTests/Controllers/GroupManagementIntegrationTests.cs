@@ -201,11 +201,15 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
             await dbBefore.SaveChangesAsync();
         }
 
-        // Add them to group 1 as Player via the AddMember POST
+        // Add them to group 1 as Player via the AddMember POST.
+        // GroupController.AddMember binds its model parameter with [Bind(Prefix = "AddMember")]
+        // (Phase 29 decision: the Members view renders AddMemberViewModel fields with an
+        // "AddMember." prefix via nested asp-for), so posted fields must use that prefix or
+        // the model binds to defaults (UserId=0) and no UserGroups row is created.
         var formData = new Dictionary<string, string>
         {
-            ["UserId"] = newUser.Id.ToString(),
-            ["Role"] = ((int)GroupRole.Player).ToString()
+            ["AddMember.UserId"] = newUser.Id.ToString(),
+            ["AddMember.Role"] = ((int)GroupRole.Player).ToString()
         };
         var response = await client.PostAsync("/platform/Group/AddMember/1",
             new FormUrlEncodedContent(formData), TestContext.Current.CancellationToken);

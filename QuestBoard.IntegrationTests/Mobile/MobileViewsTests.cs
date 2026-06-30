@@ -406,16 +406,16 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ACCT-02: Mobile UA on /Account/Register renders account-card-mobile glass card form and
-    /// links account.mobile.css. Test starts RED — Register.Mobile.cshtml does not exist yet.
+    /// ACCT-02/REG-01: Public self-registration was removed in Phase 30 (plan 30-02) —
+    /// Register.cshtml/Register.Mobile.cshtml and the controller actions are deleted, so the
+    /// route now 404s regardless of user agent. This test originally asserted the mobile glass
+    /// card rendered; it is updated here to reflect the route's removal rather than weakened.
     /// </summary>
     [Fact]
-    public async Task MobileAccountRegister_MobileUserAgent_RendersGlassCardForm()
+    public async Task MobileAccountRegister_MobileUserAgent_ShouldReturnNotFound()
     {
-        var (response, html) = await GetWithUserAgentAsync("/Account/Register", MobileUserAgent);
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        html.Should().Contain("account-card-mobile");
-        html.Should().Contain("account.mobile.css");
+        var (response, _) = await GetWithUserAgentAsync("/Account/Register", MobileUserAgent);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     // -----------------------------------------------------------------------
