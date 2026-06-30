@@ -70,15 +70,17 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 </details>
 
 <details>
-<summary>🚧 v5.0 Multi-Tenancy (Phases 26–30) — IN PROGRESS</summary>
+<summary>🚧 v5.0 Multi-Tenancy (Phases 26–32) — IN PROGRESS</summary>
 
-**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, and admin-only user creation.
+**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, admin-only user creation, auth lockdown with public landing page, and first-login password flow.
 
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
 - [x] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group (completed 2026-06-30)
 - [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
 - [x] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (completed 2026-06-30)
 - [x] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation (completed 2026-06-30)
+- [ ] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware
+- [ ] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form
 
 </details>
 
