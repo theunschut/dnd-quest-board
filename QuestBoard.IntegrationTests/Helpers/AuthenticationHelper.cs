@@ -161,6 +161,16 @@ public static class AuthenticationHelper
         return (client, user);
     }
 
+    public static async Task<(HttpClient client, UserEntity user)> CreateAuthenticatedSuperAdminClientAsync(
+        WebApplicationFactory<Program> factory,
+        string userName = "superadmin",
+        string email = "superadmin@example.com",
+        string name = "Super Admin User")
+    {
+        return await CreateAuthenticatedClientWithUserAsync(
+            factory, userName, email, "Test1234!", name, ["SuperAdmin"]);
+    }
+
     public static async Task<(HttpClient client, UserEntity user)> CreateAuthenticatedAdminClientAsync(
         WebApplicationFactory<Program> factory,
         string userName = "adminuser",

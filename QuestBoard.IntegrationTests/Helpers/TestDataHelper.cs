@@ -188,7 +188,7 @@ public static class TestDataHelper
         using var scope = services.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-        string[] roleNames = ["Admin", "DungeonMaster", "Player"];
+        string[] roleNames = ["Admin", "DungeonMaster", "Player", "SuperAdmin"];
 
         foreach (var roleName in roleNames)
         {
