@@ -44,6 +44,10 @@ key-files:
     - QuestBoard.IntegrationTests/Mobile/MobileViewsTests.cs
     - QuestBoard.IntegrationTests/Controllers/GroupManagementIntegrationTests.cs
     - QuestBoard.Repository/UserRepository.cs
+    - QuestBoard.Service/Views/GroupPicker/Index.cshtml
+    - QuestBoard.Service/Views/GroupPicker/Index.Mobile.cshtml
+    - QuestBoard.Service/Views/Admin/Users.cshtml
+    - QuestBoard.Service/Views/Admin/Users.Mobile.cshtml
 
 key-decisions:
   - "UX-04 (session persistence) assertability: the TestAuthHandler-based client (Authorization header) does not round-trip ASP.NET Core session cookies the way a browser would. SelectGroup_ShouldPersistActiveGroupInSession asserts the redirect response and the group DB record rather than a follow-up session read, with an explanatory comment noting the harness limitation"
@@ -63,9 +67,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 35 min
-- **Tasks completed:** 3 of 4 (Task 4 is the blocking human-verify checkpoint — returned, not executed)
-- **Files modified:** 6 (1 created, 5 modified)
+- **Duration:** 40 min (including verification)
+- **Tasks completed:** 4 of 4 (Task 4 human-verify approved)
+- **Files modified:** 10 (1 created, 9 modified)
 
 ## Accomplishments
 
@@ -83,7 +87,7 @@ Each task was committed atomically:
 1. **Task 1: Create GroupPickerControllerIntegrationTests (UX-01..UX-04)** - `b4ed066` (test)
 2. **Task 2: Update Register tests to assert 404 and add AdminController CreateUser tests** - `5447dd3` (test)
 3. **Task 3: Full-suite green gate** - `06a3e12` (test)
-4. **Task 4: Checkpoint — human-verify** — AWAITING HUMAN VERIFICATION
+4. **Task 4: Checkpoint — human-verify** — APPROVED by user during checkpoint review
 
 ## Files Created/Modified
 
@@ -93,6 +97,10 @@ Each task was committed atomically:
 - `QuestBoard.IntegrationTests/Mobile/MobileViewsTests.cs` - mobile Register test updated to assert NotFound
 - `QuestBoard.IntegrationTests/Controllers/GroupManagementIntegrationTests.cs` - AddMember form field names prefixed per Bind convention
 - `QuestBoard.Repository/UserRepository.cs` - SetGroupRoleAsync: pure-update changed to upsert
+- `QuestBoard.Service/Views/GroupPicker/Index.cshtml` - removed "Or select a group below to enter as a member" label (SuperAdmin branch)
+- `QuestBoard.Service/Views/GroupPicker/Index.Mobile.cshtml` - same label removed (mobile)
+- `QuestBoard.Service/Views/Admin/Users.cshtml` - added "Create User" button in card header
+- `QuestBoard.Service/Views/Admin/Users.Mobile.cshtml` - added "Create User" button in mobile header
 
 ## Deviations from Plan
 
@@ -139,19 +147,29 @@ None — no new network endpoints, auth paths, or schema changes introduced by t
 
 None — no external service configuration required.
 
+## Verification Fixes (Post-Checkpoint)
+
+During human verification the user made two UI polish improvements:
+
+**1. GroupPicker views — removed redundant label**
+- Removed "Or select a group below to enter as a member" `<p>` tag from both `Index.cshtml` and `Index.Mobile.cshtml` (inside the SuperAdmin branch, immediately after the "Go to Platform" button). The label was redundant — the card grid below already makes the intent clear.
+
+**2. Admin/Users views — added "Create User" button**
+- Added a "Create User" button to the card header in both `Users.cshtml` (desktop) and `Users.Mobile.cshtml` (mobile), linking to `asp-action="CreateUser"`. This makes the admin user creation flow discoverable from the Users list page without requiring navigation to a separate URL.
+
 ## Next Phase Readiness
 
 - All Phase 30 plans (30-01 through 30-05) are complete
+- Human verification approved
 - Test suite green at 226/226
-- Human verification checkpoint (Task 4) is blocking — the orchestrator should route to a human-verify checkpoint before marking Phase 30 complete
-- The full Phase 30 group-UX loop is implemented and tested; no blockers for milestone close
+- Phase 30 group-UX loop is fully implemented, tested, and verified end-to-end; ready for milestone close
 
 ---
 *Phase: 30-group-ux-admin-user-creation*
-*Completed: 2026-06-30 (Tasks 1-3); Task 4 awaiting human verification*
+*Completed: 2026-06-30*
 
 ## Self-Check: PASSED
 
-All 6 claimed files (5 modified, 1 created) verified present on disk.
+All 10 claimed files (9 modified, 1 created) verified present on disk.
 All 3 task commit hashes (b4ed066, 5447dd3, 06a3e12) verified in git log.
 Full test suite: 226 tests, 0 failures (verified by `dotnet test QuestBoard.slnx` output above).
