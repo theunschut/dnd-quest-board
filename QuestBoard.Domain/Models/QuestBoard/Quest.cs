@@ -17,6 +17,8 @@ public class Quest : IModel
 
     public int DungeonMasterId { get; set; }
 
+    public int GroupId { get; set; }
+
     public User? DungeonMaster { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -42,6 +42,8 @@ public class ShopItem : IModel
 
     public DateTime? AvailableUntil { get; set; }
 
+    public int GroupId { get; set; }
+
     public int CreatedByDmId { get; set; }
 
     public User? CreatedByDm { get; set; }
