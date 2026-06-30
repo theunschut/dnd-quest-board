@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: executing
-stopped_at: Phase 29 Plan 02 complete — AddSuperAdminRole migration with InsertData AspNetRoles Id=4
-last_updated: "2026-06-30T13:25:00Z"
-last_activity: 2026-06-30 — Phase 29 Plan 02 executed (AddSuperAdminRole EF Core migration, AUTH-01 satisfied)
+stopped_at: Phase 29 Plan 03 complete — Group service layer (IGroupService, IGroupRepository, GroupService, GroupRepository, DI registrations)
+last_updated: "2026-06-30T13:37:00Z"
+last_activity: 2026-06-30 — Phase 29 Plan 03 executed (Group service layer with EF Core GroupRepository; 197/197 tests pass)
 progress:
   total_phases: 5
   completed_phases: 3
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 29 executing — Plan 02 complete
-Plan: 29-03 is next (platform area, group management views)
-Status: Executing Phase 29 (2/5 plans done)
-Last activity: 2026-06-30 — Phase 29 Plan 02 complete (AddSuperAdminRole migration; dotnet build exits 0)
+Phase: 29 executing — Plan 03 complete
+Plan: 29-04 is next (Platform MVC Area: GroupController, 5 views, _Layout.Platform.cshtml)
+Status: Executing Phase 29 (3/5 plans done)
+Last activity: 2026-06-30 — Phase 29 Plan 03 complete (Group service layer; IGroupService/IGroupRepository/GroupService/GroupRepository; 197/197 tests pass)
 
 ```
 v5.0 Progress [===========         ] 67% (3/5 phases, 10/14 plans in phases 26-29)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [~] executing (1/5 plans done — auth handlers done)
+Phase 29 SuperAdmin + Mgmt Area  [~] executing (3/5 plans done — auth handlers, migration, group service done)
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -81,6 +81,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Phase 28 human verify: quest list, shop, Send Reminder all confirmed working; empty /players is pre-existing dev-DB issue (AspNetUserRoles empty after Phase 26 rename + DB reset) not caused by Phase 28
 - Phase 29 Plan 01: AuthenticationHelper must seed UserGroups rows for DM/Admin test users (group ID 1) alongside AspNetUserRoles — auth handlers now read UserGroups.GroupRole exclusively; tests that set "DungeonMaster"/"Admin" in the auth header must have matching UserGroups membership
 - Phase 29 Plan 01: xUnit v3 IAsyncLifetime requires ValueTask return types (not Task) — TenantIsolationTests fixed
+- Phase 29 Plan 03: IGroupRepository interface lives in QuestBoard.Domain/Interfaces/ (same as IUserRepository pattern) — Domain must not reference Repository
+- Phase 29 Plan 03: GroupWithMemberCount is a plain DTO (not AutoMapper-mapped) — LINQ projection from GroupEntity.UserGroups.Count in a single query; no EntityProfile mapping needed
+- Phase 29 Plan 03: GroupService.AddAsync overrides base to enforce non-blank name and stamp CreatedAt; DbUpdateException for unique name violation bubbles to GroupController (plan 29-04)
 - Phase 29 Plan 02 (D-11): First SuperAdmin user assignment is a manual post-deploy step — run once after deployment:
   ```sql
   -- Assign first SuperAdmin user (run once after deploy)
@@ -97,9 +100,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T13:25:00Z
-Stopped at: Phase 29 Plan 02 complete — AddSuperAdminRole migration (InsertData AspNetRoles Id=4 SuperAdmin; Down DeleteData keyValue=4)
-Next step: Execute Phase 29 Plan 03 — Platform MVC Area (/platform), GroupController, group management views
+Last session: 2026-06-30T13:37:00Z
+Stopped at: Phase 29 Plan 03 complete — Group service layer (IGroupService, IGroupRepository, GroupWithMemberCount, GroupService, GroupRepository, DI registrations; 197/197 tests pass)
+Next step: Execute Phase 29 Plan 04 — Platform MVC Area (/platform): GroupController, 5 Razor views, _Layout.Platform.cshtml, _ViewImports.cshtml, _ViewStart.cshtml, PlatformViewModels, area route in Program.cs
 
 ## Performance Metrics
 
@@ -114,3 +117,4 @@ Next step: Execute Phase 29 Plan 03 — Platform MVC Area (/platform), GroupCont
 | Phase 28 P03 | 41 | 1 task + checkpoint | 1 file |
 | Phase 29 P01 | 8 | 3 tasks | 10 files |
 | Phase 29 P02 | 5 | 1 task | 3 files |
+| Phase 29 P03 | 7 | 2 tasks | 7 files |

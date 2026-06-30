@@ -77,7 +77,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
 - [ ] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group
 - [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
-- [~] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (2/5 plans done: auth handlers done; AddSuperAdminRole migration done)
+- [~] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (3/5 plans done: auth handlers done; AddSuperAdminRole migration done; group service layer done)
 - [ ] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation
 
 </details>
@@ -181,7 +181,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 2** *(blocked on 29-01)*
 
-- [ ] 29-03-PLAN.md — Group service layer: IGroupService, IGroupRepository (Domain), GroupWithMemberCount DTO, GroupService, GroupRepository, DI registrations
+- [x] 29-03-PLAN.md — Group service layer: IGroupService, IGroupRepository (Domain), GroupWithMemberCount DTO, GroupService, GroupRepository, DI registrations (completed 2026-06-30)
 
 **Wave 3** *(blocked on 29-03)*
 
@@ -240,5 +240,5 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
-| 29. SuperAdmin Role & Management Area | v5.0 | 2/5 | In progress | — |
+| 29. SuperAdmin Role & Management Area | v5.0 | 3/5 | In progress | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
