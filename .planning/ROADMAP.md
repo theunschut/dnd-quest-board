@@ -153,7 +153,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 28-02-PLAN.md — IQuestRepository cross-group method + QuestRepository IgnoreQueryFilters impl + dispatcher interface/concrete/null groupId threading + job SetGroupId wiring + DailyReminderJob cross-group sweep + unit test updates
+- [x] 28-02-PLAN.md — IQuestRepository cross-group method + QuestRepository IgnoreQueryFilters impl + dispatcher interface/concrete/null groupId threading + job SetGroupId wiring + DailyReminderJob cross-group sweep + unit test updates — completed 2026-06-30
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -223,6 +223,6 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
-| 28. Tenant Isolation | v5.0 | 1/3 | In progress | — |
+| 28. Tenant Isolation | v5.0 | 2/3 | In progress | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |

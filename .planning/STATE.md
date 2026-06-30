@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: ready to execute
-stopped_at: Phase 28 Plan 01 complete
-last_updated: "2026-06-30T07:10:00Z"
-last_activity: 2026-06-30 — Phase 28 Plan 01 executed (IActiveGroupContext + HasQueryFilter + test stub)
+stopped_at: Phase 28 Plan 02 complete
+last_updated: "2026-06-30T07:18:44Z"
+last_activity: 2026-06-30 — Phase 28 Plan 02 executed (Hangfire groupId threading + cross-group sweep + TENANT-04 complete)
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
-  percent: 42
+  completed_plans: 8
+  percent: 44
 ---
 
 # Project State
@@ -26,15 +26,15 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 ## Current Position
 
 Phase: 28
-Plan: 01 complete (Plan 02 next)
+Plan: 02 complete (Plan 03 next)
 Status: Executing
-Last activity: 2026-06-30 — Phase 28 Plan 01 complete (IActiveGroupContext + HasQueryFilter + test stub; 194 tests pass)
+Last activity: 2026-06-30 — Phase 28 Plan 02 complete (Hangfire groupId threading + cross-group sweep + TENANT-04; 194 tests pass)
 
 ```
-v5.0 Progress [========            ] 42% (2/5 phases, 7/9 plans)
+v5.0 Progress [=========           ] 44% (2/5 phases, 8/9 plans)
 Phase 26 Namespace Rename       [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
-Phase 28 Tenant Isolation        [~] in progress (1/3 plans)
+Phase 28 Tenant Isolation        [~] in progress (2/3 plans)
 Phase 29 SuperAdmin + Mgmt Area  [ ] not started
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
@@ -74,6 +74,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Quest/ShopItem→Group FKs use NoAction delete to prevent SQL Server cascade cycle errors
 - UserGroup→User and UserGroup→Group FKs use Cascade so membership rows clean up automatically
 - Groups.Name has a DB-layer unique index (D-08)
+- Hangfire jobs resolve ActiveGroupContextService (concrete, not interface) to call SetGroupId(groupId) before any repo call; SetGroupId is on the concrete class only (D-09)
+- GetQuestsForTomorrowAllGroupsAsync uses IgnoreQueryFilters() for cross-group sweep — method name makes intent explicit; only one call site in codebase (D-08)
+- QuestController passes activeGroupContext.ActiveGroupId ?? 1 to EnqueueSessionReminder — null means no session (Phase 28 temporary); GroupId=1 is correct single-group fallback until Phase 30 enforces group selection
 
 ### Pending for Next Milestone
 
@@ -83,9 +86,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T07:10:00Z
-Stopped at: Phase 28 Plan 01 complete — IActiveGroupContext + HasQueryFilter wired; 194 tests pass
-Next step: Execute Phase 28 Plan 02 — Hangfire job adaptation + cross-group repository method
+Last session: 2026-06-30T07:18:44Z
+Stopped at: Phase 28 Plan 02 complete — Hangfire groupId threading + cross-group sweep; 194 tests pass
+Next step: Execute Phase 28 Plan 03 — cross-group isolation integration tests + full suite gate
 
 ## Performance Metrics
 
@@ -96,3 +99,4 @@ Next step: Execute Phase 28 Plan 02 — Hangfire job adaptation + cross-group re
 | Phase 27 P02 | 25 | 2 tasks + checkpoint | 4 files |
 | Phase 27 P03 | 15 | 1 task + checkpoint | 1 file |
 | Phase 28 P01 | 4 | 2 tasks | 9 files |
+| Phase 28 P02 | 6 | 2 tasks | 17 files |

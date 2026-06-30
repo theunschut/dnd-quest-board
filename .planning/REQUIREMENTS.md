@@ -26,7 +26,7 @@
 - [ ] **TENANT-01**: `IActiveGroupContext` interface defined in the Domain layer with an `ActiveGroupId` property (`int?` — `null` means SuperAdmin, see all)
 - [ ] **TENANT-02**: `ActiveGroupContextService` in the Service layer implements `IActiveGroupContext`; reads `ActiveGroupId` from ASP.NET Core Session; returns `null` when the user holds the SuperAdmin role
 - [ ] **TENANT-03**: EF Core Global Query Filters applied to `QuestEntity` and `ShopItemEntity` using `IActiveGroupContext.ActiveGroupId`; `UserEntity` does NOT receive a query filter
-- [ ] **TENANT-04**: All four Hangfire email jobs bypass the group filter (cross-tenant by design) or receive an explicit `groupId` parameter where needed
+- [x] **TENANT-04**: All four Hangfire email jobs bypass the group filter (cross-tenant by design) or receive an explicit `groupId` parameter where needed
 - [ ] **TENANT-05**: Integration test factory registers a stub `IActiveGroupContext` returning `GroupId = 1` by default; all 191 existing tests pass after filter addition
 
 ### Authorization
@@ -97,7 +97,7 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | TENANT-01 | Phase 28 | Pending |
 | TENANT-02 | Phase 28 | Pending |
 | TENANT-03 | Phase 28 | Pending |
-| TENANT-04 | Phase 28 | Pending |
+| TENANT-04 | Phase 28 | Complete — 28-02 |
 | TENANT-05 | Phase 28 | Pending |
 | AUTH-01 | Phase 29 | Pending |
 | AUTH-02 | Phase 29 | Pending |
