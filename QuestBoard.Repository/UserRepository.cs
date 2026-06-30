@@ -17,12 +17,13 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllDungeonMasters(CancellationToken token = default)
     {
-        // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
-        var groupId = activeGroupContext.ActiveGroupId ?? 1;
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return [];
+
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
                 .Any(ug => ug.UserId == u.Id
-                        && ug.GroupId == groupId
+                        && ug.GroupId == groupId.Value
                         && (ug.GroupRole == (int)GroupRole.DungeonMaster
                             || ug.GroupRole == (int)GroupRole.Admin)))
             .ToListAsync(cancellationToken: token);
@@ -31,12 +32,13 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllPlayers(CancellationToken token = default)
     {
-        // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
-        var groupId = activeGroupContext.ActiveGroupId ?? 1;
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return [];
+
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
                 .Any(ug => ug.UserId == u.Id
-                        && ug.GroupId == groupId
+                        && ug.GroupId == groupId.Value
                         && ug.GroupRole == (int)GroupRole.Player))
             .ToListAsync(cancellationToken: token);
         return Mapper.Map<IList<User>>(entities);
