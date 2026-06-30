@@ -31,7 +31,7 @@
 
 ### Authorization
 
-- [ ] **AUTH-01**: `SuperAdmin` role added to `AspNetRoles` and seedable at startup
+- [x] **AUTH-01**: `SuperAdmin` role added to `AspNetRoles` and seedable at startup
 - [x] **AUTH-02**: `AdminHandler` updated to check `UserGroups.GroupRole == Admin` for the active group (instead of `AspNetUserRoles`)
 - [x] **AUTH-03**: `DungeonMasterHandler` updated to check `UserGroups.GroupRole` is DungeonMaster or Admin for the active group
 - [x] **AUTH-04**: Both handlers grant access when the user holds the SuperAdmin Identity role, regardless of active group
@@ -99,7 +99,7 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | TENANT-03 | Phase 28 | Complete — 28-01 + 28-03 |
 | TENANT-04 | Phase 28 | Complete — 28-02 |
 | TENANT-05 | Phase 28 | Complete — 28-01 + 28-03 |
-| AUTH-01 | Phase 29 | Pending |
+| AUTH-01 | Phase 29 | Complete — 29-02 |
 | AUTH-02 | Phase 29 | Complete — 29-01 |
 | AUTH-03 | Phase 29 | Complete — 29-01 |
 | AUTH-04 | Phase 29 | Complete — 29-01 |

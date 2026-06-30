@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: executing
-stopped_at: Phase 29 Plan 01 complete — auth handlers rewritten, UserGroups role queries, SuperAdminOnly policy
-last_updated: "2026-06-30T14:00:00Z"
-last_activity: 2026-06-30 — Phase 29 Plan 01 executed (auth handler rewrite, IUserService extensions, AdminController fix, SuperAdminOnly policy)
+stopped_at: Phase 29 Plan 02 complete — AddSuperAdminRole migration with InsertData AspNetRoles Id=4
+last_updated: "2026-06-30T13:25:00Z"
+last_activity: 2026-06-30 — Phase 29 Plan 02 executed (AddSuperAdminRole EF Core migration, AUTH-01 satisfied)
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 14
-  completed_plans: 10
-  percent: 67
+  completed_plans: 11
+  percent: 71
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 29 executing — Plan 01 complete
-Plan: 29-02 is next (SuperAdmin role migration)
-Status: Executing Phase 29 (1/5 plans done)
-Last activity: 2026-06-30 — Phase 29 Plan 01 complete (auth handlers, UserGroups queries, SuperAdminOnly policy; 197/197 tests pass)
+Phase: 29 executing — Plan 02 complete
+Plan: 29-03 is next (platform area, group management views)
+Status: Executing Phase 29 (2/5 plans done)
+Last activity: 2026-06-30 — Phase 29 Plan 02 complete (AddSuperAdminRole migration; dotnet build exits 0)
 
 ```
 v5.0 Progress [===========         ] 67% (3/5 phases, 10/14 plans in phases 26-29)
@@ -97,9 +97,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T14:00:00Z
-Stopped at: Phase 29 Plan 01 complete — auth handler rewrite, UserGroups role queries, AdminController fix, SuperAdminOnly policy
-Next step: Execute Phase 29 Plan 02 — SuperAdmin role migration (EF Core InsertData into AspNetRoles)
+Last session: 2026-06-30T13:25:00Z
+Stopped at: Phase 29 Plan 02 complete — AddSuperAdminRole migration (InsertData AspNetRoles Id=4 SuperAdmin; Down DeleteData keyValue=4)
+Next step: Execute Phase 29 Plan 03 — Platform MVC Area (/platform), GroupController, group management views
 
 ## Performance Metrics
 
@@ -113,3 +113,4 @@ Next step: Execute Phase 29 Plan 02 — SuperAdmin role migration (EF Core Inser
 | Phase 28 P02 | 6 | 2 tasks | 17 files |
 | Phase 28 P03 | 41 | 1 task + checkpoint | 1 file |
 | Phase 29 P01 | 8 | 3 tasks | 10 files |
+| Phase 29 P02 | 5 | 1 task | 3 files |
