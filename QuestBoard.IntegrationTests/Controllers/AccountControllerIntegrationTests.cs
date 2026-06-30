@@ -20,90 +20,37 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         content.Should().Contain("Login");
     }
 
+    // REG-01: Public self-registration was removed in Phase 30 (plan 30-02) — the route
+    // no longer exists, so both GET and POST must 404.
     [Fact]
-    public async Task Register_Get_ShouldReturnSuccessStatusCode()
+    public async Task Register_Get_ShouldReturnNotFound()
     {
         // Act
         var response = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.Should().Contain("Register");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Register_Post_WithValidData_ShouldCreateUser()
+    public async Task Register_Post_WithValidData_ShouldReturnNotFound()
     {
         // Arrange
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
 
-        // First, GET the register page to obtain the anti-forgery token
-        var getResponse = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
-        var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
-
-        // Set the anti-forgery cookie
-        if (!string.IsNullOrEmpty(cookieValue))
+        var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            _client.DefaultRequestHeaders.Add("Cookie", $".AspNetCore.Antiforgery={cookieValue}");
-        }
-
-        var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
-            new Dictionary<string, string>
-            {
-                ["Name"] = "New User",
-                ["Email"] = "newuser@example.com",
-                ["Password"] = "NewUser123!",
-                ["ConfirmPassword"] = "NewUser123!"
-            },
-            token);
+            ["Name"] = "New User",
+            ["Email"] = "newuser@example.com",
+            ["Password"] = "NewUser123!",
+            ["ConfirmPassword"] = "NewUser123!"
+        });
 
         // Act
         var response = await _client.PostAsync("/Account/Register", formContent, TestContext.Current.CancellationToken);
 
         // Assert
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.Found);
-
-        // Verify user was created
-        using var scope = factory.Services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
-        var user = await userManager.FindByEmailAsync("newuser@example.com");
-        user.Should().NotBeNull();
-        user!.Email.Should().Be("newuser@example.com");
-        user!.Name.Should().Be("New User");
-    }
-
-    [Fact]
-    public async Task Register_Post_WithMismatchedPasswords_ShouldReturnError()
-    {
-        // Arrange
-        // First, GET the register page to obtain the anti-forgery token
-        var getResponse = await _client.GetAsync("/Account/Register", TestContext.Current.CancellationToken);
-        var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
-
-        // Set the anti-forgery cookie
-        if (!string.IsNullOrEmpty(cookieValue))
-        {
-            _client.DefaultRequestHeaders.Add("Cookie", $".AspNetCore.Antiforgery={cookieValue}");
-        }
-
-        var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
-            new Dictionary<string, string>
-            {
-                ["Name"] = "Test User 2",
-                ["Email"] = "test2@example.com",
-                ["Password"] = "Test123!",
-                ["ConfirmPassword"] = "DifferentPassword123!"
-            },
-            token);
-
-        // Act
-        var response = await _client.PostAsync("/Account/Register", formContent, TestContext.Current.CancellationToken);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.Should().Contain("password", "");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

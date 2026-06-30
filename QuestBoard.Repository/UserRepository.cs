@@ -56,8 +56,15 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
     {
         var ug = await DbContext.UserGroups
             .FirstOrDefaultAsync(ug => ug.UserId == userId && ug.GroupId == groupId);
-        if (ug == null) return null;
-        ug.GroupRole = (int)role;
+        if (ug == null)
+        {
+            ug = new UserGroupEntity { UserId = userId, GroupId = groupId, GroupRole = (int)role };
+            DbContext.UserGroups.Add(ug);
+        }
+        else
+        {
+            ug.GroupRole = (int)role;
+        }
         await DbContext.SaveChangesAsync();
         return ug.Id;
     }

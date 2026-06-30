@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+using QuestBoard.Domain.Enums;
 using QuestBoard.IntegrationTests.Helpers;
 using System.Net;
 
@@ -85,5 +87,75 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
+    }
+
+    // MGMT-07/REG-01: CreateUser auth gating — a non-admin must not reach the form
+    [Fact]
+    public async Task CreateUser_WhenNotAdmin_ShouldBeForbidden()
+    {
+        // Arrange
+        var (playerClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "createuserplayer", "createuserplayer@example.com", roles: ["Player"]);
+
+        // Act
+        var response = await playerClient.GetAsync("/Admin/CreateUser", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
+    }
+
+    // MGMT-07: An admin can reach the CreateUser form
+    [Fact]
+    public async Task CreateUser_Get_WhenAdmin_ShouldReturnForm()
+    {
+        // Arrange
+        var (adminClient, _) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(_factory);
+
+        // Act
+        var response = await adminClient.GetAsync("/Admin/CreateUser", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("CreateUser");
+        content.Should().Contain("GroupRole");
+    }
+
+    // MGMT-07, REG-02, REG-03: Admin-created users are assigned to the admin's active
+    // group with the chosen GroupRole, and the existing confirmation email job fires.
+    [Fact]
+    public async Task CreateUser_Post_WhenAdmin_CreatesUserInActiveGroup()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (adminClient, _) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(_factory);
+
+        var uniqueSuffix = Guid.NewGuid().ToString("N")[..8];
+        var newUserEmail = $"createduser_{uniqueSuffix}@example.com";
+        var formData = new Dictionary<string, string>
+        {
+            ["Email"] = newUserEmail,
+            ["Name"] = "Created User",
+            ["Password"] = "CreatedUser123!",
+            ["GroupRole"] = ((int)GroupRole.DungeonMaster).ToString()
+        };
+
+        // Act — _factory.TestGroupContext.ActiveGroupId defaults to 1 (the seeded EuphoriaInn group)
+        var response = await adminClient.PostAsync("/Admin/CreateUser",
+            new FormUrlEncodedContent(formData), TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+
+        using var scope = _factory.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+        var createdUser = await userManager.FindByEmailAsync(newUserEmail);
+        createdUser.Should().NotBeNull();
+        createdUser!.Name.Should().Be("Created User");
+
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+        var membership = context.UserGroups.FirstOrDefault(ug => ug.UserId == createdUser.Id && ug.GroupId == 1);
+        membership.Should().NotBeNull("the created user should be assigned to the admin's active group");
+        membership!.GroupRole.Should().Be((int)GroupRole.DungeonMaster);
     }
 }
