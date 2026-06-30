@@ -5,7 +5,7 @@ milestone_name: Omphalos Integration
 current_phase: 31
 current_phase_name: Unauthenticated landing redirect
 status: verifying
-stopped_at: Phase 31 context gathered
+stopped_at: Phase 31 planning complete — 4 plans verified, ready for /gsd-execute-phase 31
 last_updated: "2026-06-30T21:30:17.874Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 30 complete, transitioned to Phase 31
@@ -115,7 +115,7 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 Last session: 2026-06-30T21:30:17.864Z
 Stopped at: Phase 31 context gathered
-Next step: /gsd-plan-phase 30
+Next step: /gsd-execute-phase 31
 
 ## Performance Metrics
 

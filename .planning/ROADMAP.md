@@ -256,6 +256,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
+| 31. Unauthenticated Landing Redirect | v5.0 | 0/4 | Planned | — |
 
 ### Phase 31: Unauthenticated landing redirect
 
