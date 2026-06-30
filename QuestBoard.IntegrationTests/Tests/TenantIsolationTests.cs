@@ -7,8 +7,19 @@ namespace QuestBoard.IntegrationTests.Tests;
 /// Proves that the EF Core HasQueryFilter correctly scopes quests to the active group.
 /// References: TENANT-03, D-03, D-05, D-10, D-11.
 /// </summary>
-public class TenantIsolationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
+public class TenantIsolationTests(WebApplicationFactoryBase factory)
+    : IClassFixture<WebApplicationFactoryBase>, IAsyncLifetime
 {
+    // IAsyncLifetime — reset singleton group context after each test class run so that
+    // test state does not bleed into subsequently-executed test classes (WR-01 / TENANT-03).
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync()
+    {
+        factory.TestGroupContext.ActiveGroupId = 1;
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// A quest seeded with GroupId=2 must NOT appear in the response when the active group is 1.
     /// </summary>
