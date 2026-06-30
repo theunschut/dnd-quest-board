@@ -17,12 +17,11 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllDungeonMasters(CancellationToken token = default)
     {
-        var groupId = activeGroupContext.ActiveGroupId;
-        if (groupId == null) return [];
+        var groupId = activeGroupContext.ActiveGroupId ?? 1;
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
                 .Any(ug => ug.UserId == u.Id
-                        && ug.GroupId == groupId.Value
+                        && ug.GroupId == groupId
                         && (ug.GroupRole == (int)GroupRole.DungeonMaster
                             || ug.GroupRole == (int)GroupRole.Admin)))
             .ToListAsync(cancellationToken: token);
@@ -31,12 +30,11 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllPlayers(CancellationToken token = default)
     {
-        var groupId = activeGroupContext.ActiveGroupId;
-        if (groupId == null) return [];
+        var groupId = activeGroupContext.ActiveGroupId ?? 1;
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
                 .Any(ug => ug.UserId == u.Id
-                        && ug.GroupId == groupId.Value
+                        && ug.GroupId == groupId
                         && ug.GroupRole == (int)GroupRole.Player))
             .ToListAsync(cancellationToken: token);
         return Mapper.Map<IList<User>>(entities);

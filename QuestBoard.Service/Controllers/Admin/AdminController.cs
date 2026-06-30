@@ -28,9 +28,7 @@ public class AdminController(IUserService userService, IQuestService questServic
 
         foreach (var user in allUsers)
         {
-            GroupRole? groupRole = groupId.HasValue
-                ? await userService.GetGroupRoleByIdAsync(user.Id, groupId.Value)
-                : null;
+            GroupRole? groupRole = await userService.GetGroupRoleByIdAsync(user.Id, groupId ?? 1);
 
             userViewModels.Add(new UserManagementViewModel
             {
