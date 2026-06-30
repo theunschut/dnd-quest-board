@@ -1,7 +1,8 @@
 ---
 phase: 29
 slug: superadmin-role-and-management-area
-status: draft
+status: approved
+reviewed_at: 2026-06-30
 shadcn_initialized: false
 preset: none
 created: 2026-06-30
@@ -22,7 +23,7 @@ created: 2026-06-30
 | Preset | not applicable |
 | Component library | Bootstrap 5.3 (CDN: `cdn.jsdelivr.net/npm/bootstrap@5.3.0`) |
 | Icon library | FontAwesome 6.4 (CDN: `cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0`) |
-| Font | Cinzel (Google Fonts, weights 400/500/600/700) — headings only; Bootstrap default sans-serif for body |
+| Font | Cinzel (Google Fonts, weights 400/600/700) — headings only; Bootstrap default sans-serif for body |
 
 Source: `_Layout.cshtml` CDN imports + `site.css` font-family declarations.
 
@@ -52,8 +53,7 @@ Source: `site.css` `.modern-card-body { padding: 1.5rem }` + existing admin view
 
 | Role | Size | Weight | Line Height | Notes |
 |------|------|--------|-------------|-------|
-| Body / table cells | 16px (Bootstrap default, 1rem) | 400 | 1.5 | Default browser + Bootstrap body |
-| Label / badge / small | 14px (0.875rem) | 500 | 1.4 | `.vote-summary`, `.form-select`, small print |
+| Body / table cells / label / badge / small | 16px body (1rem); 14px badge (0.875rem) | 400 | 1.5 body / 1.4 small | Default Bootstrap body; badge distinction achieved via smaller font size, not weight |
 | Heading (card h2) | 20px (1.25rem) | 600 | 1.2 | `modern-card-header h2` — color `#F4E4BC` with shadow |
 | Page heading (h1) | 32px (2rem) | 600 | 1.2 | Full-page titles if used; Cinzel font |
 
@@ -82,7 +82,7 @@ Source: `site.css` lines 63–65 (Cinzel), 1053–1088 (modern-card heading over
 
 Accent reserved for:
 - Card header icon (`text-danger` on the `<i>` tag inside `modern-card-header h2`)
-- "Delete group" and "Remove member" buttons (`btn-danger`)
+- "Delete Group" and "Remove Member" buttons (`btn-danger`)
 - Danger alert banners
 
 Source: `site.css` `.modern-card` block (lines 1028–1230), existing `Users.cshtml` button color assignments.
@@ -127,7 +127,7 @@ No new CSS files are needed for the platform area — `site.css` is linked from 
 | Alert (error) | `<div class="alert alert-danger alert-dismissible fade show">` + `TempData["Error"]` | Validation failures, duplicate name, non-empty delete |
 | Role badge | `<span class="badge bg-{color}"><i class="fas fa-{icon} me-1"></i> Label</span>` | Member role display |
 | Primary button | `<button class="btn btn-danger">` (destructive) or `<button class="btn btn-primary">` | Submit forms |
-| Secondary button | `<a class="btn btn-secondary">` | Cancel / Back |
+| Secondary button | `<a class="btn btn-secondary">` | Back navigation |
 | Button section rule | `<hr>` before button row; `<div class="d-flex justify-content-between">` — secondary left, primary right | All forms |
 
 ---
@@ -138,6 +138,8 @@ No new CSS files are needed for the platform area — `site.css` is linked from 
 
 Card header icon: `fa-layer-group text-danger`
 Card title: `Group Management`
+
+Primary visual anchor: Groups data table
 
 Table columns: `Name` | `Members` | `Created` | `Actions`
 
@@ -194,7 +196,7 @@ Body copy:
 > Are you sure you want to delete the group **"{GroupName}"**? This action cannot be undone.
 
 Button section: `d-flex justify-content-between`
-- Left: `<a asp-action="Index" class="btn btn-secondary">` + `fa-arrow-left me-2` → "Cancel"
+- Left: `<a asp-action="Index" class="btn btn-secondary">` + `fa-arrow-left me-2` → "Back to Groups"
 - Right: `<button type="submit" class="btn btn-danger">` + `fa-trash me-2` → "Delete Group"
 
 ---
@@ -211,7 +213,7 @@ Role badge colors (matching existing Users.cshtml pattern):
 - `DungeonMaster` → `badge bg-warning` + `fa-crown`
 - `Player` → `badge bg-primary` + `fa-dice-d20`
 
-Remove button per row: `<button class="btn btn-sm btn-danger">` + `fa-user-minus me-1` → "Remove" — inline form with `[ValidateAntiForgeryToken]`
+Remove button per row: `<button class="btn btn-sm btn-danger">` + `fa-user-minus me-1` → "Remove Member" — inline form with `[ValidateAntiForgeryToken]`
 
 Add Member section (below member table, separated by `<hr>`):
 Sub-heading: `<h5><i class="fas fa-user-plus text-danger me-2"></i>Add Member</h5>`
@@ -234,7 +236,7 @@ Empty members state: centered `py-5 text-center` block — icon `fa-users fa-3x 
 | Primary CTA — save changes | "Save Changes" |
 | Primary CTA — delete group | "Delete Group" |
 | Primary CTA — add member | "Add to Group" |
-| Primary CTA — remove member | "Remove" |
+| Primary CTA — remove member | "Remove Member" |
 | Empty state heading — groups index | "No groups yet." |
 | Empty state body — groups index | "Create the first group to get started." |
 | Empty state body — members page | "No members in this group yet." |
@@ -278,7 +280,7 @@ Source: CONTEXT.md D-13/D-14/D-15; patterns from `Users.cshtml` TempData["Succes
   ├── "Edit" → /platform/Group/Edit/{id} → POST → redirect to Index
   ├── "Delete" (0-member groups only) → /platform/Group/Delete/{id} → POST → redirect to Index
   └── "Members" → /platform/Group/Members/{id}
-        ├── "Remove" inline form → POST → redirect to Members/{id}
+        ├── "Remove Member" inline form → POST → redirect to Members/{id}
         └── "Add to Group" form → POST → redirect to Members/{id}
 ```
 
