@@ -39,10 +39,10 @@
 
 ### Group UX
 
-- [ ] **UX-01**: User belonging to exactly one group is automatically redirected to that group's content after login (no picker shown)
-- [ ] **UX-02**: User belonging to multiple groups sees a group-picker page after login and selects which group to enter
-- [ ] **UX-03**: SuperAdmin always lands on the group-picker page after login and can enter any group or go to the management area
-- [ ] **UX-04**: Active group is stored in ASP.NET Core Session per request; selected group persists across requests until session expires or user exits
+- [x] **UX-01**: User belonging to exactly one group is automatically redirected to that group's content after login (no picker shown)
+- [x] **UX-02**: User belonging to multiple groups sees a group-picker page after login and selects which group to enter
+- [x] **UX-03**: SuperAdmin always lands on the group-picker page after login and can enter any group or go to the management area
+- [x] **UX-04**: Active group is stored in ASP.NET Core Session per request; selected group persists across requests until session expires or user exits
 - [ ] **UX-05**: Navigation displays the current group name and a "Switch group" link; clicking it returns to the group-picker
 
 ### Management Area
@@ -112,10 +112,10 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | MGMT-06 | Phase 29 | Complete — 29-04 |
 | MGMT-07 | Phase 30 | Pending |
 | MGMT-08 | Phase 30 | Pending |
-| UX-01 | Phase 30 | Pending |
-| UX-02 | Phase 30 | Pending |
-| UX-03 | Phase 30 | Pending |
-| UX-04 | Phase 30 | Pending |
+| UX-01 | Phase 30 | Complete |
+| UX-02 | Phase 30 | Complete |
+| UX-03 | Phase 30 | Complete |
+| UX-04 | Phase 30 | Complete |
 | UX-05 | Phase 30 | Pending |
 | REG-01 | Phase 30 | Pending |
 | REG-02 | Phase 30 | Pending |

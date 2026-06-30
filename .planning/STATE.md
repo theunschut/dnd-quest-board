@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 current_phase: 30
-current_phase_name: ready to plan
+current_phase_name: group-ux-admin-user-creation
 status: executing
 stopped_at: Phase 30 UI-SPEC approved
-last_updated: "2026-06-30T19:51:21.454Z"
+last_updated: "2026-06-30T20:00:36.909Z"
 last_activity: 2026-06-30
-last_activity_desc: Phase 29 complete (UAT passed; 219/219 tests; advancing to Phase 30)
+last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
-  percent: 80
+  total_plans: 18
+  completed_plans: 14
+  percent: 78
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 30 — Group UX & Admin User Creation
+**Current focus:** Phase 30 — group-ux-admin-user-creation
 
 ## Current Position
 
-Phase: 30 — ready to plan
-Plan: Not started
+Phase: 30 (group-ux-admin-user-creation) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-06-30 — Phase 29 complete (UAT passed; 219/219 tests; advancing to Phase 30)
+Last activity: 2026-06-30 — Phase 30 execution started
 
 ```
 v5.0 Progress [██████████] 100% (4/5 phases complete — Phase 30 not started)
@@ -108,7 +108,7 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 **Resume file:** .planning/phases/30-group-ux-admin-user-creation/30-UI-SPEC.md
 
-Last session: 2026-06-30T19:17:00.939Z
+Last session: 2026-06-30T20:00:03.638Z
 Stopped at: Phase 30 UI-SPEC approved
 Next step: /gsd-plan-phase 30
 
@@ -128,3 +128,9 @@ Next step: /gsd-plan-phase 30
 | Phase 29 P03 | 7 | 2 tasks | 7 files |
 | Phase 29 P04 | 5 | 2 tasks | 17 files |
 | Phase 29 P05 | 8 | 2 tasks + checkpoint | 5 files |
+| Phase 30 P01 | 25min | 4 tasks | 10 files |
+
+## Decisions
+
+- [Phase ?]: GroupPickerController uses [Authorize] only (no policy) — non-SuperAdmin loads scoped via GetGroupsForUserAsync to prevent cross-group enumeration
+- [Phase ?]: RedirectToLocal logic replicated inline per-controller (not a shared base) to match existing AccountController convention

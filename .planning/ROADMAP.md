@@ -205,12 +205,12 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   5. A group admin can create a new user account within their group (assigning a GroupRole), which triggers the existing email confirmation flow; that user cannot self-register via the public registration page
   6. A group admin can promote or demote users within their group between Player, DungeonMaster, and Admin roles
 
-**Plans**: 5 plans
+**Plans**: 1/5 plans executed
 **UI hint**: yes
 
 **Wave 1** *(parallel — no overlap in files_modified)*
 
-- [ ] 30-01-PLAN.md — GetGroupsForUserAsync service/repo method + GroupPickerController (Index GET auto-redirect/picker + SelectGroup POST) + GroupPickerViewModel + picker views (desktop/mobile) + _Layout.GroupPicker.cshtml + SessionKeys.ActiveGroupName (UX-01..UX-04)
+- [x] 30-01-PLAN.md — GetGroupsForUserAsync service/repo method + GroupPickerController (Index GET auto-redirect/picker + SelectGroup POST) + GroupPickerViewModel + picker views (desktop/mobile) + _Layout.GroupPicker.cshtml + SessionKeys.ActiveGroupName (UX-01..UX-04)
 - [ ] 30-03-PLAN.md — CreateUserViewModel + AdminController.CreateUser GET/POST + CreateUser views (desktop/mobile) + ?? 1 fallback removal (AdminController.Users + UserRepository) (MGMT-07, MGMT-08, REG-02, REG-03)
 
 **Wave 2** *(blocked on 30-01)*
@@ -255,4 +255,4 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
-| 30. Group UX & Admin User Creation | v5.0 | 0/5 | Not started | — |
+| 30. Group UX & Admin User Creation | v5.0 | 1/5 | In Progress|  |
