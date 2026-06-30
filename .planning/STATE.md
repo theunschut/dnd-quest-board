@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 status: executing
-stopped_at: Phase 29 Plan 04 complete — Platform MVC Area (GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
-last_updated: "2026-06-30T13:37:31Z"
-last_activity: 2026-06-30 — Phase 29 Plan 04 complete (Platform /platform area: GroupController, 5 views, layout, viewmodels, area route; 197/197 tests pass)
+stopped_at: Phase 29 Plan 05 complete — Integration tests (22 new tests: AdminHandlerIntegrationTests, PlatformAreaIntegrationTests, GroupManagementIntegrationTests; 219/219 tests pass) — awaiting human checkpoint verification
+last_updated: "2026-06-30T13:48:00Z"
+last_activity: "2026-06-30 — Phase 29 Plan 05 complete (22 integration tests across 3 classes; 219/219 tests pass; awaiting human-verify checkpoint)"
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 14
-  completed_plans: 12
-  percent: 86
+  completed_phases: 4
+  total_plans: 13
+  completed_plans: 13
+  percent: 100
 ---
 
 # Project State
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 29 executing — Plan 04 complete
-Plan: 29-05 is next (Integration tests for /platform/Group endpoints)
-Status: Executing Phase 29 (4/5 plans done)
-Last activity: 2026-06-30 — Phase 29 Plan 04 complete (Platform MVC Area: GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
+Phase: 29 executing — Plan 05 complete (awaiting human-verify checkpoint)
+Plan: 29-05 complete — human-verify checkpoint pending before Phase 29 can close
+Status: Executing Phase 29 (5/5 plans done, checkpoint pending)
+Last activity: 2026-06-30 — Phase 29 Plan 05 complete (22 integration tests; 219/219 tests pass; awaiting human-verify checkpoint)
 
 ```
-v5.0 Progress [=============       ] 86% (3/5 phases, 12/14 plans in phases 26-29)
+v5.0 Progress [██████████] 100% (plans complete, Phase 29 checkpoint pending)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [~] executing (4/5 plans done — auth handlers, migration, group service, platform UI done)
+Phase 29 SuperAdmin + Mgmt Area  [~] plans done — awaiting human-verify checkpoint
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -102,9 +102,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T13:37:31Z
-Stopped at: Phase 29 Plan 04 complete — Platform MVC Area (GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
-Next step: Execute Phase 29 Plan 05 — Integration tests for /platform/Group endpoints
+Last session: 2026-06-30T13:48:00Z
+Stopped at: Phase 29 Plan 05 checkpoint — 22 integration tests pass (219 total); awaiting human verify of /platform area
+Next step: Human verify checkpoint for Phase 29 Plan 05 — navigate to /platform/Group/Index as SuperAdmin and approve
 
 ## Performance Metrics
 
@@ -121,3 +121,4 @@ Next step: Execute Phase 29 Plan 05 — Integration tests for /platform/Group en
 | Phase 29 P02 | 5 | 1 task | 3 files |
 | Phase 29 P03 | 7 | 2 tasks | 7 files |
 | Phase 29 P04 | 5 | 2 tasks | 17 files |
+| Phase 29 P05 | 8 | 2 tasks + checkpoint | 5 files |
