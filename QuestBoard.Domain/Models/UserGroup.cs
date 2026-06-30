@@ -8,4 +8,5 @@ public class UserGroup : IModel
     public int UserId { get; set; }
     public int GroupId { get; set; }
     public GroupRole GroupRole { get; set; }
+    public User? User { get; set; }
 }

@@ -122,9 +122,11 @@ public class EntityProfile : Profile
 
         // UserGroup mapping with GroupRole int↔enum conversion
         CreateMap<UserGroupEntity, UserGroup>()
-            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (GroupRole)src.GroupRole));
+            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (GroupRole)src.GroupRole))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 
         CreateMap<UserGroup, UserGroupEntity>()
-            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (int)src.GroupRole));
+            .ForMember(dest => dest.GroupRole, opt => opt.MapFrom(src => (int)src.GroupRole))
+            .ForMember(dest => dest.User, opt => opt.Ignore());
     }
 }
