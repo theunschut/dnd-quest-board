@@ -1,4 +1,5 @@
-﻿using QuestBoard.Domain.Models;
+using QuestBoard.Domain.Enums;
+using QuestBoard.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -20,6 +21,10 @@ public interface IUserService : IBaseService<User>
 
     Task<IList<User>> GetAllPlayersAsync(CancellationToken token = default);
 
+    Task<GroupRole?> GetGroupRoleAsync(ClaimsPrincipal user, int groupId);
+
+    Task<GroupRole?> GetGroupRoleByIdAsync(int userId, int groupId);
+
     Task<IList<string>> GetRolesAsync(User user);
 
     Task<User> GetUserAsync(ClaimsPrincipal user);
@@ -35,6 +40,8 @@ public interface IUserService : IBaseService<User>
     Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword);
 
     Task<IdentityResult> ResetPasswordAsync(ClaimsPrincipal adminUser, User user, string newPassword);
+
+    Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role);
 
     Task SignOutAsync();
 }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -43,6 +44,18 @@ internal class UserService(IIdentityService identityService, IUserRepository rep
         return await repository.GetAllPlayers(token);
     }
 
+    public async Task<GroupRole?> GetGroupRoleAsync(ClaimsPrincipal user, int groupId)
+    {
+        var userId = await identityService.GetUserIdAsync(user);
+        if (userId == null) return null;
+        return await repository.GetGroupRoleAsync(userId.Value, groupId);
+    }
+
+    public async Task<GroupRole?> GetGroupRoleByIdAsync(int userId, int groupId)
+    {
+        return await repository.GetGroupRoleAsync(userId, groupId);
+    }
+
     public async Task<IList<string>> GetRolesAsync(User user)
     {
         return await identityService.GetRolesAsync(user.Id);
@@ -80,6 +93,11 @@ internal class UserService(IIdentityService identityService, IUserRepository rep
     public async Task<IdentityResult> ResetPasswordAsync(ClaimsPrincipal adminUser, User user, string newPassword)
     {
         return await identityService.AdminResetPasswordAsync(adminUser, user.Id, newPassword);
+    }
+
+    public async Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role)
+    {
+        return await repository.SetGroupRoleAsync(userId, groupId, role);
     }
 
     public Task SignOutAsync() => identityService.SignOutAsync();
