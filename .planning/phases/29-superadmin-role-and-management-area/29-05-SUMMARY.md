@@ -100,7 +100,9 @@ completed: 2026-06-30
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. The files were already partially created (TestDataHelper and AuthenticationHelper were pre-modified based on the git status showing them as `M`). The three new test class files were untracked and implemented per plan specification.
+**GetAllPlayers / GetAllDungeonMasters `?? 1` fallback (human verify):** Plan 29-01 introduced `if (groupId == null) return []` in both repository methods. During human verification, `/players` was empty and `/Admin/Users` showed no role badges. Root cause: `SessionKeys.ActiveGroupId` is never written to the HTTP session pre-Phase-30 — the group-picker (Phase 30) is what will populate it at login. Fixed all three `?? 1` sites to match the existing `QuestController.EnqueueSessionReminder ?? 1` pattern.
+
+**Phase 30 must remove these `?? 1` fallbacks:** Once Phase 30 writes `SessionKeys.ActiveGroupId` at login, the fallback is no longer needed and will cause cross-group data leakage in multi-group deployments. Remove from `UserRepository.GetAllDungeonMasters`, `UserRepository.GetAllPlayers`, and `AdminController.Users`. Noted in STATE.md and in code comments at all three sites.
 
 ## Issues Encountered
 
