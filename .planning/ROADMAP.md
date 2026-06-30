@@ -172,8 +172,24 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   4. SuperAdmin can view all groups with member counts, create a new group, edit a group name, and delete an empty group via the /platform area
   5. SuperAdmin can add any existing user to any group with a specified GroupRole and remove a user from a group via the /platform area
 
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 5 plans
+
+**Wave 1** *(parallel — no overlap in files_modified)*
+
+- [ ] 29-01-PLAN.md — Auth handler rewrite (AdminHandler, DungeonMasterHandler) + IUserService/UserRepository extensions (GetGroupRoleAsync, SetGroupRoleAsync) + UserRepository IActiveGroupContext injection + GetAllPlayers/GetAllDMs fix + AdminController IActiveGroupContext + promote/demote fix + Users role badges fix + SuperAdminOnly policy
+- [ ] 29-02-PLAN.md — EF Core migration: SuperAdmin role seeding (AspNetRoles Id=4, Name="SuperAdmin")
+
+**Wave 2** *(blocked on 29-01)*
+
+- [ ] 29-03-PLAN.md — Group service layer: IGroupService, IGroupRepository (Domain), GroupWithMemberCount DTO, GroupService, GroupRepository, DI registrations
+
+**Wave 3** *(blocked on 29-03)*
+
+- [ ] 29-04-PLAN.md — Platform MVC Area: GroupController (5 actions), 5 Razor views, _Layout.Platform.cshtml, _ViewImports.cshtml, _ViewStart.cshtml, PlatformViewModels, area route in Program.cs
+
+**Wave 4** *(blocked on 29-01, 29-02, 29-03, 29-04)*
+
+- [ ] 29-05-PLAN.md — Integration tests: AdminHandlerIntegrationTests, PlatformAreaIntegrationTests, GroupManagementIntegrationTests + TestDataHelper SuperAdmin role + AuthenticationHelper SuperAdmin helper + full suite gate + human verify
 
 ### Phase 30: Group UX & Admin User Creation
 
@@ -224,5 +240,5 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
-| 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
+| 29. SuperAdmin Role & Management Area | v5.0 | 0/5 | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
