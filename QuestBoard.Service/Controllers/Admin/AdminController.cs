@@ -28,6 +28,7 @@ public class AdminController(IUserService userService, IQuestService questServic
 
         foreach (var user in allUsers)
         {
+            // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
             GroupRole? groupRole = await userService.GetGroupRoleByIdAsync(user.Id, groupId ?? 1);
 
             userViewModels.Add(new UserManagementViewModel

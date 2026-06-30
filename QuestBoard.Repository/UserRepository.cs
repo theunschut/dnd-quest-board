@@ -17,6 +17,7 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllDungeonMasters(CancellationToken token = default)
     {
+        // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
         var groupId = activeGroupContext.ActiveGroupId ?? 1;
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
@@ -30,6 +31,7 @@ internal class UserRepository(QuestBoardContext dbContext, IMapper mapper, IActi
 
     public async Task<IList<User>> GetAllPlayers(CancellationToken token = default)
     {
+        // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
         var groupId = activeGroupContext.ActiveGroupId ?? 1;
         var entities = await DbSet
             .Where(u => DbContext.UserGroups
