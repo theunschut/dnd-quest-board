@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-current_phase: 26
 status: executing
-stopped_at: Phase 27 context gathered
-last_updated: "2026-06-29T21:50:00.707Z"
-last_activity: 2026-06-29
-last_activity_desc: Phase 26 complete
+stopped_at: Phase 27 Plan 01 complete
+last_updated: "2026-06-30T05:48:03Z"
+last_activity: 2026-06-30 — Phase 27 Plan 01 complete
 progress:
-  total_phases: 2
+  total_phases: 5
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 50
-current_phase_name: namespace-rename
+  total_plans: 8
+  completed_plans: 3
+  percent: 20
 ---
 
 # Project State
@@ -24,19 +21,19 @@ current_phase_name: namespace-rename
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 26 — namespace-rename
+**Current focus:** Phase 27 — group-schema-foundation
 
 ## Current Position
 
-Phase: 26
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-29 — Phase 26 complete
+Phase: 27
+Plan: 01 complete, advancing to 02
+Status: Executing
+Last activity: 2026-06-30 — Phase 27 Plan 01 complete
 
 ```
-v5.0 Progress [                    ] 0% (0/5 phases)
-Phase 26 Namespace Rename       [ ] not started
-Phase 27 Group Schema Foundation [ ] not started
+v5.0 Progress [====                ] 20% (1/5 phases)
+Phase 26 Namespace Rename       [x] complete (2026-06-29)
+Phase 27 Group Schema Foundation [>] in progress (1/3 plans)
 Phase 28 Tenant Isolation        [ ] not started
 Phase 29 SuperAdmin + Mgmt Area  [ ] not started
 Phase 30 Group UX + User Mgmt   [ ] not started
@@ -72,6 +69,11 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - SuperAdmin management area routed at /platform (not /superadmin)
 - Phase 26 is a pure rename — zero behavior change required; all 191 tests must pass before merging
 - Phase 28 is highest complexity — test factory stub and Hangfire adaptation must land in same PR as HasQueryFilter
+- GroupRole stored as int on UserGroupEntity; enum cast at AutoMapper boundary (consistent with SignupRole/CharacterStatus/CharacterRole patterns)
+- UserGroupEntity uses auto-increment int PK with composite unique index on (UserId, GroupId) — not a composite PK (avoids EF composite-PK pitfall)
+- Quest/ShopItem→Group FKs use NoAction delete to prevent SQL Server cascade cycle errors
+- UserGroup→User and UserGroup→Group FKs use Cascade so membership rows clean up automatically
+- Groups.Name has a DB-layer unique index (D-08)
 
 ### Pending for Next Milestone
 
@@ -83,12 +85,13 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 **Resume file:** .planning/phases/27-group-schema-foundation/27-CONTEXT.md
 
-Last session: 2026-06-29T21:28:46.989Z
-Stopped at: Phase 27 context gathered
-Next step: Execute plan 02 (dotnet test gate + single atomic commit D-05)
+Last session: 2026-06-30T05:48:03Z
+Stopped at: Phase 27 Plan 01 complete
+Next step: Execute plan 02 — AddGroupSchema migration (8 FK-safe steps) + TestDataHelper GroupId=1 + full test gate
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 26 P02 | 12 | 3 tasks | 0 files |
+| Phase 27 P01 | 15 | 2 tasks | 10 files |

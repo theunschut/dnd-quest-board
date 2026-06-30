@@ -14,9 +14,9 @@
 
 ### Group Schema
 
-- [ ] **GROUP-01**: `GroupEntity` table exists with `Id`, `Name`, `CreatedAt` columns
-- [ ] **GROUP-02**: `UserGroups` junction table exists with `UserId`, `GroupId`, `GroupRole` (enum: Player / DungeonMaster / Admin)
-- [ ] **GROUP-03**: `GroupId` FK added to `QuestEntity` and `ShopItemEntity` (the two shared-resource entities not naturally scoped through user ownership)
+- [x] **GROUP-01**: `GroupEntity` table exists with `Id`, `Name`, `CreatedAt` columns *(model layer complete — plan 27-01; migration in plan 27-02)*
+- [x] **GROUP-02**: `UserGroups` junction table exists with `UserId`, `GroupId`, `GroupRole` (enum: Player / DungeonMaster / Admin) *(model layer complete — plan 27-01; migration in plan 27-02)*
+- [x] **GROUP-03**: `GroupId` FK added to `QuestEntity` and `ShopItemEntity` (the two shared-resource entities not naturally scoped through user ownership) *(model layer complete — plan 27-01; migration in plan 27-02)*
 - [ ] **GROUP-04**: Data migration seeds the `"EuphoriaInn"` group as `GroupId = 1`
 - [ ] **GROUP-05**: All existing users are assigned to EuphoriaInn in `UserGroups`; each user's `GroupRole` is seeded from their current `AspNetUserRoles` entry
 - [ ] **GROUP-06**: `AspNetUserRoles` entries for Player / DungeonMaster / Admin are removed after migration; only SuperAdmin assignments remain in `AspNetUserRoles`
@@ -88,9 +88,9 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | RENAME-02 | Phase 26 | Complete |
 | RENAME-03 | Phase 26 | Complete |
 | RENAME-04 | Phase 26 | Complete |
-| GROUP-01 | Phase 27 | Pending |
-| GROUP-02 | Phase 27 | Pending |
-| GROUP-03 | Phase 27 | Pending |
+| GROUP-01 | Phase 27 | Complete (model) |
+| GROUP-02 | Phase 27 | Complete (model) |
+| GROUP-03 | Phase 27 | Complete (model) |
 | GROUP-04 | Phase 27 | Pending |
 | GROUP-05 | Phase 27 | Pending |
 | GROUP-06 | Phase 27 | Pending |

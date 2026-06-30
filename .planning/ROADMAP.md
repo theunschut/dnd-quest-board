@@ -122,7 +122,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 1**
 
-- [ ] 27-01-PLAN.md — GroupRole enum + Group/UserGroup entities & domain models + GroupId FK on Quest/ShopItem + UserGroups nav + QuestBoardContext config + EntityProfile mapping (model layer, build gate)
+- [x] 27-01-PLAN.md — GroupRole enum + Group/UserGroup entities & domain models + GroupId FK on Quest/ShopItem + UserGroups nav + QuestBoardContext config + EntityProfile mapping (model layer, build gate) — completed 2026-06-30
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -210,7 +210,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 24. Email Confirmation Flow | v4.0 | 5/5 | Complete | 2026-06-26 |
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
-| 27. Group Schema Foundation | v5.0 | 0/3 | Not started | — |
+| 27. Group Schema Foundation | v5.0 | 1/3 | In progress | — |
 | 28. Tenant Isolation | v5.0 | 0/? | Not started | — |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
