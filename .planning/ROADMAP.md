@@ -259,14 +259,23 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 ### Phase 31: Unauthenticated landing redirect
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Unauthenticated visitors are redirected to login (not shown empty/broken group-scoped pages), a public landing page lives at `/`, the quest board moves to `/quests`, and authenticated users with an expired group session are seamlessly recovered to the group picker.
+**Requirements**: UX-01, UX-04
 **Depends on:** Phase 30
-**Plans:** 5/5 plans complete
+**Plans:** 4 plans
 
-Plans:
+**Wave 1** *(parallel — no overlap in files_modified)*
 
-- [ ] TBD (run /gsd-plan-phase 31 to break down)
+- [ ] 31-01-PLAN.md — class-level [Authorize] on Calendar + QuestLog controllers; remove [AllowAnonymous] from DM profile actions (D-01, D-02)
+- [ ] 31-02-PLAN.md — QuestController.Index at /quests + public landing HomeController.Index + migrate quest views to Views/Quest + new landing views + reference sweep (D-04..D-08)
+
+**Wave 2** *(blocked on 31-02)*
+
+- [ ] 31-03-PLAN.md — GroupSessionMiddleware (session-recovery redirect) + Program.cs registration + [Route("groups/pick")] on GroupPicker (D-09, D-10, D-11)
+
+**Wave 3** *(blocked on 31-01, 31-02, 31-03)*
+
+- [ ] 31-04-PLAN.md — update Calendar/QuestLog/Home tests + /quests route tests + new GroupSessionMiddleware tests + full-suite gate + blocking human-verify
 
 ### Phase 32: First-login password flow
 
