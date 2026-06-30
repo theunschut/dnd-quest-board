@@ -5,18 +5,19 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace QuestBoard.Repository.Migrations
 {
+    // DEPLOYMENT CONSTRAINT — Phase 27-29 co-deployment required:
+    // This migration deletes Player, DungeonMaster, and Admin rows from AspNetUserRoles (Step 10).
+    // The existing DungeonMasterHandler and AdminHandler still read Identity role claims from
+    // AspNetUserRoles. After this migration runs, those claims are gone, so any user whose session
+    // hits an authorization check WILL fail until Phase 29 replaces the handlers to read
+    // UserGroups.GroupRole instead.
+    //
+    // RULE: Deploy Phases 27, 28, and 29 together in a single release.
+    //       OR deploy during a maintenance window where no user logs in until Phase 29 is also live.
+    //       Do NOT deploy Phase 27 alone to a production environment with active users.
     /// <inheritdoc />
     public partial class AddGroupSchema : Migration
     {
-        // DEPLOYMENT CONSTRAINT:
-        // This migration deletes Player/DungeonMaster/Admin entries from AspNetUserRoles.
-        // Existing authorization handlers (DungeonMasterHandler, AdminHandler) use Identity role
-        // claims that become stale after this migration runs. New logins after Phase 27 is deployed
-        // WITHOUT Phases 28-29 will find no Player/DM/Admin Identity roles and authorization will fail.
-        //
-        // Phase 27 MUST be deployed together with Phases 28-29 (which replace the auth handlers),
-        // OR deployed during a maintenance window before any user logs in again.
-
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
