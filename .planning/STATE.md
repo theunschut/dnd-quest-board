@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: ready to execute
-stopped_at: Phase 28 Plan 02 complete
-last_updated: "2026-06-30T07:18:44Z"
-last_activity: 2026-06-30 — Phase 28 Plan 02 executed (Hangfire groupId threading + cross-group sweep + TENANT-04 complete)
+stopped_at: Phase 28 Plan 03 complete — Phase 28 DONE
+last_updated: "2026-06-30T08:04:00Z"
+last_activity: 2026-06-30 — Phase 28 Plan 03 executed (cross-group isolation integration tests + human verify; Phase 28 complete; 197 tests pass)
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
-  percent: 44
+  completed_plans: 9
+  percent: 60
 ---
 
 # Project State
@@ -21,20 +21,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 28 — tenant-isolation
+**Current focus:** Phase 29 — SuperAdmin Role & Management Area
 
 ## Current Position
 
-Phase: 28
-Plan: 02 complete (Plan 03 next)
-Status: Executing
-Last activity: 2026-06-30 — Phase 28 Plan 02 complete (Hangfire groupId threading + cross-group sweep + TENANT-04; 194 tests pass)
+Phase: 28 complete — next: Phase 29
+Plan: 28-03 complete (Phase 28 done)
+Status: Ready to execute Phase 29
+Last activity: 2026-06-30 — Phase 28 Plan 03 complete (cross-group isolation tests + human verify; 197 tests pass)
 
 ```
-v5.0 Progress [=========           ] 44% (2/5 phases, 8/9 plans)
-Phase 26 Namespace Rename       [x] complete (2026-06-29)
+v5.0 Progress [============        ] 60% (3/5 phases, 9/9 plans in phases 26-28)
+Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
-Phase 28 Tenant Isolation        [~] in progress (2/3 plans)
+Phase 28 Tenant Isolation        [x] complete (2026-06-30)
 Phase 29 SuperAdmin + Mgmt Area  [ ] not started
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
@@ -77,6 +77,8 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Hangfire jobs resolve ActiveGroupContextService (concrete, not interface) to call SetGroupId(groupId) before any repo call; SetGroupId is on the concrete class only (D-09)
 - GetQuestsForTomorrowAllGroupsAsync uses IgnoreQueryFilters() for cross-group sweep — method name makes intent explicit; only one call site in codebase (D-08)
 - QuestController passes activeGroupContext.ActiveGroupId ?? 1 to EnqueueSessionReminder — null means no session (Phase 28 temporary); GroupId=1 is correct single-group fallback until Phase 30 enforces group selection
+- TestDataHelper.ClearDatabaseAsync preferred over factory.ResetDatabase() in isolation tests — former also seeds roles and Group 1 FK dependency preventing FK constraint failures
+- Phase 28 human verify: quest list, shop, Send Reminder all confirmed working; empty /players is pre-existing dev-DB issue (AspNetUserRoles empty after Phase 26 rename + DB reset) not caused by Phase 28
 
 ### Pending for Next Milestone
 
@@ -86,9 +88,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T07:18:44Z
-Stopped at: Phase 28 Plan 02 complete — Hangfire groupId threading + cross-group sweep; 194 tests pass
-Next step: Execute Phase 28 Plan 03 — cross-group isolation integration tests + full suite gate
+Last session: 2026-06-30T08:04:00Z
+Stopped at: Phase 28 Plan 03 complete — cross-group isolation integration tests; human verify approved; 197 tests pass
+Next step: Execute Phase 29 — SuperAdmin Role & Management Area (planning needed first)
 
 ## Performance Metrics
 
@@ -100,3 +102,4 @@ Next step: Execute Phase 28 Plan 03 — cross-group isolation integration tests 
 | Phase 27 P03 | 15 | 1 task + checkpoint | 1 file |
 | Phase 28 P01 | 4 | 2 tasks | 9 files |
 | Phase 28 P02 | 6 | 2 tasks | 17 files |
+| Phase 28 P03 | 41 | 1 task + checkpoint | 1 file |

@@ -94,11 +94,11 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | GROUP-04 | Phase 27 | Complete |
 | GROUP-05 | Phase 27 | Complete |
 | GROUP-06 | Phase 27 | Complete |
-| TENANT-01 | Phase 28 | Pending |
-| TENANT-02 | Phase 28 | Pending |
-| TENANT-03 | Phase 28 | Pending |
+| TENANT-01 | Phase 28 | Complete — 28-01 |
+| TENANT-02 | Phase 28 | Complete — 28-01 |
+| TENANT-03 | Phase 28 | Complete — 28-01 + 28-03 |
 | TENANT-04 | Phase 28 | Complete — 28-02 |
-| TENANT-05 | Phase 28 | Pending |
+| TENANT-05 | Phase 28 | Complete — 28-01 + 28-03 |
 | AUTH-01 | Phase 29 | Pending |
 | AUTH-02 | Phase 29 | Pending |
 | AUTH-03 | Phase 29 | Pending |

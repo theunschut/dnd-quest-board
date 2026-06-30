@@ -76,7 +76,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
 - [ ] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group
-- [ ] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub
+- [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
 - [ ] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management
 - [ ] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation
 
@@ -157,7 +157,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 28-03-PLAN.md — cross-group isolation integration tests + full suite gate + human verify checkpoint
+- [x] 28-03-PLAN.md — cross-group isolation integration tests + full suite gate + human verify checkpoint — completed 2026-06-30
 
 ### Phase 29: SuperAdmin Role & Management Area
 
@@ -223,6 +223,6 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 25. Confirmation Email Razor Template | v4.0 | 2/2 | Complete | 2026-06-27 |
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
-| 28. Tenant Isolation | v5.0 | 2/3 | In progress | — |
+| 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 29. SuperAdmin Role & Management Area | v5.0 | 0/? | Not started | — |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
