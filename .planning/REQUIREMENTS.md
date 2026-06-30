@@ -91,9 +91,9 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | GROUP-01 | Phase 27 | Complete (model) |
 | GROUP-02 | Phase 27 | Complete (model) |
 | GROUP-03 | Phase 27 | Complete (model) |
-| GROUP-04 | Phase 27 | Pending |
-| GROUP-05 | Phase 27 | Pending |
-| GROUP-06 | Phase 27 | Pending |
+| GROUP-04 | Phase 27 | Complete |
+| GROUP-05 | Phase 27 | Complete |
+| GROUP-06 | Phase 27 | Complete |
 | TENANT-01 | Phase 28 | Pending |
 | TENANT-02 | Phase 28 | Pending |
 | TENANT-03 | Phase 28 | Pending |
