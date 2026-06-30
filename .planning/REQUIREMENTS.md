@@ -43,7 +43,7 @@
 - [x] **UX-02**: User belonging to multiple groups sees a group-picker page after login and selects which group to enter
 - [x] **UX-03**: SuperAdmin always lands on the group-picker page after login and can enter any group or go to the management area
 - [x] **UX-04**: Active group is stored in ASP.NET Core Session per request; selected group persists across requests until session expires or user exits
-- [ ] **UX-05**: Navigation displays the current group name and a "Switch group" link; clicking it returns to the group-picker
+- [x] **UX-05**: Navigation displays the current group name and a "Switch group" link; clicking it returns to the group-picker
 
 ### Management Area
 
@@ -116,7 +116,7 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | UX-02 | Phase 30 | Complete |
 | UX-03 | Phase 30 | Complete |
 | UX-04 | Phase 30 | Complete |
-| UX-05 | Phase 30 | Pending |
+| UX-05 | Phase 30 | Complete |
 | REG-01 | Phase 30 | Complete |
 | REG-02 | Phase 30 | Complete |
 | REG-03 | Phase 30 | Complete |
