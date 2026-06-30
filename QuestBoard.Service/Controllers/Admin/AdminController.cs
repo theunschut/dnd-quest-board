@@ -67,7 +67,7 @@ public class AdminController(IUserService userService, IQuestService questServic
     {
         var groupId = activeGroupContext.ActiveGroupId;
         if (groupId == null) return RedirectToAction(nameof(Users));
-        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.DungeonMaster);
+        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.Player);
         return RedirectToAction(nameof(Users));
     }
 
