@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-status: executing
-stopped_at: Phase 27 Plan 01 complete
-last_updated: "2026-06-30T05:48:03Z"
-last_activity: 2026-06-30 — Phase 27 Plan 01 complete
+status: planning
+stopped_at: Phase 27 complete
+last_updated: "2026-06-30T10:30:00Z"
+last_activity: 2026-06-30 — Phase 27 complete
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 3
-  percent: 20
+  completed_plans: 6
+  percent: 40
 ---
 
 # Project State
@@ -21,19 +21,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 27 — group-schema-foundation
+**Current focus:** Phase 28 — tenant-isolation
 
 ## Current Position
 
-Phase: 27
-Plan: 01 complete, advancing to 02
-Status: Executing
-Last activity: 2026-06-30 — Phase 27 Plan 01 complete
+Phase: 28
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-30 — Phase 27 complete
 
 ```
-v5.0 Progress [====                ] 20% (1/5 phases)
+v5.0 Progress [========            ] 40% (2/5 phases)
 Phase 26 Namespace Rename       [x] complete (2026-06-29)
-Phase 27 Group Schema Foundation [>] in progress (1/3 plans)
+Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [ ] not started
 Phase 29 SuperAdmin + Mgmt Area  [ ] not started
 Phase 30 Group UX + User Mgmt   [ ] not started
@@ -83,11 +83,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/27-group-schema-foundation/27-CONTEXT.md
-
-Last session: 2026-06-30T05:48:03Z
-Stopped at: Phase 27 Plan 01 complete
-Next step: Execute plan 02 — AddGroupSchema migration (8 FK-safe steps) + TestDataHelper GroupId=1 + full test gate
+Last session: 2026-06-30T10:30:00Z
+Stopped at: Phase 27 complete — all 3 plans verified
+Next step: Plan Phase 28 — Tenant Isolation (IActiveGroupContext + EF Global Query Filters)
 
 ## Performance Metrics
 
@@ -95,3 +93,5 @@ Next step: Execute plan 02 — AddGroupSchema migration (8 FK-safe steps) + Test
 |-------|------|----------|-------|
 | Phase 26 P02 | 12 | 3 tasks | 0 files |
 | Phase 27 P01 | 15 | 2 tasks | 10 files |
+| Phase 27 P02 | 25 | 2 tasks + checkpoint | 4 files |
+| Phase 27 P03 | 15 | 1 task + checkpoint | 1 file |

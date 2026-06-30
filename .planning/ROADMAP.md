@@ -126,11 +126,11 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 27-02-PLAN.md — atomic AddGroupSchema migration (8 FK-safe steps) + TestDataHelper GroupId=1 + full 191-test gate
+- [x] 27-02-PLAN.md — atomic AddGroupSchema migration (8 FK-safe steps) + TestDataHelper GroupId=1 + full 194-test gate — completed 2026-06-30
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 27-03-PLAN.md — apply migration on dev SQL Server + verify GROUP-04/05/06 seeding + document Phase 27-29 co-deployment constraint
+- [x] 27-03-PLAN.md — apply migration on dev SQL Server + verify GROUP-04/05/06 seeding + document Phase 27-29 co-deployment constraint — completed 2026-06-30
 
 ### Phase 28: Tenant Isolation
 
