@@ -5,8 +5,8 @@ milestone_name: Omphalos Integration
 current_phase: 30
 current_phase_name: ready to plan
 status: executing
-stopped_at: Phase 30 context gathered
-last_updated: "2026-06-30T19:09:37.309Z"
+stopped_at: Phase 30 UI-SPEC approved
+last_updated: "2026-06-30T19:51:21.454Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 29 complete (UAT passed; 219/219 tests; advancing to Phase 30)
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 Phase: 30 — ready to plan
 Plan: Not started
-Status: Phase 29 complete — Phase 30 ready to plan
+Status: Ready to execute
 Last activity: 2026-06-30 — Phase 29 complete (UAT passed; 219/219 tests; advancing to Phase 30)
 
 ```
@@ -106,8 +106,10 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T19:09:37.299Z
-Stopped at: Phase 30 context gathered
+**Resume file:** .planning/phases/30-group-ux-admin-user-creation/30-UI-SPEC.md
+
+Last session: 2026-06-30T19:17:00.939Z
+Stopped at: Phase 30 UI-SPEC approved
 Next step: /gsd-plan-phase 30
 
 ## Performance Metrics

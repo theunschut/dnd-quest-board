@@ -25,7 +25,7 @@ This phase does NOT include: group invitation flows, per-group email configurati
 
 - **D-03:** Session writing in `GroupPickerController` writes directly to `HttpContext.Session` using `SessionKeys.ActiveGroupId` (the constant already defined at `QuestBoard.Service/Constants/SessionKeys.cs`). No changes to `IActiveGroupContext` interface.
 
-- **D-04 (Claude's discretion):** When a user navigates to a protected page with an expired session (no `ActiveGroupId`), the existing Phase 29 D-03 logic applies — `AdminHandler` / `DungeonMasterHandler` call `context.Fail()` → 403. No new middleware or redirect interception needed for this phase.
+- **D-04 [informational]:** When a user navigates to a protected page with an expired session (no `ActiveGroupId`), the existing Phase 29 D-03 logic applies — `AdminHandler` / `DungeonMasterHandler` call `context.Fail()` → 403. No new middleware or redirect interception needed for this phase. Verified at plan-checking time: `AdminHandler.cs` and `DungeonMasterHandler.cs` both call `context.Fail()` on null group context (confirmed by grep against the live codebase). No plan task required.
 
 ### Group-Picker Page
 
