@@ -53,14 +53,14 @@
 - [x] **MGMT-04**: SuperAdmin can edit a group's name or delete an empty group
 - [x] **MGMT-05**: SuperAdmin can add any existing user to any group and assign their `GroupRole`
 - [x] **MGMT-06**: SuperAdmin can remove a user from a group
-- [ ] **MGMT-07**: Group admin (Admin `GroupRole` in a group) can create new user accounts within their group
-- [ ] **MGMT-08**: Group admin can promote or demote users within their group (Player ↔ DungeonMaster ↔ Admin)
+- [x] **MGMT-07**: Group admin (Admin `GroupRole` in a group) can create new user accounts within their group
+- [x] **MGMT-08**: Group admin can promote or demote users within their group (Player ↔ DungeonMaster ↔ Admin)
 
 ### User Creation
 
 - [ ] **REG-01**: Public self-registration (`AccountController.Register`) is removed or restricted to SuperAdmin / Admin users only
-- [ ] **REG-02**: Newly created user accounts are automatically assigned to the creating admin's active group with the specified `GroupRole`
-- [ ] **REG-03**: The existing email confirmation flow is triggered when a group admin or SuperAdmin creates a new user account
+- [x] **REG-02**: Newly created user accounts are automatically assigned to the creating admin's active group with the specified `GroupRole`
+- [x] **REG-03**: The existing email confirmation flow is triggered when a group admin or SuperAdmin creates a new user account
 
 ## Future Requirements
 
@@ -110,13 +110,13 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | MGMT-04 | Phase 29 | Complete — 29-04 |
 | MGMT-05 | Phase 29 | Complete — 29-04 |
 | MGMT-06 | Phase 29 | Complete — 29-04 |
-| MGMT-07 | Phase 30 | Pending |
-| MGMT-08 | Phase 30 | Pending |
+| MGMT-07 | Phase 30 | Complete |
+| MGMT-08 | Phase 30 | Complete |
 | UX-01 | Phase 30 | Complete |
 | UX-02 | Phase 30 | Complete |
 | UX-03 | Phase 30 | Complete |
 | UX-04 | Phase 30 | Complete |
 | UX-05 | Phase 30 | Pending |
 | REG-01 | Phase 30 | Pending |
-| REG-02 | Phase 30 | Pending |
-| REG-03 | Phase 30 | Pending |
+| REG-02 | Phase 30 | Complete |
+| REG-03 | Phase 30 | Complete |
