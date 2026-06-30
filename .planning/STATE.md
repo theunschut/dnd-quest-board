@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v5.0
-milestone_name: Multi-Tenancy
+milestone: v2.0
+milestone_name: Omphalos Integration
 status: executing
-stopped_at: Phase 29 Plan 03 complete — Group service layer (IGroupService, IGroupRepository, GroupService, GroupRepository, DI registrations)
-last_updated: "2026-06-30T13:37:00Z"
-last_activity: 2026-06-30 — Phase 29 Plan 03 executed (Group service layer with EF Core GroupRepository; 197/197 tests pass)
+stopped_at: Phase 29 Plan 04 complete — Platform MVC Area (GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
+last_updated: "2026-06-30T13:37:31Z"
+last_activity: 2026-06-30 — Phase 29 Plan 04 complete (Platform /platform area: GroupController, 5 views, layout, viewmodels, area route; 197/197 tests pass)
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 14
-  completed_plans: 11
-  percent: 71
+  completed_plans: 12
+  percent: 86
 ---
 
 # Project State
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 ## Current Position
 
-Phase: 29 executing — Plan 03 complete
-Plan: 29-04 is next (Platform MVC Area: GroupController, 5 views, _Layout.Platform.cshtml)
-Status: Executing Phase 29 (3/5 plans done)
-Last activity: 2026-06-30 — Phase 29 Plan 03 complete (Group service layer; IGroupService/IGroupRepository/GroupService/GroupRepository; 197/197 tests pass)
+Phase: 29 executing — Plan 04 complete
+Plan: 29-05 is next (Integration tests for /platform/Group endpoints)
+Status: Executing Phase 29 (4/5 plans done)
+Last activity: 2026-06-30 — Phase 29 Plan 04 complete (Platform MVC Area: GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
 
 ```
-v5.0 Progress [===========         ] 67% (3/5 phases, 10/14 plans in phases 26-29)
+v5.0 Progress [=============       ] 86% (3/5 phases, 12/14 plans in phases 26-29)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [~] executing (3/5 plans done — auth handlers, migration, group service done)
+Phase 29 SuperAdmin + Mgmt Area  [~] executing (4/5 plans done — auth handlers, migration, group service, platform UI done)
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -84,6 +84,8 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Phase 29 Plan 03: IGroupRepository interface lives in QuestBoard.Domain/Interfaces/ (same as IUserRepository pattern) — Domain must not reference Repository
 - Phase 29 Plan 03: GroupWithMemberCount is a plain DTO (not AutoMapper-mapped) — LINQ projection from GroupEntity.UserGroups.Count in a single query; no EntityProfile mapping needed
 - Phase 29 Plan 03: GroupService.AddAsync overrides base to enforce non-blank name and stamp CreatedAt; DbUpdateException for unique name violation bubbles to GroupController (plan 29-04)
+- Phase 29 Plan 04: UserGroup.User? navigation property added to domain model + EntityProfile mapping — GetMembersAsync uses .Include(ug => ug.User) so data was available but AutoMapper did not surface it; Members view requires Name/Email per row
+- Phase 29 Plan 04: _Layout.Platform.cshtml links only site.css — page-specific CSS files (calendar.css, quests.css, etc.) excluded from platform area
 - Phase 29 Plan 02 (D-11): First SuperAdmin user assignment is a manual post-deploy step — run once after deployment:
   ```sql
   -- Assign first SuperAdmin user (run once after deploy)
@@ -100,9 +102,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T13:37:00Z
-Stopped at: Phase 29 Plan 03 complete — Group service layer (IGroupService, IGroupRepository, GroupWithMemberCount, GroupService, GroupRepository, DI registrations; 197/197 tests pass)
-Next step: Execute Phase 29 Plan 04 — Platform MVC Area (/platform): GroupController, 5 Razor views, _Layout.Platform.cshtml, _ViewImports.cshtml, _ViewStart.cshtml, PlatformViewModels, area route in Program.cs
+Last session: 2026-06-30T13:37:31Z
+Stopped at: Phase 29 Plan 04 complete — Platform MVC Area (GroupController, 5 Razor views, _Layout.Platform.cshtml, PlatformViewModels, area route; 197/197 tests pass)
+Next step: Execute Phase 29 Plan 05 — Integration tests for /platform/Group endpoints
 
 ## Performance Metrics
 
@@ -118,3 +120,4 @@ Next step: Execute Phase 29 Plan 04 — Platform MVC Area (/platform): GroupCont
 | Phase 29 P01 | 8 | 3 tasks | 10 files |
 | Phase 29 P02 | 5 | 1 task | 3 files |
 | Phase 29 P03 | 7 | 2 tasks | 7 files |
+| Phase 29 P04 | 5 | 2 tasks | 17 files |

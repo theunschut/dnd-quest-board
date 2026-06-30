@@ -47,12 +47,12 @@
 
 ### Management Area
 
-- [ ] **MGMT-01**: A dedicated MVC Area exists for SuperAdmin group management; route is not `/superadmin` (planner recommends a name, e.g. `/groups` or `/platform`)
-- [ ] **MGMT-02**: SuperAdmin can view a list of all groups with member counts
-- [ ] **MGMT-03**: SuperAdmin can create a new group (name required)
-- [ ] **MGMT-04**: SuperAdmin can edit a group's name or delete an empty group
-- [ ] **MGMT-05**: SuperAdmin can add any existing user to any group and assign their `GroupRole`
-- [ ] **MGMT-06**: SuperAdmin can remove a user from a group
+- [x] **MGMT-01**: A dedicated MVC Area exists for SuperAdmin group management; route is not `/superadmin` (planner recommends a name, e.g. `/groups` or `/platform`)
+- [x] **MGMT-02**: SuperAdmin can view a list of all groups with member counts
+- [x] **MGMT-03**: SuperAdmin can create a new group (name required)
+- [x] **MGMT-04**: SuperAdmin can edit a group's name or delete an empty group
+- [x] **MGMT-05**: SuperAdmin can add any existing user to any group and assign their `GroupRole`
+- [x] **MGMT-06**: SuperAdmin can remove a user from a group
 - [ ] **MGMT-07**: Group admin (Admin `GroupRole` in a group) can create new user accounts within their group
 - [ ] **MGMT-08**: Group admin can promote or demote users within their group (Player ↔ DungeonMaster ↔ Admin)
 
@@ -104,12 +104,12 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | AUTH-03 | Phase 29 | Complete — 29-01 |
 | AUTH-04 | Phase 29 | Complete — 29-01 |
 | AUTH-05 | Phase 29 | Complete — 29-01 |
-| MGMT-01 | Phase 29 | Pending |
-| MGMT-02 | Phase 29 | Pending |
-| MGMT-03 | Phase 29 | Pending |
-| MGMT-04 | Phase 29 | Pending |
-| MGMT-05 | Phase 29 | Pending |
-| MGMT-06 | Phase 29 | Pending |
+| MGMT-01 | Phase 29 | Complete — 29-04 |
+| MGMT-02 | Phase 29 | Complete — 29-04 |
+| MGMT-03 | Phase 29 | Complete — 29-04 |
+| MGMT-04 | Phase 29 | Complete — 29-04 |
+| MGMT-05 | Phase 29 | Complete — 29-04 |
+| MGMT-06 | Phase 29 | Complete — 29-04 |
 | MGMT-07 | Phase 30 | Pending |
 | MGMT-08 | Phase 30 | Pending |
 | UX-01 | Phase 30 | Pending |
