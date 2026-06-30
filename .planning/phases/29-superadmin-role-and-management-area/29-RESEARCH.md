@@ -612,7 +612,7 @@ Note: `SetGroupRoleAsync` is not in `IUserService` today. Either add it as a new
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **UserRepository IActiveGroupContext injection approach**
    - What we know: `QuestBoardContext` already receives `IActiveGroupContext` as a constructor parameter. `UserRepository` currently does not.
