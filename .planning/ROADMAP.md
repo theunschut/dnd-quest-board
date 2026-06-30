@@ -205,8 +205,22 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
   5. A group admin can create a new user account within their group (assigning a GroupRole), which triggers the existing email confirmation flow; that user cannot self-register via the public registration page
   6. A group admin can promote or demote users within their group between Player, DungeonMaster, and Admin roles
 
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
+
+**Wave 1** *(parallel — no overlap in files_modified)*
+
+- [ ] 30-01-PLAN.md — GetGroupsForUserAsync service/repo method + GroupPickerController (Index GET auto-redirect/picker + SelectGroup POST) + GroupPickerViewModel + picker views (desktop/mobile) + _Layout.GroupPicker.cshtml + SessionKeys.ActiveGroupName (UX-01..UX-04)
+- [ ] 30-03-PLAN.md — CreateUserViewModel + AdminController.CreateUser GET/POST + CreateUser views (desktop/mobile) + ?? 1 fallback removal (AdminController.Users + UserRepository) (MGMT-07, MGMT-08, REG-02, REG-03)
+
+**Wave 2** *(blocked on 30-01)*
+
+- [ ] 30-02-PLAN.md — AccountController.Login POST redirect to GroupPicker + Register GET/POST removal + Register views deleted + Create Account links removed (REG-01)
+- [ ] 30-04-PLAN.md — Nav group display: _Layout.cshtml + _Layout.Mobile.cshtml group-switch item reading SessionKeys.ActiveGroupName (UX-05)
+
+**Wave 3** *(blocked on 30-01, 30-02, 30-03, 30-04)*
+
+- [ ] 30-05-PLAN.md — GroupPickerControllerIntegrationTests + Register tests → 404 + AdminController CreateUser tests + full-suite green gate + blocking human-verify checkpoint
 
 ## Progress
 
@@ -241,4 +255,4 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
-| 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
+| 30. Group UX & Admin User Creation | v5.0 | 0/5 | Not started | — |
