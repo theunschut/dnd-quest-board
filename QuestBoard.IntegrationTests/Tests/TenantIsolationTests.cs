@@ -12,12 +12,12 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
 {
     // IAsyncLifetime — reset singleton group context after each test class run so that
     // test state does not bleed into subsequently-executed test classes (WR-01 / TENANT-03).
-    public Task InitializeAsync() => Task.CompletedTask;
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         factory.TestGroupContext.ActiveGroupId = 1;
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>

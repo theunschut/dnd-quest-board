@@ -65,7 +65,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("DungeonMasterOnly", policy =>
         policy.Requirements.Add(new DungeonMasterRequirement()))
     .AddPolicy("AdminOnly", policy =>
-        policy.Requirements.Add(new AdminRequirement()));
+        policy.Requirements.Add(new AdminRequirement()))
+    .AddPolicy("SuperAdminOnly", policy =>
+        policy.RequireRole("SuperAdmin"));
 
 // Add session support
 builder.Services.AddSession(options =>

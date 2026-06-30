@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using QuestBoard.Domain.Enums;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
@@ -100,6 +101,7 @@ public static class AuthenticationHelper
             using var scope = factory.Services.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
             var userFromDb = await userManager.FindByIdAsync(user.Id.ToString());
             if (userFromDb != null)
             {
@@ -111,6 +113,28 @@ public static class AuthenticationHelper
                         await roleManager.CreateAsync(new IdentityRole<int>(role));
                     }
                     await userManager.AddToRoleAsync(userFromDb, role);
+                }
+
+                // Seed UserGroups membership for group 1 so the new auth handlers
+                // (which read UserGroups.GroupRole instead of AspNetUserRoles) can authorize
+                // test users. Map identity roles to GroupRole enum values.
+                GroupRole groupRole = GroupRole.Player;
+                if (roles.Contains("Admin"))
+                    groupRole = GroupRole.Admin;
+                else if (roles.Contains("DungeonMaster"))
+                    groupRole = GroupRole.DungeonMaster;
+
+                var existingMembership = context.UserGroups
+                    .FirstOrDefault(ug => ug.UserId == user.Id && ug.GroupId == 1);
+                if (existingMembership == null)
+                {
+                    context.UserGroups.Add(new UserGroupEntity
+                    {
+                        UserId = user.Id,
+                        GroupId = 1,
+                        GroupRole = (int)groupRole
+                    });
+                    await context.SaveChangesAsync();
                 }
             }
         }

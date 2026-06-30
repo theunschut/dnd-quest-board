@@ -1,3 +1,4 @@
+using QuestBoard.Domain.Enums;
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Domain.Models;
 using QuestBoard.Service.Jobs;
@@ -16,24 +17,28 @@ using System.Text.Json;
 namespace QuestBoard.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache, IActiveGroupContext activeGroupContext) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
     {
         var allUsers = await userService.GetAllAsync();
         var userViewModels = new List<UserManagementViewModel>();
+        var groupId = activeGroupContext.ActiveGroupId;
 
         foreach (var user in allUsers)
         {
-            var roles = await userService.GetRolesAsync(user);
+            GroupRole? groupRole = groupId.HasValue
+                ? await userService.GetGroupRoleByIdAsync(user.Id, groupId.Value)
+                : null;
+
             userViewModels.Add(new UserManagementViewModel
             {
                 User = user,
-                Roles = roles,
-                IsAdmin = roles.Contains("Admin"),
-                IsDungeonMaster = roles.Contains("DungeonMaster"),
-                IsPlayer = roles.Contains("Player"),
+                Roles = new List<string>(),
+                IsAdmin = groupRole == GroupRole.Admin,
+                IsDungeonMaster = groupRole == GroupRole.DungeonMaster,
+                IsPlayer = groupRole == GroupRole.Player,
                 EmailConfirmed = user.EmailConfirmed
             });
         }
@@ -51,17 +56,9 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PromoteToAdmin(int userId)
     {
-        var user = await userService.GetByIdAsync(userId);
-        if (user == null)
-        {
-            return RedirectToAction(nameof(Users));
-        }
-
-        // Remove other roles and add Admin role
-        await userService.RemoveFromRoleAsync(user, "Player");
-        await userService.RemoveFromRoleAsync(user, "DungeonMaster");
-        await userService.AddToRoleAsync(user, "Admin");
-
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction(nameof(Users));
+        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.Admin);
         return RedirectToAction(nameof(Users));
     }
 
@@ -69,16 +66,9 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DemoteFromAdmin(int userId)
     {
-        var user = await userService.GetByIdAsync(userId);
-        if (user == null)
-        {
-            return RedirectToAction(nameof(Users));
-        }
-
-        // Remove Admin role and add DungeonMaster role (since admin implies DM privileges)
-        await userService.RemoveFromRoleAsync(user, "Admin");
-        await userService.AddToRoleAsync(user, "DungeonMaster");
-
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction(nameof(Users));
+        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.DungeonMaster);
         return RedirectToAction(nameof(Users));
     }
 
@@ -86,15 +76,9 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PromoteToDM(int userId)
     {
-        var user = await userService.GetByIdAsync(userId);
-        if (user == null)
-        {
-            return RedirectToAction(nameof(Users));
-        }
-
-        await userService.RemoveFromRoleAsync(user, "Player");
-        await userService.AddToRoleAsync(user, "DungeonMaster");
-
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction(nameof(Users));
+        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.DungeonMaster);
         return RedirectToAction(nameof(Users));
     }
 
@@ -102,15 +86,9 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DemoteToPlayer(int userId)
     {
-        var user = await userService.GetByIdAsync(userId);
-        if (user == null)
-        {
-            return RedirectToAction(nameof(Users));
-        }
-
-        await userService.RemoveFromRoleAsync(user, "DungeonMaster");
-        await userService.AddToRoleAsync(user, "Player");
-
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction(nameof(Users));
+        await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.Player);
         return RedirectToAction(nameof(Users));
     }
 
