@@ -131,7 +131,7 @@ public class GroupController(IGroupService groupService, IUserService userServic
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddMember(int id, AddMemberViewModel model)
+    public async Task<IActionResult> AddMember(int id, [Bind(Prefix = "AddMember")] AddMemberViewModel model)
     {
         if (!ModelState.IsValid)
         {

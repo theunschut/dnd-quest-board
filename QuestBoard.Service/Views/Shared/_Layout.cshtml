@@ -45,11 +45,14 @@
                                                 <i class="fas fa-scroll me-2"></i>Quest Management
                                             </a>
                                         </li>
+                                        @if (User.IsInRole("SuperAdmin"))
+                                        {
                                         <li>
                                             <a class="dropdown-item" href="/hangfire">
                                                 <i class="fas fa-tasks me-2"></i>Background Jobs
                                             </a>
                                         </li>
+                                        }
                                         <li>
                                             <a class="dropdown-item" asp-controller="Admin" asp-action="EmailStats">
                                                 <i class="fas fa-envelope-open-text me-2"></i>Email Stats
