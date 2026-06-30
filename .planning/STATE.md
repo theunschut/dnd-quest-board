@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 status: ready to execute
-stopped_at: Phase 28 planned
-last_updated: "2026-06-30T00:00:00Z"
-last_activity: 2026-06-30 — Phase 28 planned (3 plans, 3 waves)
+stopped_at: Phase 28 Plan 01 complete
+last_updated: "2026-06-30T07:10:00Z"
+last_activity: 2026-06-30 — Phase 28 Plan 01 executed (IActiveGroupContext + HasQueryFilter + test stub)
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 6
-  percent: 40
+  total_plans: 9
+  completed_plans: 7
+  percent: 42
 ---
 
 # Project State
@@ -26,15 +26,15 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 ## Current Position
 
 Phase: 28
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-30 — Phase 28 planned (3 plans)
+Plan: 01 complete (Plan 02 next)
+Status: Executing
+Last activity: 2026-06-30 — Phase 28 Plan 01 complete (IActiveGroupContext + HasQueryFilter + test stub; 194 tests pass)
 
 ```
-v5.0 Progress [========            ] 40% (2/5 phases)
+v5.0 Progress [========            ] 42% (2/5 phases, 7/9 plans)
 Phase 26 Namespace Rename       [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
-Phase 28 Tenant Isolation        [ ] not started
+Phase 28 Tenant Isolation        [~] in progress (1/3 plans)
 Phase 29 SuperAdmin + Mgmt Area  [ ] not started
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
@@ -83,9 +83,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T10:30:00Z
-Stopped at: Phase 27 complete — all 3 plans verified
-Next step: Plan Phase 28 — Tenant Isolation (IActiveGroupContext + EF Global Query Filters)
+Last session: 2026-06-30T07:10:00Z
+Stopped at: Phase 28 Plan 01 complete — IActiveGroupContext + HasQueryFilter wired; 194 tests pass
+Next step: Execute Phase 28 Plan 02 — Hangfire job adaptation + cross-group repository method
 
 ## Performance Metrics
 
@@ -95,3 +95,4 @@ Next step: Plan Phase 28 — Tenant Isolation (IActiveGroupContext + EF Global Q
 | Phase 27 P01 | 15 | 2 tasks | 10 files |
 | Phase 27 P02 | 25 | 2 tasks + checkpoint | 4 files |
 | Phase 27 P03 | 15 | 1 task + checkpoint | 1 file |
+| Phase 28 P01 | 4 | 2 tasks | 9 files |
