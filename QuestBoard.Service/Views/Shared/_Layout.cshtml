@@ -1,4 +1,6 @@
 @using QuestBoard.Domain.Interfaces
+@using QuestBoard.Service.Constants
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,6 +134,15 @@
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
                                             <i class="fas fa-user-cog me-2"></i>Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    @{
+                                        var activeGroupName = HttpContextAccessor.HttpContext?.Session?.GetString(SessionKeys.ActiveGroupName);
+                                    }
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="GroupPicker" asp-action="Index">
+                                            <i class="fas fa-arrows-rotate me-2"></i>@(string.IsNullOrEmpty(activeGroupName) ? "Switch Group" : activeGroupName)
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
