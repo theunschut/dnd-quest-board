@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 status: executing
-stopped_at: Phase 29 Plan 05 complete — Integration tests (22 new tests: AdminHandlerIntegrationTests, PlatformAreaIntegrationTests, GroupManagementIntegrationTests; 219/219 tests pass) — awaiting human checkpoint verification
-last_updated: "2026-06-30T13:48:00Z"
-last_activity: "2026-06-30 — Phase 29 Plan 05 complete (22 integration tests across 3 classes; 219/219 tests pass; awaiting human-verify checkpoint)"
+stopped_at: Phase 29 complete — UAT passed, Phase 30 ready to plan
+last_updated: "2026-06-30T00:00:00Z"
+last_activity: "2026-06-30 — Phase 29 complete (UAT: 12 passed, 2 blocked prior-phase, 2 bugs fixed inline; 219/219 tests pass)"
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
   completed_plans: 13
   percent: 100
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 29 — SuperAdmin Role & Management Area
+**Current focus:** Phase 30 — Group UX & Admin User Creation
 
 ## Current Position
 
-Phase: 29 executing — Plan 05 complete (awaiting human-verify checkpoint)
-Plan: 29-05 complete — human-verify checkpoint pending before Phase 29 can close
-Status: Executing Phase 29 (5/5 plans done, checkpoint pending)
-Last activity: 2026-06-30 — Phase 29 Plan 05 complete (22 integration tests; 219/219 tests pass; awaiting human-verify checkpoint)
+Phase: 30 — ready to plan
+Plan: Not started
+Status: Phase 29 complete — Phase 30 ready to plan
+Last activity: 2026-06-30 — Phase 29 complete (UAT passed; 219/219 tests; advancing to Phase 30)
 
 ```
-v5.0 Progress [██████████] 100% (plans complete, Phase 29 checkpoint pending)
+v5.0 Progress [██████████] 100% (4/5 phases complete — Phase 30 not started)
 Phase 26 Namespace Rename        [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation [x] complete (2026-06-30)
 Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [~] plans done — awaiting human-verify checkpoint
+Phase 29 SuperAdmin + Mgmt Area  [x] complete (2026-06-30)
 Phase 30 Group UX + User Mgmt   [ ] not started
 ```
 
@@ -103,9 +103,9 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-Last session: 2026-06-30T13:48:00Z
-Stopped at: Phase 29 Plan 05 checkpoint — 22 integration tests pass (219 total); awaiting human verify of /platform area
-Next step: Human verify checkpoint for Phase 29 Plan 05 — navigate to /platform/Group/Index as SuperAdmin and approve
+Last session: 2026-06-30T00:00:00Z
+Stopped at: Phase 29 complete — UAT passed, Phase 30 ready to plan
+Next step: /gsd-plan-phase 30
 
 ## Performance Metrics
 

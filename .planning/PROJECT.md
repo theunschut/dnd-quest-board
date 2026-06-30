@@ -114,6 +114,11 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 | Resend stats via plain HttpClient (no SDK) | Read-only stats endpoint; avoids unnecessary package dependency | ✓ Good — simple, maintainable |
 | Dropped digest batching (EMAIL-04/REMIND-02) | Same-day quests have never occurred in one year; complexity not justified yet | — Pending: revisit when scheduling density increases |
 | Profile picture crop paused | SkiaSharp native lib availability on deployment host unverified | — Pending: verify libSkiaSharp on aspnet:10 Debian Bookworm before resuming |
+| SuperAdminOnly policy uses RequireRole("SuperAdmin") — no custom handler | SuperAdmin is a system-wide Identity role, not group-scoped; RequireRole is sufficient and simpler | ✓ Good — Phase 29 |
+| Platform area at /platform (not /superadmin) | SuperAdmin manages all groups; the area is about the platform, not the user's title | ✓ Good — Phase 29 |
+| Hangfire dashboard restricted to SuperAdmin; nav link hidden for non-SuperAdmins | SuperAdmin is the system-level admin; group-scoped Admins should not access background job infrastructure | ✓ Good — Phase 29 |
+| Promote/demote write actions guard on null ActiveGroupId (no ?? 1 fallback for writes) | Writes without an active group context could mutate the wrong group; reads use ?? 1 as a display-only workaround until Phase 30 sets the session key | ✓ Phase 30 must set session key and remove all ?? 1 fallbacks |
+| [Bind(Prefix = "AddMember")] on AddMember action parameter | Members view renders AddMemberViewModel fields with "AddMember." prefix (nested asp-for); Bind prefix aligns binder with posted field names | ✓ Good — Phase 29 |
 
 ## Evolution
 
@@ -134,4 +139,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-06-29 — started v5.0 Multi-Tenancy milestone*
+*Last updated: 2026-06-30 — Phase 29 complete (SuperAdmin Role & Management Area)*

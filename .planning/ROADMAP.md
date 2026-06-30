@@ -75,9 +75,9 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, and admin-only user creation.
 
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
-- [ ] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group
+- [x] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group (completed 2026-06-30)
 - [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
-- [~] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (5/5 plans done — awaiting human-verify checkpoint)
+- [x] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (completed 2026-06-30)
 - [ ] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation
 
 </details>
@@ -189,7 +189,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 4** *(blocked on 29-01, 29-02, 29-03, 29-04)*
 
-- [~] 29-05-PLAN.md — Integration tests: AdminHandlerIntegrationTests (8), PlatformAreaIntegrationTests (4), GroupManagementIntegrationTests (10) — 219/219 tests pass — awaiting human-verify checkpoint
+- [x] 29-05-PLAN.md — Integration tests: AdminHandlerIntegrationTests (8), PlatformAreaIntegrationTests (4), GroupManagementIntegrationTests (10) — 219/219 tests pass (completed 2026-06-30)
 
 ### Phase 30: Group UX & Admin User Creation
 
@@ -240,5 +240,5 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 26. Namespace Rename | v5.0 | 2/2 | Complete    | 2026-06-29 |
 | 27. Group Schema Foundation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
-| 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Checkpoint pending | — |
+| 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 0/? | Not started | — |
