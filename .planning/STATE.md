@@ -81,6 +81,13 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Phase 28 human verify: quest list, shop, Send Reminder all confirmed working; empty /players is pre-existing dev-DB issue (AspNetUserRoles empty after Phase 26 rename + DB reset) not caused by Phase 28
 - Phase 29 Plan 01: AuthenticationHelper must seed UserGroups rows for DM/Admin test users (group ID 1) alongside AspNetUserRoles — auth handlers now read UserGroups.GroupRole exclusively; tests that set "DungeonMaster"/"Admin" in the auth header must have matching UserGroups membership
 - Phase 29 Plan 01: xUnit v3 IAsyncLifetime requires ValueTask return types (not Task) — TenantIsolationTests fixed
+- Phase 29 Plan 02 (D-11): First SuperAdmin user assignment is a manual post-deploy step — run once after deployment:
+  ```sql
+  -- Assign first SuperAdmin user (run once after deploy)
+  -- Find userId in AspNetUsers WHERE UserName = '<username>'
+  INSERT INTO AspNetUserRoles (UserId, RoleId)
+  VALUES (<userId>, 4);
+  ```
 
 ### Pending for Next Milestone
 
