@@ -22,14 +22,15 @@ public class AdminController(IUserService userService, IQuestService questServic
     [HttpGet]
     public async Task<IActionResult> Users()
     {
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction("Index", "GroupPicker");
+
         var allUsers = await userService.GetAllAsync();
         var userViewModels = new List<UserManagementViewModel>();
-        var groupId = activeGroupContext.ActiveGroupId;
 
         foreach (var user in allUsers)
         {
-            // ?? 1: Phase 30 sets SessionKeys.ActiveGroupId at login — remove fallback then (see Phase 30 notes in STATE.md)
-            GroupRole? groupRole = await userService.GetGroupRoleByIdAsync(user.Id, groupId ?? 1);
+            GroupRole? groupRole = await userService.GetGroupRoleByIdAsync(user.Id, groupId.Value);
 
             userViewModels.Add(new UserManagementViewModel
             {
@@ -89,6 +90,54 @@ public class AdminController(IUserService userService, IQuestService questServic
         if (groupId == null) return RedirectToAction(nameof(Users));
         await userService.SetGroupRoleAsync(userId, groupId.Value, GroupRole.Player);
         return RedirectToAction(nameof(Users));
+    }
+
+    [HttpGet]
+    public IActionResult CreateUser()
+    {
+        return View(new CreateUserViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateUser(CreateUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var groupId = activeGroupContext.ActiveGroupId;
+        if (groupId == null) return RedirectToAction("Index", "GroupPicker");
+
+        var result = await userService.CreateAsync(model.Email, model.Name, model.Password);
+
+        if (result.Succeeded)
+        {
+            var userId = await identityService.GetIdByEmailAsync(model.Email);
+            if (userId.HasValue)
+            {
+                await userService.SetGroupRoleAsync(userId.Value, groupId.Value, model.GroupRole);
+
+                var rawToken = await identityService.GenerateEmailConfirmationAsync(userId.Value);
+                if (rawToken != null)
+                {
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
+                    jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
+                }
+            }
+
+            TempData["Success"] = $"Account created for {model.Name}. A confirmation email has been sent.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View(model);
     }
 
     [HttpGet]
