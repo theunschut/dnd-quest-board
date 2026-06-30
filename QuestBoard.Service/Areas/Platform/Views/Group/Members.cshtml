@@ -29,6 +29,10 @@
             </div>
         }
 
+        <a asp-controller="Group" asp-action="Index" asp-area="Platform" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Groups
+        </a>
+
         @if (Model.Members.Any())
         {
             <div class="table-responsive">
