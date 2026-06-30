@@ -166,6 +166,21 @@ public static class TestDataHelper
 
         // Seed the necessary roles after database creation
         await SeedRolesAsync(services);
+
+        // Seed the default EuphoriaInn group so FK constraints are satisfied for quests/shop items
+        await SeedDefaultGroupAsync(services);
+    }
+
+    public static async Task SeedDefaultGroupAsync(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
+
+        if (!context.Groups.Any(g => g.Id == 1))
+        {
+            context.Groups.Add(new GroupEntity { Id = 1, Name = "EuphoriaInn", CreatedAt = DateTime.UtcNow });
+            await context.SaveChangesAsync();
+        }
     }
 
     public static async Task SeedRolesAsync(IServiceProvider services)
