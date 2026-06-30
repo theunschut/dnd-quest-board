@@ -214,6 +214,15 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
         return Mapper.Map<IList<Quest>>(entities);
     }
 
+    public async Task<IList<Quest>> GetQuestsForTomorrowAllGroupsAsync(DateTime date, CancellationToken token = default)
+    {
+        // D-08: explicit cross-group intent — IgnoreQueryFilters bypasses HasQueryFilter on QuestEntity
+        var entities = await ProjectWithoutCharacterImages(DbContext.Quests.IgnoreQueryFilters())
+            .Where(q => q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date == date.Date)
+            .ToListAsync(token);
+        return Mapper.Map<IList<Quest>>(entities);
+    }
+
     private static bool IsSameDateTime(DateTime date1, DateTime date2)
     {
         return Math.Abs((date1 - date2).TotalMinutes) <= DateMatchWindowMinutes;

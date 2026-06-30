@@ -78,6 +78,7 @@ public class EmailConfirmationJobGuardTests
         // Assert: dispatcher receives the confirmed email but NOT the unconfirmed one
         _dispatcher.Received(1).EnqueueFinalizedEmail(
             1,
+            Arg.Any<int>(),       // groupId — not checked in this test
             Arg.Any<DateTime>(),
             Arg.Is<string[]>(emails =>
                 emails.Contains("confirmed@example.com") &&
@@ -109,7 +110,7 @@ public class EmailConfirmationJobGuardTests
 
         // Assert: dispatcher is never called when no confirmed recipients remain
         _dispatcher.DidNotReceive().EnqueueFinalizedEmail(
-            Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
+            Arg.Any<int>(), Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
             Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>());
     }
 

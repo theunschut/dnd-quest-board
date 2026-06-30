@@ -34,6 +34,7 @@ internal class QuestService(
 
         dispatcher.EnqueueFinalizedEmail(
             quest.Id,
+            quest.GroupId,    // D-06: group context for Hangfire job filter
             finalizedDate,
             recipientEmails,
             playerNames,

@@ -8,6 +8,7 @@ public interface IQuestEmailDispatcher
 {
     void EnqueueFinalizedEmail(
         int questId,
+        int groupId,
         DateTime finalizedDate,
         string[] recipientEmails,
         string[] playerNames,

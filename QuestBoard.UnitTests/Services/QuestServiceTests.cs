@@ -66,7 +66,7 @@ public class QuestServiceTests
 
         // Assert: dispatcher is not called when quest re-fetch returns null
         _dispatcher.DidNotReceive().EnqueueFinalizedEmail(
-            Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
+            Arg.Any<int>(), Arg.Any<int>(), Arg.Any<DateTime>(), Arg.Any<string[]>(), Arg.Any<string[]>(),
             Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>());
     }
 
@@ -95,6 +95,7 @@ public class QuestServiceTests
         // Assert: dispatcher receives one enqueue call with 2 emails (player1 + spectator), NOT player3
         _dispatcher.Received(1).EnqueueFinalizedEmail(
             1,
+            Arg.Any<int>(),       // groupId — not checked in this test
             Arg.Any<DateTime>(),
             Arg.Is<string[]>(emails => emails.Contains("player1@x.com") && emails.Contains("spectator@x.com") && !emails.Contains("player3@x.com")),
             Arg.Any<string[]>(),

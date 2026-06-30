@@ -34,4 +34,10 @@ public interface IQuestRepository : IBaseRepository<Quest>
     Task<IList<Quest>> GetQuestsByDungeonMasterAsync(int dmUserId, CancellationToken token = default);
 
     Task<IList<Quest>> GetFinalizedQuestsForDateAsync(DateTime date, CancellationToken token = default);
+
+    /// <summary>
+    /// Returns all finalized quests for the given date across ALL groups.
+    /// Bypasses the group query filter — use only for system-wide sweep operations (DailyReminderJob). (D-08)
+    /// </summary>
+    Task<IList<Quest>> GetQuestsForTomorrowAllGroupsAsync(DateTime date, CancellationToken token = default);
 }

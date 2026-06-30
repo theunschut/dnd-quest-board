@@ -6,5 +6,5 @@ namespace QuestBoard.Domain.Interfaces;
 /// </summary>
 public interface IReminderJobDispatcher
 {
-    void EnqueueSessionReminder(int questId, bool forceResend = false, bool useYesMaybeVoters = false);
+    void EnqueueSessionReminder(int questId, int groupId, bool forceResend = false, bool useYesMaybeVoters = false);
 }
