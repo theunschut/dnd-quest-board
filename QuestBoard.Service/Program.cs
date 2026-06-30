@@ -203,11 +203,10 @@ if (!app.Environment.IsEnvironment("Testing"))
     });
 }
 
-app.MapControllerRoute(
+app.MapAreaControllerRoute(
     name: "platform",
-    pattern: "platform/{controller=Group}/{action=Index}/{id?}",
-    defaults: new { area = "Platform" },
-    constraints: new { area = "Platform" });
+    areaName: "Platform",
+    pattern: "platform/{controller=Group}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
