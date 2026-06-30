@@ -1,4 +1,6 @@
 @using QuestBoard.Domain.Interfaces
+@using QuestBoard.Service.Constants
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,10 +109,16 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     var currentUser = await UserService.GetUserAsync(User);
+                    var activeGroupName = HttpContextAccessor.HttpContext?.Session?.GetString(SessionKeys.ActiveGroupName);
 
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Account" asp-action="Profile">
                             <i class="fas fa-user-cog me-2"></i>@currentUser.Name
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="GroupPicker" asp-action="Index">
+                            <i class="fas fa-arrows-rotate me-2"></i>@(string.IsNullOrEmpty(activeGroupName) ? "Switch Group" : activeGroupName)
                         </a>
                     </li>
                     <li class="nav-item">
