@@ -58,7 +58,7 @@
 
 ### User Creation
 
-- [ ] **REG-01**: Public self-registration (`AccountController.Register`) is removed or restricted to SuperAdmin / Admin users only
+- [x] **REG-01**: Public self-registration (`AccountController.Register`) is removed or restricted to SuperAdmin / Admin users only
 - [x] **REG-02**: Newly created user accounts are automatically assigned to the creating admin's active group with the specified `GroupRole`
 - [x] **REG-03**: The existing email confirmation flow is triggered when a group admin or SuperAdmin creates a new user account
 
@@ -117,6 +117,6 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | UX-03 | Phase 30 | Complete |
 | UX-04 | Phase 30 | Complete |
 | UX-05 | Phase 30 | Pending |
-| REG-01 | Phase 30 | Pending |
+| REG-01 | Phase 30 | Complete |
 | REG-02 | Phase 30 | Complete |
 | REG-03 | Phase 30 | Complete |
