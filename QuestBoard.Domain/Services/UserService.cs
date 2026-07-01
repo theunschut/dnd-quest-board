@@ -95,6 +95,16 @@ internal class UserService(IIdentityService identityService, IUserRepository rep
         return await identityService.AdminResetPasswordAsync(adminUser, user.Id, newPassword);
     }
 
+    public async Task<string?> GeneratePasswordResetTokenForUserAsync(int userId)
+    {
+        return await identityService.GeneratePasswordResetTokenForUserAsync(userId);
+    }
+
+    public async Task<IdentityResult> ConfirmEmailDirectlyAsync(int userId)
+    {
+        return await identityService.ConfirmEmailDirectlyAsync(userId);
+    }
+
     public async Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role)
     {
         return await repository.SetGroupRoleAsync(userId, groupId, role);

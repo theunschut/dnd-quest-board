@@ -41,6 +41,10 @@ public interface IUserService : IBaseService<User>
 
     Task<IdentityResult> ResetPasswordAsync(ClaimsPrincipal adminUser, User user, string newPassword);
 
+    Task<string?> GeneratePasswordResetTokenForUserAsync(int userId);
+
+    Task<IdentityResult> ConfirmEmailDirectlyAsync(int userId);
+
     Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role);
 
     Task SignOutAsync();

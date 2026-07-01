@@ -109,6 +109,23 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         return await userManager.ResetPasswordAsync(entity, resetToken, newPassword);
     }
 
+    public async Task<string?> GeneratePasswordResetTokenForUserAsync(int userId)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null) return null;
+        return await userManager.GeneratePasswordResetTokenAsync(entity);
+    }
+
+    public async Task<IdentityResult> ConfirmEmailDirectlyAsync(int userId)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null)
+            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+
+        entity.EmailConfirmed = true;
+        return await userManager.UpdateAsync(entity);
+    }
+
     public async Task<int?> GetIdByEmailAsync(string email)
     {
         var entity = await userManager.FindByEmailAsync(email);
