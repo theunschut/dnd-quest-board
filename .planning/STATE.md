@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 current_phase: 33
-status: verifying
-stopped_at: Completed 33-01-PLAN.md
+status: complete
+stopped_at: Phase 33 complete — v5.0 Multi-Tenancy milestone complete, ready for /gsd-complete-milestone
 last_updated: "2026-07-01T17:25:59.168Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 33 complete
@@ -24,22 +24,25 @@ current_phase_name: session-persistence-persist-activegroupid-across-app-restart
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 33 — session-persistence-persist-activegroupid-across-app-restart
+**Current focus:** v5.0 Multi-Tenancy complete — ready for milestone close-out (`/gsd-complete-milestone`)
 
 ## Current Position
 
-Phase: 33
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 33 (last phase of v5.0)
+Plan: 3/3 complete
+Status: Milestone complete — ready for close-out
 Last activity: 2026-07-01 — Phase 33 complete
 
 ```
-v5.0 Progress [██████████] 100% (4/5 phases complete — Phase 30 not started)
-Phase 26 Namespace Rename        [x] complete (2026-06-29)
-Phase 27 Group Schema Foundation [x] complete (2026-06-30)
-Phase 28 Tenant Isolation        [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area  [x] complete (2026-06-30)
-Phase 30 Group UX + User Mgmt   [ ] not started
+v5.0 Progress [██████████] 100% (8/8 phases complete)
+Phase 26 Namespace Rename                            [x] complete (2026-06-29)
+Phase 27 Group Schema Foundation                      [x] complete (2026-06-30)
+Phase 28 Tenant Isolation                             [x] complete (2026-06-30)
+Phase 29 SuperAdmin + Mgmt Area                        [x] complete (2026-06-30)
+Phase 30 Group UX + User Mgmt                          [x] complete (2026-06-30)
+Phase 31 Unauthenticated Landing Redirect              [x] complete (2026-07-01)
+Phase 32 First-Login Password Flow                     [x] complete (2026-07-01)
+Phase 33 Session Persistence & Admin Email Rate Limiting [x] complete (2026-07-01)
 ```
 
 ## Deferred Items
