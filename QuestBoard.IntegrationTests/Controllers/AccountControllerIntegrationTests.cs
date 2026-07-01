@@ -23,7 +23,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         content.Should().Contain("Login");
     }
 
-    // REG-01: Public self-registration was removed in Phase 30 (plan 30-02) — the route
+    // Public self-registration was removed — the route
     // no longer exists, so both GET and POST must 404.
     [Fact]
     public async Task Register_Get_ShouldReturnNotFound()
@@ -111,7 +111,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.OK);
     }
 
-    // PWFLOW-02: ForgotPassword GET renders the email-entry form (mirrors Login_Get).
+    // ForgotPassword GET renders the email-entry form (mirrors Login_Get).
     [Fact]
     public async Task ForgotPassword_Get_ShouldReturnSuccessStatusCode()
     {
@@ -124,13 +124,13 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         content.Should().Contain("Email");
     }
 
-    // D-11/PWFLOW-04: enumeration-safety — known and unknown emails must produce the IDENTICAL
+    // Enumeration-safety — known and unknown emails must produce the IDENTICAL
     // outcome, whatever that outcome is. This test asserts SAMENESS rather than a fixed expected
     // status code: Program.cs's ForgotPassword rate limiter (PermitLimit=3 / 15-min window) is
     // partitioned by RemoteIpAddress, and every in-memory TestServer request in this test class
     // shares the same loopback IP/partition — so depending on xUnit's (undefined) run order
     // relative to ForgotPassword_Post_ExceedingRateLimit_ShouldReturn429, this test's two requests
-    // may land inside or outside the window and get 302 or 429. Either way, the D-11 property
+    // may land inside or outside the window and get 302 or 429. Either way, the property
     // under test — that a known email cannot be distinguished from an unknown one — holds as
     // long as BOTH requests get the exact same status code and (when redirecting) the same
     // redirect target; that sameness is the actual enumeration-safety guarantee.
@@ -179,7 +179,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         }
     }
 
-    // PWFLOW-04/D-12/T-32-18: within a single test, the 4th rapid POST from one client must be
+    // Within a single test, the 4th rapid POST from one client must be
     // rejected with 429. Program.cs configures PermitLimit=3 / 15-min window, partitioned by
     // RemoteIpAddress — since every in-memory TestServer request shares one partition, this
     // asserts the 4th-of-4 (from a private counter starting fresh in THIS test's 4 requests)
@@ -188,7 +188,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
     // partition is process-wide, the actual rejection may occur earlier than the 4th request
     // if a sibling test already consumed part of the window — so this test asserts that AT
     // LEAST ONE of the 4 rapid requests is rejected with 429, which is the true DoS-mitigation
-    // property (T-32-18): the limiter is demonstrably active for this endpoint.
+    // property: the limiter is demonstrably active for this endpoint.
     [Fact]
     public async Task ForgotPassword_Post_ExceedingRateLimit_ShouldReturn429()
     {
@@ -222,11 +222,11 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
 
         // Assert — the limiter is active: at least one of the 4 rapid requests was rejected.
         // (Typically the 4th, but if a sibling test already consumed part of the shared
-        // process-wide partition window, rejection may start earlier — either way proves T-32-18.)
+        // process-wide partition window, rejection may start earlier — either way proves the limiter is active.)
         responses.Should().Contain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
     }
 
-    // PWFLOW-02: SetPassword GET renders the form with hidden UserId/Token fields.
+    // SetPassword GET renders the form with hidden UserId/Token fields.
     [Fact]
     public async Task SetPassword_Get_WithUserIdAndToken_ShouldReturnForm()
     {
@@ -240,7 +240,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         content.Should().Contain("Token");
     }
 
-    // PWFLOW-02: SetPassword POST with a valid token sets the password AND confirms the email (D-09).
+    // SetPassword POST with a valid token sets the password AND confirms the email.
     [Fact]
     public async Task SetPassword_Post_WithValidToken_ShouldSetPasswordAndConfirmEmail()
     {
@@ -307,7 +307,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         passwordCheck.Should().BeTrue();
     }
 
-    // PWFLOW-02: SetPassword POST with a garbage/invalid token fails gracefully (no 500, no password change).
+    // SetPassword POST with a garbage/invalid token fails gracefully (no 500, no password change).
     [Fact]
     public async Task SetPassword_Post_WithInvalidToken_ShouldFailGracefully()
     {
@@ -364,7 +364,7 @@ public class AccountControllerIntegrationTests(WebApplicationFactoryBase factory
         passwordCheck.Should().BeFalse();
     }
 
-    // PWFLOW-03/T-32-19: a passwordless account cannot sign in (no crash, no successful auth).
+    // A passwordless account cannot sign in (no crash, no successful auth).
     [Fact]
     public async Task Login_Post_PasswordlessAccount_ShouldNotSignIn()
     {

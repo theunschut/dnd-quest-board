@@ -5,13 +5,12 @@ namespace QuestBoard.IntegrationTests.Tests;
 /// <summary>
 /// Cross-group tenant isolation tests.
 /// Proves that the EF Core HasQueryFilter correctly scopes quests to the active group.
-/// References: TENANT-03, D-03, D-05, D-10, D-11.
 /// </summary>
 public class TenantIsolationTests(WebApplicationFactoryBase factory)
     : IClassFixture<WebApplicationFactoryBase>, IAsyncLifetime
 {
     // IAsyncLifetime — reset singleton group context after each test class run so that
-    // test state does not bleed into subsequently-executed test classes (WR-01 / TENANT-03).
+    // test state does not bleed into subsequently-executed test classes.
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     public ValueTask DisposeAsync()
@@ -22,7 +21,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
 
     /// <summary>
     /// A quest seeded with GroupId=2 must NOT appear in the response when the active group is 1.
-    /// D-04/D-05: the quest board moved from / (now the public landing page, no auth) to
+    /// The quest board moved from / (now the public landing page, no auth) to
     /// /quests (authenticated) — use an authenticated client against /quests so this test
     /// still exercises the query-filter behavior rather than trivially passing against a
     /// landing page that never shows quest content for any group.
@@ -65,7 +64,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
 
     /// <summary>
     /// A quest seeded with GroupId=1 MUST appear in the response when the active group is 1.
-    /// D-04/D-05: the quest board moved from / to /quests (authenticated) — see note on
+    /// The quest board moved from / to /quests (authenticated) — see note on
     /// GroupFilter_HidesQuestFromOtherGroup above.
     /// </summary>
     [Fact]
@@ -103,7 +102,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
     }
 
     /// <summary>
-    /// When ActiveGroupId is null on the TestDatabase context (see-all semantics, D-05),
+    /// When ActiveGroupId is null on the TestDatabase context (see-all semantics),
     /// DbContext.Quests.ToList() returns quests from all groups.
     /// </summary>
     [Fact]
@@ -142,7 +141,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
         }
 
         // Act — query via TestDatabase.CreateContext() which uses MutableGroupContext { ActiveGroupId = null }
-        // This exercises the "null = see all" predicate in HasQueryFilter directly (D-05).
+        // This exercises the "null = see all" predicate in HasQueryFilter directly.
         await using var readCtx = factory.Database.CreateContext();
         var allQuests = readCtx.Quests.ToList();
 

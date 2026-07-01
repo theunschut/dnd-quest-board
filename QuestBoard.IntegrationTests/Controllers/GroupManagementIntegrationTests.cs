@@ -6,8 +6,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 /// <summary>
 /// Integration tests for the /platform/Group management endpoints.
-/// Covers MGMT-02 (groups index), MGMT-03 (create group), MGMT-04 (delete group),
-/// MGMT-05 (add member), MGMT-06 (remove member).
+/// Covers groups index, create group, delete group, add member, remove member.
 /// </summary>
 public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFactoryBase>
 {
@@ -18,7 +17,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         _factory = factory;
     }
 
-    // MGMT-02: Groups index returns 200 and contains expected heading
+    // Groups index returns 200 and contains expected heading
     [Fact]
     public async Task GroupsIndex_WhenSuperAdmin_ShouldReturn200WithGroupManagementHeading()
     {
@@ -32,7 +31,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         content.Should().Contain("Group Management");
     }
 
-    // MGMT-02: Groups index shows EuphoriaInn seeded by TestDataHelper
+    // Groups index shows EuphoriaInn seeded by TestDataHelper
     [Fact]
     public async Task GroupsIndex_ShouldShowSeededGroup()
     {
@@ -46,7 +45,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         content.Should().Contain("EuphoriaInn");
     }
 
-    // MGMT-03: Create group with valid name redirects (302) or returns 200 on success
+    // Create group with valid name redirects (302) or returns 200 on success
     [Fact]
     public async Task CreateGroup_WithValidName_ShouldRedirectOrReturn200()
     {
@@ -62,7 +61,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.OK);
     }
 
-    // MGMT-03: After creating a group, it appears in the index
+    // After creating a group, it appears in the index
     [Fact]
     public async Task CreateGroup_AfterCreation_ShouldAppearInIndex()
     {
@@ -79,7 +78,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         content.Should().Contain(uniqueName);
     }
 
-    // MGMT-04: Delete empty group succeeds (GET Delete shows delete confirmation page)
+    // Delete empty group succeeds (GET Delete shows delete confirmation page)
     [Fact]
     public async Task DeleteGroup_WhenEmpty_ShouldShowDeleteConfirmation()
     {
@@ -103,7 +102,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // MGMT-04: Delete empty group via POST succeeds
+    // Delete empty group via POST succeeds
     [Fact]
     public async Task DeleteGroup_WhenEmpty_PostShouldRedirectToIndex()
     {
@@ -127,7 +126,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         deleteResponse.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.OK);
     }
 
-    // MGMT-04: Delete GET is blocked (redirects to Index) when group has members
+    // Delete GET is blocked (redirects to Index) when group has members
     [Fact]
     public async Task DeleteGroup_WhenHasMembers_ShouldRedirectToIndex()
     {
@@ -165,7 +164,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         deleteResponse.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
     }
 
-    // MGMT-05: Members page for existing group returns 200
+    // Members page for existing group returns 200
     [Fact]
     public async Task MembersPage_ForExistingGroup_ShouldReturn200()
     {
@@ -178,7 +177,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // MGMT-05: Add member adds a UserGroups row and succeeds
+    // Add member adds a UserGroups row and succeeds
     [Fact]
     public async Task AddMember_ValidUserAndGroup_ShouldAddUserGroupsRow()
     {
@@ -203,7 +202,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
 
         // Add them to group 1 as Player via the AddMember POST.
         // GroupController.AddMember binds its model parameter with [Bind(Prefix = "AddMember")]
-        // (Phase 29 decision: the Members view renders AddMemberViewModel fields with an
+        // (The Members view renders AddMemberViewModel fields with an
         // "AddMember." prefix via nested asp-for), so posted fields must use that prefix or
         // the model binds to defaults (UserId=0) and no UserGroups row is created.
         var formData = new Dictionary<string, string>
@@ -223,7 +222,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         membershipAfter.Should().NotBeNull();
     }
 
-    // MGMT-06: Remove member deletes UserGroups row
+    // Remove member deletes UserGroups row
     [Fact]
     public async Task RemoveMember_ExistingMember_ShouldDeleteUserGroupsRow()
     {

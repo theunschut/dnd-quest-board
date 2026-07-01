@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class PlayersControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    // DMPRO-04: DM directory page links to each DM's profile at /DungeonMaster/Profile/{id}
+    // DM directory page links to each DM's profile at /DungeonMaster/Profile/{id}
     [Fact]
     public async Task Index_DmDirectory_ContainsProfileLinkForEachDm()
     {
@@ -21,7 +21,7 @@ public class PlayersControllerIntegrationTests(WebApplicationFactoryBase factory
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        // D-10: DM name in directory must be wrapped in a link to their profile
+        // DM name in directory must be wrapped in a link to their profile
         content.Should().Contain($"/DungeonMaster/Profile/{dmUser.Id}");
         content.Should().Contain("Directory DM");
     }

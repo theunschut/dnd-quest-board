@@ -90,7 +90,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
     }
 
-    // MGMT-07/REG-01: CreateUser auth gating — a non-admin must not reach the form
+    // CreateUser auth gating — a non-admin must not reach the form
     [Fact]
     public async Task CreateUser_WhenNotAdmin_ShouldBeForbidden()
     {
@@ -105,7 +105,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect, HttpStatusCode.Unauthorized);
     }
 
-    // MGMT-07: An admin can reach the CreateUser form
+    // An admin can reach the CreateUser form
     [Fact]
     public async Task CreateUser_Get_WhenAdmin_ShouldReturnForm()
     {
@@ -122,7 +122,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         content.Should().Contain("GroupRole");
     }
 
-    // MGMT-07, REG-02, REG-03, PWFLOW-01: Admin-created users are assigned to the admin's
+    // Admin-created users are assigned to the admin's
     // active group with the chosen GroupRole, created passwordless, and the Welcome email
     // job fires (targeting the SetPassword callback) instead of an admin-set password.
     [Fact]
@@ -134,7 +134,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
 
         var uniqueSuffix = Guid.NewGuid().ToString("N")[..8];
         var newUserEmail = $"createduser_{uniqueSuffix}@example.com";
-        // PWFLOW-01/D-01: no Password field is submitted — CreateUser is passwordless.
+        // No Password field is submitted — CreateUser is passwordless.
         var formData = new Dictionary<string, string>
         {
             ["Email"] = newUserEmail,
@@ -163,7 +163,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         membership!.GroupRole.Should().Be((int)GroupRole.DungeonMaster);
     }
 
-    // PWFLOW-05: SendConfirmationEmail (the "Resend Welcome Email" action) succeeds for an
+    // SendConfirmationEmail (the "Resend Welcome Email" action) succeeds for an
     // unconfirmed user and redirects to Users with a success outcome. Job-enqueue internals
     // are not observable via HTTP (covered by Plan 02's WelcomeEmailJobTests unit tests).
     [Fact]
@@ -242,7 +242,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         return await adminClient.PostAsync("/Admin/SendConfirmationEmail", formContent, TestContext.Current.CancellationToken);
     }
 
-    // EMAIL-RATE-01/T-33-01: the 4th resend to the SAME target user within the 1-hour window
+    // The 4th resend to the SAME target user within the 1-hour window
     // must be rejected with 429. Program.cs's emailResendLimiter is a process-wide singleton
     // PartitionedRateLimiter<int> keyed "email-resend:{userId}", PermitLimit=3/hour — this test
     // uses a fresh, unique target userId so no sibling test's exhausted budget bleeds in.
@@ -272,7 +272,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         responses.Should().Contain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
     }
 
-    // EMAIL-RATE-02/T-33-02: two DISTINCT target users must have INDEPENDENT resend budgets —
+    // Two DISTINCT target users must have INDEPENDENT resend budgets —
     // proving the partition key is the target userId (not e.g. the requesting admin or a
     // shared/global bucket, which would be the RESEARCH Pitfall 1 "unknown partition" collapse).
     [Fact]
@@ -314,8 +314,8 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
             "target user A's 4th resend should exceed its own budget, proving the partition key is per-target-user");
     }
 
-    // EMAIL-RATE-03/T-33-01: EditUser's email-change path shares the same per-target-user
-    // rate limit as SendConfirmationEmail (D-07: only email-changing saves are counted).
+    // EditUser's email-change path shares the same per-target-user
+    // rate limit as SendConfirmationEmail (only email-changing saves are counted).
     [Fact]
     public async Task EditUser_EmailChange_ExceedingRateLimit_ShouldReturn429()
     {
@@ -365,7 +365,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         responses.Should().Contain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
     }
 
-    // EMAIL-RATE-04/D-08: CreateUser's one-shot automated welcome email is explicitly EXEMPT
+    // CreateUser's one-shot automated welcome email is explicitly EXEMPT
     // from the resend rate limit — 4 distinct new-account creations must never 429.
     [Fact]
     public async Task CreateUser_RapidRequests_ShouldNotBeRateLimited()
@@ -405,7 +405,7 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
             responses.Add(await PostCreateUserAsync(i));
         }
 
-        // Assert — none of the 4 distinct CreateUser POSTs were rate-limited (D-08 exemption).
+        // Assert — none of the 4 distinct CreateUser POSTs were rate-limited (exempted).
         responses.Should().NotContain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
     }
 }

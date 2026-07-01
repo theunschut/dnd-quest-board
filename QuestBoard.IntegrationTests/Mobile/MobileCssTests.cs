@@ -4,10 +4,10 @@ using System.Net.Http.Headers;
 namespace QuestBoard.IntegrationTests.Mobile;
 
 /// <summary>
-/// Tests for INFRA-06: mobile.css content integrity and link presence in mobile responses.
+/// Tests for mobile.css content integrity and link presence in mobile responses.
 ///
 /// Two test kinds:
-/// 1. File-content test — reads mobile.css from disk and asserts it contains min-height: 44px (INFRA-06)
+/// 1. File-content test — reads mobile.css from disk and asserts it contains min-height: 44px
 /// 2. Link-presence integration tests — mobile UA response links mobile.css; desktop UA response does not
 /// </summary>
 public class MobileCssTests : IClassFixture<WebApplicationFactoryBase>
@@ -65,7 +65,7 @@ public class MobileCssTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-06 file-content test: mobile.css must contain the literal 'min-height: 44px'
+    /// File-content test: mobile.css must contain the literal 'min-height: 44px'
     /// to enforce 44px touch targets on interactive elements.
     /// Fails with a clear path-naming message if the file cannot be located.
     /// </summary>
@@ -82,7 +82,7 @@ public class MobileCssTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-06 file-content test: mobile.css must contain the 16px body font-size rule
+    /// File-content test: mobile.css must contain the 16px body font-size rule
     /// to prevent iOS input-focus auto-zoom.
     /// </summary>
     [Fact]
@@ -98,7 +98,7 @@ public class MobileCssTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-06 link-presence test: a mobile User-Agent GET "/" response must link mobile.css
+    /// Link-presence test: a mobile User-Agent GET "/" response must link mobile.css
     /// (rendered by _Layout.Mobile.cshtml via asp-append-version).
     /// </summary>
     [Fact]
@@ -114,7 +114,7 @@ public class MobileCssTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-06 parity test: a desktop User-Agent GET "/" response must NOT link mobile.css
+    /// Parity test: a desktop User-Agent GET "/" response must NOT link mobile.css
     /// and MUST still link site.css — confirming the desktop layout is unchanged.
     /// </summary>
     [Fact]

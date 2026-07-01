@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    // D-02: Profile GET no longer carries [AllowAnonymous] — an unauthenticated request
+    // Profile GET no longer carries [AllowAnonymous] — an unauthenticated request
     // must redirect to login rather than exposing DM profile data.
     [Fact]
     public async Task Profile_WhenNotAuthenticated_ShouldRedirect()
@@ -23,7 +23,7 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
     }
 
-    // DMPRO-01: Profile page returns 200 for a valid DM user id
+    // Profile page returns 200 for a valid DM user id
     [Fact]
     public async Task Profile_WithValidDmUserId_ReturnsOk()
     {
@@ -38,7 +38,7 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         content.Should().Contain(user.Name);
     }
 
-    // DMPRO-01: Profile page renders placeholder state when DM has no saved profile yet (no 404)
+    // Profile page renders placeholder state when DM has no saved profile yet (no 404)
     [Fact]
     public async Task Profile_WithNoSavedProfile_RendersPlaceholderNotNotFound()
     {
@@ -49,13 +49,13 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         // DM has never saved a profile — profile row does not exist in DB
         var response = await client.GetAsync($"/DungeonMaster/Profile/{user.Id}", TestContext.Current.CancellationToken);
 
-        // Must NOT return 404 — D-03 requires graceful null handling
+        // Must NOT return 404 — graceful null handling required
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("No bio provided yet.");
     }
 
-    // DMPRO-01: Profile page returns 404 for a non-existent user id
+    // Profile page returns 404 for a non-existent user id
     [Fact]
     public async Task Profile_WithNonExistentUserId_ReturnsNotFound()
     {
@@ -67,7 +67,7 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    // DMPRO-02: DM can GET EditProfile for their own profile without being redirected or forbidden
+    // DM can GET EditProfile for their own profile without being redirected or forbidden
     [Fact]
     public async Task EditProfile_OwnProfile_ReturnsOk()
     {
@@ -82,7 +82,7 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         content.Should().Contain("Edit DM Profile");
     }
 
-    // DMPRO-03: Admin can GET EditProfile for another DM's profile
+    // Admin can GET EditProfile for another DM's profile
     [Fact]
     public async Task EditProfile_AdminEditingOtherDm_ReturnsOk()
     {
@@ -98,7 +98,7 @@ public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase f
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // DMPRO-03: Non-admin DM gets 403 when trying to edit another DM's profile
+    // Non-admin DM gets 403 when trying to edit another DM's profile
     [Fact]
     public async Task EditProfile_NonAdminDmEditingOtherDm_ReturnsForbidden()
     {

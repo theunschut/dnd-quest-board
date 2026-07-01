@@ -8,7 +8,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 public class QuestReminderTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 #pragma warning restore CS9113 // Parameter is unread.
 {
-    // REMIND-03: Verify controller constructor uses IReminderJobDispatcher (not IBackgroundJobClient directly)
+    // Verify controller constructor uses IReminderJobDispatcher (not IBackgroundJobClient directly)
     [Fact]
     public void QuestController_ConstructorInjectsIReminderJobDispatcher()
     {
@@ -20,7 +20,7 @@ public class QuestReminderTests(WebApplicationFactoryBase factory) : IClassFixtu
             "IBackgroundJobClient must not be injected directly (unavailable in Testing environment)");
     }
 
-    // REMIND-03: Verify IBackgroundJobClient is NOT in QuestController constructor
+    // Verify IBackgroundJobClient is NOT in QuestController constructor
     [Fact]
     public void QuestController_ConstructorDoesNotInjectIBackgroundJobClient()
     {
@@ -32,7 +32,7 @@ public class QuestReminderTests(WebApplicationFactoryBase factory) : IClassFixtu
             "use IReminderJobDispatcher abstraction instead");
     }
 
-    // REMIND-03: SendReminder action requires authentication
+    // SendReminder action requires authentication
     [Fact]
     public async Task SendReminder_WhenUnauthenticated_RedirectsToLogin()
     {

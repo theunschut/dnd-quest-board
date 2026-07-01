@@ -251,7 +251,7 @@ public class ShopControllerIntegrationTests : IClassFixture<WebApplicationFactor
                 Rarity = rarity,
                 Status = 1, // Published
                 CreatedByDmId = shopkeeper.Id,
-                GroupId = 1, // Required by HasQueryFilter (TENANT-03)
+                GroupId = 1, // Required by HasQueryFilter
                 CreatedAt = DateTime.UtcNow
             });
             await context.SaveChangesAsync();

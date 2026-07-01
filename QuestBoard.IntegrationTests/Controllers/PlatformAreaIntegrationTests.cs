@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 /// <summary>
 /// Integration tests for the /platform MVC area authorization.
-/// Covers AUTH-05 (SuperAdminOnly policy on platform area) and MGMT-01 (platform area accessible to SuperAdmin).
+/// Covers the SuperAdminOnly policy on the platform area and platform area access for SuperAdmin.
 /// </summary>
 public class PlatformAreaIntegrationTests : IClassFixture<WebApplicationFactoryBase>
 {
@@ -16,7 +16,7 @@ public class PlatformAreaIntegrationTests : IClassFixture<WebApplicationFactoryB
         _factory = factory;
     }
 
-    // AUTH-05 + MGMT-01: SuperAdmin can access the platform area group index
+    // SuperAdmin can access the platform area group index
     [Fact]
     public async Task PlatformIndex_WhenSuperAdmin_ShouldReturn200()
     {
@@ -28,7 +28,7 @@ public class PlatformAreaIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-05: Non-SuperAdmin (regular player) receives 403 or redirect on /platform/*
+    // Non-SuperAdmin (regular player) receives 403 or redirect on /platform/*
     [Fact]
     public async Task PlatformIndex_WhenNotSuperAdmin_ShouldDeny()
     {
@@ -41,7 +41,7 @@ public class PlatformAreaIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect);
     }
 
-    // AUTH-05: Unauthenticated users are redirected from /platform/*
+    // Unauthenticated users are redirected from /platform/*
     [Fact]
     public async Task PlatformIndex_WhenNotAuthenticated_ShouldRedirect()
     {
@@ -52,7 +52,7 @@ public class PlatformAreaIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
     }
 
-    // AUTH-05: Admin (group-scoped) does not get access to platform area
+    // Admin (group-scoped) does not get access to platform area
     [Fact]
     public async Task PlatformIndex_WhenAdmin_ShouldDeny()
     {

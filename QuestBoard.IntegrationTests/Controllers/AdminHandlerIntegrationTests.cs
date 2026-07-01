@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 /// <summary>
 /// Integration tests for AdminHandler and DungeonMasterHandler authorization logic.
-/// Covers AUTH-02 (AdminOnly policy), AUTH-03 (DungeonMasterOnly policy), AUTH-04 (SuperAdmin bypass).
+/// Covers the AdminOnly policy, the DungeonMasterOnly policy, and SuperAdmin bypass.
 /// </summary>
 public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryBase>
 {
@@ -16,7 +16,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         _factory = factory;
     }
 
-    // AUTH-02: AdminOnly allows GroupRole.Admin
+    // AdminOnly allows GroupRole.Admin
     [Fact]
     public async Task AdminOnlyPage_WhenUserHasAdminGroupRole_ShouldReturn200()
     {
@@ -29,7 +29,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-02: AdminOnly denies GroupRole.Player
+    // AdminOnly denies GroupRole.Player
     [Fact]
     public async Task AdminOnlyPage_WhenUserHasPlayerGroupRole_ShouldDeny()
     {
@@ -42,7 +42,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect);
     }
 
-    // AUTH-03: DungeonMasterOnly allows GroupRole.DungeonMaster
+    // DungeonMasterOnly allows GroupRole.DungeonMaster
     [Fact]
     public async Task DungeonMasterOnlyPage_WhenUserHasDMGroupRole_ShouldReturn200()
     {
@@ -55,7 +55,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-03: DungeonMasterOnly allows GroupRole.Admin
+    // DungeonMasterOnly allows GroupRole.Admin
     [Fact]
     public async Task DungeonMasterOnlyPage_WhenUserHasAdminGroupRole_ShouldReturn200()
     {
@@ -68,7 +68,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-03: DungeonMasterOnly denies GroupRole.Player
+    // DungeonMasterOnly denies GroupRole.Player
     [Fact]
     public async Task DungeonMasterOnlyPage_WhenUserHasPlayerGroupRole_ShouldDeny()
     {
@@ -81,7 +81,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Redirect);
     }
 
-    // AUTH-04: SuperAdmin bypasses AdminOnly
+    // SuperAdmin bypasses AdminOnly
     [Fact]
     public async Task AdminOnlyPage_WhenSuperAdmin_ShouldReturn200()
     {
@@ -93,7 +93,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-04: SuperAdmin bypasses DungeonMasterOnly
+    // SuperAdmin bypasses DungeonMasterOnly
     [Fact]
     public async Task DungeonMasterOnlyPage_WhenSuperAdmin_ShouldReturn200()
     {
@@ -105,7 +105,7 @@ public class AdminHandlerIntegrationTests : IClassFixture<WebApplicationFactoryB
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    // AUTH-02: AdminOnly denies unauthenticated users
+    // AdminOnly denies unauthenticated users
     [Fact]
     public async Task AdminOnlyPage_WhenNotAuthenticated_ShouldRedirect()
     {

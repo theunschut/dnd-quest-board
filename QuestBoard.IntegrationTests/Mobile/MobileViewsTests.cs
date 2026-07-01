@@ -5,7 +5,7 @@ using QuestBoard.IntegrationTests.Helpers;
 namespace QuestBoard.IntegrationTests.Mobile;
 
 /// <summary>
-/// Integration test stubs for Phase 13 requirements HOME-01 through QVIEW-03.
+/// Integration test stubs for the mobile view requirements.
 /// Tests start RED (mobile views do not exist yet) and go GREEN as Wave 1 plans land.
 /// This establishes the Nyquist sampling harness before any implementation.
 /// </summary>
@@ -35,8 +35,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         return (response, html);
     }
 
-    // D-01/D-04: /Calendar, /QuestLog, and the quest board (now /quests) all require
-    // authentication after the Phase 31 lockdown — this overload attaches the Test scheme
+    // /Calendar, /QuestLog, and the quest board (now /quests) all require
+    // authentication after lockdown — this overload attaches the Test scheme
     // Authorization header from an authenticated client so mobile-view tests can still assert
     // on the rendered markup instead of hitting the login redirect.
     private async Task<(HttpResponseMessage Response, string Html)> GetWithUserAgentAsync(
@@ -54,8 +54,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-01: Mobile UA renders the quest-card-mobile list layout instead of poster images.
-    /// D-04: the board moved from / to /quests and now requires authentication.
+    /// Mobile UA renders the quest-card-mobile list layout instead of poster images.
+    /// The board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_RendersCardListNotPosterImages()
@@ -74,7 +74,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-01b: Desktop UA does NOT get the mobile card layout.
+    /// Desktop UA does NOT get the mobile card layout.
     /// </summary>
     [Fact]
     public async Task MobileHome_DesktopUserAgent_DoesNotRenderMobileCardList()
@@ -85,8 +85,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-02: Quest card shows CR badge and status badge.
-    /// D-04: the board moved from / to /quests and now requires authentication.
+    /// Quest card shows CR badge and status badge.
+    /// The board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_QuestCardContainsCrAndStatusBadge()
@@ -104,10 +104,10 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-02b: Finalized quest shows the primary badge (date confirmed, future date).
+    /// Finalized quest shows the primary badge (date confirmed, future date).
     /// Note: repository filters out finalized quests with null or past FinalizedDate;
     /// a future FinalizedDate is required for the quest to appear on the board.
-    /// D-04: the board moved from / to /quests and now requires authentication.
+    /// The board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_FinalizedQuestShowsDate()
@@ -125,8 +125,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-03: Quest card links to /Quest/Details/{id} (non-DM user navigates to details).
-    /// D-04: the board moved from / to /quests and now requires authentication.
+    /// Quest card links to /Quest/Details/{id} (non-DM user navigates to details).
+    /// The board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_QuestCardLinksToDetails()
@@ -142,8 +142,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// HOME-04: Signed-up badge appears for authenticated player who has signed up for a quest.
-    /// D-04: the board moved from / to /quests and now requires authentication.
+    /// Signed-up badge appears for authenticated player who has signed up for a quest.
+    /// The board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_AuthenticatedSignedUpPlayer_ShowsSignedUpBadge()
@@ -164,7 +164,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// QVIEW-01: Vote buttons (Yes/No/Maybe) are present on Quest Details when viewed on mobile.
+    /// Vote buttons (Yes/No/Maybe) are present on Quest Details when viewed on mobile.
     /// Also checks that quests.mobile.css is linked.
     /// </summary>
     [Fact]
@@ -187,7 +187,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// QVIEW-02: Participant list is rendered as stacked rows instead of a responsive table.
+    /// Participant list is rendered as stacked rows instead of a responsive table.
     /// </summary>
     [Fact]
     public async Task MobileQuestDetails_MobileUserAgent_ParticipantListIsStacked()
@@ -211,8 +211,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// QVIEW-03: Quest Log mobile view renders a list with quest title and DM name.
-    /// D-01: /QuestLog now requires authentication.
+    /// Quest Log mobile view renders a list with quest title and DM name.
+    /// /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileQuestLog_MobileUserAgent_RendersListWithTitleAndDmName()
@@ -230,8 +230,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// QVIEW-03b: Mobile Quest Log page includes a link to quest-log.mobile.css.
-    /// D-01: /QuestLog now requires authentication.
+    /// Mobile Quest Log page includes a link to quest-log.mobile.css.
+    /// /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileQuestLog_MobileUserAgent_LoadsMobileCssLink()
@@ -245,8 +245,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-CSS: calendar.mobile.css is linked from /Calendar on mobile.
-    /// D-01: /Calendar now requires authentication.
+    /// calendar.mobile.css is linked from /Calendar on mobile.
+    /// /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_LoadsMobileCssLink()
@@ -260,8 +260,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-01: Mobile UA on /Calendar renders agenda list (contains agenda-quest-entry, no calendar-grid).
-    /// D-01: /Calendar now requires authentication.
+    /// Mobile UA on /Calendar renders agenda list (contains agenda-quest-entry, no calendar-grid).
+    /// /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_RendersAgendaList()
@@ -281,8 +281,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-02: Agenda entry contains day label in uppercase day-name format and time.
-    /// D-01: /Calendar now requires authentication.
+    /// Agenda entry contains day label in uppercase day-name format and time.
+    /// /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_AgendaEntryContainsDayLabelAndTime()
@@ -303,7 +303,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-03: Desktop UA on /Calendar does NOT render agenda list.
+    /// Desktop UA on /Calendar does NOT render agenda list.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_DesktopUserAgent_DoesNotRenderAgendaList()
@@ -314,8 +314,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-04: Agenda entry links to /Quest/Details/{id}.
-    /// D-01: /Calendar now requires authentication.
+    /// Agenda entry links to /Quest/Details/{id}.
+    /// /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_AgendaEntryLinksToDetails()
@@ -335,7 +335,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// CAL-05: _Calendar.Mobile.cshtml partial renders per-date vote buttons on Quest Details mobile.
+    /// _Calendar.Mobile.cshtml partial renders per-date vote buttons on Quest Details mobile.
     /// Authenticated player not yet signed up — should see btn-check radio inputs.
     /// </summary>
     [Fact]
@@ -359,7 +359,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// DMVIEW-01: Quest Create on mobile renders single-column glass card form (dm-create-card-mobile).
+    /// Quest Create on mobile renders single-column glass card form (dm-create-card-mobile).
     /// Also checks that dm-create.mobile.css is linked.
     /// </summary>
     [Fact]
@@ -380,7 +380,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// DMVIEW-02: Quest Manage on mobile renders condensed vote badges (manage-date-option, dm-vote-summary).
+    /// Quest Manage on mobile renders condensed vote badges (manage-date-option, dm-vote-summary).
     /// Also checks that dm-manage.mobile.css is linked.
     /// </summary>
     [Fact]
@@ -404,7 +404,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// DMVIEW-03: DM Profile on mobile renders glass card layout (dm-profile-header-card).
+    /// DM Profile on mobile renders glass card layout (dm-profile-header-card).
     /// Also checks that dm-profile.mobile.css is linked.
     /// </summary>
     [Fact]
@@ -425,11 +425,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 16 — ACCT-01: Login page renders glass card form on mobile UA
+    // Login page renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ACCT-01: Mobile UA on /Account/Login renders account-card-mobile glass card form and
+    /// Mobile UA on /Account/Login renders account-card-mobile glass card form and
     /// links account.mobile.css. Test starts RED — Login.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -442,7 +442,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// ACCT-01 regression guard: Desktop UA on /Account/Login must NOT render the mobile glass card.
+    /// Regression guard: Desktop UA on /Account/Login must NOT render the mobile glass card.
     /// Proves the desktop view is unchanged after the mobile view is added.
     /// </summary>
     [Fact]
@@ -454,11 +454,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 16 — ACCT-02: Register page renders glass card form on mobile UA
+    // Register page renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ACCT-02/REG-01: Public self-registration was removed in Phase 30 (plan 30-02) —
+    /// Public self-registration was removed —
     /// Register.cshtml/Register.Mobile.cshtml and the controller actions are deleted, so the
     /// route now 404s regardless of user agent. This test originally asserted the mobile glass
     /// card rendered; it is updated here to reflect the route's removal rather than weakened.
@@ -471,11 +471,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 16 — ACCT-03: Authenticated account pages render glass card on mobile UA
+    // Authenticated account pages render glass card on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ACCT-03 (Edit): Mobile UA on /Account/Edit renders account-card-mobile glass card form.
+    /// (Edit) Mobile UA on /Account/Edit renders account-card-mobile glass card form.
     /// Uses authenticated request — AccountController.Edit carries [Authorize].
     /// Test starts RED — Edit.Mobile.cshtml does not exist yet.
     /// </summary>
@@ -496,7 +496,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// ACCT-03 (Profile): Mobile UA on /Account/Profile renders account-card-mobile glass card layout.
+    /// (Profile) Mobile UA on /Account/Profile renders account-card-mobile glass card layout.
     /// Uses authenticated request — AccountController.Profile carries [Authorize].
     /// Test starts RED — Profile.Mobile.cshtml does not exist yet.
     /// </summary>
@@ -517,11 +517,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 16 — BROWSE-01: Shop index renders item grid and Filter & Sort button on mobile UA
+    // Shop index renders item grid and Filter & Sort button on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// BROWSE-01: Mobile UA on /Shop renders "Filter & Sort" offcanvas trigger button and links
+    /// Mobile UA on /Shop renders "Filter & Sort" offcanvas trigger button and links
     /// shop.mobile.css. The shop-item-card-mobile class only renders when items exist; the filter
     /// button and CSS link render unconditionally, so those are the stable smoke-test assertions.
     /// Note: shop-item-card-mobile presence with seeded items is verified by Plan 03's own seeded test.
@@ -545,8 +545,8 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// BROWSE-01 (D-04 guard): Mobile UA on /Shop must NOT render the purchase-history-panel.
-    /// Enforces decision D-04 — Purchase History side panel is omitted on mobile.
+    /// Mobile UA on /Shop must NOT render the purchase-history-panel.
+    /// Purchase History side panel is omitted on mobile.
     /// Test starts RED — Shop/Index.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -566,11 +566,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 16 — BROWSE-02: Guild Members index renders list rows on mobile UA
+    // Guild Members index renders list rows on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// BROWSE-02: Mobile UA on /GuildMembers links guild-members.mobile.css. The guild-member-row
+    /// Mobile UA on /GuildMembers links guild-members.mobile.css. The guild-member-row
     /// class only renders when characters exist; the CSS link renders unconditionally, so that is
     /// the stable smoke-test assertion here.
     /// Note: guild-member-row presence with seeded characters is verified by Plan 04's own seeded test.
@@ -593,11 +593,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 17 — CHAR-01: Character Details renders glass card layout on mobile UA
+    // Character Details renders glass card layout on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// CHAR-01: Mobile UA on /GuildMembers/Details/{id} renders character-detail-card glass card
+    /// Mobile UA on /GuildMembers/Details/{id} renders character-detail-card glass card
     /// and links character-detail.mobile.css. Test starts RED — Details.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -619,11 +619,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 17 — CHAR-02: Character Create renders glass card form on mobile UA
+    // Character Create renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// CHAR-02: Mobile UA on /GuildMembers/Create renders character-form-card glass card form
+    /// Mobile UA on /GuildMembers/Create renders character-form-card glass card form
     /// and links character-form.mobile.css. Test starts RED — Create.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -644,11 +644,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 17 — CHAR-03: Character Edit renders glass card form on mobile UA
+    // Character Edit renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// CHAR-03: Mobile UA on /GuildMembers/Edit/{id} renders character-form-card glass card form
+    /// Mobile UA on /GuildMembers/Edit/{id} renders character-form-card glass card form
     /// and links character-form.mobile.css. Test starts RED — Edit.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -670,11 +670,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 17 — PLAYER-01: Players Index renders section list on mobile UA
+    // Players Index renders section list on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// PLAYER-01: Mobile UA on /Players renders players-section-card glass card sections
+    /// Mobile UA on /Players renders players-section-card glass card sections
     /// and links players.mobile.css. Test starts RED — Players/Index.Mobile.cshtml does not exist yet.
     /// </summary>
     [Fact]
@@ -695,11 +695,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 18 — DMVIEW-04: Quest Edit renders glass card form on mobile UA
+    // Quest Edit renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// DMVIEW-04: Mobile UA on /Quest/Edit/{id} renders quest-edit-card-mobile glass card form
+    /// Mobile UA on /Quest/Edit/{id} renders quest-edit-card-mobile glass card form
     /// and links quest-edit.mobile.css. Requires DM authentication and ownership of the quest.
     /// </summary>
     [Fact]
@@ -722,11 +722,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 18 — DMVIEW-05: CreateFollowUp renders glass card form on mobile UA
+    // CreateFollowUp renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// DMVIEW-05: Mobile UA on /Quest/CreateFollowUp/{id} renders quest-followup-card-mobile
+    /// Mobile UA on /Quest/CreateFollowUp/{id} renders quest-followup-card-mobile
     /// glass card form and links quest-followup.mobile.css.
     /// Requires DM authentication — CreateFollowUp action enforces DM role.
     /// </summary>
@@ -757,11 +757,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 18 — DMVIEW-06: DM EditProfile renders glass card form on mobile UA
+    // DM EditProfile renders glass card form on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// DMVIEW-06: Mobile UA on /DungeonMaster/EditProfile/{id} renders dm-editprofile-card-mobile
+    /// Mobile UA on /DungeonMaster/EditProfile/{id} renders dm-editprofile-card-mobile
     /// glass card form and links dm-editprofile.mobile.css.
     /// Requires DM authentication — EditProfile enforces DM ownership or Admin role.
     /// </summary>
@@ -783,13 +783,13 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 18 — QLOG-01: QuestLog Details renders glass card layout on mobile UA
+    // QuestLog Details renders glass card layout on mobile UA
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// QLOG-01: Mobile UA on /QuestLog/Details/{id} renders quest-log-detail-main-card glass card
+    /// Mobile UA on /QuestLog/Details/{id} renders quest-log-detail-main-card glass card
     /// and links quest-log-detail.mobile.css. Quest must be finalized with past FinalizedDate.
-    /// D-01: /QuestLog now requires authentication.
+    /// /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task GetMobilePage_QuestLogDetails_ReturnsSuccessAndMobileLayout()
@@ -821,11 +821,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-01: Admin Users list renders mobile layout
+    // Admin Users list renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-01: Mobile UA on /Admin/Users renders admin-users-card-mobile glass card and links
+    /// Mobile UA on /Admin/Users renders admin-users-card-mobile glass card and links
     /// admin-users.mobile.css. Requires Admin role authentication.
     /// Starts RED — Admin/Users.Mobile.cshtml does not exist yet; goes GREEN when Plan 02 lands.
     /// </summary>
@@ -847,11 +847,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-01: Admin EditUser form renders mobile layout
+    // Admin EditUser form renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-01: Mobile UA on /Admin/EditUser?userId={id} renders admin-form-card-mobile glass card
+    /// Mobile UA on /Admin/EditUser?userId={id} renders admin-form-card-mobile glass card
     /// and links admin-form.mobile.css. Requires Admin role authentication.
     /// Starts RED — Admin/EditUser.Mobile.cshtml does not exist yet; goes GREEN when Plan 03 lands.
     /// </summary>
@@ -875,11 +875,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-01: Admin Quests list renders mobile layout
+    // Admin Quests list renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-01: Mobile UA on /Admin/Quests renders admin-quests-card-mobile glass card and links
+    /// Mobile UA on /Admin/Quests renders admin-quests-card-mobile glass card and links
     /// admin-quests.mobile.css. Requires Admin role authentication.
     /// Starts RED — Admin/Quests.Mobile.cshtml does not exist yet; goes GREEN when Plan 02 lands.
     /// </summary>
@@ -902,11 +902,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-01: Admin ResetPassword form renders mobile layout
+    // Admin ResetPassword form renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-01: Mobile UA on /Admin/ResetPassword?userId={id} renders admin-form-card-mobile glass
+    /// Mobile UA on /Admin/ResetPassword?userId={id} renders admin-form-card-mobile glass
     /// card and links admin-form.mobile.css. Requires Admin role authentication.
     /// Starts RED — Admin/ResetPassword.Mobile.cshtml does not exist yet; goes GREEN when Plan 03 lands.
     /// </summary>
@@ -930,11 +930,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-02: ShopManagement Index renders mobile layout
+    // ShopManagement Index renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-02: Mobile UA on /ShopManagement renders shop-mgmt-index-card-mobile glass card and
+    /// Mobile UA on /ShopManagement renders shop-mgmt-index-card-mobile glass card and
     /// links shop-management-index.mobile.css. Requires DungeonMaster role authentication.
     /// Starts RED — ShopManagement/Index.Mobile.cshtml does not exist yet; goes GREEN when Plan 05 lands.
     /// </summary>
@@ -956,11 +956,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-02: ShopManagement Create form renders mobile layout
+    // ShopManagement Create form renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-02: Mobile UA on /ShopManagement/Create renders shop-mgmt-create-card-mobile glass card
+    /// Mobile UA on /ShopManagement/Create renders shop-mgmt-create-card-mobile glass card
     /// and links shop-management-create.mobile.css. Requires DungeonMaster role authentication.
     /// Starts RED — ShopManagement/Create.Mobile.cshtml does not exist yet; goes GREEN when Plan 04 lands.
     /// </summary>
@@ -982,11 +982,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — ADMIN-02: ShopManagement Edit form renders mobile layout
+    // ShopManagement Edit form renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// ADMIN-02: Mobile UA on /ShopManagement/Edit/{id} renders shop-mgmt-edit-card-mobile glass
+    /// Mobile UA on /ShopManagement/Edit/{id} renders shop-mgmt-edit-card-mobile glass
     /// card and links shop-management-edit.mobile.css. Requires DungeonMaster role authentication.
     /// Starts RED — ShopManagement/Edit.Mobile.cshtml does not exist yet; goes GREEN when Plan 04 lands.
     /// </summary>
@@ -1010,11 +1010,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     // -----------------------------------------------------------------------
-    // Phase 19 — SHOPMGMT-01: Shop Details page renders mobile layout
+    // Shop Details page renders mobile layout
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// SHOPMGMT-01: Mobile UA on /Shop/Details/{id} renders shop-details-card-mobile glass card and
+    /// Mobile UA on /Shop/Details/{id} renders shop-details-card-mobile glass card and
     /// links shop-details.mobile.css. Authenticated as a regular player.
     /// Starts RED — Shop/Details.Mobile.cshtml does not exist yet; goes GREEN when Plan 06 lands.
     /// </summary>

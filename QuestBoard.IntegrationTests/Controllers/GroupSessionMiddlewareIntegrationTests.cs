@@ -4,7 +4,7 @@ using System.Net;
 namespace QuestBoard.IntegrationTests.Controllers;
 
 /// <summary>
-/// Integration tests for GroupSessionMiddleware (D-09, D-10, D-11): redirects an authenticated
+/// Integration tests for GroupSessionMiddleware: redirects an authenticated
 /// user whose group session has expired (no ActiveGroupId) to the group picker, exempts
 /// SuperAdmin and the picker/auth/platform/error paths from the redirect, and passes requests
 /// through untouched when an active group is present.
@@ -15,7 +15,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 /// </summary>
 public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    // D-09: an authenticated non-SuperAdmin user with no active group session is redirected
+    // An authenticated non-SuperAdmin user with no active group session is redirected
     // by the middleware to the hardcoded /groups/pick path before reaching the controller.
     [Fact]
     public async Task AuthenticatedUser_NoActiveGroup_RedirectsToGroupPick()
@@ -39,7 +39,7 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // D-09/D-11: SuperAdmin has no group context by design (system-wide access) — the
+    // SuperAdmin has no group context by design (system-wide access) — the
     // middleware's role check must short-circuit BEFORE the null-group check so a SuperAdmin
     // is never caught by the group-session redirect (avoids a redirect loop for that role).
     [Fact]
@@ -65,9 +65,9 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // D-10: /groups/pick itself is on the exempt-path list — a user with no active group
+    // /groups/pick itself is on the exempt-path list — a user with no active group
     // hitting the picker must never be looped back to the picker by the middleware. The
-    // picker controller's own single-group auto-redirect logic (UX-01) sends them onward to
+    // picker controller's own single-group auto-redirect logic sends them onward to
     // the board instead, which is a different mechanism from the middleware under test here.
     [Fact]
     public async Task GroupPickPath_NoActiveGroup_NotLooped()
@@ -82,7 +82,7 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
             var response = await client.GetAsync("/groups/pick", TestContext.Current.CancellationToken);
 
             // Never looped back to /groups/pick — either 200 (the picker page itself) or a
-            // redirect onward to the board for a single-group user (UX-01), never a redirect
+            // redirect onward to the board for a single-group user, never a redirect
             // whose Location is /groups/pick again.
             if (response.StatusCode is HttpStatusCode.Redirect or HttpStatusCode.Found)
             {
@@ -100,7 +100,7 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // D-09 negative: with an active group present, the middleware passes the request through
+    // With an active group present, the middleware passes the request through
     // untouched and the authenticated user reaches the board normally.
     [Fact]
     public async Task AuthenticatedUser_WithActiveGroup_ReachesPage()
@@ -122,8 +122,8 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // CR-02 (31-REVIEW): the exempt-path skip-list is a hand-maintained literal array with no
-    // compile-time link to the newly-protected controller areas added in this phase. This test
+    // The exempt-path skip-list is a hand-maintained literal array with no
+    // compile-time link to the newly-protected controller areas. This test
     // pins down that Calendar, DungeonMaster, and QuestLog — none of which appear on the
     // exempt list — are actually gated by the middleware when no active group is selected, so
     // silent drift (an overly-broad future exempt-list edit accidentally covering one of these
@@ -153,7 +153,7 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // CR-01 (31-REVIEW): a non-idempotent request (POST) hitting the group-gate while no active
+    // A non-idempotent request (POST) hitting the group-gate while no active
     // group is selected must NOT be silently redirected — Response.Redirect emits a 302, which
     // browsers re-issue as a GET, silently dropping the submitted form body. The middleware must
     // instead return a distinguishable failure (409 Conflict) so the caller can detect and
@@ -179,7 +179,7 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
         }
     }
 
-    // WR-01 (31-REVIEW): the middleware's redirect to the group picker must preserve the
+    // The middleware's redirect to the group picker must preserve the
     // original deep-linked destination as a returnUrl so GroupPickerController can send the
     // user back to what they originally requested instead of silently teleporting them home.
     [Fact]

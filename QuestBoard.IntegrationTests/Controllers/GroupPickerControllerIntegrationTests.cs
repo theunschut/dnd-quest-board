@@ -6,8 +6,8 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 /// <summary>
 /// Integration tests for GroupPickerController, covering the post-login group-context
-/// entry point: single-group auto-redirect (UX-01), multi-group picker (UX-02),
-/// SuperAdmin picker with Platform option (UX-03), and session persistence (UX-04).
+/// entry point: single-group auto-redirect, multi-group picker,
+/// SuperAdmin picker with Platform option, and session persistence.
 /// </summary>
 public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicationFactoryBase>
 {
@@ -30,7 +30,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
     }
 
-    // UX-01: A single-group non-SuperAdmin user is redirected away from the picker
+    // A single-group non-SuperAdmin user is redirected away from the picker
     [Fact]
     public async Task Index_WhenSingleGroupUser_ShouldRedirectAwayFromPicker()
     {
@@ -48,7 +48,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         location.Should().NotContain("GroupPicker");
     }
 
-    // WR-02 (31-REVIEW): an authenticated user with ZERO group memberships (as opposed to
+    // An authenticated user with ZERO group memberships (as opposed to
     // simply not having selected one yet) must land on a friendly empty-state picker page —
     // not a 500, and not a redirect loop back into the group-gate (the picker path is on the
     // middleware's exempt list, so it must render directly).
@@ -71,7 +71,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         content.Should().Contain("not assigned to any group");
     }
 
-    // UX-02: A multi-group user receives the picker page
+    // A multi-group user receives the picker page
     [Fact]
     public async Task Index_WhenMultiGroupUser_ShouldReturnPickerPage()
     {
@@ -107,7 +107,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         content.Should().Contain("SelectGroup");
     }
 
-    // UX-03: A SuperAdmin receives the picker page with the Platform option
+    // A SuperAdmin receives the picker page with the Platform option
     [Fact]
     public async Task Index_WhenSuperAdmin_ShouldReturnPickerWithPlatformOption()
     {
@@ -125,7 +125,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         content.Should().Contain("/platform");
     }
 
-    // UX-04: Selecting a group persists ActiveGroupId in session for subsequent requests
+    // Selecting a group persists ActiveGroupId in session for subsequent requests
     [Fact]
     public async Task SelectGroup_ShouldPersistActiveGroupInSession()
     {
@@ -157,7 +157,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         group.Should().NotBeNull();
     }
 
-    // WR-05 (31-REVIEW): full round-trip for a deep link into a newly-protected controller
+    // Full round-trip for a deep link into a newly-protected controller
     // area — authenticated, no active group -> middleware redirects to the picker with
     // ?returnUrl preserving the original destination -> selecting a group lands the user back
     // on that original destination rather than a fixed fallback. The TestAuthHandler-based

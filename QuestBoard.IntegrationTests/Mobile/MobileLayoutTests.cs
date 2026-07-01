@@ -4,12 +4,12 @@ using System.Net.Http.Headers;
 namespace QuestBoard.IntegrationTests.Mobile;
 
 /// <summary>
-/// Integration tests for INFRA-02, INFRA-04, and INFRA-05.
+/// Integration tests for the mobile layout infrastructure.
 /// Drives the live app with mobile and desktop User-Agents to verify:
-/// - Mobile UA renders offcanvas nav shell (INFRA-04)
-/// - Mobile UA response includes "mobile-layout" body class (INFRA-05)
-/// - Desktop UA response has no offcanvas/mobile-layout elements (INFRA-05 parity)
-/// - Mobile UA with no .Mobile.cshtml view still returns 200 with the mobile shell (INFRA-02 fallback)
+/// - Mobile UA renders offcanvas nav shell
+/// - Mobile UA response includes "mobile-layout" body class
+/// - Desktop UA response has no offcanvas/mobile-layout elements (parity)
+/// - Mobile UA with no .Mobile.cshtml view still returns 200 with the mobile shell (fallback)
 /// </summary>
 public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
 {
@@ -36,7 +36,7 @@ public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-04: A mobile User-Agent request must render the Bootstrap offcanvas nav element
+    /// A mobile User-Agent request must render the Bootstrap offcanvas nav element
     /// with id="mobileNav".
     /// </summary>
     [Fact]
@@ -52,7 +52,7 @@ public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-05: A mobile User-Agent request must render a body element with the
+    /// A mobile User-Agent request must render a body element with the
     /// "mobile-layout" class, confirming _ViewStart.cshtml selected _Layout.Mobile.cshtml.
     /// </summary>
     [Fact]
@@ -67,7 +67,7 @@ public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-05 parity: A desktop User-Agent request must NOT contain the "mobile-layout"
+    /// Parity: A desktop User-Agent request must NOT contain the "mobile-layout"
     /// class or any offcanvas element, and MUST contain the desktop brand "D&amp;D Quest Board"
     /// to confirm the desktop layout rendered unchanged.
     /// </summary>
@@ -88,14 +88,14 @@ public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
     }
 
     /// <summary>
-    /// INFRA-02 (fallback path): When no .Mobile.cshtml view exists for the requested route,
+    /// Fallback path: When no .Mobile.cshtml view exists for the requested route,
     /// the mobile UA still returns HTTP 200 with the mobile shell (the expander falls back to
     /// the original .cshtml rendered inside _Layout.Mobile.cshtml).
     /// The desktop UA returns HTTP 200 with the desktop layout (no mobile-layout class).
     ///
-    /// Note: The full INFRA-02 assertion — that Index.Mobile.cshtml is served when it exists —
-    /// lands in Phase 13 when the first .Mobile.cshtml content view is added. Phase 12 ships
-    /// zero .Mobile.cshtml content views (D-05), so only the fallback path is asserted here.
+    /// Note: The full assertion — that Index.Mobile.cshtml is served when it exists —
+    /// lands when the first .Mobile.cshtml content view is added. This phase ships
+    /// zero .Mobile.cshtml content views, so only the fallback path is asserted here.
     /// </summary>
     [Fact]
     public async Task MobileViewResolution_DesktopUserAgent_ServesDesktopView()
@@ -106,7 +106,7 @@ public class MobileLayoutTests : IClassFixture<WebApplicationFactoryBase>
         desktopResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         desktopHtml.Should().NotContain("mobile-layout");
 
-        // Mobile: 200 with mobile shell (fallback — no .Mobile.cshtml content view in Phase 12)
+        // Mobile: 200 with mobile shell (fallback — no .Mobile.cshtml content view yet)
         var (mobileResponse, mobileHtml) = await GetWithUserAgentAsync(MobileUserAgent);
 
         mobileResponse.StatusCode.Should().Be(HttpStatusCode.OK);

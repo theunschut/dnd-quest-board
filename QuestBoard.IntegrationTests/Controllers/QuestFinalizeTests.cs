@@ -10,7 +10,7 @@ public class QuestFinalizeTests(WebApplicationFactory<Program> factory) : IClass
     [Fact]
     public void QuestController_ConstructorDoesNotInjectIEmailService()
     {
-        // CTRL-02 regression guard: IEmailService must not appear in QuestController constructor
+        // Regression guard: IEmailService must not appear in QuestController constructor
         var constructor = typeof(QuestController).GetConstructors().Single();
         var paramTypes = constructor.GetParameters().Select(p => p.ParameterType).ToList();
 
@@ -21,7 +21,7 @@ public class QuestFinalizeTests(WebApplicationFactory<Program> factory) : IClass
     [Fact]
     public void FinalizeAction_BodyIsTwentyLinesOrFewer()
     {
-        // CTRL-01 regression guard: Finalize action body must stay ≤ 20 non-blank lines
+        // Regression guard: Finalize action body must stay ≤ 20 non-blank lines
         var sourcePath = Path.Combine(
             AppContext.BaseDirectory, "..", "..", "..", "..",
             "QuestBoard.Service", "Controllers", "QuestBoard", "QuestController.cs");
