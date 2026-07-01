@@ -26,7 +26,8 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
               <li><a href="{{appUrl}}/EmailPreview/QuestFinalized">Quest Finalized</a></li>
               <li><a href="{{appUrl}}/EmailPreview/QuestDateChanged">Quest Date Changed</a></li>
               <li><a href="{{appUrl}}/EmailPreview/SessionReminder">Session Reminder</a></li>
-              <li><a href="{{appUrl}}/EmailPreview/ConfirmEmail">Confirm Email</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/Welcome">Welcome</a></li>
+              <li><a href="{{appUrl}}/EmailPreview/ForgotPassword">Forgot Password</a></li>
               <li><a href="{{appUrl}}/EmailPreview/ChangeEmailConfirm">Change Email Confirm</a></li>
             </ul></body></html>
             """;
@@ -68,14 +69,26 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     }
 
     [HttpGet]
-    public async Task<IActionResult> ConfirmEmail()
+    public async Task<IActionResult> Welcome()
     {
         var appUrl = $"{Request.Scheme}://{Request.Host}";
-        var html = await emailRenderService.RenderAsync<Components.Emails.ConfirmEmail>(new()
+        var html = await emailRenderService.RenderAsync<Components.Emails.Welcome>(new()
         {
-            [nameof(Components.Emails.ConfirmEmail.UserName)] = "Arannis",
-            [nameof(Components.Emails.ConfirmEmail.CallbackUrl)] = $"{appUrl}/Account/ConfirmEmail?userId=preview&token=preview-token",
-            [nameof(Components.Emails.ConfirmEmail.AppUrl)] = appUrl,
+            [nameof(Components.Emails.Welcome.UserName)] = "Arannis",
+            [nameof(Components.Emails.Welcome.CallbackUrl)] = $"{appUrl}/Account/SetPassword?userId=preview&token=preview-token",
+            [nameof(Components.Emails.Welcome.AppUrl)] = appUrl,
+        });
+        return Content(html, "text/html");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ForgotPassword()
+    {
+        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var html = await emailRenderService.RenderAsync<Components.Emails.ForgotPassword>(new()
+        {
+            [nameof(Components.Emails.ForgotPassword.CallbackUrl)] = $"{appUrl}/Account/SetPassword?userId=preview&token=preview-token",
+            [nameof(Components.Emails.ForgotPassword.AppUrl)] = appUrl,
         });
         return Content(html, "text/html");
     }

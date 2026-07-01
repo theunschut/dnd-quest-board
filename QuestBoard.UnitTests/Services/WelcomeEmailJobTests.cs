@@ -9,14 +9,14 @@ using NSubstitute;
 
 namespace QuestBoard.UnitTests.Services;
 
-public class ConfirmationEmailJobTests
+public class WelcomeEmailJobTests
 {
     private readonly IEmailRenderService _renderService;
     private readonly IEmailService _emailService;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ConfirmationEmailJob _sut;
+    private readonly WelcomeEmailJob _sut;
 
-    public ConfirmationEmailJobTests()
+    public WelcomeEmailJobTests()
     {
         _renderService = Substitute.For<IEmailRenderService>();
         _emailService  = Substitute.For<IEmailService>();
@@ -36,53 +36,51 @@ public class ConfirmationEmailJobTests
         _scopeFactory = Substitute.For<IServiceScopeFactory>();
         _scopeFactory.CreateAsyncScope().Returns(new AsyncServiceScope(scope));
 
-        var logger = Substitute.For<ILogger<ConfirmationEmailJob>>();
-        _sut = new ConfirmationEmailJob(_scopeFactory, logger);
+        var logger = Substitute.For<ILogger<WelcomeEmailJob>>();
+        _sut = new WelcomeEmailJob(_scopeFactory, logger);
     }
 
-    // D-02: render-parameter dictionary contains the correct keys and values
     [Fact]
     public async Task ExecuteAsync_CallsRenderAsync_WithCorrectParameters()
     {
         // Arrange
         const string toEmail     = "player@example.com";
         const string userName    = "TestUser";
-        const string callbackUrl = "https://example.com/confirm?token=abc";
+        const string callbackUrl = "https://example.com/Account/SetPassword?userId=1&token=abc";
 
         _renderService
-            .RenderAsync<ConfirmEmail>(Arg.Any<Dictionary<string, object?>>())
-            .Returns(Task.FromResult("<html>confirm-body</html>"));
+            .RenderAsync<Welcome>(Arg.Any<Dictionary<string, object?>>())
+            .Returns(Task.FromResult("<html>welcome-body</html>"));
 
         // Act
         await _sut.ExecuteAsync(toEmail, userName, callbackUrl);
 
         // Assert: RenderAsync called once with the expected render-parameter dictionary
-        await _renderService.Received(1).RenderAsync<ConfirmEmail>(
+        await _renderService.Received(1).RenderAsync<Welcome>(
             Arg.Is<Dictionary<string, object?>>(d =>
-                object.Equals(d[nameof(ConfirmEmail.UserName)],    "TestUser") &&
-                object.Equals(d[nameof(ConfirmEmail.CallbackUrl)], callbackUrl) &&
-                object.Equals(d[nameof(ConfirmEmail.AppUrl)],      "https://example.com")));
+                object.Equals(d[nameof(Welcome.UserName)],    "TestUser") &&
+                object.Equals(d[nameof(Welcome.CallbackUrl)], callbackUrl) &&
+                object.Equals(d[nameof(Welcome.AppUrl)],      "https://example.com")));
     }
 
-    // D-03: rendered HTML and exact subject flow through to SendAsync
     [Fact]
     public async Task ExecuteAsync_CallsSendAsync_WithRenderedHtml()
     {
         // Arrange
-        const string toEmail     = "player@example.com";
-        const string sentinelHtml = "<html>confirm-body</html>";
+        const string toEmail      = "player@example.com";
+        const string sentinelHtml = "<html>welcome-body</html>";
 
         _renderService
-            .RenderAsync<ConfirmEmail>(Arg.Any<Dictionary<string, object?>>())
+            .RenderAsync<Welcome>(Arg.Any<Dictionary<string, object?>>())
             .Returns(Task.FromResult(sentinelHtml));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/confirm?token=abc");
+        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/Account/SetPassword?userId=1&token=abc");
 
         // Assert: SendAsync called with exact recipient, subject, and HTML sentinel
         await _emailService.Received(1).SendAsync(
             "player@example.com",
-            "Confirm your D&D Quest Board account",
+            "Welcome to the D&D Quest Board — set your password",
             sentinelHtml);
     }
 }
