@@ -6,6 +6,9 @@ namespace QuestBoard.Domain.Interfaces;
 /// </summary>
 public interface IQuestEmailDispatcher
 {
+    /// <summary>
+    /// Enqueues a background job to email the selected players that the quest has been finalized.
+    /// </summary>
     void EnqueueFinalizedEmail(
         int questId,
         int groupId,
@@ -17,6 +20,9 @@ public interface IQuestEmailDispatcher
         string questDescription,
         int challengeRating);
 
+    /// <summary>
+    /// Enqueues a background job to email affected players that the quest's proposed date changed.
+    /// </summary>
     void EnqueueDateChangedEmail(
         int questId,
         string[] recipientEmails,

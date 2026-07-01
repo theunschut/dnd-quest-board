@@ -6,5 +6,9 @@ namespace QuestBoard.Domain.Interfaces;
 /// </summary>
 public interface IReminderJobDispatcher
 {
+    /// <summary>
+    /// Enqueues a background job to email session-reminder notifications for the given quest.
+    /// forceResend bypasses the ReminderLog dedup check; useYesMaybeVoters includes Maybe voters alongside Yes voters.
+    /// </summary>
     void EnqueueSessionReminder(int questId, int groupId, bool forceResend = false, bool useYesMaybeVoters = false);
 }

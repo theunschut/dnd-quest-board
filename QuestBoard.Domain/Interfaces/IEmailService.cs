@@ -2,6 +2,9 @@ namespace QuestBoard.Domain.Interfaces;
 
 public interface IEmailService
 {
-    // Generic method — used by all Hangfire jobs (Phase 21+)
+    /// <summary>
+    /// Sends an HTML email via the configured SMTP relay. Used by all Hangfire email jobs.
+    /// Silently no-ops if SMTP settings are not configured.
+    /// </summary>
     Task SendAsync(string toEmail, string subject, string htmlBody);
 }
