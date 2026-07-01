@@ -106,3 +106,7 @@ None - no external service configuration required.
 ---
 *Phase: 34-codebase-cleanup-and-security-hardening-remove-unused-code-s*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+All 9 modified source files and the SUMMARY.md exist on disk; all 3 commits (4cf93de, 14759ec, 301c53e) verified present in git log.
