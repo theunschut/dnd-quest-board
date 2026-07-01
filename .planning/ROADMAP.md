@@ -309,5 +309,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Depends on:** Phase 32
 **Plans:** 0 plans
 
+**Additional scope item (added 2026-07-01):** Rate-limit manual/admin-triggered email-sending actions (e.g., "Resend Welcome Email" on `/Admin/Users`, `EditUser`'s email-change confirmation) to protect the mail relay's send quota from accidental button-mashing by admins who don't know the limit. User's stated preference: only endpoints triggered by a repeatable manual button need limiting — one-shot automated processes (e.g., `CreateUser`'s welcome email, enqueued once per new account) do not. `ForgotPassword` already has a rate limiter (Phase 32, PWFLOW-04); this extends the same pattern to the admin-side manual-send endpoints. Open questions for discuss-phase: exact relay send-limit numbers, and whether to use a global (shared) or per-admin partition key.
+
 Plans:
 - [ ] TBD (run /gsd-plan-phase 33 to break down)
