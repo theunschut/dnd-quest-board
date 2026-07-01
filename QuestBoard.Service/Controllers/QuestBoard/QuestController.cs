@@ -21,6 +21,42 @@ public class QuestController(
     ) : Controller
 {
     [HttpGet]
+    [Route("quests")]
+    [Authorize]
+    public async Task<IActionResult> Index(CancellationToken token = default)
+    {
+        // Get current user if authenticated to check if they're a DM and for signup status
+        string? currentUserName = null;
+        int? currentUserId = null;
+        Role userRole = Role.Player; // Default to Player role
+
+        var userEntity = await userService.GetUserAsync(User);
+        if (userEntity != null)
+        {
+            var user = await userService.GetByIdAsync(userEntity.Id, token);
+            currentUserName = user?.Name;
+            currentUserId = user?.Id;
+
+            // Determine user role for quest filtering
+            var isAdmin = await userService.IsInRoleAsync(User, "Admin");
+            var isDungeonMaster = await userService.IsInRoleAsync(User, "DungeonMaster");
+
+            if (isAdmin)
+                userRole = Role.Admin;
+            else if (isDungeonMaster)
+                userRole = Role.DungeonMaster;
+        }
+
+        // Get quests filtered by user role
+        var isAdminOrDm = userRole == Role.Admin || userRole == Role.DungeonMaster;
+        var quests = await questService.GetQuestsWithSignupsForRoleAsync(isAdminOrDm, token);
+
+        ViewBag.CurrentUserName = currentUserName;
+        ViewBag.CurrentUserId = currentUserId;
+        return View(quests);
+    }
+
+    [HttpGet]
     [Authorize(Policy = "DungeonMasterOnly")]
     public async Task<IActionResult> Create(CancellationToken token = default)
     {
@@ -66,7 +102,7 @@ public class QuestController(
 
         await questService.AddAsync(quest, token);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index");
     }
 
     [HttpGet]

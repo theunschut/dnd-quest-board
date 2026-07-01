@@ -17,9 +17,18 @@
     <header>
         <nav class="navbar navbar-dark bg-dark py-2">
             <div class="container-fluid px-3">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-dice-d20"></i> Quest Board
-                </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="navbar-brand" asp-controller="Quest" asp-action="Index">
+                        <i class="fas fa-dice-d20"></i> Quest Board
+                    </a>
+                }
+                else
+                {
+                    <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-dice-d20"></i> Quest Board
+                    </a>
+                }
                 <button class="navbar-toggler" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#mobileNav">
                     <span class="navbar-toggler-icon"></span>
