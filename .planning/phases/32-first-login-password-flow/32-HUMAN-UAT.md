@@ -8,7 +8,7 @@ updated: 2026-07-01
 
 ## Current Test
 
-Completed — 7/8 items verified during Wave 3 checkpoint (item 5 deferred, see Gaps).
+Completed — 8/8 items verified during Wave 3 checkpoint. Approved.
 
 ## Tests
 
@@ -30,7 +30,7 @@ result: pass
 
 ### 5. Rate limit on Forgot Password
 expected: Submit the Forgot Password form 4 times rapidly for the same email. The 4th request is rejected with HTTP 429.
-result: out of scope because will be fixed the next phase.
+result: pass — verified 2026-07-01 on the actual Forgot Password form (Login page), after clarifying an earlier mix-up where testing had been done against the unrelated, unthrottled admin "Resend Welcome Email" button instead.
 
 ### 6. Passwordless sign-in fails cleanly
 expected: Attempt to log in as a newly created user before they've set a password. Login fails cleanly with no crash.
@@ -47,12 +47,10 @@ result: fixed 2026-07-01 (commit `836f9ac`) — added `ReverseProxy:KnownProxies
 ## Summary
 
 total: 8
-passed: 7
+passed: 8
 issues: 0
 pending: 0
-skipped: 1
+skipped: 0
 blocked: 0
 
 ## Gaps
-
-- Item 5 (Rate limit on Forgot Password — trigger the 429 manually) not verified this session; user noted "out of scope because will be fixed the next phase." Flagged for clarification: Phase 33 (session persistence) does not touch the rate limiter — item 8's fix (commit `836f9ac`, this phase) already addresses the reverse-proxy partition-key issue. The underlying 429 behavior is covered by automated integration tests (`AccountControllerIntegrationTests`); a manual click-through was not required to close this phase, but confirm this wasn't conflated with item 8 before treating it as resolved.
