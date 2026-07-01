@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-current_phase: 34.2
-current_phase_name: Performance & Architecture — third of the three-way v5.0 closing split
-status: context_gathered
-stopped_at: Phase 34.2 context gathered
-last_updated: "2026-07-01T19:36:49.101Z"
+current_phase: 34
+current_phase_name: Codebase Cleanup & Security Hardening — Mechanical Cleanup slice (34a)
+status: planned
+stopped_at: All three v5.0 closing phases planned (34, 34.1, 34.2) — ready for sequential execution
+last_updated: "2026-07-01T22:20:00.000Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 34.2 context gathered (controller refactor = service extraction not split; Forbid()/Hangfire-batching documented not implemented; caching declined); not yet planned
+last_activity_desc: Phase 34.2 planned (5 plans, 2 waves); all three v5.0 closing phases now fully planned and verified
 progress:
   total_phases: 13
   completed_phases: 8
-  total_plans: 42
+  total_plans: 47
   completed_plans: 30
   percent: 62
 ---
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** v5.0 closing pass split across three phases: Phase 34 (Mechanical Cleanup, 5 plans) and Phase 34.1 (Security & Bugs, 2 plans) are both planned and ready to execute (must run in that order — 34.2 depends on both). Phase 34.2 (Performance & Architecture) has context gathered, not yet planned.
+**Current focus:** v5.0 closing pass split across three phases — all now planned and verified: Phase 34 (Mechanical Cleanup, 5 plans), Phase 34.1 (Security & Bugs, 2 plans), Phase 34.2 (Performance & Architecture, 5 plans). Must execute in that exact order (34 → 34.1 → 34.2) — 34.2 depends on file changes from both prior phases.
 
 ## Current Position
 
-Phase: 34.2 (Performance & Architecture — third and final slice of the three-way v5.0 closing split)
-Plan: Not planned yet (context gathered — run /gsd-plan-phase 34.2)
-Status: Ready to plan
-Last activity: 2026-07-01 — Phase 34.2 context gathered; requires Phase 34 and 34.1 to execute first (AdminController.cs restructured by both before 34.2 touches it)
+Phase: 34 (first of the three-way v5.0 closing split — execute this one first)
+Plan: 5 plans ready (34-01 through 34-05, all Wave 1)
+Status: Ready to execute
+Last activity: 2026-07-01 — Phase 34.2 planned (5 plans, 2 waves); all three v5.0 closing phases now fully planned and verified
 
 ```
 v5.0 Progress [███████░░░] 62% (8/13 phases complete)
@@ -45,7 +45,7 @@ Phase 32 First-Login Password Flow                       [x] complete (2026-07-0
 Phase 33 Session Persistence & Admin Email Rate Limiting [x] complete (2026-07-01)
 Phase 34 Codebase Cleanup (Mechanical Cleanup slice 34a) [ ] planned, 5 plans ready
 Phase 34.1 Security & Bugs                               [ ] planned, 2 plans ready
-Phase 34.2 Performance & Architecture                    [ ] context gathered, ready to plan
+Phase 34.2 Performance & Architecture                    [ ] planned, 5 plans ready (2 waves)
 ```
 
 ## Deferred Items
@@ -122,11 +122,11 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/34.2-performance-architecture-fix-tech-debt-refactors-questcontro/34.2-CONTEXT.md
+**Resume file:** .planning/phases/34-codebase-cleanup-and-security-hardening-remove-unused-code-s/34-01-PLAN.md
 
-Last session: 2026-07-01T19:36:49.089Z
-Stopped at: Phase 34.2 context gathered
-Next step: /gsd-plan-phase 34.2 (context gathered); execution order once all three are planned: /gsd-execute-phase 34, then 34.1, then 34.2
+Last session: 2026-07-01T22:20:00.000Z
+Stopped at: All three v5.0 closing phases planned and verified (34, 34.1, 34.2)
+Next step: /gsd-execute-phase 34 (then /gsd-execute-phase 34.1, then /gsd-execute-phase 34.2 — strict order required per 34.2-CONTEXT.md D-05)
 
 ## Performance Metrics
 
