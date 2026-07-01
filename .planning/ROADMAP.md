@@ -82,7 +82,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
 - [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
 - [x] **Phase 33: Session Persistence & Admin Email Rate Limiting** - ActiveGroupId survives app restarts via AddDistributedSqlServerCache; admin email resend buttons rate-limited 3/hour per target user (completed 2026-07-01)
-- [ ] **Phase 34: Codebase Cleanup & Security Hardening** - Full-codebase review: remove unused code, strip low-value/GSD-reference comments in favor of XML doc comments on interfaces, audit for vulnerabilities — not started
+- [ ] **Phase 34: Codebase Cleanup & Security Hardening (34a — Mechanical Cleanup)** - Remove dead code, strip GSD-ID/phase comment tags codebase-wide, backfill XML docs on all 35 interfaces, capture clean dependency scan — 5 plans (Wave 1, parallel). Remaining CONCERNS.md fixes split into recommended 34b (Security & Bugs) + 34c (Performance & Architecture) per D-03.
 
 </details>
 
@@ -327,13 +327,19 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 - [x] 33-03-PLAN.md — EMAIL-RATE integration tests + full-suite green gate + blocking human-verify checkpoint (session table schema SESSION-02 + restart survival SESSION-01)
 
-### Phase 34: Codebase Cleanup & Security Hardening
+### Phase 34: Codebase Cleanup & Security Hardening — Mechanical Cleanup slice (34a)
 
-**Goal:** Full review of the codebase — remove unused/dead code; strip low-value inline comments (especially ones referencing GSD requirement IDs or phase numbers, which add no value once merged) in favor of XML doc comments (`///<summary>`) on interfaces; audit for security vulnerabilities and other known issues. Covers the entire codebase, including code that predates GSD tracking. Closes out the v5.0 Multi-Tenancy milestone.
-**Requirements**: TBD
+**Goal:** Complete the low-risk, zero-behavior-change mechanical-cleanup slice of the v5.0 closing pass: remove confirmed-dead code (`RegisterViewModel`, D-04/D-05); strip GSD-ID/phase/review-finding comment tags codebase-wide (D-06) while preserving genuinely useful "why"/landmine comments (D-08); backfill `/// <summary>` XML docs on all 35 public Domain + Repository interfaces (D-07); and capture the clean dependency vulnerability scan as D-09/D-10 evidence.
+**Requirements**: None (cleanup/hardening phase — tracked via CONCERNS.md items + CONTEXT.md decisions D-01..D-10)
 **Depends on:** Phase 33
-**Plans:** 0 plans
+**Plans:** 5 plans
 
-Plans:
+**Phase split (per D-03, pre-approved):** The full CONCERNS.md scope (~26 fix items + 120 comment occurrences + 35-interface doc backfill, 60-80+ file touches) exceeds one phase's full-fidelity budget. This Phase 34 covers the **mechanical-cleanup** slice only. The remaining CONCERNS.md fixes are recommended for two follow-on sub-phases: **34b (Security & Bugs)** and **34c (Performance & Architecture)** — insert via `/gsd-phase --insert`.
 
-- [ ] TBD (run /gsd-plan-phase 34 to break down)
+**Wave 1** *(all 5 plans parallel — disjoint file sets: dead-code, impl-source comments, test comments, Domain interfaces, Repository interfaces)*
+
+- [ ] 34-01-PLAN.md — delete RegisterViewModel (D-04/D-05) + run & capture dependency vulnerability scan evidence (D-09/D-10)
+- [ ] 34-02-PLAN.md — strip ID/phase comment tags from 9 non-test source files (D-06/D-08)
+- [ ] 34-03-PLAN.md — strip ID/phase comment tags from 21 test files (108 occurrences) (D-06/D-08)
+- [ ] 34-04-PLAN.md — backfill `<summary>` XML docs on 26 Domain interfaces + strip embedded tags from 3 partial-coverage docs (D-06/D-07)
+- [ ] 34-05-PLAN.md — backfill `<summary>` XML docs on 9 Repository-layer interfaces (D-07)
