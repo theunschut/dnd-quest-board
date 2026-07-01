@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using QuestBoard.Domain.Interfaces;
+using QuestBoard.Service.Controllers;
+using QuestBoard.Service.Controllers.Admin;
 
 namespace QuestBoard.Service.Middleware;
 
@@ -27,8 +29,30 @@ namespace QuestBoard.Service.Middleware;
 /// </summary>
 public class GroupSessionMiddleware(RequestDelegate next)
 {
+    // WR-03 (31-REVIEW): "/GroupPicker" and "/Account" are derived from nameof(...) rather than
+    // typed as raw literals so that renaming either controller is a compile-time-visible change
+    // here (the call site keeps compiling, but a `git grep`/refactor-rename tool will surface
+    // this file too) instead of a silent runtime redirect loop. ControllerNameOf strips the
+    // conventional "Controller" suffix the same way ASP.NET Core's routing does.
+    //
+    // "/groups/pick" (GroupPickerController's explicit custom [Route] attribute) and
+    // "/platform"/"/Error" (an MVC area prefix and the exception-handler path, neither of which
+    // is a controller-name-derived route) cannot be derived from nameof(...) and remain literals.
     private static readonly string[] ExemptPathPrefixes =
-        ["/groups/pick", "/GroupPicker", "/Account", "/platform", "/Error"];
+    [
+        "/groups/pick",
+        $"/{ControllerNameOf<GroupPickerController>()}",
+        $"/{ControllerNameOf<AccountController>()}",
+        "/platform",
+        "/Error"
+    ];
+
+    private static string ControllerNameOf<TController>() where TController : Microsoft.AspNetCore.Mvc.Controller
+    {
+        const string suffix = "Controller";
+        var name = typeof(TController).Name;
+        return name.EndsWith(suffix, StringComparison.Ordinal) ? name[..^suffix.Length] : name;
+    }
 
     public async Task InvokeAsync(HttpContext context)
     {
