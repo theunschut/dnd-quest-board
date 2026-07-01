@@ -1,9 +1,11 @@
 using QuestBoard.Domain.Interfaces;
 using QuestBoard.Service.ViewModels.CalendarViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace QuestBoard.Service.Controllers.QuestBoard;
 
+[Authorize]
 public class CalendarController(IQuestService questService) : Controller
 {
     [HttpGet]
