@@ -62,6 +62,18 @@
 - [x] **REG-02**: Newly created user accounts are automatically assigned to the creating admin's active group with the specified `GroupRole`
 - [x] **REG-03**: The existing email confirmation flow is triggered when a group admin or SuperAdmin creates a new user account
 
+### Session Persistence (Phase 33)
+
+- [ ] **SESSION-01**: ASP.NET Core Session is backed by `AddDistributedSqlServerCache` (package `Microsoft.Extensions.Caching.SqlServer` 10.0.9) registered BEFORE `AddSession` in `Program.cs`, so `ActiveGroupId` survives an app restart instead of being wiped from the in-memory fallback store. Registration is guarded by `if (!builder.Environment.IsEnvironment("Testing"))` with an `AddDistributedMemoryCache()` fallback in the Testing branch (mirrors the existing Hangfire branch).
+- [ ] **SESSION-02**: The `dbo.AspNetSessionState` cache table is provisioned by an EF Core migration using `migrationBuilder.Sql(...)` with an `IF NOT EXISTS` guard; the `Id` column uses `COLLATE SQL_Latin1_General_CP1_CS_AS` (case-sensitive) per the official `dotnet/aspnetcore` DDL. No `DbSet`/entity is added for this table.
+
+### Admin Email Rate Limiting (Phase 33)
+
+- [ ] **EMAIL-RATE-01**: `AdminController.SendConfirmationEmail` (POST) rejects the 4th request within 1 hour for the same target `userId` with HTTP 429 and the body `"Too many requests. Please try again later."`, enforced via a programmatic `PartitionedRateLimiter<int>` `AttemptAcquire(userId)` check inside the action body (not `[EnableRateLimiting]`, because `userId` is a POST form field unavailable to policy factories that run before model binding).
+- [ ] **EMAIL-RATE-02**: The admin email resend rate limit is partitioned per target user (`$"email-resend:{userId}"`); two different target users each get an independent 3/hour budget.
+- [ ] **EMAIL-RATE-03**: `AdminController.EditUser` (POST) applies the same `AttemptAcquire(model.Id)` check only inside the `emailChanged && !string.IsNullOrEmpty(model.Email)` branch (the email-dispatch sub-path), so non-email-changing saves are not counted.
+- [ ] **EMAIL-RATE-04**: `AdminController.CreateUser` (POST, welcome email) is explicitly NOT rate-limited — it is a one-shot automated send, not a repeatable manual button.
+
 ### Password Flow (Phase 32)
 
 - [x] **PWFLOW-01**: Admin-created accounts have no password at creation (`UserManager.CreateAsync(user)` no-password overload; `PasswordHash` stays null); `CreateUserViewModel.Password` and the password input in `CreateUser.cshtml`/`CreateUser.Mobile.cshtml` are removed
@@ -136,3 +148,9 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | PWFLOW-04 | Phase 32 | Complete — 32-02 + 32-03 + 32-05 |
 | PWFLOW-05 | Phase 32 | Complete — 32-02 + 32-04 + 32-05 |
 | PWFLOW-06 | Phase 32 | Complete — 32-02 |
+| SESSION-01 | Phase 33 | Pending — 33-01 |
+| SESSION-02 | Phase 33 | Pending — 33-01 |
+| EMAIL-RATE-01 | Phase 33 | Pending — 33-02 + 33-03 |
+| EMAIL-RATE-02 | Phase 33 | Pending — 33-02 + 33-03 |
+| EMAIL-RATE-03 | Phase 33 | Pending — 33-02 + 33-03 |
+| EMAIL-RATE-04 | Phase 33 | Pending — 33-02 + 33-03 |

@@ -304,12 +304,21 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** `ActiveGroupId` survives an app restart — ASP.NET Core Session is backed by `AddDistributedSqlServerCache` against the existing SQL Server (no re-pick after every deploy) — and the repeatable manual admin email-send buttons (`SendConfirmationEmail`, `EditUser` email-change) are rate-limited per target user (3/hour) to protect the Resend relay's quota, while one-shot automated sends (`CreateUser` welcome email) stay exempt.
+**Requirements**: SESSION-01, SESSION-02, EMAIL-RATE-01, EMAIL-RATE-02, EMAIL-RATE-03, EMAIL-RATE-04
 **Depends on:** Phase 32
-**Plans:** 0 plans
+**Plans:** 3 plans
 
-**Additional scope item (added 2026-07-01):** Rate-limit manual/admin-triggered email-sending actions (e.g., "Resend Welcome Email" on `/Admin/Users`, `EditUser`'s email-change confirmation) to protect the mail relay's send quota from accidental button-mashing by admins who don't know the limit. User's stated preference: only endpoints triggered by a repeatable manual button need limiting — one-shot automated processes (e.g., `CreateUser`'s welcome email, enqueued once per new account) do not. `ForgotPassword` already has a rate limiter (Phase 32, PWFLOW-04); this extends the same pattern to the admin-side manual-send endpoints. Open questions for discuss-phase: exact relay send-limit numbers, and whether to use a global (shared) or per-admin partition key.
+**Additional scope item (added 2026-07-01):** Rate-limit manual/admin-triggered email-sending actions (e.g., "Resend Welcome Email" on `/Admin/Users`, `EditUser`'s email-change confirmation) to protect the mail relay's send quota from accidental button-mashing by admins who don't know the limit. User's stated preference: only endpoints triggered by a repeatable manual button need limiting — one-shot automated processes (e.g., `CreateUser`'s welcome email, enqueued once per new account) do not. `ForgotPassword` already has a rate limiter (Phase 32, PWFLOW-04); this extends the same pattern to the admin-side manual-send endpoints. Resolved in planning: limit is 3/hour per **target user** (not admin IP); enforced programmatically via an injected `PartitionedRateLimiter<int>` inside the action body (RESEARCH corrected CONTEXT.md's `GetRouteValue` approach — `userId`/`Id` are POST form fields unavailable to a pre-model-binding policy factory).
 
-Plans:
-- [ ] TBD (run /gsd-plan-phase 33 to break down)
+**Wave 1**
+
+- [ ] 33-01-PLAN.md — session persistence: `Microsoft.Extensions.Caching.SqlServer` 10.0.9 + `AddDistributedSqlServerCache` (Testing-guarded) before `AddSession` + raw-SQL `AddSessionStateTable` migration with `COLLATE SQL_Latin1_General_CP1_CS_AS` (SESSION-01, SESSION-02)
+
+**Wave 2** *(blocked on 33-01 — shares Program.cs)*
+
+- [ ] 33-02-PLAN.md — admin email rate limiting: singleton `PartitionedRateLimiter<int>` (3/hour, key `email-resend:{userId}`) + `AttemptAcquire` guards in `SendConfirmationEmail` and `EditUser`'s email-change branch; `CreateUser` exempt (EMAIL-RATE-01..04)
+
+**Wave 3** *(blocked on 33-01, 33-02)*
+
+- [ ] 33-03-PLAN.md — EMAIL-RATE integration tests + full-suite green gate + blocking human-verify checkpoint (session table schema SESSION-02 + restart survival SESSION-01)
