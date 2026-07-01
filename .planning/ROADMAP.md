@@ -70,9 +70,9 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 </details>
 
 <details>
-<summary>🚧 v5.0 Multi-Tenancy (Phases 26–32) — IN PROGRESS</summary>
+<summary>🚧 v5.0 Multi-Tenancy (Phases 26–33) — IN PROGRESS</summary>
 
-**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, admin-only user creation, auth lockdown with public landing page, and first-login password flow.
+**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, admin-only user creation, auth lockdown with public landing page, first-login password flow, and session persistence across app restarts.
 
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
 - [x] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group (completed 2026-06-30)
@@ -81,6 +81,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation (completed 2026-06-30)
 - [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
 - [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
+- [x] **Phase 33: Session Persistence & Admin Email Rate Limiting** - ActiveGroupId survives app restarts via AddDistributedSqlServerCache; admin email resend buttons rate-limited 3/hour per target user (completed 2026-07-01)
 
 </details>
 
@@ -301,13 +302,14 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
 | 32. First-Login Password Flow | v5.0 | 5/5 | Complete    | 2026-07-01 |
+| 33. Session Persistence & Admin Email Rate Limiting | v5.0 | 3/3 | Complete | 2026-07-01 |
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
 **Goal:** `ActiveGroupId` survives an app restart — ASP.NET Core Session is backed by `AddDistributedSqlServerCache` against the existing SQL Server (no re-pick after every deploy) — and the repeatable manual admin email-send buttons (`SendConfirmationEmail`, `EditUser` email-change) are rate-limited per target user (3/hour) to protect the Resend relay's quota, while one-shot automated sends (`CreateUser` welcome email) stay exempt.
 **Requirements**: SESSION-01, SESSION-02, EMAIL-RATE-01, EMAIL-RATE-02, EMAIL-RATE-03, EMAIL-RATE-04
 **Depends on:** Phase 32
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 **Additional scope item (added 2026-07-01):** Rate-limit manual/admin-triggered email-sending actions (e.g., "Resend Welcome Email" on `/Admin/Users`, `EditUser`'s email-change confirmation) to protect the mail relay's send quota from accidental button-mashing by admins who don't know the limit. User's stated preference: only endpoints triggered by a repeatable manual button need limiting — one-shot automated processes (e.g., `CreateUser`'s welcome email, enqueued once per new account) do not. `ForgotPassword` already has a rate limiter (Phase 32, PWFLOW-04); this extends the same pattern to the admin-side manual-send endpoints. Resolved in planning: limit is 3/hour per **target user** (not admin IP); enforced programmatically via an injected `PartitionedRateLimiter<int>` inside the action body (RESEARCH corrected CONTEXT.md's `GetRouteValue` approach — `userId`/`Id` are POST form fields unavailable to a pre-model-binding policy factory).
 
@@ -321,4 +323,4 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 3** *(blocked on 33-01, 33-02)*
 
-- [ ] 33-03-PLAN.md — EMAIL-RATE integration tests + full-suite green gate + blocking human-verify checkpoint (session table schema SESSION-02 + restart survival SESSION-01)
+- [x] 33-03-PLAN.md — EMAIL-RATE integration tests + full-suite green gate + blocking human-verify checkpoint (session table schema SESSION-02 + restart survival SESSION-01)

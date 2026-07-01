@@ -148,9 +148,9 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | PWFLOW-04 | Phase 32 | Complete — 32-02 + 32-03 + 32-05 |
 | PWFLOW-05 | Phase 32 | Complete — 32-02 + 32-04 + 32-05 |
 | PWFLOW-06 | Phase 32 | Complete — 32-02 |
-| SESSION-01 | Phase 33 | Pending — 33-01 |
-| SESSION-02 | Phase 33 | Pending — 33-01 |
-| EMAIL-RATE-01 | Phase 33 | Pending — 33-02 + 33-03 |
-| EMAIL-RATE-02 | Phase 33 | Pending — 33-02 + 33-03 |
-| EMAIL-RATE-03 | Phase 33 | Pending — 33-02 + 33-03 |
-| EMAIL-RATE-04 | Phase 33 | Pending — 33-02 + 33-03 |
+| SESSION-01 | Phase 33 | Complete — 33-01 + 33-03 (human-verified) |
+| SESSION-02 | Phase 33 | Complete — 33-01 + 33-03 (human-verified) |
+| EMAIL-RATE-01 | Phase 33 | Complete — 33-02 + 33-03 |
+| EMAIL-RATE-02 | Phase 33 | Complete — 33-02 + 33-03 |
+| EMAIL-RATE-03 | Phase 33 | Complete — 33-02 + 33-03 |
+| EMAIL-RATE-04 | Phase 33 | Complete — 33-02 + 33-03 |
