@@ -1,7 +1,7 @@
 # Phase 34: Codebase Cleanup & Security Hardening - Pattern Map
 
 **Mapped:** 2026-07-01
-**Files analyzed:** ~35 interfaces (XML doc backfill) + 24 comment-cleanup files + ~6 net-new test files (Wave 0 gaps) + ~10 CONCERNS.md code-fix files
+**Files analyzed:** 35 interfaces (XML doc backfill; 26 Domain + 9 Repository per final plan split) + 30 comment-cleanup files (9 non-test + 21 test files per final plan split) + ~6 net-new test files (Wave 0 gaps, deferred to Phase 34.1/34.2) + ~10 CONCERNS.md code-fix files (deferred to Phase 34.1/34.2)
 **Analogs found:** All categories have strong in-repo analogs — this phase modifies/extends existing patterns rather than introducing new ones.
 
 **Special note:** Unlike a typical feature phase, most "files to modify" ARE the analogs (e.g. `IQuestRepository` is both the exemplar for D-07 and a file that itself needs its embedded `(D-08)` tag stripped). This document is organized by **workstream** rather than a flat file list, since CONTEXT.md/RESEARCH.md enumerate ~26 distinct fix items rather than a fixed file manifest.
@@ -10,9 +10,9 @@
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |---|---|---|---|---|
-| 29 undocumented interfaces (`IUserService`, `IEmailService`, `IShopService`, etc.) | interface (Domain/Repository) | N/A (doc-only) | `IQuestRepository.GetQuestsForTomorrowAllGroupsAsync` (has doc) | exact — explicit exemplar named in CONTEXT.md D-07 |
+| 29 zero-coverage interfaces (`IUserService`, `IEmailService`, `IShopService`, etc.) — plus 6 partial-coverage interfaces below, 35 total, split 26 Domain (34-04) / 9 Repository (34-05) | interface (Domain/Repository) | N/A (doc-only) | `IQuestRepository.GetQuestsForTomorrowAllGroupsAsync` (has doc) | exact — explicit exemplar named in CONTEXT.md D-07 |
 | `IQuestRepository.cs`, `IQuestService.cs`, `IActiveGroupContext.cs` (existing partial docs) | interface | N/A (doc-only) | themselves (strip embedded `(D-08)`/`(D-01, D-02)` tags, keep prose) | exact — self-referential cleanup |
-| 24 comment-cleanup files (`QuestService.cs`, `Program.cs`, `QuestController.cs`, `AdminController.cs`, `GroupController.cs`, `SessionReminderJob.cs`, `QuestFinalizedEmailJob.cs`, `GroupSessionMiddleware.cs`, `QuestBoardContext.cs`, + 16 test files) | mixed (controller/service/middleware/test) | N/A (comment-only) | `TenantIsolationTests.cs` (has both good example of ID-tag comment AND useful XML summary to preserve) | exact — shows both "strip" and "keep" cases side by side |
+| 30 comment-cleanup files (`QuestService.cs`, `Program.cs`, `QuestController.cs`, `AdminController.cs`, `GroupController.cs`, `SessionReminderJob.cs`, `QuestFinalizedEmailJob.cs`, `GroupSessionMiddleware.cs`, `QuestBoardContext.cs`, + 21 test files), split 9 non-test (34-02) / 21 test (34-03) per final plan | mixed (controller/service/middleware/test) | N/A (comment-only) | `TenantIsolationTests.cs` (has both good example of ID-tag comment AND useful XML summary to preserve) | exact — shows both "strip" and "keep" cases side by side |
 | `RegisterViewModel.cs` deletion | component (ViewModel) | N/A (delete) | none needed — zero-reference deletion | n/a |
 | New test: Hangfire retry behavior | test | event-driven | `QuestBoard.UnitTests/Services/DailyReminderJobTests.cs` | exact — same Hangfire job mocking conventions (NSubstitute + `IServiceScopeFactory`/`IBackgroundJobClient`) |
 | New test: Group query filter enforcement (`ActiveGroupId` null/nonexistent) | test | CRUD (query-filter) | `QuestBoard.IntegrationTests/Tests/TenantIsolationTests.cs` | exact — tests the exact same `HasQueryFilter`/`TestGroupContext` mechanism CONTEXT.md's Wave 0 gap asks for |
@@ -25,7 +25,7 @@
 
 ## Pattern Assignments
 
-### XML Doc Comment Backfill (D-07) — 29 interfaces
+### XML Doc Comment Backfill (D-07) — 35 interfaces (29 zero-coverage + 6 partial-coverage; final split: 26 Domain / 9 Repository)
 
 **Analog:** `QuestBoard.Domain/Interfaces/IQuestRepository.cs` lines 38-42 (existing exemplar)
 
@@ -310,7 +310,7 @@ Then: `dotnet ef migrations add AddQuestFinalizedDateIndex --project ../QuestBoa
 
 ### XML Doc Comment Convention
 **Source:** `QuestBoard.Domain/Interfaces/IQuestRepository.cs` lines 38-42, `IQuestService.cs` lines 32-45, `IActiveGroupContext.cs` lines 3-6
-**Apply to:** All 29 zero-coverage interfaces + 6 partial-coverage interfaces (D-07)
+**Apply to:** All 35 interfaces — 29 zero-coverage + 6 partial-coverage (D-07); final plan split: 26 Domain (34-04) / 9 Repository (34-05)
 **Rule:** `<summary>`-only (no `<param>`/`<returns>` tags observed anywhere in the codebase) — one-line purpose + optional second line for gotchas/side-effects/scope. Strip any `(D-xx)`, `(Phase NN...)`, or `TENANT-xx`-style parenthetical/inline ID references while preserving all substantive prose (D-06 + D-08 applied together).
 
 ### Hangfire Job Test Mocking
@@ -325,7 +325,7 @@ Then: `dotnet ef migrations add AddQuestFinalizedDateIndex --project ../QuestBoa
 
 ### Comment-Cleanup Decision Rule (D-06/D-08)
 **Source:** `TenantIsolationTests.cs` (demonstrates all 4 cases above), `QuestService.cs RemoveAsync()` (the explicit D-08 preserve-example named in CONTEXT.md)
-**Apply to:** All 24 comment-cleanup files
+**Apply to:** All 30 comment-cleanup files; final plan split: 9 non-test source files (34-02) / 21 test files (34-03)
 **Rule:** Strip only the `PREFIX-NN`/`(D-xx)`/`Phase NN` ID-shaped substring; if a colon-delimited description follows the ID on the same line, keep the description verbatim; if the entire comment's only content IS the ID reference (e.g., a bare `References: TENANT-03, D-03...` line), delete the whole line; genuinely explanatory "why"/landmine comments (no ID prefix) are never touched.
 
 ## No Analog Found

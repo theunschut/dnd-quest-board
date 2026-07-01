@@ -397,20 +397,25 @@ Task<IList<Quest>> GetQuestsForTomorrowAllGroupsAsync(DateTime date, Cancellatio
 
 ## Open Questions
 
+**(RESOLVED 2026-07-01 via phase split — see ROADMAP.md)** All three questions below concerned the D-03 split decision. The planner resolved them by splitting Phase 34 into 34 (mechanical cleanup, planned), 34.1 (Security & Bugs, inserted), and 34.2 (Performance & Architecture, inserted). Left in place for historical context; not open items blocking Phase 34's 5 plans.
+
 1. **Should the phase split 2-way or 3-way (D-03)?**
    - What we know: Total scope is ~26 distinct fix items + 120 comment occurrences + 35-interface doc backfill, spanning 60-80+ file touches.
    - What's unclear: Exact context-budget threshold that triggers a split, and whether the user prefers fewer/larger sub-phases or more/smaller ones.
    - Recommendation: Planner should size a single-phase attempt first against its own context budget; if it doesn't fit, use the "mechanical cleanup / security+bugs / performance+architecture" 3-way split suggested above, since these three groups have the cleanest independence boundaries (verified during this research).
+   - **Resolved:** 3-way split adopted — Phase 34 (mechanical cleanup, 5 plans), Phase 34.1 (Security & Bugs), Phase 34.2 (Performance & Architecture).
 
 2. **Should `Migrations/*.cs` comment be excluded from D-06's sweep?**
    - What we know: Only 1 occurrence found (`SEC-02` in `20260420142117_EnableLockoutForExistingUsers.cs`), so the stakes are low either way.
    - What's unclear: Whether the user's "entire codebase" framing in D-06 was meant to include historical migration files.
    - Recommendation: Default to excluding migrations (treat as immutable history); flag this exclusion explicitly in the plan for user visibility given the phase's "no exceptions" framing (D-04's "nothing is left for later" language could be read to include this).
+   - **Resolved:** Migrations excluded from Phase 34's comment sweep per the default recommendation; not carried into 34-02/34-03 plan scope.
 
 3. **Is the "No Tenant Isolation Enforcement at API Boundary" Forbid()-check fix in-scope for THIS phase, given its size rivals the QuestController refactor?**
    - What we know: CONCERNS.md explicitly lists it under Scaling Limits (in scope per D-01), but its blast radius (every controller loading a GroupId-scoped entity) is comparable to the largest Tech Debt item.
    - What's unclear: Whether the user intended "Scaling Limits" items to include architecture-wide changes of this size, or lighter-weight documentation/monitoring notes (as the other two Scaling Limits items resolve to).
    - Recommendation: Planner should size this item explicitly and consider isolating it to its own plan/sub-phase if it's implemented at all — do not silently fold it into a "quick fixes" wave given its actual footprint.
+   - **Resolved:** Moved to Phase 34.2 (Performance & Architecture) scope; not part of the mechanical-cleanup Phase 34 planned here. Should be sized as its own plan when 34.2 is planned.
 
 ## Validation Architecture
 
