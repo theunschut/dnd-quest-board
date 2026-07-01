@@ -345,3 +345,25 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [ ] 34-03-PLAN.md — strip ID/phase comment tags from 21 test files (108 occurrences) (D-06/D-08)
 - [ ] 34-04-PLAN.md — backfill `<summary>` XML docs on 26 Domain interfaces + strip embedded tags from 3 partial-coverage docs (D-06/D-07)
 - [ ] 34-05-PLAN.md — backfill `<summary>` XML docs on 9 Repository-layer interfaces (D-07)
+
+### Phase 34.1: Security & Bugs
+
+**Goal:** Fix the Known Bugs and Security Considerations items catalogued in `.planning/codebase/CONCERNS.md`, plus their related Test Coverage Gaps: verify-and-close the stale `SessionReminderJob` null-dereference claim (already null-safe per Phase 34 RESEARCH.md — confirm and document, don't re-fix); implement Resend API 429 rate-limit retry-with-backoff; add a CSRF `[ValidateAntiForgeryToken]` regression test across all state-changing controller actions; verify email-configuration secrets never appear in logs or exception traces. Deferred from the Phase 34 split per CONTEXT.md D-03 — part of closing the v5.0 Multi-Tenancy milestone alongside Phase 34 and Phase 34.2.
+**Requirements**: TBD
+**Depends on:** Phase 34
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 34.1 to break down)
+
+### Phase 34.2: Performance & Architecture
+
+**Goal:** Fix the Tech Debt, Performance Bottlenecks, Fragile Areas, Scaling Limits, and Dependencies at Risk items catalogued in `.planning/codebase/CONCERNS.md`, plus remaining Test Coverage Gaps: `QuestController`/`AdminController` size/multi-concern refactors, `DateTime.Now` → `UtcNow` fix in `ShopSeedService`, follow-up quest two-phase-update consolidation into a service method, composite index on `Quests(IsFinalized, FinalizedDate)`, shop-item query projection, Hangfire job scope-management helper + `AutomaticRetryAttribute` retry policy (not the nonexistent `UseAutoRetry` API — see Phase 34 RESEARCH.md), EF Core Global Query Filter documentation, AutoMapper enum-cast validation test, `ActiveGroupId` null-guard, cross-controller `Forbid()` defense-in-depth checks, and dependency migration-plan documentation (Identity email sender routing, Resend SMTP single-point-of-failure). Deferred from the Phase 34 split per CONTEXT.md D-03 — part of closing the v5.0 Multi-Tenancy milestone alongside Phase 34 and Phase 34.1.
+**Requirements**: TBD
+**Depends on:** Phase 34
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 34.2 to break down)
