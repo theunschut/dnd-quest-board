@@ -139,3 +139,7 @@ None - no external service configuration required.
 ---
 *Phase: 32-first-login-password-flow*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+All claimed files exist (ForgotPasswordViewModel.cs, SetPasswordViewModel.cs, AccountController.cs, ForgotPassword.cshtml, ForgotPassword.Mobile.cshtml, SetPassword.cshtml, SetPassword.Mobile.cshtml, Login.cshtml, Login.Mobile.cshtml, 32-03-SUMMARY.md) and all claimed commits (b9aeaca, a4a160f, 82f5e21, a4570f2) are present in git history.
