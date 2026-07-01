@@ -306,7 +306,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
 | 32. First-Login Password Flow | v5.0 | 5/5 | Complete    | 2026-07-01 |
 | 33. Session Persistence & Admin Email Rate Limiting | v5.0 | 3/3 | Complete    | 2026-07-01 |
-| 34. Codebase Cleanup & Security Hardening | v5.0 | 4/5 | In Progress|  |
+| 34. Codebase Cleanup & Security Hardening | v5.0 | 5/5 | Complete   | 2026-07-01 |
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
@@ -334,7 +334,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Goal:** Complete the low-risk, zero-behavior-change mechanical-cleanup slice of the v5.0 closing pass: remove confirmed-dead code (`RegisterViewModel`, D-04/D-05); strip GSD-ID/phase/review-finding comment tags codebase-wide (D-06) while preserving genuinely useful "why"/landmine comments (D-08); backfill `/// <summary>` XML docs on all 35 public Domain + Repository interfaces (D-07); and capture the clean dependency vulnerability scan as D-09/D-10 evidence.
 **Requirements**: None (cleanup/hardening phase — tracked via CONCERNS.md items + CONTEXT.md decisions D-01..D-10)
 **Depends on:** Phase 33
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 **Phase split (per D-03, pre-approved):** The full CONCERNS.md scope (~26 fix items + 120 comment occurrences + 35-interface doc backfill, 60-80+ file touches) exceeds one phase's full-fidelity budget. This Phase 34 covers the **mechanical-cleanup** slice only. The remaining CONCERNS.md fixes were split into **Phase 34.1 (Security & Bugs)** and **Phase 34.2 (Performance & Architecture)** — see summary list above; each needs `/gsd-plan-phase 34.1` / `/gsd-plan-phase 34.2` before execution.
 
@@ -344,7 +344,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] 34-02-PLAN.md — strip ID/phase comment tags from 9 non-test source files (D-06/D-08)
 - [x] 34-03-PLAN.md — strip ID/phase comment tags from 21 test files (108 occurrences) (D-06/D-08)
 - [x] 34-04-PLAN.md — backfill `<summary>` XML docs on 26 Domain interfaces + strip embedded tags from 3 partial-coverage docs (D-06/D-07)
-- [ ] 34-05-PLAN.md — backfill `<summary>` XML docs on 9 Repository-layer interfaces (D-07)
+- [x] 34-05-PLAN.md — backfill `<summary>` XML docs on 9 Repository-layer interfaces (D-07)
 
 ### Phase 34.1: Security & Bugs
 
