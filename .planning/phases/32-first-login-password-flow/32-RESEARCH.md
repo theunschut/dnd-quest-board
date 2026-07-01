@@ -468,14 +468,16 @@ public async Task<string?> GeneratePasswordResetTokenForUserAsync(int userId)
 
 **A1 requires user/planner confirmation before writing `ForgotPassword.cshtml`/`SetPassword.cshtml` tasks** — this is the one item in this research that should be explicitly resolved (either by the planner making a call and stating it, or by a quick check back with the user) rather than silently assumed either way.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `ForgotPassword`/`SetPassword` use the full `_Layout.cshtml` (matching what `Login.cshtml` actually does) or a new minimal layout?**
+   - **RESOLVED (32-03-PLAN.md):** Reuse the existing `_Layout.cshtml` — no new minimal auth layout is built in this phase. This matches what `Login.cshtml` actually does today (Assumption A1) and adds zero new layout work. A dedicated stripped-down auth layout is deferred as a separate future scope item if the D-08 "no main nav" intent is later confirmed with the user.
    - What we know: No dedicated stripped-down auth layout currently exists; `_Layout.GroupPicker.cshtml` is the closest analog but assumes an authenticated user.
    - What's unclear: Whether CONTEXT.md's D-08 wording ("no main nav") reflects a genuine design intent that just hasn't been built yet, or a misremembering of what Login.cshtml already does.
    - Recommendation: Default to reusing `_Layout.cshtml` (zero new layout work, consistent with current `Login.cshtml` behavior) unless the user explicitly wants a new minimal layout built as part of this phase — that would be a larger, separate scope addition worth calling out plainly in the plan.
 
 2. **Exact placement/naming of the new `IIdentityService` methods for token-issuance-without-immediate-consumption and direct email-confirmation.**
+   - **RESOLVED (32-01-PLAN.md):** Two granular methods were chosen (not a single combined method): `GeneratePasswordResetTokenForUserAsync(int userId)` (raw ResetPassword-purpose token by userId) and `ConfirmEmailDirectlyAsync(int userId)` (direct `EmailConfirmed = true` property write + `UpdateAsync`). The controller (Plan 03 SetPassword) calls `ResetPasswordAsync` then `ConfirmEmailDirectlyAsync` in sequence. Both underlying Identity primitives are the verified-safe ones from the Code Examples / Pitfall 4 sections.
    - What we know: The underlying Identity primitives (`GeneratePasswordResetTokenAsync`, direct `EmailConfirmed` property write) are verified and safe.
    - What's unclear: Whether to add two granular methods or one combined method (e.g., a single `SetPasswordAsync(userId, token, newPassword)` on `IIdentityService` that both resets the password AND sets `EmailConfirmed = true`, versus keeping `ResetPasswordAsync` untouched and adding a separate `ConfirmEmailDirectlyAsync` called right after from the controller).
    - Recommendation: Planner's discretion per CONTEXT.md — a combined method reduces controller-side sequencing risk (can't forget to call the second step) and is recommended, but either approach is functionally sound given the verified primitives.
