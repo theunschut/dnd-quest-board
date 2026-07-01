@@ -7,6 +7,42 @@ public class QuestControllerIntegrationTests_Comprehensive(WebApplicationFactory
 {
     private readonly HttpClient _client = factory.CreateNonRedirectingClient();
 
+    // D-05: /quests is the migrated quest board route — authenticated users get the
+    // board, and it renders seeded quest content (proving the migrated board logic runs).
+    [Fact]
+    public async Task Index_Quests_Authenticated_ReturnsOk()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var dm = await AuthenticationHelper.CreateTestUserAsync(
+            factory.Services, "questsdm", "questsdm@example.com");
+        await TestDataHelper.CreateTestQuestAsync(factory.Services, dm.Id, "Quests Route Quest");
+
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "questsviewer", "questsviewer@example.com");
+
+        // Act
+        var response = await client.GetAsync("/quests", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("Quests Route Quest");
+    }
+
+    // D-05: unauthenticated GET /quests must redirect — proves the action-level [Authorize]
+    // added in 31-02 (the board is no longer publicly visible on this route either).
+    [Fact]
+    public async Task Index_Quests_Unauthenticated_Redirects()
+    {
+        // Act
+        var response = await factory.CreateNonRedirectingClient()
+            .GetAsync("/quests", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
+    }
+
     [Fact]
     public async Task Create_Get_WhenNotAuthenticated_ShouldRedirectToLogin()
     {
