@@ -354,8 +354,12 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 34.1-01-PLAN.md — Code fixes: Production startup email-config validation, Resend 429 retry-with-backoff (testable ResendStatsClient seam), Resend-token + secret-logging documentation
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 34.1-02-PLAN.md — Regression tests: 429 retry unit tests, CSRF [ValidateAntiForgeryToken] reflection sweep, SessionReminderJob null-dereference verify-and-close
 
 ### Phase 34.2: Performance & Architecture

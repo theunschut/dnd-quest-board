@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-current_phase: 34
-current_phase_name: Codebase Cleanup & Security Hardening — Mechanical Cleanup slice (34a)
+current_phase: 34.1
+current_phase_name: Security & Bugs
 status: planned
-stopped_at: Phase 34 planned (5 plans) — split off Phase 34.1/34.2 for remaining CONCERNS.md scope
-last_updated: "2026-07-01T20:30:00.000Z"
+stopped_at: Phase 34.1 planned (2 plans) — Phase 34 (5 plans) and 34.1 (2 plans) both ready to execute; Phase 34.2 not yet planned
+last_updated: "2026-07-01T21:00:00.000Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 34 planning complete — 5 plans ready; Phase 34.1/34.2 inserted
+last_activity_desc: Phase 34.1 planning complete — 2 plans ready (reused Phase 34's research, no separate discuss-phase needed)
 progress:
   total_phases: 13
   completed_phases: 8
-  total_plans: 40
+  total_plans: 42
   completed_plans: 30
   percent: 62
 ---
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 34 — Codebase Cleanup & Security Hardening, Mechanical Cleanup slice (34a) — planned, ready to execute. Phase 34.1 (Security & Bugs) and Phase 34.2 (Performance & Architecture) inserted for remaining CONCERNS.md scope, not yet planned.
+**Current focus:** v5.0 closing pass split across three phases: Phase 34 (Mechanical Cleanup, 5 plans) and Phase 34.1 (Security & Bugs, 2 plans) are both planned and ready to execute. Phase 34.2 (Performance & Architecture) is inserted but not yet planned.
 
 ## Current Position
 
-Phase: 34 (Mechanical Cleanup slice 34a — last phase of v5.0 was split; 34.1/34.2 now close the milestone)
-Plan: 5 plans ready (34-01 through 34-05, all Wave 1)
+Phase: 34.1 (Security & Bugs — second of the three-way v5.0 closing split)
+Plan: 2 plans ready (34.1-01, 34.1-02 — Wave 1 then Wave 2)
 Status: Ready to execute
-Last activity: 2026-07-01 — Phase 34 planned (5 plans); Phase 34.1/34.2 inserted per D-03 split
+Last activity: 2026-07-01 — Phase 34.1 planned (2 plans); reused Phase 34's RESEARCH.md, no dedicated discuss-phase run
 
 ```
 v5.0 Progress [███████░░░] 73% (8/11 phases complete)
@@ -44,7 +44,7 @@ Phase 31 Unauthenticated Landing Redirect                [x] complete (2026-07-0
 Phase 32 First-Login Password Flow                       [x] complete (2026-07-01)
 Phase 33 Session Persistence & Admin Email Rate Limiting [x] complete (2026-07-01)
 Phase 34 Codebase Cleanup (Mechanical Cleanup slice 34a) [ ] planned, 5 plans ready
-Phase 34.1 Security & Bugs                               [ ] not planned (inserted)
+Phase 34.1 Security & Bugs                               [ ] planned, 2 plans ready
 Phase 34.2 Performance & Architecture                    [ ] not planned (inserted)
 ```
 
@@ -122,11 +122,11 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/34-codebase-cleanup-and-security-hardening-remove-unused-code-s/34-01-PLAN.md
+**Resume file:** .planning/phases/34.1-security-bugs-fix-known-bugs-and-security-considerations-ite/34.1-01-PLAN.md
 
-Last session: 2026-07-01T20:30:00.000Z
-Stopped at: Phase 34 planned (5 plans, verified) — Phase 34.1/34.2 inserted for remaining CONCERNS.md scope
-Next step: /gsd-execute-phase 34
+Last session: 2026-07-01T21:00:00.000Z
+Stopped at: Phase 34.1 planned (2 plans, verified) — Phase 34 (5 plans) and 34.1 (2 plans) both ready to execute; Phase 34.2 still needs planning
+Next step: /gsd-execute-phase 34 (then /gsd-execute-phase 34.1, then /gsd-plan-phase 34.2)
 
 ## Performance Metrics
 
