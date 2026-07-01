@@ -134,6 +134,24 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// EMAIL-RATE-01..04: rate-limit the repeatable manual admin email-send buttons (SendConfirmationEmail,
+// EditUser's email-change branch), partitioned per TARGET userId so no single recipient's inbox is
+// spammed regardless of which admin triggers it. This is a singleton PartitionedRateLimiter<int>
+// consumed via AttemptAcquire in AdminController — NOT an AddRateLimiter policy, because userId/Id
+// are POST form fields (not route values) and the policy-factory path runs before MVC model binding
+// (RESEARCH.md Pitfall 1). 3 requests / 1 hour per target user, key "email-resend:{userId}".
+// CreateUser's one-shot automated welcome email is explicitly exempt (D-08).
+builder.Services.AddSingleton(_ => PartitionedRateLimiter.Create<int, string>(userId =>
+    RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: $"email-resend:{userId}",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 3,
+            Window = TimeSpan.FromHours(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        })));
+
 // SESSION-01/SESSION-02: back ASP.NET Core Session with a SQL Server distributed cache so
 // ActiveGroupId (and other session data) survives app restarts, instead of the in-memory
 // default that is wiped on every deploy. Guarded like the Hangfire branch below: the Testing
