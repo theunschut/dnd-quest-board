@@ -99,6 +99,7 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 - Phase 31 added: Unauthenticated landing redirect — unauthenticated requests to group-scoped pages should redirect to login, not expose a specific group's content
 - Phase 32 added: First-login password flow — admin-created users set their own password via a password-reset link in the welcome email; removes admin-set password from CreateUser form
+- Phase 33 added: Session persistence — ASP.NET Core Session has no distributed cache registered (confirmed via grep — no AddDistributedMemoryCache/AddStackExchangeRedisCache/AddDistributedSqlServerCache/IDistributedCache anywhere in the solution), so it falls back to an in-memory store wiped on every app restart. Auth cookie survives restarts (Identity's cookie is self-contained via Data Protection) but ActiveGroupContextService's ActiveGroupId does not, forcing every logged-in user to re-pick their group after every deploy. Discovered incidentally during Phase 32 UAT. Recommended fix: Microsoft.Extensions.Caching.SqlServer + AddDistributedSqlServerCache against the existing SQL Server connection (no new infrastructure like Redis needed) plus a small periodic cleanup job.
 
 ### Pending for Next Milestone
 
