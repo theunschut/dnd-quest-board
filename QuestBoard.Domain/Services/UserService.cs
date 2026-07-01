@@ -24,9 +24,9 @@ internal class UserService(IIdentityService identityService, IUserRepository rep
         return await identityService.ChangePasswordAsync(user.Id, oldPassword, newPassword);
     }
 
-    public async Task<IdentityResult> CreateAsync(string email, string name, string password)
+    public async Task<IdentityResult> CreateAsync(string email, string name)
     {
-        return await identityService.CreateUserAsync(email, name, password);
+        return await identityService.CreateUserAsync(email, name);
     }
 
     public virtual async Task<bool> ExistsAsync(string name)

@@ -12,7 +12,7 @@ public interface IIdentityService
     Task<IdentityResult> AddToRoleAsync(int userId, string role);
     Task<IdentityResult> ChangePasswordAsync(ClaimsPrincipal user, string oldPassword, string newPassword);
     Task<IdentityResult> ChangePasswordAsync(int userId, string oldPassword, string newPassword);
-    Task<IdentityResult> CreateUserAsync(string email, string name, string password);
+    Task<IdentityResult> CreateUserAsync(string email, string name);
     Task<IList<string>> GetRolesAsync(int userId);
     Task<int?> GetUserIdAsync(ClaimsPrincipal user);
     Task<bool> IsInRoleAsync(int userId, string role);

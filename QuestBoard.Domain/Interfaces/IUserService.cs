@@ -13,7 +13,7 @@ public interface IUserService : IBaseService<User>
 
     Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
 
-    Task<IdentityResult> CreateAsync(string email, string name, string password);
+    Task<IdentityResult> CreateAsync(string email, string name);
 
     Task<bool> ExistsAsync(string name);
 
