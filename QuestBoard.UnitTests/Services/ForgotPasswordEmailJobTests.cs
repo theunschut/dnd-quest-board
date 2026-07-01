@@ -52,7 +52,7 @@ public class ForgotPasswordEmailJobTests
             .Returns(Task.FromResult("<html>forgot-password-body</html>"));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, callbackUrl);
+        await _sut.ExecuteAsync(toEmail, callbackUrl, TestContext.Current.CancellationToken);
 
         // Assert: RenderAsync called once with the expected render-parameter dictionary (no UserName key)
         await _renderService.Received(1).RenderAsync<ForgotPassword>(
@@ -73,7 +73,7 @@ public class ForgotPasswordEmailJobTests
             .Returns(Task.FromResult(sentinelHtml));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, "https://example.com/Account/SetPassword?userId=1&token=abc");
+        await _sut.ExecuteAsync(toEmail, "https://example.com/Account/SetPassword?userId=1&token=abc", TestContext.Current.CancellationToken);
 
         // Assert: SendAsync called with exact recipient, subject, and HTML sentinel
         await _emailService.Received(1).SendAsync(

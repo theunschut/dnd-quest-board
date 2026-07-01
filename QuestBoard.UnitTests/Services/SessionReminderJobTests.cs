@@ -97,7 +97,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: email not sent, log entry not added
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -116,7 +116,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: true);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: true, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: email IS sent and log IS added despite ExistsAsync returning true
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());
@@ -135,7 +135,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 10, Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: email sent and log entry added
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());
@@ -154,7 +154,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: no email sent for player with null email
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -190,7 +190,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: no email sent for player with unconfirmed email
         await _emailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -208,7 +208,7 @@ public class SessionReminderJobTests
         _reminderLog.ExistsAsync(1, 40, Arg.Any<CancellationToken>()).Returns(false);
 
         // Act
-        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false);
+        await _sut.ExecuteAsync(questId: 1, groupId: 1, forceResend: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: email IS sent for confirmed player
         await _emailService.Received(1).SendAsync("player@example.com", Arg.Any<string>(), Arg.Any<string>());

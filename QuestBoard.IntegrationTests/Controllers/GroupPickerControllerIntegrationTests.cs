@@ -86,7 +86,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
             var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
             var secondGroup = new GroupEntity { Name = "SecondGroup_" + Guid.NewGuid().ToString("N")[..8], CreatedAt = DateTime.UtcNow };
             context.Groups.Add(secondGroup);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             context.UserGroups.Add(new UserGroupEntity
             {
@@ -94,7 +94,7 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
                 GroupId = secondGroup.Id,
                 GroupRole = (int)GroupRole.Player
             });
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act

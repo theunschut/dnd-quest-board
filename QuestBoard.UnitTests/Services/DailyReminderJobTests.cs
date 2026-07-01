@@ -61,7 +61,7 @@ public class DailyReminderJobTests
             .Returns(quests);
 
         // Act
-        await _sut.ExecuteAsync();
+        await _sut.ExecuteAsync(TestContext.Current.CancellationToken);
 
         // Assert: Enqueue<T> is an extension method; it delegates to IBackgroundJobClient.Create.
         // Verify Create was called twice (once per quest).
@@ -76,7 +76,7 @@ public class DailyReminderJobTests
             .Returns(new List<Quest>());
 
         // Act
-        await _sut.ExecuteAsync();
+        await _sut.ExecuteAsync(TestContext.Current.CancellationToken);
 
         // Assert: no Create calls when there are no quests
         _backgroundJobClient.DidNotReceive().Create(Arg.Any<Hangfire.Common.Job>(), Arg.Any<Hangfire.States.IState>());

@@ -53,7 +53,7 @@ public class WelcomeEmailJobTests
             .Returns(Task.FromResult("<html>welcome-body</html>"));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: true);
+        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: true, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: RenderAsync called once with the expected render-parameter dictionary
         await _renderService.Received(1).RenderAsync<Welcome>(
@@ -77,7 +77,7 @@ public class WelcomeEmailJobTests
             .Returns(Task.FromResult("<html>welcome-body</html>"));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: false);
+        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: false, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         await _renderService.Received(1).RenderAsync<Welcome>(
@@ -97,7 +97,7 @@ public class WelcomeEmailJobTests
             .Returns(Task.FromResult(sentinelHtml));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/Account/SetPassword?userId=1&token=abc", isNewAccount: true);
+        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/Account/SetPassword?userId=1&token=abc", isNewAccount: true, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert: SendAsync called with exact recipient, subject, and HTML sentinel
         await _emailService.Received(1).SendAsync(

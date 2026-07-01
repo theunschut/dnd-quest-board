@@ -46,7 +46,7 @@ public class QuestReminderTests(WebApplicationFactoryBase factory) : IClassFixtu
             new KeyValuePair<string, string>("__RequestVerificationToken", "dummy")
         });
 
-        var response = await client.PostAsync("/Quest/SendReminder/1", formData);
+        var response = await client.PostAsync("/Quest/SendReminder/1", formData, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().BeOneOf(
             [HttpStatusCode.Redirect, HttpStatusCode.Unauthorized, HttpStatusCode.Found],

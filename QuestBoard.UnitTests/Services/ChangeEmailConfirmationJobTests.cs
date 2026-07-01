@@ -52,7 +52,7 @@ public class ChangeEmailConfirmationJobTests
             .Returns(Task.FromResult("<html>change-email-body</html>"));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, userName, callbackUrl);
+        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, TestContext.Current.CancellationToken);
 
         // Assert: RenderAsync called once with the expected render-parameter dictionary
         await _renderService.Received(1).RenderAsync<ChangeEmailConfirm>(
@@ -74,7 +74,7 @@ public class ChangeEmailConfirmationJobTests
             .Returns(Task.FromResult(sentinelHtml));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/confirm-email-change?token=abc");
+        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/confirm-email-change?token=abc", TestContext.Current.CancellationToken);
 
         // Assert: SendAsync called with exact recipient, subject, and HTML sentinel
         await _emailService.Received(1).SendAsync(

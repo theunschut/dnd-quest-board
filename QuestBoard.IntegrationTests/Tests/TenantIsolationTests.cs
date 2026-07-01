@@ -49,7 +49,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
             TotalPlayerCount = 4,
             CreatedAt = DateTime.UtcNow
         });
-        await ctx.SaveChangesAsync();
+        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act — request the quest board (authenticated) with the singleton stub scoped to Group 1
         factory.TestGroupContext.ActiveGroupId = 1;
@@ -88,7 +88,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
             TotalPlayerCount = 4,
             CreatedAt = DateTime.UtcNow
         });
-        await ctx.SaveChangesAsync();
+        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act — request the quest board (authenticated) with the singleton stub scoped to Group 1
         factory.TestGroupContext.ActiveGroupId = 1;
@@ -138,7 +138,7 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
                 TotalPlayerCount = 4,
                 CreatedAt = DateTime.UtcNow
             });
-            await ctx.SaveChangesAsync();
+            await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act — query via TestDatabase.CreateContext() which uses MutableGroupContext { ActiveGroupId = null }

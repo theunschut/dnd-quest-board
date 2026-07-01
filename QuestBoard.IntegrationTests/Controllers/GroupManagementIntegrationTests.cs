@@ -158,7 +158,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
             GroupId = groupId,
             GroupRole = (int)GroupRole.Player
         });
-        await dbContext2.SaveChangesAsync();
+        await dbContext2.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // GET /platform/Group/Delete/{id} when group has members should redirect to Index
         var deleteResponse = await client.GetAsync($"/platform/Group/Delete/{groupId}", TestContext.Current.CancellationToken);
@@ -198,7 +198,7 @@ public class GroupManagementIntegrationTests : IClassFixture<WebApplicationFacto
         if (membershipBefore != null)
         {
             dbBefore.UserGroups.Remove(membershipBefore);
-            await dbBefore.SaveChangesAsync();
+            await dbBefore.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Add them to group 1 as Player via the AddMember POST.
