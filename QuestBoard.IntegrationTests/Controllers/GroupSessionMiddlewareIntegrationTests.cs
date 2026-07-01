@@ -121,4 +121,87 @@ public class GroupSessionMiddlewareIntegrationTests(WebApplicationFactoryBase fa
             factory.TestGroupContext.ActiveGroupId = 1;
         }
     }
+
+    // CR-02 (31-REVIEW): the exempt-path skip-list is a hand-maintained literal array with no
+    // compile-time link to the newly-protected controller areas added in this phase. This test
+    // pins down that Calendar, DungeonMaster, and QuestLog — none of which appear on the
+    // exempt list — are actually gated by the middleware when no active group is selected, so
+    // silent drift (an overly-broad future exempt-list edit accidentally covering one of these
+    // routes) is caught by a failing test rather than discovered in production.
+    [Theory]
+    [InlineData("/Calendar")]
+    [InlineData("/DungeonMaster/EditProfile")]
+    [InlineData("/QuestLog")]
+    public async Task AuthenticatedUser_NoActiveGroup_ProtectedAreaRedirectsToGroupPick(string path)
+    {
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "protectedareauser", "protectedarea@example.com", roles: ["DungeonMaster"]);
+
+        factory.TestGroupContext.ActiveGroupId = null;
+        try
+        {
+            var response = await client.GetAsync(path, TestContext.Current.CancellationToken);
+
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+            var location = response.Headers.Location?.ToString() ?? string.Empty;
+            location.Should().Contain("/groups/pick");
+        }
+        finally
+        {
+            factory.TestGroupContext.ActiveGroupId = 1;
+        }
+    }
+
+    // CR-01 (31-REVIEW): a non-idempotent request (POST) hitting the group-gate while no active
+    // group is selected must NOT be silently redirected — Response.Redirect emits a 302, which
+    // browsers re-issue as a GET, silently dropping the submitted form body. The middleware must
+    // instead return a distinguishable failure (409 Conflict) so the caller can detect and
+    // surface a "please pick a group and retry" message instead of losing data silently.
+    [Fact]
+    public async Task AuthenticatedUser_NoActiveGroup_PostRequestReturnsConflictInsteadOfSilentRedirect()
+    {
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "postgateuser", "postgate@example.com", roles: ["Player"]);
+
+        factory.TestGroupContext.ActiveGroupId = null;
+        try
+        {
+            var response = await client.PostAsync(
+                "/Quest/Create", new FormUrlEncodedContent([]), TestContext.Current.CancellationToken);
+
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        }
+        finally
+        {
+            factory.TestGroupContext.ActiveGroupId = 1;
+        }
+    }
+
+    // WR-01 (31-REVIEW): the middleware's redirect to the group picker must preserve the
+    // original deep-linked destination as a returnUrl so GroupPickerController can send the
+    // user back to what they originally requested instead of silently teleporting them home.
+    [Fact]
+    public async Task AuthenticatedUser_NoActiveGroup_RedirectPreservesReturnUrl()
+    {
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "returnurluser", "returnurl@example.com", roles: ["Player"]);
+
+        factory.TestGroupContext.ActiveGroupId = null;
+        try
+        {
+            var response = await client.GetAsync("/Calendar?year=2026&month=7", TestContext.Current.CancellationToken);
+
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+            var location = response.Headers.Location?.ToString() ?? string.Empty;
+            location.Should().Contain("/groups/pick");
+            location.Should().Contain(Uri.EscapeDataString("/Calendar?year=2026&month=7"));
+        }
+        finally
+        {
+            factory.TestGroupContext.ActiveGroupId = 1;
+        }
+    }
 }
