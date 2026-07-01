@@ -31,6 +31,15 @@ key-files:
     - QuestBoard.Repository/IdentityService.cs
     - QuestBoard.IntegrationTests/Controllers/AccountControllerIntegrationTests.cs
     - QuestBoard.IntegrationTests/Controllers/AdminControllerIntegrationTests.cs
+    - QuestBoard.Service/Program.cs (checkpoint session — ForwardedHeaders fix, commit 836f9ac)
+    - QuestBoard.Service/appsettings.json (checkpoint session — ReverseProxy:KnownProxies config, commit 836f9ac)
+    - docs/server-setup.md (checkpoint session — deploy env var docs, commit 836f9ac)
+    - QuestBoard.Domain/Interfaces/IUserService.cs (checkpoint session — HasPasswordAsync, commit 3386b8c)
+    - QuestBoard.Domain/Services/UserService.cs (checkpoint session — HasPasswordAsync, commit 3386b8c)
+    - QuestBoard.Service/Components/Emails/Welcome.razor (checkpoint session — IsNewAccount parameter, commit 3386b8c)
+    - QuestBoard.Service/Controllers/Admin/AdminController.cs (checkpoint session — HasPasswordAsync wiring, commit 3386b8c)
+    - QuestBoard.Service/Jobs/WelcomeEmailJob.cs (checkpoint session — isNewAccount parameter, commit 3386b8c)
+    - QuestBoard.UnitTests/Services/WelcomeEmailJobTests.cs (checkpoint session — new coverage, commit 3386b8c)
 
 key-decisions:
   - "Merged the known-email and unknown-email ForgotPassword enumeration-safety tests into a single test asserting SAMENESS of outcome (same status code, same redirect target when redirecting) rather than two separate tests each asserting a fixed expected status — the shared rate-limit partition across the test class fixture makes a hardcoded '302 expected' assertion order-dependent; sameness is also the more precise expression of the D-11 property being verified"
