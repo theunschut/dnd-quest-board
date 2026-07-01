@@ -1,7 +1,7 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Omphalos Integration
+milestone: v5.0
+milestone_name: Multi-Tenancy
 current_phase: 33
 status: verifying
 stopped_at: Completed 33-01-PLAN.md
