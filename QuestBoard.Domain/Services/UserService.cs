@@ -105,6 +105,11 @@ internal class UserService(IIdentityService identityService, IUserRepository rep
         return await identityService.ConfirmEmailDirectlyAsync(userId);
     }
 
+    public async Task<bool> HasPasswordAsync(int userId)
+    {
+        return await identityService.HasPasswordAsync(userId);
+    }
+
     public async Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role)
     {
         return await repository.SetGroupRoleAsync(userId, groupId, role);

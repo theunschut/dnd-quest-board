@@ -45,6 +45,8 @@ public interface IUserService : IBaseService<User>
 
     Task<IdentityResult> ConfirmEmailDirectlyAsync(int userId);
 
+    Task<bool> HasPasswordAsync(int userId);
+
     Task<int?> SetGroupRoleAsync(int userId, int groupId, GroupRole role);
 
     Task SignOutAsync();

@@ -53,14 +53,36 @@ public class WelcomeEmailJobTests
             .Returns(Task.FromResult("<html>welcome-body</html>"));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, userName, callbackUrl);
+        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: true);
 
         // Assert: RenderAsync called once with the expected render-parameter dictionary
         await _renderService.Received(1).RenderAsync<Welcome>(
             Arg.Is<Dictionary<string, object?>>(d =>
-                object.Equals(d[nameof(Welcome.UserName)],    "TestUser") &&
-                object.Equals(d[nameof(Welcome.CallbackUrl)], callbackUrl) &&
-                object.Equals(d[nameof(Welcome.AppUrl)],      "https://example.com")));
+                object.Equals(d[nameof(Welcome.UserName)],      "TestUser") &&
+                object.Equals(d[nameof(Welcome.CallbackUrl)],   callbackUrl) &&
+                object.Equals(d[nameof(Welcome.AppUrl)],        "https://example.com") &&
+                object.Equals(d[nameof(Welcome.IsNewAccount)],  true)));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenNotNewAccount_PassesIsNewAccountFalse()
+    {
+        // Arrange — legacy account (already has a password, resending welcome to confirm email)
+        const string toEmail     = "player@example.com";
+        const string userName    = "TestUser";
+        const string callbackUrl = "https://example.com/Account/SetPassword?userId=1&token=abc";
+
+        _renderService
+            .RenderAsync<Welcome>(Arg.Any<Dictionary<string, object?>>())
+            .Returns(Task.FromResult("<html>welcome-body</html>"));
+
+        // Act
+        await _sut.ExecuteAsync(toEmail, userName, callbackUrl, isNewAccount: false);
+
+        // Assert
+        await _renderService.Received(1).RenderAsync<Welcome>(
+            Arg.Is<Dictionary<string, object?>>(d =>
+                object.Equals(d[nameof(Welcome.IsNewAccount)], false)));
     }
 
     [Fact]
@@ -75,7 +97,7 @@ public class WelcomeEmailJobTests
             .Returns(Task.FromResult(sentinelHtml));
 
         // Act
-        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/Account/SetPassword?userId=1&token=abc");
+        await _sut.ExecuteAsync(toEmail, "TestUser", "https://example.com/Account/SetPassword?userId=1&token=abc", isNewAccount: true);
 
         // Assert: SendAsync called with exact recipient, subject, and HTML sentinel
         await _emailService.Received(1).SendAsync(

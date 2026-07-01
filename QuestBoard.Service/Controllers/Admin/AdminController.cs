@@ -124,7 +124,7 @@ public class AdminController(IUserService userService, IQuestService questServic
                 {
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
                     var callbackUrl = Url.Action("SetPassword", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
-                    jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
+                    jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, true, CancellationToken.None));
                 }
             }
 
@@ -284,7 +284,11 @@ public class AdminController(IUserService userService, IQuestService questServic
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
         var callbackUrl = Url.Action("SetPassword", "Account", new { userId, token = encodedToken }, Request.Scheme);
 
-        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, CancellationToken.None));
+        // Legacy accounts created before Phase 32 may already have a password set (admin-set-password
+        // flow, retired) but never confirmed their email — the "opened an account in your name" copy
+        // would be inaccurate for them, so Welcome.razor picks a different variant via IsNewAccount.
+        var hasExistingPassword = await userService.HasPasswordAsync(userId);
+        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, !hasExistingPassword, CancellationToken.None));
         TempData["Success"] = $"Welcome email queued for {user.Name}.";
         return RedirectToAction(nameof(Users));
     }
