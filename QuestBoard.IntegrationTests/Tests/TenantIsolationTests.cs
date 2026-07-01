@@ -22,6 +22,10 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
 
     /// <summary>
     /// A quest seeded with GroupId=2 must NOT appear in the response when the active group is 1.
+    /// D-04/D-05: the quest board moved from / (now the public landing page, no auth) to
+    /// /quests (authenticated) — use an authenticated client against /quests so this test
+    /// still exercises the query-filter behavior rather than trivially passing against a
+    /// landing page that never shows quest content for any group.
     /// </summary>
     [Fact]
     public async Task GroupFilter_HidesQuestFromOtherGroup()
@@ -47,10 +51,11 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
         });
         await ctx.SaveChangesAsync();
 
-        // Act — request the home page (quest list) with the singleton stub scoped to Group 1
+        // Act — request the quest board (authenticated) with the singleton stub scoped to Group 1
         factory.TestGroupContext.ActiveGroupId = 1;
-        using var client = factory.CreateClient();
-        var response = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "isolationviewer1", "isolationviewer1@example.com");
+        var response = await client.GetAsync("/quests", TestContext.Current.CancellationToken);
 
         // Assert — the Group-2 quest must not appear in the response body
         response.EnsureSuccessStatusCode();
@@ -60,6 +65,8 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
 
     /// <summary>
     /// A quest seeded with GroupId=1 MUST appear in the response when the active group is 1.
+    /// D-04/D-05: the quest board moved from / to /quests (authenticated) — see note on
+    /// GroupFilter_HidesQuestFromOtherGroup above.
     /// </summary>
     [Fact]
     public async Task GroupFilter_ShowsQuestFromSameGroup()
@@ -83,10 +90,11 @@ public class TenantIsolationTests(WebApplicationFactoryBase factory)
         });
         await ctx.SaveChangesAsync();
 
-        // Act — request the home page with the singleton stub scoped to Group 1
+        // Act — request the quest board (authenticated) with the singleton stub scoped to Group 1
         factory.TestGroupContext.ActiveGroupId = 1;
-        using var client = factory.CreateClient();
-        var response = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "isolationviewer2", "isolationviewer2@example.com");
+        var response = await client.GetAsync("/quests", TestContext.Current.CancellationToken);
 
         // Assert — the Group-1 quest IS returned in the response body
         response.EnsureSuccessStatusCode();

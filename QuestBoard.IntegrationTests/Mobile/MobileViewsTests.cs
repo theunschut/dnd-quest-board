@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using QuestBoard.IntegrationTests.Helpers;
 
 namespace QuestBoard.IntegrationTests.Mobile;
@@ -34,8 +35,27 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         return (response, html);
     }
 
+    // D-01/D-04: /Calendar, /QuestLog, and the quest board (now /quests) all require
+    // authentication after the Phase 31 lockdown — this overload attaches the Test scheme
+    // Authorization header from an authenticated client so mobile-view tests can still assert
+    // on the rendered markup instead of hitting the login redirect.
+    private async Task<(HttpResponseMessage Response, string Html)> GetWithUserAgentAsync(
+        string url, string userAgent, AuthenticationHeaderValue? authorization)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.TryAddWithoutValidation("User-Agent", userAgent);
+        if (authorization != null)
+        {
+            request.Headers.Authorization = authorization;
+        }
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        return (response, html);
+    }
+
     /// <summary>
     /// HOME-01: Mobile UA renders the quest-card-mobile list layout instead of poster images.
+    /// D-04: the board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_RendersCardListNotPosterImages()
@@ -43,8 +63,10 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         // Seed a quest so the card list renders (not the empty state)
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home01", "dm_home01@test.com", name: "DM Home01");
         await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Open Quest Home01");
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_home01", "player_home01@test.com");
 
-        var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
+        var (response, html) = await GetWithUserAgentAsync("/quests", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("quest-card-mobile");
         html.Should().NotContain("fantasy-quest-card");
@@ -64,14 +86,17 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// HOME-02: Quest card shows CR badge and status badge.
+    /// D-04: the board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_QuestCardContainsCrAndStatusBadge()
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home02", "dm_home02@test.com", name: "DM Home02");
         await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "The Lost Mine", challengeRating: 3);
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_home02", "player_home02@test.com");
 
-        var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
+        var (response, html) = await GetWithUserAgentAsync("/quests", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("The Lost Mine");
         html.Should().Contain("CR 3");
@@ -82,6 +107,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     /// HOME-02b: Finalized quest shows the primary badge (date confirmed, future date).
     /// Note: repository filters out finalized quests with null or past FinalizedDate;
     /// a future FinalizedDate is required for the quest to appear on the board.
+    /// D-04: the board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_FinalizedQuestShowsDate()
@@ -89,8 +115,10 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home02b", "dm_home02b@test.com", name: "DM Home02b");
         await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Finalized Adventure",
             isFinalized: true, finalizedDate: DateTime.UtcNow.AddDays(7));
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_home02b", "player_home02b@test.com");
 
-        var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
+        var (response, html) = await GetWithUserAgentAsync("/quests", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("Finalized Adventure");
         html.Should().Contain("bg-primary");
@@ -98,20 +126,24 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// HOME-03: Quest card links to /Quest/Details/{id} (non-DM user navigates to details).
+    /// D-04: the board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_MobileUserAgent_QuestCardLinksToDetails()
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_home03", "dm_home03@test.com", name: "DM Home03");
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Navigation Quest");
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_home03", "player_home03@test.com");
 
-        var (response, html) = await GetWithUserAgentAsync("/", MobileUserAgent);
+        var (response, html) = await GetWithUserAgentAsync("/quests", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain($"/Quest/Details/{quest.Id}");
     }
 
     /// <summary>
     /// HOME-04: Signed-up badge appears for authenticated player who has signed up for a quest.
+    /// D-04: the board moved from / to /quests and now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileHome_AuthenticatedSignedUpPlayer_ShowsSignedUpBadge()
@@ -121,7 +153,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var (authClient, playerUser) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(_factory, "player_home04", "player_home04@test.com");
         await TestDataHelper.CreatePlayerSignupAsync(_factory.Services, quest.Id, playerUser.Id, isSelected: false);
 
-        var request = new HttpRequestMessage(HttpMethod.Get, "/");
+        var request = new HttpRequestMessage(HttpMethod.Get, "/quests");
         request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
         request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
         var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -180,14 +212,17 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// QVIEW-03: Quest Log mobile view renders a list with quest title and DM name.
+    /// D-01: /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileQuestLog_MobileUserAgent_RendersListWithTitleAndDmName()
     {
         var dm = await AuthenticationHelper.CreateTestUserAsync(_factory.Services, "dm_qview03", "dm_qview03@test.com", name: "DM Qview03");
         await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Ancient Dungeon", isFinalized: true, finalizedDate: DateTime.UtcNow.AddDays(-2));
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_qview03", "player_qview03@test.com");
 
-        var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent);
+        var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("quest-log-item");
         html.Should().Contain("Ancient Dungeon");
@@ -196,28 +231,37 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// QVIEW-03b: Mobile Quest Log page includes a link to quest-log.mobile.css.
+    /// D-01: /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileQuestLog_MobileUserAgent_LoadsMobileCssLink()
     {
-        var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent);
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_qview03b", "player_qview03b@test.com");
+
+        var (response, html) = await GetWithUserAgentAsync("/QuestLog", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("quest-log.mobile.css");
     }
 
     /// <summary>
     /// CAL-CSS: calendar.mobile.css is linked from /Calendar on mobile.
+    /// D-01: /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_LoadsMobileCssLink()
     {
-        var (response, html) = await GetWithUserAgentAsync("/Calendar", MobileUserAgent);
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_calcss", "player_calcss@test.com");
+
+        var (response, html) = await GetWithUserAgentAsync("/Calendar", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("calendar.mobile.css");
     }
 
     /// <summary>
     /// CAL-01: Mobile UA on /Calendar renders agenda list (contains agenda-quest-entry, no calendar-grid).
+    /// D-01: /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_RendersAgendaList()
@@ -226,9 +270,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL01");
         await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id,
             new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 15, 19, 0, 0, DateTimeKind.Utc));
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_cal01", "player_cal01@test.com");
 
         var (response, html) = await GetWithUserAgentAsync(
-            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("agenda-quest-entry");
         html.Should().NotContain("calendar-grid");
@@ -236,6 +282,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// CAL-02: Agenda entry contains day label in uppercase day-name format and time.
+    /// D-01: /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_AgendaEntryContainsDayLabelAndTime()
@@ -244,9 +291,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         var quest = await TestDataHelper.CreateTestQuestAsync(_factory.Services, dm.Id, "Calendar Quest CAL02");
         var knownDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 15, 19, 0, 0, DateTimeKind.Utc);
         await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, knownDate);
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_cal02", "player_cal02@test.com");
 
         var (response, html) = await GetWithUserAgentAsync(
-            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain("agenda-day-label");
         // Day label format is "SATURDAY, JUNE 14" — assert at least the time portion is present
@@ -266,6 +315,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
 
     /// <summary>
     /// CAL-04: Agenda entry links to /Quest/Details/{id}.
+    /// D-01: /Calendar now requires authentication.
     /// </summary>
     [Fact]
     public async Task MobileCalendar_MobileUserAgent_AgendaEntryLinksToDetails()
@@ -275,9 +325,11 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
         // Use day 5 of the current month so the date stays within the queried month regardless of when the test runs.
         var cal04Date = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 5, 19, 0, 0, DateTimeKind.Utc);
         await TestDataHelper.CreateProposedDateAsync(_factory.Services, quest.Id, cal04Date);
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_cal04", "player_cal04@test.com");
 
         var (response, html) = await GetWithUserAgentAsync(
-            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent);
+            $"/Calendar?year={DateTime.UtcNow.Year}&month={DateTime.UtcNow.Month}", MobileUserAgent, authClient.DefaultRequestHeaders.Authorization);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         html.Should().Contain($"/Quest/Details/{quest.Id}");
     }
@@ -737,6 +789,7 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
     /// <summary>
     /// QLOG-01: Mobile UA on /QuestLog/Details/{id} renders quest-log-detail-main-card glass card
     /// and links quest-log-detail.mobile.css. Quest must be finalized with past FinalizedDate.
+    /// D-01: /QuestLog now requires authentication.
     /// </summary>
     [Fact]
     public async Task GetMobilePage_QuestLogDetails_ReturnsSuccessAndMobileLayout()
@@ -753,8 +806,12 @@ public class MobileViewsTests : IClassFixture<WebApplicationFactoryBase>
             if (q != null) { q.FinalizedDate = DateTime.UtcNow.AddDays(-2); await context.SaveChangesAsync(TestContext.Current.CancellationToken); }
         }
 
+        var (authClient, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "player_qldet18", "player_qldet18@test.com");
+
         var request = new HttpRequestMessage(HttpMethod.Get, $"/QuestLog/Details/{quest.Id}");
         request.Headers.TryAddWithoutValidation("User-Agent", MobileUserAgent);
+        request.Headers.Authorization = authClient.DefaultRequestHeaders.Authorization;
         var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
         var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
