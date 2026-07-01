@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 current_phase: 34
-current_phase_name: Codebase Cleanup & Security Hardening — Mechanical Cleanup slice (34a)
-status: planned
-stopped_at: All three v5.0 closing phases planned (34, 34.1, 34.2) — ready for sequential execution
-last_updated: "2026-07-01T22:20:00.000Z"
+current_phase_name: codebase-cleanup-and-security-hardening-remove-unused-code-s
+status: executing
+stopped_at: Completed 34-01-PLAN.md
+last_updated: "2026-07-01T20:30:07.352Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 34.2 planned (5 plans, 2 waves); all three v5.0 closing phases now fully planned and verified
+last_activity_desc: Phase 34 execution started
 progress:
-  total_phases: 13
+  total_phases: 11
   completed_phases: 8
-  total_plans: 47
-  completed_plans: 30
-  percent: 62
+  total_plans: 42
+  completed_plans: 31
+  percent: 73
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** v5.0 closing pass split across three phases — all now planned and verified: Phase 34 (Mechanical Cleanup, 5 plans), Phase 34.1 (Security & Bugs, 2 plans), Phase 34.2 (Performance & Architecture, 5 plans). Must execute in that exact order (34 → 34.1 → 34.2) — 34.2 depends on file changes from both prior phases.
+**Current focus:** Phase 34 — codebase-cleanup-and-security-hardening-remove-unused-code-s
 
 ## Current Position
 
-Phase: 34 (first of the three-way v5.0 closing split — execute this one first)
-Plan: 5 plans ready (34-01 through 34-05, all Wave 1)
+Phase: 34 (codebase-cleanup-and-security-hardening-remove-unused-code-s) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-07-01 — Phase 34.2 planned (5 plans, 2 waves); all three v5.0 closing phases now fully planned and verified
+Last activity: 2026-07-01 — Phase 34 execution started
 
 ```
 v5.0 Progress [███████░░░] 62% (8/13 phases complete)
@@ -122,10 +122,10 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/34-codebase-cleanup-and-security-hardening-remove-unused-code-s/34-01-PLAN.md
+**Resume file:** None
 
-Last session: 2026-07-01T22:20:00.000Z
-Stopped at: All three v5.0 closing phases planned and verified (34, 34.1, 34.2)
+Last session: 2026-07-01T20:30:07.341Z
+Stopped at: Completed 34-01-PLAN.md
 Next step: /gsd-execute-phase 34 (then /gsd-execute-phase 34.1, then /gsd-execute-phase 34.2 — strict order required per 34.2-CONTEXT.md D-05)
 
 ## Performance Metrics
@@ -151,6 +151,7 @@ Next step: /gsd-execute-phase 34 (then /gsd-execute-phase 34.1, then /gsd-execut
 | Phase 33 P01 | 12min | 3 tasks | 4 files |
 | Phase 33 P02 | 2min | 2 tasks | 2 files |
 | Phase 33 P03 | 15min | 3 tasks | 2 files |
+| Phase 34 P01 | 4min | 2 tasks | 1 files |
 
 ## Decisions
 
@@ -166,3 +167,4 @@ Next step: /gsd-execute-phase 34 (then /gsd-execute-phase 34.1, then /gsd-execut
 - [Phase ?]: Used a programmatic PartitionedRateLimiter<int> singleton + AttemptAcquire instead of an AddRateLimiter policy (Phase 33-02) — userId/Id are POST form fields, not route values
 - [Phase ?]: EditUser's email-resend rate-limit guard placed inside the emailChanged branch only, not at method entry (Phase 33-02, D-07) — non-email-changing saves are not counted
 - [Phase ?]: [Phase 33-03]: Human verification results recorded in a dedicated 33-HUMAN-UAT.md (mirrors 27-HUMAN-UAT.md/32-HUMAN-UAT.md convention) rather than only inline in the plan summary
+- [Phase ?]: [Phase 34-01]: No .sln file exists in repo — build/vulnerability-scan commands adapted to per-project invocation (Service + UnitTests + IntegrationTests) covering all 5 projects instead of the plan's literal QuestBoard.sln reference
