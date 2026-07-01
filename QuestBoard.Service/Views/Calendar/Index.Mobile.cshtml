@@ -15,7 +15,7 @@
 <div class="container-fluid px-2 mt-2">
 <div class="agenda-card-mobile">
 
-    @* Month navigation bar (D-01, D-02) *@
+    @* Month navigation bar *@
     <div class="d-flex justify-content-between align-items-center mb-3 calendar-month-nav">
         <a href="@Url.Action("Index", new { year = prevMonth.Year, month = prevMonth.Month })"
            class="btn btn-primary calendar-nav-btn" aria-label="Previous month">
@@ -30,7 +30,7 @@
         </a>
     </div>
 
-    @* Agenda list — one section per day that has at least one quest (CAL-01, CAL-03) *@
+    @* Agenda list — one section per day that has at least one quest *@
     @if (!agendaDays.Any())
     {
         @* Empty state (month with no quests) *@
@@ -45,11 +45,11 @@
         @foreach (var day in agendaDays)
         {
             <div class="agenda-day-section mb-2">
-                @* Day label: SATURDAY, JUNE 14 (CAL-02, D-10) *@
+                @* Day label: SATURDAY, JUNE 14 *@
                 <div class="agenda-day-label text-uppercase fw-bold small mb-1">
                     @day.Date.ToString("dddd, MMMM d").ToUpper()
                 </div>
-                @* Quest entries for this day — all quests, no Take(3) cap (D-09) *@
+                @* Quest entries for this day — all quests, no Take(3) cap *@
                 @foreach (var questOnDay in day.QuestsOnDay)
                 {
                     <div class="agenda-quest-entry @(questOnDay.IsFinalized ? "agenda-quest-finalized" : "agenda-quest-proposed")"
