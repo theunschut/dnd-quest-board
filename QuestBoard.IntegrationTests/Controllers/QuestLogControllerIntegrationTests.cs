@@ -5,13 +5,27 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    private readonly HttpClient _client = factory.CreateNonRedirectingClient();
+    // D-01: QuestLog now requires authentication ([Authorize] added in 31-01).
+    // Unauthenticated requests must redirect (or 401), never return the quest log directly.
+    [Fact]
+    public async Task Index_WhenNotAuthenticated_ShouldRedirect()
+    {
+        // Act
+        var response = await factory.CreateNonRedirectingClient()
+            .GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
+    }
 
     [Fact]
     public async Task Index_ShouldReturnQuestLogPage()
     {
+        // Arrange
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(factory);
+
         // Act
-        var response = await _client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -26,6 +40,8 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             factory.Services, "logdm", "log@example.com");
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "logviewer", "logviewer@example.com");
 
         var quest1 = await TestDataHelper.CreateTestQuestAsync(
             factory.Services, dm.Id, "Completed Quest 1", "Description 1", 5, isFinalized: true);
@@ -44,7 +60,7 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         }
 
         // Act
-        var response = await _client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -60,6 +76,8 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             factory.Services, "detailslogdm", "detailslog@example.com");
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "detailslogviewer", "detailslogviewer@example.com");
 
         var quest = await TestDataHelper.CreateTestQuestAsync(
             factory.Services, dm.Id, "Quest With Details", "Detailed description", 10, isFinalized: true);
@@ -77,7 +95,7 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         }
 
         // Act
-        var response = await _client.GetAsync($"/QuestLog/Details/{quest.Id}", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync($"/QuestLog/Details/{quest.Id}", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -89,8 +107,11 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
     [Fact]
     public async Task Details_WithInvalidQuestId_ShouldReturn404()
     {
+        // Arrange
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(factory);
+
         // Act
-        var response = await _client.GetAsync("/QuestLog/Details/99999", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/QuestLog/Details/99999", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -103,6 +124,8 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             factory.Services, "filterlogdm", "filterlog@example.com");
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "filterlogviewer", "filterlogviewer@example.com");
 
         var finalizedQuest = await TestDataHelper.CreateTestQuestAsync(
             factory.Services, dm.Id, "Finalized Quest", "Done", 5, isFinalized: true);
@@ -122,7 +145,7 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         }
 
         // Act
-        var response = await _client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -138,6 +161,8 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             factory.Services, "dmsessiondm", "dmsession@example.com");
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "dmsessionviewer", "dmsessionviewer@example.com");
 
         var regularQuest = await TestDataHelper.CreateTestQuestAsync(
             factory.Services, dm.Id, "Regular Finalized Quest", "Desc", 5, isFinalized: true, dungeonMasterSession: false);
@@ -156,7 +181,7 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         }
 
         // Act
-        var response = await _client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/QuestLog", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -172,6 +197,8 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         await TestDataHelper.ClearDatabaseAsync(factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             factory.Services, "dmsessiondetailsdm", "dmsessiondetails@example.com");
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, "dmsessiondetailsviewer", "dmsessiondetailsviewer@example.com");
 
         var dmSession = await TestDataHelper.CreateTestQuestAsync(
             factory.Services, dm.Id, "DM Session", "Private", 5, isFinalized: true, dungeonMasterSession: true);
@@ -189,7 +216,7 @@ public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factor
         }
 
         // Act
-        var response = await _client.GetAsync($"/QuestLog/Details/{dmSession.Id}", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync($"/QuestLog/Details/{dmSession.Id}", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

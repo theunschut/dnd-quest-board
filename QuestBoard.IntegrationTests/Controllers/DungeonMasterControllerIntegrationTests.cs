@@ -5,6 +5,24 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class DungeonMasterControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
+    // D-02: Profile GET no longer carries [AllowAnonymous] — an unauthenticated request
+    // must redirect to login rather than exposing DM profile data.
+    [Fact]
+    public async Task Profile_WhenNotAuthenticated_ShouldRedirect()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(factory.Services);
+        var (_, dm) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            factory, roles: ["DungeonMaster"]);
+
+        // Act
+        var response = await factory.CreateNonRedirectingClient()
+            .GetAsync($"/DungeonMaster/Profile/{dm.Id}", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
+    }
+
     // DMPRO-01: Profile page returns 200 for a valid DM user id
     [Fact]
     public async Task Profile_WithValidDmUserId_ReturnsOk()

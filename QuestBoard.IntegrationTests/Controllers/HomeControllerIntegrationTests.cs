@@ -36,10 +36,28 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().NotBeNullOrEmpty();
     }
 
+    // D-04: Home is now a public landing page — it must show login copy and must NOT
+    // display quest content, even when quests exist in the database.
     [Fact]
-    public async Task Index_WithQuests_ShouldDisplayQuestList()
+    public async Task Index_ShouldContainLoginButton()
     {
         // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+
+        // Act
+        var response = await _client.GetAsync("/", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("Log In");
+        content.Should().Contain("/Account/Login");
+    }
+
+    [Fact]
+    public async Task Index_WithQuests_ShouldNotDisplayQuestList()
+    {
+        // Arrange — even with quests seeded, the public landing page must not surface them
         await TestDataHelper.ClearDatabaseAsync(_factory.Services);
         var dm = await AuthenticationHelper.CreateTestUserAsync(
             _factory.Services, "homedm", "home@example.com");
@@ -53,8 +71,9 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.Should().Contain("Home Quest 1");
-        content.Should().Contain("Home Quest 2");
+        content.Should().NotContain("Home Quest 1");
+        content.Should().NotContain("Home Quest 2");
+        content.Should().Contain("Log In");
     }
 
     // REMOVED: Privacy and Error tests - these routes don't exist in HomeController
