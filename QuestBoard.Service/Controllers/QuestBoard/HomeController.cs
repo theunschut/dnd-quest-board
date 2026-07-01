@@ -5,5 +5,8 @@ namespace QuestBoard.Service.Controllers.QuestBoard;
 public class HomeController : Controller
 {
     [HttpGet]
-    public IActionResult Index() => View();
+    public IActionResult Index() =>
+        User.Identity?.IsAuthenticated == true
+            ? RedirectToAction("Index", "Quest")
+            : View();
 }
