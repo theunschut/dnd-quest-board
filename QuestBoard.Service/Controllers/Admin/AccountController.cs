@@ -22,38 +22,6 @@ public class AccountController(IUserService userService, IIdentityService identi
     }
 
     [HttpGet]
-    public async Task<IActionResult> ConfirmEmail(int userId, string token)
-    {
-        if (userId <= 0 || string.IsNullOrEmpty(token))
-        {
-            TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
-            return RedirectToAction(nameof(Login));
-        }
-
-        try
-        {
-            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
-            var result = await identityService.ConfirmEmailAsync(userId, decodedToken);
-
-            if (result.Succeeded)
-            {
-                TempData["Success"] = "Email confirmed — you can now log in.";
-            }
-            else
-            {
-                TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "ConfirmEmail failed for userId {UserId}", userId);
-            TempData["Error"] = "Email confirmation failed. The link may be expired or invalid. Contact an administrator.";
-        }
-
-        return RedirectToAction(nameof(Login));
-    }
-
-    [HttpGet]
     public IActionResult ForgotPassword()
     {
         return View();
