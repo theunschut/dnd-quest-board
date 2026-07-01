@@ -14,7 +14,6 @@ public class DungeonMasterController(
     IMapper mapper) : Controller
 {
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> Profile(int id, CancellationToken token = default)
     {
         var user = await userService.GetByIdAsync(id, token);
@@ -109,7 +108,6 @@ public class DungeonMasterController(
     }
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> GetDMProfilePicture(int id, CancellationToken token = default)
     {
         var bytes = await dmProfileService.GetProfilePictureAsync(id, token);

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace QuestBoard.Service.Controllers.QuestBoard;
 
+[Authorize]
 public class QuestLogController(
     IUserService userService,
     IQuestService questService
