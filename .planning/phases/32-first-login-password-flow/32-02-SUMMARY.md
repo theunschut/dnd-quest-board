@@ -103,6 +103,6 @@ None requiring a fix — the "Known Limitation" above is a documentation-accurac
 
 None encountered.
 
-## Self-Check
+## Self-Check: PASSED
 
-See below.
+All created files verified present; all three retired files verified absent; all three commits (`8e4bb9a`, `2925514`, `1a30653`) verified present in `git log`.
