@@ -79,7 +79,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
 - [x] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (completed 2026-06-30)
 - [x] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation (completed 2026-06-30)
-- [ ] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware
+- [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
 - [ ] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form
 
 </details>
@@ -258,27 +258,27 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 28. Tenant Isolation | v5.0 | 3/3 | Complete | 2026-06-30 |
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
-| 31. Unauthenticated Landing Redirect | v5.0 | 0/4 | Planned | — |
+| 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete   | 2026-07-01 |
 
 ### Phase 31: Unauthenticated landing redirect
 
 **Goal:** Unauthenticated visitors are redirected to login (not shown empty/broken group-scoped pages), a public landing page lives at `/`, the quest board moves to `/quests`, and authenticated users with an expired group session are seamlessly recovered to the group picker.
 **Requirements**: UX-01, UX-04
 **Depends on:** Phase 30
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 **Wave 1** *(parallel — no overlap in files_modified)*
 
-- [ ] 31-01-PLAN.md — class-level [Authorize] on Calendar + QuestLog controllers; remove [AllowAnonymous] from DM profile actions (D-01, D-02)
-- [ ] 31-02-PLAN.md — QuestController.Index at /quests + public landing HomeController.Index + migrate quest views to Views/Quest + new landing views + reference sweep (D-04..D-08)
+- [x] 31-01-PLAN.md — class-level [Authorize] on Calendar + QuestLog controllers; remove [AllowAnonymous] from DM profile actions (D-01, D-02)
+- [x] 31-02-PLAN.md — QuestController.Index at /quests + public landing HomeController.Index + migrate quest views to Views/Quest + new landing views + reference sweep (D-04..D-08)
 
 **Wave 2** *(blocked on 31-02)*
 
-- [ ] 31-03-PLAN.md — GroupSessionMiddleware (session-recovery redirect) + Program.cs registration + [Route("groups/pick")] on GroupPicker (D-09, D-10, D-11)
+- [x] 31-03-PLAN.md — GroupSessionMiddleware (session-recovery redirect) + Program.cs registration + [Route("groups/pick")] on GroupPicker (D-09, D-10, D-11)
 
 **Wave 3** *(blocked on 31-01, 31-02, 31-03)*
 
-- [ ] 31-04-PLAN.md — update Calendar/QuestLog/Home tests + /quests route tests + new GroupSessionMiddleware tests + full-suite gate + blocking human-verify
+- [x] 31-04-PLAN.md — update Calendar/QuestLog/Home tests + /quests route tests + new GroupSessionMiddleware tests + full-suite gate + blocking human-verify
 
 ### Phase 32: First-login password flow
 
