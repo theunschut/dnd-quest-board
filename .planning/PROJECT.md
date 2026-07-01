@@ -59,6 +59,7 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - ✓ Idempotent reminder dedup via ReminderLog table — v4.0 (Phase 22)
 - ✓ Admin email stats dashboard (Resend API: sent/delivered/bounced/failed) — v4.0 (Phase 23)
 - ✓ Email confirmation flow — admin resend button, job guards, callback endpoint — v4.0 (Phase 24)
+- ✓ First-login password flow — admin-created accounts are passwordless until the user sets their own password via a Welcome email link; self-service Forgot Password flow with enumeration-safe, rate-limited reset; old confirm-email-only flow retired — v5.0 (Phase 32)
 
 ### Active
 
@@ -122,6 +123,8 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 | Landing/quests split: `/` becomes a public marketing page, quest board moved to `/quests` | Unauthenticated visitors must not see group-scoped content at the app's root | ✓ Good — Phase 31; authenticated visitors hitting `/` auto-redirect to `/quests` (added mid-verification after user found the logged-out landing copy confusing when already signed in) |
 | Session-recovery middleware redirects an authenticated user with no active group to `/groups/pick` | Prevents broken/empty group-scoped pages when the session's group selection expires but the auth cookie persists | ✓ Good — Phase 31; SuperAdmin and picker/auth/platform/error paths exempted to avoid redirect loops |
 | GroupSessionMiddleware redirects on all HTTP verbs, including POST | Simplicity — one redirect check before Authorization, no verb-specific branching | — Pending: code review flagged a POST-body data-loss risk if session expires mid-submission (31-REVIEW.md CR-01); not yet fixed |
+| SetPassword gets its own "set-password" rate-limit policy rather than sharing ForgotPassword's | A legitimate forgot-password + set-password flow by one user would otherwise consume 2 of the same 3-request/15-min budget; confirmed concretely when reusing the shared policy broke an integration test | ✓ Good — Phase 32 |
+| ForwardedHeaders trust is config-driven (ReverseProxy:KnownProxies, empty by default) rather than hardcoded | Traefik runs on a separate CT from the App CT; without trusting its IP, RemoteIpAddress-based rate limiting collapses into one shared bucket for all users in production | ✓ Good — Phase 32; env var set at deploy time via docs/server-setup.md |
 
 ## Evolution
 
