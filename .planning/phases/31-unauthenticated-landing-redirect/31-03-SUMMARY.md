@@ -120,3 +120,14 @@ All commits confirmed in git log:
 - ac7fda4 (Task 2)
 - ef018a5 (Task 3)
 - d0af090 (docs: SUMMARY.md)
+
+## Post-Merge Amendment (orchestrator)
+
+The Wave 1→2 post-merge test gate caught a regression introduced by Task 1's
+`[Route("groups/pick")]` addition: ASP.NET Core opts an action out of
+conventional routing entirely once it carries any attribute route, so
+`GroupPickerController.Index` stopped responding at the pre-existing
+`/GroupPicker/Index` path — 404ing `RedirectToLocal` fallbacks, tag-helper
+links, and `GroupPickerControllerIntegrationTests`. Fixed by the orchestrator
+(not the plan's executor) by adding `[Route("[controller]/[action]")]`
+alongside the vanity route, restoring both paths. Commit `997d27f`.
