@@ -12,9 +12,9 @@ files_reviewed_list:
   - QuestBoard.IntegrationTests/Controllers/AdminControllerIntegrationTests.cs
 findings:
   critical: 0
-  warning: 4
+  warning: 3
   info: 3
-  total: 7
+  total: 6
 status: issues_found
 ---
 
@@ -35,43 +35,32 @@ the migration DDL matches the documented `SqlServerCache` schema, the `Testing`-
 guard correctly avoids writing to real SQL Server during `dotnet test`, and the rate-limiter
 partition key (target userId) is sound and independently tested.
 
-The most significant gap: nothing in the codebase ever purges expired rows from
-`AspNetSessionState`. `Microsoft.Extensions.Caching.SqlServer` does **not** self-clean;
-Microsoft's own tooling (`dotnet sql-cache create` / the `SqlServerCache` docs) expects the
-consuming app to schedule a periodic delete. Since this project already has Hangfire wired up
-for recurring jobs (`DailyReminderJob`), this is a simple, low-risk fix that was seemingly missed.
-A few smaller robustness and testability issues are noted below.
+**Post-review correction:** The reviewer's original WR-01 finding ("no expiry cleanup job") is a
+false positive — see the strikethrough note in that section. The reviewer was scoped to only the
+6 changed source files and did not have `33-RESEARCH.md`/`33-CONTEXT.md`, which already
+investigated and explicitly ruled this out (D-04) with a verified source citation. A few smaller
+robustness and testability issues remain valid and are noted below.
 
 ## Warnings
 
-### WR-01: `AspNetSessionState` has no expiry cleanup job — the table will grow unbounded
+### ~~WR-01: `AspNetSessionState` has no expiry cleanup job~~ — INVALIDATED, false positive
 
-**File:** `QuestBoard.Service/Program.cs:160-168`
-**Issue:** `AddDistributedSqlServerCache` inserts/updates rows in `AspNetSessionState` on every
-session write, refreshing `ExpiresAtTime`/`SlidingExpirationInSeconds`, but the package itself
-never deletes expired rows — that responsibility is explicitly left to the host application
-(see Microsoft's `SqlServerCache` docs, which ship a companion cleanup stored-proc/scheduled-task
-sample for exactly this reason). The migration even creates `Index_ExpiresAtTime`
-(`AddSessionStateTable.cs:26`) specifically to support such a cleanup query, but no job ever
-issues it. Every authenticated browser session (24h idle timeout, `Program.cs:177`) leaves a
-permanent row once it expires. Over the lifetime of a long-running deployment this table grows
-without bound, degrading the `AspNetSessionState` PK/index and, more importantly, retaining
-stale session payloads (which may include `ActiveGroupId` and other session state) indefinitely.
-**Fix:** Add a small recurring Hangfire job alongside `DailyReminderJob` that deletes expired
-rows, e.g.:
-```csharp
-public class SessionCleanupJob(QuestBoardContext context)
-{
-    public async Task ExecuteAsync(CancellationToken token)
-    {
-        await context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [dbo].[AspNetSessionState] WHERE [ExpiresAtTime] < SYSUTCDATETIME()",
-            token);
-    }
-}
-```
-and register it in `Program.cs` next to the existing `RecurringJob.AddOrUpdate<DailyReminderJob>`
-call (e.g. hourly: `"0 * * * *"`).
+**Status:** Invalidated during phase completion review. This finding is **incorrect** and no fix
+is needed.
+
+`Microsoft.Extensions.Caching.SqlServer`'s `SqlServerCache` class performs its own internal
+polling-based cleanup — it scans for and deletes expired rows on cache activity, gated by
+`SqlServerCacheOptions.ExpiredItemsDeletionInterval` (default: 30 minutes, left unset/at-default
+in this phase's `Program.cs:162-167`). This was independently researched and verified against the
+package's actual source during phase planning — see `33-RESEARCH.md` line 253 and 76-77
+(`[SqlServerCache internal cleanup: DELETE WHERE ExpiresAtTime < @UtcNow]`,
+`[VERIFIED: source.dot.net/Microsoft.Extensions.Caching.SqlServer/SqlServerCache.cs.html]`) and
+`33-CONTEXT.md` D-04 ("Rely on the built-in `ExpiredItemsDeletionInterval`... No Hangfire CRON
+needed for session cleanup — the cache provider handles it automatically."). The code reviewer
+agent was scoped only to the 6 changed source files for this phase and did not have access to
+`33-RESEARCH.md`/`33-CONTEXT.md`, so it was unaware this exact question had already been
+investigated and ruled out. Adding a duplicate Hangfire cleanup job as originally suggested would
+race the built-in cleanup for no benefit, per D-04.
 
 ### WR-02: `PartitionedRateLimiter<int>` singleton is never disposed
 
