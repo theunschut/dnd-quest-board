@@ -318,8 +318,8 @@ public class AdminController(IUserService userService, IQuestService questServic
             return RedirectToAction(nameof(Users));
         }
 
-        // Legacy accounts created before Phase 32 may already have a password set (admin-set-password
-        // flow, retired) but never confirmed their email — the "opened an account in your name" copy
+        // Legacy accounts created before the admin-set-password flow was retired may already have a
+        // password set but never confirmed their email — the "opened an account in your name" copy
         // would be inaccurate for them, so Welcome.razor picks a different variant via IsNewAccount.
         var hasExistingPassword = await userService.HasPasswordAsync(userId);
         jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl, !hasExistingPassword, CancellationToken.None));

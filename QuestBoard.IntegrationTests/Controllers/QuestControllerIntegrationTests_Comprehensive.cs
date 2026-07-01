@@ -7,7 +7,7 @@ public class QuestControllerIntegrationTests_Comprehensive(WebApplicationFactory
 {
     private readonly HttpClient _client = factory.CreateNonRedirectingClient();
 
-    // D-05: /quests is the migrated quest board route — authenticated users get the
+    // /quests is the migrated quest board route — authenticated users get the
     // board, and it renders seeded quest content (proving the migrated board logic runs).
     [Fact]
     public async Task Index_Quests_Authenticated_ReturnsOk()
@@ -30,8 +30,8 @@ public class QuestControllerIntegrationTests_Comprehensive(WebApplicationFactory
         content.Should().Contain("Quests Route Quest");
     }
 
-    // D-05: unauthenticated GET /quests must redirect — proves the action-level [Authorize]
-    // added in 31-02 (the board is no longer publicly visible on this route either).
+    // Unauthenticated GET /quests must redirect — proves the action-level [Authorize]
+    // is enforced (the board is no longer publicly visible on this route either).
     [Fact]
     public async Task Index_Quests_Unauthenticated_Redirects()
     {

@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class QuestLogControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    // D-01: QuestLog now requires authentication ([Authorize] added in 31-01).
+    // QuestLog now requires authentication ([Authorize] added to the controller).
     // Unauthenticated requests must redirect (or 401), never return the quest log directly.
     [Fact]
     public async Task Index_WhenNotAuthenticated_ShouldRedirect()

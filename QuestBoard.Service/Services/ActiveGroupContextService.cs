@@ -16,7 +16,7 @@ public class ActiveGroupContextService(IHttpContextAccessor httpContextAccessor)
     /// <summary>
     /// Returns the overridden group ID (set by Hangfire jobs via SetGroupId),
     /// or reads from Session for normal HTTP requests.
-    /// Returns null when no override is set and HttpContext is absent — null means "see all" in Phase 28.
+    /// Returns null when no override is set and HttpContext is absent — null means "see all".
     /// </summary>
     public int? ActiveGroupId =>
         _groupIdOverridden
@@ -26,7 +26,7 @@ public class ActiveGroupContextService(IHttpContextAccessor httpContextAccessor)
     /// <summary>
     /// Called by Hangfire jobs to set the group context before any repository call.
     /// HTTP context is null in background threads; this provides groupId explicitly.
-    /// The override takes precedence over Session. (D-09)
+    /// The override takes precedence over Session.
     /// </summary>
     public void SetGroupId(int? groupId)
     {

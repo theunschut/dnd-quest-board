@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace QuestBoard.Repository.Migrations
 {
-    // DEPLOYMENT CONSTRAINT — Phase 27-29 co-deployment required:
+    // DEPLOYMENT CONSTRAINT — this migration must co-deploy with the authorization-handler update:
     // This migration deletes Player, DungeonMaster, and Admin rows from AspNetUserRoles (Step 10).
     // The existing DungeonMasterHandler and AdminHandler still read Identity role claims from
     // AspNetUserRoles. After this migration runs, those claims are gone, so any user whose session
-    // hits an authorization check WILL fail until Phase 29 replaces the handlers to read
+    // hits an authorization check WILL fail until the handlers are updated to read
     // UserGroups.GroupRole instead.
     //
-    // RULE: Deploy Phases 27, 28, and 29 together in a single release.
-    //       OR deploy during a maintenance window where no user logs in until Phase 29 is also live.
-    //       Do NOT deploy Phase 27 alone to a production environment with active users.
+    // RULE: Deploy this migration together with the authorization-handler update in a single release.
+    //       OR deploy during a maintenance window where no user logs in until that update is also live.
+    //       Do NOT deploy this migration alone to a production environment with active users.
     /// <inheritdoc />
     public partial class AddGroupSchema : Migration
     {
@@ -122,7 +122,7 @@ SET IDENTITY_INSERT Groups OFF;
             migrationBuilder.Sql("UPDATE ShopItems SET GroupId = 1");
 
             // Step 7: Add FK constraint Quests.GroupId → Groups(Id) — AFTER rows are populated (Pitfall 1).
-            // NoAction delete behavior: groups must not cascade-delete quests (D-10, GROUP-03).
+            // NoAction delete behavior: groups must not cascade-delete quests.
             migrationBuilder.AddForeignKey(
                 name: "FK_Quests_Groups_GroupId",
                 table: "Quests",
@@ -132,7 +132,7 @@ SET IDENTITY_INSERT Groups OFF;
                 onDelete: ReferentialAction.NoAction);
 
             // Step 8: Add FK constraint ShopItems.GroupId → Groups(Id) — AFTER rows are populated (Pitfall 1).
-            // NoAction delete behavior: groups must not cascade-delete shop items (D-10).
+            // NoAction delete behavior: groups must not cascade-delete shop items.
             migrationBuilder.AddForeignKey(
                 name: "FK_ShopItems_Groups_GroupId",
                 table: "ShopItems",
@@ -142,10 +142,10 @@ SET IDENTITY_INSERT Groups OFF;
                 onDelete: ReferentialAction.NoAction);
 
             // Step 9: Seed UserGroups for all users from AspNetUserRoles with highest-role logic.
-            // LEFT JOIN from AspNetUsers ensures users with no role row are included (GroupRole=0/Player per D-04).
-            // An INNER JOIN would silently drop users with no role, violating D-04.
-            // MAX(CASE) logic for multi-role edge case (D-03): Admin=3 > DungeonMaster=2 > Player=1 source IDs.
-            // GroupRole enum mapping: Admin→2, DungeonMaster→1, Player/None→0 (D-05).
+            // LEFT JOIN from AspNetUsers ensures users with no role row are included (GroupRole=0/Player).
+            // An INNER JOIN would silently drop users with no role.
+            // MAX(CASE) logic for multi-role edge case: Admin=3 > DungeonMaster=2 > Player=1 source IDs.
+            // GroupRole enum mapping: Admin→2, DungeonMaster→1, Player/None→0.
             // Role IDs in AspNetRoles: Player=1, DungeonMaster=2, Admin=3 (per ConvertIsDungeonMasterToRoles migration).
             migrationBuilder.Sql(@"
 INSERT INTO UserGroups (UserId, GroupId, GroupRole)
@@ -164,8 +164,8 @@ GROUP BY u.Id
 ");
 
             // Step 10: Delete Player/DungeonMaster/Admin rows from AspNetUserRoles.
-            // UserGroups now holds per-group roles; AspNetUserRoles is reserved for SuperAdmin only (Phase 29).
-            // SuperAdmin rows (none yet — added in Phase 29) are untouched by this DELETE.
+            // UserGroups now holds per-group roles; AspNetUserRoles is reserved for SuperAdmin only.
+            // SuperAdmin rows (none existed at migration time) are untouched by this DELETE.
             migrationBuilder.Sql(@"
 DELETE ur FROM AspNetUserRoles ur
 INNER JOIN AspNetRoles r ON ur.RoleId = r.Id
@@ -180,7 +180,7 @@ WHERE r.Name IN ('Player', 'DungeonMaster', 'Admin')
             //
             // NOTE: Re-inserting AspNetUserRoles from UserGroups is a best-effort restoration.
             // The migration guarantees schema rollback; full data fidelity is restored on a best-effort basis.
-            // If multi-role users existed before Phase 27 (D-03 edge case), Down() restores only one role
+            // If multi-role users existed prior to this migration (an edge case), Down() restores only one role
             // (the highest, consistent with the Up() logic). This is an acceptable trade-off for a
             // forward-only migration path.
 

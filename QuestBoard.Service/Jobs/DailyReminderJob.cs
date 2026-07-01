@@ -14,7 +14,7 @@ public class DailyReminderJob(
     {
         // FinalizedDate is stored as server local time (no UTC annotation on QuestEntity).
         // DateTime.Today is server local time on the LXC container (CET/CEST).
-        // Comparison is correct — no timezone conversion needed. (D-05, RESEARCH.md FinalizedDate section)
+        // Comparison is correct — no timezone conversion needed.
         var tomorrow = DateTime.Today.AddDays(1);
 
         await using var scope = scopeFactory.CreateAsyncScope();

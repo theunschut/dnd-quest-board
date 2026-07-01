@@ -13,21 +13,21 @@ public class AdminHandler(
         AuthorizationHandlerContext context,
         AdminRequirement requirement)
     {
-        // Step 1: SuperAdmin bypass (D-02) — reads claims directly, no DB call
+        // Step 1: SuperAdmin bypass — reads claims directly, no DB call
         if (context.User.IsInRole("SuperAdmin"))
         {
             context.Succeed(requirement);
             return;
         }
 
-        // Step 2: Null group guard (D-03)
+        // Step 2: Null group guard
         if (activeGroupContext.ActiveGroupId is not { } groupId)
         {
             context.Fail();
             return;
         }
 
-        // Step 3: Group role check (D-04)
+        // Step 3: Group role check
         var role = await userService.GetGroupRoleAsync(context.User, groupId);
         if (role == GroupRole.Admin)
             context.Succeed(requirement);

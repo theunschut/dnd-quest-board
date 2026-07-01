@@ -20,7 +20,7 @@ public class TestDatabase : IDisposable
 
     public QuestBoardContext CreateContext()
     {
-        // null = see all records (Phase 28 behavior); TestDatabase seeds outside DI
+        // null = see all records; TestDatabase seeds outside DI
         return new QuestBoardContext(_options, new MutableGroupContext { ActiveGroupId = null });
     }
 

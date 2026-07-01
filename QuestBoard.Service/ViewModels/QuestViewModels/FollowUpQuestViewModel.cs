@@ -4,7 +4,7 @@ namespace QuestBoard.Service.ViewModels.QuestViewModels;
 
 public class FollowUpQuestViewModel
 {
-    /// <summary>Id of the original quest this is a follow-up to (D-14).</summary>
+    /// <summary>Id of the original quest this is a follow-up to.</summary>
     [Required]
     public int OriginalQuestId { get; set; }
 
@@ -26,11 +26,11 @@ public class FollowUpQuestViewModel
     [Range(1, 20, ErrorMessage = "Player count must be between 1 and 20.")]
     public int TotalPlayerCount { get; set; } = 6;
 
-    /// <summary>Always false for new follow-up quests (D-04).</summary>
+    /// <summary>Always false for new follow-up quests.</summary>
     public bool DungeonMasterSession { get; set; } = false;
 
     /// <summary>
-    /// Must contain at least one date before saving (D-03, FOLLOW-03).
+    /// Must contain at least one date before saving.
     /// No default date — DM must add dates explicitly.
     /// Custom error message per UI-SPEC copywriting contract.
     /// </summary>

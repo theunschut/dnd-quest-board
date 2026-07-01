@@ -5,7 +5,7 @@ namespace QuestBoard.IntegrationTests.Controllers;
 
 public class CalendarControllerIntegrationTests(WebApplicationFactoryBase factory) : IClassFixture<WebApplicationFactoryBase>
 {
-    // D-01: Calendar now requires authentication ([Authorize] added in 31-01).
+    // Calendar now requires authentication ([Authorize] added to the controller).
     // Unauthenticated requests must redirect (or 401), never return the calendar view directly.
     [Fact]
     public async Task Index_WhenNotAuthenticated_ShouldRedirect()

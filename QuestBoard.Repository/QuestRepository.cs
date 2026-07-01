@@ -216,7 +216,7 @@ internal class QuestRepository(QuestBoardContext dbContext, IMapper mapper) : Ba
 
     public async Task<IList<Quest>> GetQuestsForTomorrowAllGroupsAsync(DateTime date, CancellationToken token = default)
     {
-        // D-08: explicit cross-group intent — IgnoreQueryFilters bypasses HasQueryFilter on QuestEntity
+        // Explicit cross-group intent — IgnoreQueryFilters bypasses HasQueryFilter on QuestEntity
         var entities = await ProjectWithoutCharacterImages(DbContext.Quests.IgnoreQueryFilters())
             .Where(q => q.FinalizedDate.HasValue && q.FinalizedDate.Value.Date == date.Date)
             .ToListAsync(token);

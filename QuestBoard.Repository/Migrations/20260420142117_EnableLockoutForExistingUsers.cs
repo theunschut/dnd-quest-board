@@ -10,8 +10,8 @@ namespace QuestBoard.Repository.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // SEC-02: backfill LockoutEnabled = 1 for all existing users so the
-            // Identity lockout policy configured in Program.cs (Plan 04-01) applies
+            // Backfill LockoutEnabled = 1 for all existing users so the
+            // Identity lockout policy configured in Program.cs applies
             // to every account, not just newly-registered ones.
             migrationBuilder.Sql("UPDATE AspNetUsers SET LockoutEnabled = 1");
         }

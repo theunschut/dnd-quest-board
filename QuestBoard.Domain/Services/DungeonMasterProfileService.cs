@@ -20,7 +20,7 @@ internal class DungeonMasterProfileService(IDungeonMasterProfileRepository repos
         var profile = await repository.GetProfileByUserIdAsync(userId, token);
         if (profile == null)
         {
-            // Lazy create per D-03 — profile entity does not exist until DM first saves
+            // Lazy create — profile entity does not exist until DM first saves
             var newProfile = new DungeonMasterProfile { Id = userId, Bio = bio };
             await repository.AddAsync(newProfile, token);
             if (imageBytes != null)

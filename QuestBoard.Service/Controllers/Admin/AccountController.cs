@@ -57,7 +57,7 @@ public class AccountController(IUserService userService, IIdentityService identi
                 }
             }
 
-            // Enumeration-safe (D-11): identical message/redirect whether or not the email matched an account.
+            // Enumeration-safe: identical message/redirect whether or not the email matched an account.
             TempData["Success"] = "If that email is registered, a reset link has been sent.";
             return RedirectToAction(nameof(ForgotPassword));
         }

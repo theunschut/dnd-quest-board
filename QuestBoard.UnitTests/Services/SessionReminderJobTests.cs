@@ -31,7 +31,7 @@ public class SessionReminderJobTests
         emailOptions.Value.Returns(new EmailSettings { AppUrl = "https://example.com" });
 
         // Build the IServiceScopeFactory → IServiceScope → IServiceProvider chain
-        // D-09: ActiveGroupContextService must be resolvable — job calls GetRequiredService<ActiveGroupContextService>()
+        // ActiveGroupContextService must be resolvable — job calls GetRequiredService<ActiveGroupContextService>()
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var groupContextService = new ActiveGroupContextService(httpContextAccessor);
 

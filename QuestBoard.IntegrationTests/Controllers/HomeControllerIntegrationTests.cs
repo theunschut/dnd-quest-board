@@ -36,7 +36,7 @@ public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactor
         content.Should().NotBeNullOrEmpty();
     }
 
-    // D-04: Home is now a public landing page — it must show login copy and must NOT
+    // Home is now a public landing page — it must show login copy and must NOT
     // display quest content, even when quests exist in the database.
     [Fact]
     public async Task Index_ShouldContainLoginButton()
