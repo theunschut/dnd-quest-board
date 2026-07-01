@@ -134,6 +134,25 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// SESSION-01/SESSION-02: back ASP.NET Core Session with a SQL Server distributed cache so
+// ActiveGroupId (and other session data) survives app restarts, instead of the in-memory
+// default that is wiped on every deploy. Guarded like the Hangfire branch below: the Testing
+// environment falls back to AddDistributedMemoryCache so dotnet test never writes session rows
+// into the real dev SQL Server database.
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDistributedSqlServerCache(options =>
+    {
+        options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        options.SchemaName = "dbo";
+        options.TableName = "AspNetSessionState";
+    });
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+
 // Add session support
 builder.Services.AddSession(options =>
 {
