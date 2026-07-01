@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
 current_phase: 34
-current_phase_name: last phase of v5.0
-status: not_started
-stopped_at: Phase 34 context gathered
-last_updated: "2026-07-01T18:25:13.654Z"
+current_phase_name: Codebase Cleanup & Security Hardening — Mechanical Cleanup slice (34a)
+status: planned
+stopped_at: Phase 34 planned (5 plans) — split off Phase 34.1/34.2 for remaining CONCERNS.md scope
+last_updated: "2026-07-01T20:30:00.000Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 34 added to roadmap
+last_activity_desc: Phase 34 planning complete — 5 plans ready; Phase 34.1/34.2 inserted
 progress:
-  total_phases: 11
+  total_phases: 13
   completed_phases: 8
-  total_plans: 35
+  total_plans: 40
   completed_plans: 30
-  percent: 73
+  percent: 62
 ---
 
 # Project State
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 34 — Codebase Cleanup & Security Hardening (closing phase of v5.0, not yet planned)
+**Current focus:** Phase 34 — Codebase Cleanup & Security Hardening, Mechanical Cleanup slice (34a) — planned, ready to execute. Phase 34.1 (Security & Bugs) and Phase 34.2 (Performance & Architecture) inserted for remaining CONCERNS.md scope, not yet planned.
 
 ## Current Position
 
-Phase: 34 (last phase of v5.0)
-Plan: Not started (run /gsd-plan-phase 34)
-Status: Not planned yet
-Last activity: 2026-07-01 — Phase 34 added to roadmap
+Phase: 34 (Mechanical Cleanup slice 34a — last phase of v5.0 was split; 34.1/34.2 now close the milestone)
+Plan: 5 plans ready (34-01 through 34-05, all Wave 1)
+Status: Ready to execute
+Last activity: 2026-07-01 — Phase 34 planned (5 plans); Phase 34.1/34.2 inserted per D-03 split
 
 ```
-v5.0 Progress [█████████░] 89% (8/9 phases complete)
+v5.0 Progress [███████░░░] 73% (8/11 phases complete)
 Phase 26 Namespace Rename                              [x] complete (2026-06-29)
 Phase 27 Group Schema Foundation                        [x] complete (2026-06-30)
 Phase 28 Tenant Isolation                               [x] complete (2026-06-30)
@@ -43,7 +43,9 @@ Phase 30 Group UX + User Mgmt                            [x] complete (2026-06-3
 Phase 31 Unauthenticated Landing Redirect                [x] complete (2026-07-01)
 Phase 32 First-Login Password Flow                       [x] complete (2026-07-01)
 Phase 33 Session Persistence & Admin Email Rate Limiting [x] complete (2026-07-01)
-Phase 34 Codebase Cleanup & Security Hardening           [ ] not started
+Phase 34 Codebase Cleanup (Mechanical Cleanup slice 34a) [ ] planned, 5 plans ready
+Phase 34.1 Security & Bugs                               [ ] not planned (inserted)
+Phase 34.2 Performance & Architecture                    [ ] not planned (inserted)
 ```
 
 ## Deferred Items
@@ -120,11 +122,11 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/34-codebase-cleanup-and-security-hardening-remove-unused-code-s/34-CONTEXT.md
+**Resume file:** .planning/phases/34-codebase-cleanup-and-security-hardening-remove-unused-code-s/34-01-PLAN.md
 
-Last session: 2026-07-01T17:49:05.859Z
-Stopped at: Phase 34 context gathered
-Next step: /gsd-execute-phase 31
+Last session: 2026-07-01T20:30:00.000Z
+Stopped at: Phase 34 planned (5 plans, verified) — Phase 34.1/34.2 inserted for remaining CONCERNS.md scope
+Next step: /gsd-execute-phase 34
 
 ## Performance Metrics
 
