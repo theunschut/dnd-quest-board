@@ -14,8 +14,16 @@ namespace QuestBoard.Service.Middleware;
 ///   2. SuperAdmin passes through — a null ActiveGroupId is correct by design and must be
 ///      checked BEFORE the group check to avoid a redirect loop.
 ///   3. Exempt paths (the picker itself, auth, platform, error routes) pass through.
-///   4. Otherwise, resolve IActiveGroupContext; if ActiveGroupId is null, redirect to the
-///      hardcoded literal "/groups/pick" (never a user-supplied URL — open-redirect mitigation).
+///   4. Otherwise, resolve IActiveGroupContext; if ActiveGroupId is null:
+///        - GET/HEAD requests are redirected to the hardcoded literal "/groups/pick"
+///          (never a user-supplied URL — open-redirect mitigation), preserving the original
+///          path+query as ?returnUrl= so GroupPickerController can send the user back
+///          (validated there via Url.IsLocalUrl before use).
+///        - Non-idempotent requests (POST/PUT/PATCH/DELETE) are NOT redirected, because
+///          Response.Redirect (302) causes browsers to re-issue the request as a GET,
+///          silently dropping the submitted body with no user-facing error. Instead we
+///          short-circuit with 409 Conflict so the caller gets a distinguishable failure
+///          signal rather than a silent data loss.
 /// </summary>
 public class GroupSessionMiddleware(RequestDelegate next)
 {
@@ -45,7 +53,18 @@ public class GroupSessionMiddleware(RequestDelegate next)
         var groupContext = context.RequestServices.GetRequiredService<IActiveGroupContext>();
         if (groupContext.ActiveGroupId == null)
         {
-            context.Response.Redirect("/groups/pick");
+            if (!HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method))
+            {
+                // Don't silently redirect a non-idempotent request — Response.Redirect emits a
+                // 302, which browsers re-issue as a GET, dropping the submitted body with no
+                // error shown to the user. Fail loudly instead so the client can surface a
+                // "your session expired, please retry" message.
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                return;
+            }
+
+            var returnUrl = context.Request.Path + context.Request.QueryString;
+            context.Response.Redirect($"/groups/pick?returnUrl={Uri.EscapeDataString(returnUrl)}");
             return;
         }
 
