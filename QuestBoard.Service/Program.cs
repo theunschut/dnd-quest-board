@@ -173,6 +173,7 @@ app.UseRouting();
 
 app.UseSession();
 app.UseAuthentication();
+app.UseMiddleware<GroupSessionMiddleware>();
 app.UseAuthorization();
 
 if (!app.Environment.IsEnvironment("Testing"))
