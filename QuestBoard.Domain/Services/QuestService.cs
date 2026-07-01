@@ -17,7 +17,7 @@ internal class QuestService(
     {
         await repository.FinalizeQuestAsync(questId, finalizedDate, selectedPlayerSignupIds, token);
 
-        // EMAIL-04: re-fetch post-save to avoid stale IsSelected state
+        // Re-fetch post-save to avoid stale IsSelected state
         var quest = await repository.GetQuestWithDetailsAsync(questId, token);
         if (quest == null) return;
 
@@ -34,7 +34,7 @@ internal class QuestService(
 
         dispatcher.EnqueueFinalizedEmail(
             quest.Id,
-            quest.GroupId,    // D-06: group context for Hangfire job filter
+            quest.GroupId,    // group context for Hangfire job filter
             finalizedDate,
             recipientEmails,
             playerNames,
@@ -181,11 +181,11 @@ internal class QuestService(
         if (!original.IsFinalized)
             throw new InvalidOperationException("Cannot create a follow-up for a quest that has not been finalized.");
 
-        // D-11: Enforce at most one direct follow-up (checked via repository to avoid nav property load issues)
+        // Enforce at most one direct follow-up (checked via repository to avoid nav property load issues)
         if (await repository.HasFollowUpQuestAsync(originalQuestId, token))
             throw new InvalidOperationException("A follow-up quest already exists for this quest.");
 
-        // D-01, D-02, D-03, D-04: Copy fields, append title, clear dates, reset DM session
+        // Copy fields, append title, clear dates, reset DM session
         var followUp = new Quest
         {
             Title = $"{original.Title} - Part 2",
@@ -193,15 +193,15 @@ internal class QuestService(
             ChallengeRating = original.ChallengeRating,
             TotalPlayerCount = original.TotalPlayerCount,
             DungeonMasterId = original.DungeonMasterId,
-            DungeonMasterSession = false,          // D-04
-            ProposedDates = [],                    // D-03
+            DungeonMasterSession = false,
+            ProposedDates = [],
             OriginalQuestId = original.Id,
         };
 
         // Persist the quest first to obtain its Id
         await repository.AddAsync(followUp, token);
 
-        // D-05, D-06, D-07: Import IsSelected=true players as SignupRole.Player immediately on save
+        // Import IsSelected=true players as SignupRole.Player immediately on save
         var selectedSignups = original.PlayerSignups
             .Where(ps => ps.IsSelected)
             .ToList();
@@ -212,7 +212,7 @@ internal class QuestService(
             {
                 Player = ps.Player,
                 Quest = followUp,
-                Role = SignupRole.Player,    // D-06: always Player regardless of original role
+                Role = SignupRole.Player,    // always Player regardless of original role
                 IsSelected = true,
                 SignupTime = DateTime.UtcNow,
                 DateVotes = [],

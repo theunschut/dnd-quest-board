@@ -164,8 +164,8 @@ public class QuestBoardContext(
             .IsRequired(false);
 
         // Self-referential follow-up quest relationship
-        // One quest may have at most one direct follow-up (D-11, D-12)
-        // Delete behaviour: ClientSetNull so deleting a follow-up does not delete the original (D-14)
+        // One quest may have at most one direct follow-up
+        // Delete behaviour: ClientSetNull so deleting a follow-up does not delete the original
         modelBuilder.Entity<QuestEntity>()
             .HasOne(q => q.OriginalQuest)
             .WithOne(q => q.FollowUpQuest)
@@ -173,7 +173,7 @@ public class QuestBoardContext(
             .OnDelete(DeleteBehavior.ClientSetNull)
             .IsRequired(false);
 
-        // ReminderLog FK relationships — NoAction to prevent cascade cycles (T-22-01)
+        // ReminderLog FK relationships — NoAction to prevent cascade cycles
         modelBuilder.Entity<ReminderLogEntity>()
             .HasOne(r => r.Quest)
             .WithMany()
@@ -192,46 +192,46 @@ public class QuestBoardContext(
 
         // Group entity relationships
 
-        // Groups.Name must be unique across the tenant (D-08)
+        // Groups.Name must be unique across the tenant
         modelBuilder.Entity<GroupEntity>()
             .HasIndex(g => g.Name)
             .IsUnique();
 
-        // UserGroups: one membership row per user per group (D-06)
+        // UserGroups: one membership row per user per group
         modelBuilder.Entity<UserGroupEntity>()
             .HasIndex(ug => new { ug.UserId, ug.GroupId })
             .IsUnique();
 
-        // Quest → Group: NoAction to prevent cascade cycles (D-10, GROUP-03)
+        // Quest → Group: NoAction to prevent cascade cycles
         modelBuilder.Entity<QuestEntity>()
             .HasOne(q => q.Group)
             .WithMany()
             .HasForeignKey(q => q.GroupId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // ShopItem → Group: NoAction to prevent cascade cycles (D-10, GROUP-03)
+        // ShopItem → Group: NoAction to prevent cascade cycles
         modelBuilder.Entity<ShopItemEntity>()
             .HasOne(si => si.Group)
             .WithMany()
             .HasForeignKey(si => si.GroupId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // UserGroup → User: Cascade — removing a user removes their memberships (D-09)
+        // UserGroup → User: Cascade — removing a user removes their memberships
         modelBuilder.Entity<UserGroupEntity>()
             .HasOne(ug => ug.User)
             .WithMany(u => u.UserGroups)
             .HasForeignKey(ug => ug.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // UserGroup → Group: Cascade — removing a group removes all memberships (D-09)
+        // UserGroup → Group: Cascade — removing a group removes all memberships
         modelBuilder.Entity<UserGroupEntity>()
             .HasOne(ug => ug.Group)
             .WithMany(g => g.UserGroups)
             .HasForeignKey(ug => ug.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // TENANT-03: Global query filters for group isolation
-        // Null = see all (Phase 28 intentional; Phase 29 tightens with IsSuperAdmin check)
+        // Global query filters for group isolation
+        // Null = see all (SuperAdmin/seeding contexts intentionally bypass group scoping)
         // Lambda closes over activeGroupContext instance — re-evaluated per query, not at startup
         // CRITICAL: Do NOT capture activeGroupContext.ActiveGroupId into a local var here.
         //           That captures the value once (null at model-build time). Always reference the service.
