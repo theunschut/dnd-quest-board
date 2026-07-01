@@ -7,24 +7,23 @@ using Microsoft.Extensions.Options;
 
 namespace QuestBoard.Service.Jobs;
 
-public class ConfirmationEmailJob(
+public class ForgotPasswordEmailJob(
     IServiceScopeFactory scopeFactory,
-    ILogger<ConfirmationEmailJob> logger)
+    ILogger<ForgotPasswordEmailJob> logger)
 {
-    public async Task ExecuteAsync(string toEmail, string userName, string callbackUrl, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(string toEmail, string callbackUrl, CancellationToken cancellationToken = default)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var renderService = scope.ServiceProvider.GetRequiredService<IEmailRenderService>();
         var emailService  = scope.ServiceProvider.GetRequiredService<IEmailService>();
         var emailSettings = scope.ServiceProvider.GetRequiredService<IOptions<EmailSettings>>().Value;
 
-        var html = await renderService.RenderAsync<ConfirmEmail>(new Dictionary<string, object?>
+        var html = await renderService.RenderAsync<ForgotPassword>(new Dictionary<string, object?>
         {
-            { nameof(ConfirmEmail.UserName),    userName },
-            { nameof(ConfirmEmail.CallbackUrl), callbackUrl },
-            { nameof(ConfirmEmail.AppUrl),      emailSettings.AppUrl }
+            { nameof(ForgotPassword.CallbackUrl), callbackUrl },
+            { nameof(ForgotPassword.AppUrl),      emailSettings.AppUrl }
         });
 
-        await emailService.SendAsync(toEmail, "Confirm your D&D Quest Board account", html);
+        await emailService.SendAsync(toEmail, "Reset your D&D Quest Board password", html);
     }
 }

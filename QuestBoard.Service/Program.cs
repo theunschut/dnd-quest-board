@@ -12,8 +12,10 @@ using QuestBoard.Service.ViewExpanders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 using Hangfire;
 using Hangfire.SqlServer;
 using QuestBoard.Service.Jobs;
@@ -58,6 +60,14 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 .AddEntityFrameworkStores<QuestBoardContext>()
 .AddDefaultTokenProviders();
 
+// PWFLOW-06 (D-13): extend the shared "Default" token provider lifespan to 7 days.
+// This affects password-reset, email-confirmation, and change-email tokens uniformly —
+// net-new configuration block (framework default was 1 day, previously unconfigured).
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromDays(7);
+});
+
 // Add Authorization policies
 builder.Services.AddScoped<IAuthorizationHandler, DungeonMasterHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
@@ -68,6 +78,31 @@ builder.Services.AddAuthorizationBuilder()
         policy.Requirements.Add(new AdminRequirement()))
     .AddPolicy("SuperAdminOnly", policy =>
         policy.RequireRole("SuperAdmin"));
+
+// PWFLOW-04 (D-12): rate limit the ForgotPassword POST action — 3 requests / 15 minutes per client IP.
+// T-32-04: partitioned by RemoteIpAddress; behind a reverse proxy without ForwardedHeaders configured,
+// this may reflect the proxy's IP rather than the real client — documented manual deploy-environment
+// verification item (ForwardedHeaders is confirmed absent and intentionally not added in this phase).
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("forgot-password", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsync(
+            "Too many requests. Please try again later.", cancellationToken);
+    };
+});
 
 // Add session support
 builder.Services.AddSession(options =>
@@ -174,6 +209,7 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseMiddleware<GroupSessionMiddleware>();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 if (!app.Environment.IsEnvironment("Testing"))
