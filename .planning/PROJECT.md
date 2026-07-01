@@ -60,6 +60,8 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 - ✓ Admin email stats dashboard (Resend API: sent/delivered/bounced/failed) — v4.0 (Phase 23)
 - ✓ Email confirmation flow — admin resend button, job guards, callback endpoint — v4.0 (Phase 24)
 - ✓ First-login password flow — admin-created accounts are passwordless until the user sets their own password via a Welcome email link; self-service Forgot Password flow with enumeration-safe, rate-limited reset; old confirm-email-only flow retired — v5.0 (Phase 32)
+- ✓ Session persistence — `ActiveGroupId` (and all other session data) survives app restarts via a SQL Server-backed distributed cache (`AddDistributedSqlServerCache`), replacing the in-memory session store — v5.0 (Phase 33)
+- ✓ Admin email-resend rate limiting — "Resend Welcome/Confirmation Email" and `EditUser`'s email-change confirmation are limited to 3/hour per target user, protecting the Resend relay's quota from accidental button-mashing; one-shot automated sends (e.g. `CreateUser`'s welcome email) remain exempt — v5.0 (Phase 33)
 
 ### Active
 
@@ -125,6 +127,8 @@ The quest board must reliably let DMs post quests and players sign up — everyt
 | GroupSessionMiddleware redirects on all HTTP verbs, including POST | Simplicity — one redirect check before Authorization, no verb-specific branching | — Pending: code review flagged a POST-body data-loss risk if session expires mid-submission (31-REVIEW.md CR-01); not yet fixed |
 | SetPassword gets its own "set-password" rate-limit policy rather than sharing ForgotPassword's | A legitimate forgot-password + set-password flow by one user would otherwise consume 2 of the same 3-request/15-min budget; confirmed concretely when reusing the shared policy broke an integration test | ✓ Good — Phase 32 |
 | ForwardedHeaders trust is config-driven (ReverseProxy:KnownProxies, empty by default) rather than hardcoded | Traefik runs on a separate CT from the App CT; without trusting its IP, RemoteIpAddress-based rate limiting collapses into one shared bucket for all users in production | ✓ Good — Phase 32; env var set at deploy time via docs/server-setup.md |
+| No custom Hangfire cleanup job for `AspNetSessionState` expired rows | `SqlServerCache`'s own internal polling (`ExpiredItemsDeletionInterval`, default 30min) already purges expired rows; verified against source — a duplicate job would race it for no benefit | ✓ Good — Phase 33; code review initially flagged this as missing (reviewer lacked research-doc context) but it was already correctly decided against |
+| Admin email rate limit partitioned by target userId, not admin identity | Protects any one recipient's inbox from repeated sends regardless of which admin triggers it | ✓ Good — Phase 33 |
 
 ## Evolution
 
@@ -145,4 +149,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-07-01 — Phase 31 complete (Unauthenticated Landing Redirect)*
+*Last updated: 2026-07-01 — Phase 33 complete (Session Persistence + Admin Email Rate Limiting) — v5.0 Multi-Tenancy milestone now 100% complete (8/8 phases)*
