@@ -97,3 +97,7 @@ None - no external service configuration required. The migration auto-applies on
 ---
 *Phase: 33-session-persistence-persist-activegroupid-across-app-restart*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+All created/modified files confirmed present on disk; all task commits (b49607f, 57170ce, 06ee0b5) and the summary commit (7ccffe4) confirmed in git log.
