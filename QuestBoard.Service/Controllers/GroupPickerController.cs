@@ -56,7 +56,7 @@ public class GroupPickerController(IGroupService groupService) : Controller
         }
         else
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Quest");
         }
     }
 }
