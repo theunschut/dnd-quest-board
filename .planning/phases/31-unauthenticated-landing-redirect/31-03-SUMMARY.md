@@ -107,3 +107,16 @@ None - no external service configuration required.
 ---
 *Phase: 31-unauthenticated-landing-redirect*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+All created/modified files confirmed present:
+- QuestBoard.Service/Middleware/GroupSessionMiddleware.cs
+- QuestBoard.Service/Controllers/GroupPickerController.cs
+- QuestBoard.Service/Program.cs
+
+All commits confirmed in git log:
+- 7b8c766 (Task 1)
+- ac7fda4 (Task 2)
+- ef018a5 (Task 3)
+- d0af090 (docs: SUMMARY.md)
