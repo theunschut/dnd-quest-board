@@ -3,16 +3,17 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Omphalos Integration
 current_phase: 33
+current_phase_name: session-persistence-persist-activegroupid-across-app-restart
 status: executing
-stopped_at: Phase 33 context gathered
-last_updated: "2026-07-01T16:30:06.283Z"
+stopped_at: Completed 33-01-PLAN.md
+last_updated: "2026-07-01T16:43:43.917Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 33 planning complete
+last_activity_desc: Phase 33 execution started
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 27
-  completed_plans: 27
+  total_plans: 30
+  completed_plans: 28
   percent: 88
 ---
 
@@ -23,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** Phase 33 — session persistence persist activegroupid across app restart
+**Current focus:** Phase 33 — session-persistence-persist-activegroupid-across-app-restart
 
 ## Current Position
 
-Phase: 33
-Plan: Not started
+Phase: 33 (session-persistence-persist-activegroupid-across-app-restart) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-01 — Phase 33 planning complete
+Last activity: 2026-07-01 — Phase 33 execution started
 
 ```
 v5.0 Progress [██████████] 100% (4/5 phases complete — Phase 30 not started)
@@ -112,10 +113,10 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/33-session-persistence-persist-activegroupid-across-app-restart/33-CONTEXT.md
+**Resume file:** None
 
-Last session: 2026-07-01T15:39:01.919Z
-Stopped at: Phase 33 context gathered
+Last session: 2026-07-01T16:43:43.904Z
+Stopped at: Completed 33-01-PLAN.md
 Next step: /gsd-execute-phase 31
 
 ## Performance Metrics
@@ -138,6 +139,7 @@ Next step: /gsd-execute-phase 31
 | Phase 30 P03 | 20min | 3 tasks | 5 files |
 | Phase 30 P02 | 15min | 2 tasks | 6 files |
 | Phase 30 P04 | 10min | 2 tasks | 2 files |
+| Phase 33 P01 | 12min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -148,3 +150,5 @@ Next step: /gsd-execute-phase 31
 - [Phase 30-02]: RegisterViewModel left in place (unused but harmless) — removing it was out of scope for plan 30-02
 - [Phase 30-02]: ConfirmationEmailJob enqueue logic removed from AccountController.Register entirely (not relocated) — already exists in AdminController.CreateUser from plan 30-03
 - [Phase ?]: [Phase 30-04]: Used SessionKeys.ActiveGroupName constant reference (not literal string) in both layouts, importing QuestBoard.Service.Constants
+- [Phase 33-01]: Distributed cache registered before AddSession, Testing-guarded exactly like the existing Hangfire branch — No new structural pattern needed; matches established convention
+- [Phase 33-01]: ExpiredItemsDeletionInterval left unset (framework default 30 min) — Per plan D-04; no Hangfire cleanup job needed for single-tenant scale

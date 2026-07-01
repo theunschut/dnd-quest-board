@@ -64,8 +64,8 @@
 
 ### Session Persistence (Phase 33)
 
-- [ ] **SESSION-01**: ASP.NET Core Session is backed by `AddDistributedSqlServerCache` (package `Microsoft.Extensions.Caching.SqlServer` 10.0.9) registered BEFORE `AddSession` in `Program.cs`, so `ActiveGroupId` survives an app restart instead of being wiped from the in-memory fallback store. Registration is guarded by `if (!builder.Environment.IsEnvironment("Testing"))` with an `AddDistributedMemoryCache()` fallback in the Testing branch (mirrors the existing Hangfire branch).
-- [ ] **SESSION-02**: The `dbo.AspNetSessionState` cache table is provisioned by an EF Core migration using `migrationBuilder.Sql(...)` with an `IF NOT EXISTS` guard; the `Id` column uses `COLLATE SQL_Latin1_General_CP1_CS_AS` (case-sensitive) per the official `dotnet/aspnetcore` DDL. No `DbSet`/entity is added for this table.
+- [x] **SESSION-01**: ASP.NET Core Session is backed by `AddDistributedSqlServerCache` (package `Microsoft.Extensions.Caching.SqlServer` 10.0.9) registered BEFORE `AddSession` in `Program.cs`, so `ActiveGroupId` survives an app restart instead of being wiped from the in-memory fallback store. Registration is guarded by `if (!builder.Environment.IsEnvironment("Testing"))` with an `AddDistributedMemoryCache()` fallback in the Testing branch (mirrors the existing Hangfire branch).
+- [x] **SESSION-02**: The `dbo.AspNetSessionState` cache table is provisioned by an EF Core migration using `migrationBuilder.Sql(...)` with an `IF NOT EXISTS` guard; the `Id` column uses `COLLATE SQL_Latin1_General_CP1_CS_AS` (case-sensitive) per the official `dotnet/aspnetcore` DDL. No `DbSet`/entity is added for this table.
 
 ### Admin Email Rate Limiting (Phase 33)
 
