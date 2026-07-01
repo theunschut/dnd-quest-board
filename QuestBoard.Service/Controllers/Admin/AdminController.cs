@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text;
@@ -17,7 +18,7 @@ using System.Text.Json;
 namespace QuestBoard.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache, IActiveGroupContext activeGroupContext) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache, IActiveGroupContext activeGroupContext, ILogger<AdminController> logger) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -35,7 +36,6 @@ public class AdminController(IUserService userService, IQuestService questServic
             userViewModels.Add(new UserManagementViewModel
             {
                 User = user,
-                Roles = new List<string>(),
                 IsAdmin = groupRole == GroupRole.Admin,
                 IsDungeonMaster = groupRole == GroupRole.DungeonMaster,
                 IsPlayer = groupRole == GroupRole.Player,
@@ -124,7 +124,10 @@ public class AdminController(IUserService userService, IQuestService questServic
                 {
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
                     var callbackUrl = Url.Action("SetPassword", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
-                    jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, true, CancellationToken.None));
+                    if (callbackUrl == null)
+                        logger.LogError("Failed to generate SetPassword callback URL for userId {UserId}", userId.Value);
+                    else
+                        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl, true, CancellationToken.None));
                 }
             }
 
@@ -274,6 +277,12 @@ public class AdminController(IUserService userService, IQuestService questServic
             return RedirectToAction(nameof(Users));
         }
 
+        if (user.EmailConfirmed)
+        {
+            TempData["Error"] = $"{user.Name} has already confirmed their account.";
+            return RedirectToAction(nameof(Users));
+        }
+
         var rawToken = await identityService.GeneratePasswordResetTokenForUserAsync(userId);
         if (rawToken == null || string.IsNullOrEmpty(user.Email))
         {
@@ -283,12 +292,18 @@ public class AdminController(IUserService userService, IQuestService questServic
 
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
         var callbackUrl = Url.Action("SetPassword", "Account", new { userId, token = encodedToken }, Request.Scheme);
+        if (callbackUrl == null)
+        {
+            logger.LogError("Failed to generate SetPassword callback URL for userId {UserId}", userId);
+            TempData["Error"] = $"Failed to send confirmation email to {user.Name}. Please try again.";
+            return RedirectToAction(nameof(Users));
+        }
 
         // Legacy accounts created before Phase 32 may already have a password set (admin-set-password
         // flow, retired) but never confirmed their email — the "opened an account in your name" copy
         // would be inaccurate for them, so Welcome.razor picks a different variant via IsNewAccount.
         var hasExistingPassword = await userService.HasPasswordAsync(userId);
-        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, !hasExistingPassword, CancellationToken.None));
+        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl, !hasExistingPassword, CancellationToken.None));
         TempData["Success"] = $"Welcome email queued for {user.Name}.";
         return RedirectToAction(nameof(Users));
     }

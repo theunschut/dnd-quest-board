@@ -1,19 +1,21 @@
 using QuestBoard.Domain.Interfaces;
+using QuestBoard.Domain.Models;
 using QuestBoard.Service.Components.Emails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace QuestBoard.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class EmailPreviewController(IEmailRenderService emailRenderService) : Controller
+public class EmailPreviewController(IEmailRenderService emailRenderService, IOptions<EmailSettings> emailOptions) : Controller
 {
     private static readonly IList<string> SamplePlayers = ["Arannis", "Tordek", "Mialee"];
 
     [HttpGet]
     public IActionResult Index()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = $$"""
             <!doctype html><html><head><meta charset="utf-8">
             <title>Email Preview — Admin</title>
@@ -37,7 +39,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> QuestFinalized()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.QuestFinalized>(new()
         {
             [nameof(Components.Emails.QuestFinalized.QuestTitle)] = "The Tomb of Annihilation",
@@ -55,7 +57,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> QuestDateChanged()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.QuestDateChanged>(new()
         {
             [nameof(Components.Emails.QuestDateChanged.QuestTitle)] = "The Tomb of Annihilation",
@@ -71,7 +73,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> Welcome()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.Welcome>(new()
         {
             [nameof(Components.Emails.Welcome.UserName)] = "Arannis",
@@ -84,7 +86,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> ForgotPassword()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.ForgotPassword>(new()
         {
             [nameof(Components.Emails.ForgotPassword.CallbackUrl)] = $"{appUrl}/Account/SetPassword?userId=preview&token=preview-token",
@@ -96,7 +98,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> ChangeEmailConfirm()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.ChangeEmailConfirm>(new()
         {
             [nameof(Components.Emails.ChangeEmailConfirm.UserName)] = "Arannis",
@@ -109,7 +111,7 @@ public class EmailPreviewController(IEmailRenderService emailRenderService) : Co
     [HttpGet]
     public async Task<IActionResult> SessionReminder()
     {
-        var appUrl = $"{Request.Scheme}://{Request.Host}";
+        var appUrl = emailOptions.Value.AppUrl;
         var html = await emailRenderService.RenderAsync<Components.Emails.SessionReminder>(new()
         {
             [nameof(Components.Emails.SessionReminder.QuestTitle)] = "The Tomb of Annihilation",

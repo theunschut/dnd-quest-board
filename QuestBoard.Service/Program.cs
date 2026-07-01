@@ -98,9 +98,24 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // PWFLOW-04 (D-12): rate limit the ForgotPassword POST action — 3 requests / 15 minutes per client IP.
+// SetPassword gets its own independent "set-password" policy (same limits) rather than sharing
+// "forgot-password"'s budget — a legitimate forgot-password + set-password flow by one user
+// shouldn't eat into the same 3-request window twice, and their abuse surfaces are distinct
+// (anonymous spam vs. token-guessing).
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("forgot-password", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+
+    options.AddPolicy("set-password", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions

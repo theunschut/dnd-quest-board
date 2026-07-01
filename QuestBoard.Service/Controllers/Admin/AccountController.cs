@@ -43,7 +43,17 @@ public class AccountController(IUserService userService, IIdentityService identi
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
                     var callbackUrl = Url.Action(nameof(SetPassword), "Account",
                         new { userId = userId.Value, token = encodedToken }, Request.Scheme);
-                    jobClient.Enqueue<ForgotPasswordEmailJob>(j => j.ExecuteAsync(model.Email, callbackUrl!, CancellationToken.None));
+                    if (callbackUrl == null)
+                    {
+                        logger.LogError("Failed to generate SetPassword callback URL for userId {UserId}", userId.Value);
+                    }
+                    else
+                    {
+                        // Send to the canonically stored email, not the requester's typed casing.
+                        var user = await userService.GetByIdAsync(userId.Value);
+                        var recipientEmail = string.IsNullOrEmpty(user?.Email) ? model.Email : user.Email;
+                        jobClient.Enqueue<ForgotPasswordEmailJob>(j => j.ExecuteAsync(recipientEmail, callbackUrl, CancellationToken.None));
+                    }
                 }
             }
 
@@ -63,6 +73,7 @@ public class AccountController(IUserService userService, IIdentityService identi
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("set-password")]
     public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
     {
         if (ModelState.IsValid)
@@ -74,7 +85,10 @@ public class AccountController(IUserService userService, IIdentityService identi
 
                 if (result.Succeeded)
                 {
-                    await identityService.ConfirmEmailDirectlyAsync(model.UserId);
+                    var confirmResult = await identityService.ConfirmEmailDirectlyAsync(model.UserId);
+                    if (!confirmResult.Succeeded)
+                        logger.LogWarning("ConfirmEmailDirectlyAsync failed for userId {UserId} after password reset", model.UserId);
+
                     TempData["Success"] = "Your password has been set. Please log in.";
                     return RedirectToAction(nameof(Login));
                 }
@@ -197,9 +211,16 @@ public class AccountController(IUserService userService, IIdentityService identi
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
                     var callbackUrl = Url.Action(nameof(ConfirmEmailChange), "Account",
                         new { userId = user.Id, newEmail = model.Email, token = encodedToken }, Request.Scheme);
-                    jobClient.Enqueue<ChangeEmailConfirmationJob>(j => j.ExecuteAsync(model.Email, user.Name, callbackUrl!, CancellationToken.None));
-                    TempData["InfoMessage"] = $"A confirmation email has been sent to {model.Email}. Click the link to complete the change.";
-                    return RedirectToAction(nameof(Profile));
+                    if (callbackUrl == null)
+                    {
+                        logger.LogError("Failed to generate ConfirmEmailChange callback URL for userId {UserId}", user.Id);
+                    }
+                    else
+                    {
+                        jobClient.Enqueue<ChangeEmailConfirmationJob>(j => j.ExecuteAsync(model.Email, user.Name, callbackUrl, CancellationToken.None));
+                        TempData["InfoMessage"] = $"A confirmation email has been sent to {model.Email}. Click the link to complete the change.";
+                        return RedirectToAction(nameof(Profile));
+                    }
                 }
             }
 
@@ -253,17 +274,5 @@ public class AccountController(IUserService userService, IIdentityService identi
         }
 
         return View(model);
-    }
-
-    private IActionResult RedirectToLocal(string? returnUrl)
-    {
-        if (Url.IsLocalUrl(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-        else
-        {
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
     }
 }
