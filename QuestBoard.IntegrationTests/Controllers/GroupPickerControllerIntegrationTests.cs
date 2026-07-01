@@ -156,4 +156,50 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         var group = context.Groups.FirstOrDefault(g => g.Id == 1);
         group.Should().NotBeNull();
     }
+
+    // WR-05 (31-REVIEW): full round-trip for a deep link into a newly-protected controller
+    // area — authenticated, no active group -> middleware redirects to the picker with
+    // ?returnUrl preserving the original destination -> selecting a group lands the user back
+    // on that original destination rather than a fixed fallback. The TestAuthHandler-based
+    // client re-authenticates via header on every request rather than via a persisted login
+    // cookie (see note on SelectGroup_ShouldPersistActiveGroupInSession above), so this test
+    // chains the two hops explicitly via the returnUrl carried in each response, rather than
+    // relying on session-cookie round-tripping between requests.
+    [Fact]
+    public async Task DeepLink_NoActiveGroup_SelectGroup_ReturnsToOriginalDestination()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "roundtripuser", "roundtrip@example.com", roles: ["Player"]);
+
+        _factory.TestGroupContext.ActiveGroupId = null;
+        try
+        {
+            // Act 1 — deep link into a protected area with no active group selected.
+            var firstHop = await client.GetAsync("/Calendar", TestContext.Current.CancellationToken);
+            firstHop.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+            var firstLocation = firstHop.Headers.Location?.ToString() ?? string.Empty;
+            firstLocation.Should().Contain("/groups/pick");
+            firstLocation.Should().Contain("returnUrl=");
+
+            var returnUrl = Uri.UnescapeDataString(firstLocation.Split("returnUrl=")[1]);
+            returnUrl.Should().Be("/Calendar");
+
+            // Act 2 — select a group, passing the returnUrl carried from the first hop.
+            var formData = new Dictionary<string, string> { ["groupId"] = "1", ["returnUrl"] = returnUrl };
+            var secondHop = await client.PostAsync("/GroupPicker/SelectGroup",
+                new FormUrlEncodedContent(formData), TestContext.Current.CancellationToken);
+
+            // Assert — lands back on the originally-requested destination, not the Home/Quest
+            // fallback that RedirectToLocal uses when no (valid) returnUrl is supplied.
+            secondHop.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+            var secondLocation = secondHop.Headers.Location?.ToString() ?? string.Empty;
+            secondLocation.Should().Be("/Calendar");
+        }
+        finally
+        {
+            _factory.TestGroupContext.ActiveGroupId = 1;
+        }
+    }
 }
