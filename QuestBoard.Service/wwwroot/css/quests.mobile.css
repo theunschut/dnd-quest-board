@@ -1,5 +1,4 @@
 /* Quest Details Mobile — quests.mobile.css */
-/* Phase 13: QVIEW-01, QVIEW-02 */
 
 /* Participant list — glass card matching desktop modern-card */
 .participant-list-mobile {
@@ -110,7 +109,7 @@
     white-space: pre-wrap;
 }
 
-/* Calendar partial mobile rules — CAL-05 */
+/* Calendar partial mobile rules */
 /* Used by _Calendar.Mobile.cshtml when rendered inside Quest Details */
 
 .calendar-date-entry-mobile {
