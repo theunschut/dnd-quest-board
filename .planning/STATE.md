@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Tenancy
-current_phase: 33
-status: complete
-stopped_at: Phase 33 complete — v5.0 Multi-Tenancy milestone complete, ready for /gsd-complete-milestone
+current_phase: 34
+status: not_started
+stopped_at: Phase 34 added (Codebase Cleanup & Security Hardening) — not yet planned
 last_updated: "2026-07-01T17:25:59.168Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 33 complete
+last_activity_desc: Phase 34 added to roadmap
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 8
   total_plans: 30
   completed_plans: 30
-  percent: 100
-current_phase_name: session-persistence-persist-activegroupid-across-app-restart
+  percent: 89
+current_phase_name: codebase-cleanup-and-security-hardening-remove-unused-code-s
 ---
 
 # Project State
@@ -24,25 +24,26 @@ current_phase_name: session-persistence-persist-activegroupid-across-app-restart
 See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 
 **Core value:** The quest board must reliably let DMs post quests and players sign up — everything else enhances that loop.
-**Current focus:** v5.0 Multi-Tenancy complete — ready for milestone close-out (`/gsd-complete-milestone`)
+**Current focus:** Phase 34 — Codebase Cleanup & Security Hardening (closing phase of v5.0, not yet planned)
 
 ## Current Position
 
-Phase: 33 (last phase of v5.0)
-Plan: 3/3 complete
-Status: Milestone complete — ready for close-out
-Last activity: 2026-07-01 — Phase 33 complete
+Phase: 34 (last phase of v5.0)
+Plan: Not started (run /gsd-plan-phase 34)
+Status: Not planned yet
+Last activity: 2026-07-01 — Phase 34 added to roadmap
 
 ```
-v5.0 Progress [██████████] 100% (8/8 phases complete)
-Phase 26 Namespace Rename                            [x] complete (2026-06-29)
-Phase 27 Group Schema Foundation                      [x] complete (2026-06-30)
-Phase 28 Tenant Isolation                             [x] complete (2026-06-30)
-Phase 29 SuperAdmin + Mgmt Area                        [x] complete (2026-06-30)
-Phase 30 Group UX + User Mgmt                          [x] complete (2026-06-30)
-Phase 31 Unauthenticated Landing Redirect              [x] complete (2026-07-01)
-Phase 32 First-Login Password Flow                     [x] complete (2026-07-01)
+v5.0 Progress [█████████░] 89% (8/9 phases complete)
+Phase 26 Namespace Rename                              [x] complete (2026-06-29)
+Phase 27 Group Schema Foundation                        [x] complete (2026-06-30)
+Phase 28 Tenant Isolation                               [x] complete (2026-06-30)
+Phase 29 SuperAdmin + Mgmt Area                          [x] complete (2026-06-30)
+Phase 30 Group UX + User Mgmt                            [x] complete (2026-06-30)
+Phase 31 Unauthenticated Landing Redirect                [x] complete (2026-07-01)
+Phase 32 First-Login Password Flow                       [x] complete (2026-07-01)
 Phase 33 Session Persistence & Admin Email Rate Limiting [x] complete (2026-07-01)
+Phase 34 Codebase Cleanup & Security Hardening           [ ] not started
 ```
 
 ## Deferred Items
@@ -107,6 +108,7 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Phase 32 added: First-login password flow — admin-created users set their own password via a password-reset link in the welcome email; removes admin-set password from CreateUser form
 - Phase 33 added: Session persistence — ASP.NET Core Session has no distributed cache registered (confirmed via grep — no AddDistributedMemoryCache/AddStackExchangeRedisCache/AddDistributedSqlServerCache/IDistributedCache anywhere in the solution), so it falls back to an in-memory store wiped on every app restart. Auth cookie survives restarts (Identity's cookie is self-contained via Data Protection) but ActiveGroupContextService's ActiveGroupId does not, forcing every logged-in user to re-pick their group after every deploy. Discovered incidentally during Phase 32 UAT. Recommended fix: Microsoft.Extensions.Caching.SqlServer + AddDistributedSqlServerCache against the existing SQL Server connection (no new infrastructure like Redis needed) plus a small periodic cleanup job.
 - Phase 33 scope extended (2026-07-01): also rate-limit manual/admin-triggered email-sending buttons (e.g. "Resend Welcome Email" on /Admin/Users, EditUser's email-change confirmation) to protect the mail relay's send quota — discovered when testing showed SendConfirmationEmail has no rate limit (only ForgotPassword does, by design — PWFLOW-04/D-12 scoped it to the anonymous self-service form). User wants one-shot automated sends (e.g. CreateUser's welcome email) exempted, only repeatable manual buttons limited.
+- Phase 34 added (2026-07-01): Codebase cleanup and security hardening, requested as the closing phase of v5.0 — full-codebase review (not scoped to GSD-tracked work only): remove unused/dead code, strip low-value inline comments (especially ones referencing GSD requirement IDs or phase numbers — user finds these unhelpful and unread later) in favor of XML doc comments (`///<summary>`) on interfaces, and audit for security vulnerabilities and other known issues. User considers the v5.0 milestone done once this phase completes.
 
 ### Pending for Next Milestone
 

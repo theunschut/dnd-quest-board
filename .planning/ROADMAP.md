@@ -6,7 +6,7 @@
 - 🚧 **v2.0 Omphalos Integration** — Phases 10–11 (in progress — branch: `milestone/3-omphalos-integration`)
 - ✅ **v3.0 Mobile Version** — Phases 12–19 (shipped 2026-06-25)
 - ✅ **v4.0 Email Notifications** — Phases 20–25 (shipped 2026-06-28)
-- 🚧 **v5.0 Multi-Tenancy** — Phases 26–30 (in progress)
+- 🚧 **v5.0 Multi-Tenancy** — Phases 26–34 (in progress)
 
 _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it is not assigned to any active milestone._
 
@@ -70,9 +70,9 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 </details>
 
 <details>
-<summary>🚧 v5.0 Multi-Tenancy (Phases 26–33) — IN PROGRESS</summary>
+<summary>🚧 v5.0 Multi-Tenancy (Phases 26–34) — IN PROGRESS</summary>
 
-**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, admin-only user creation, auth lockdown with public landing page, first-login password flow, and session persistence across app restarts.
+**Overview:** Transform the Quest Board from a single-tenant EuphoriaInn app into a generic, rebrandable multi-group platform. Namespace rename, group schema with EF Core Global Query Filters, SuperAdmin role and management area, group-picker UX, admin-only user creation, auth lockdown with public landing page, first-login password flow, session persistence across app restarts, and a closing codebase cleanup/security pass.
 
 - [x] **Phase 26: Namespace Rename** - Rename all EuphoriaInn.* namespaces and project files to QuestBoard.* with zero behavior change (completed 2026-06-29)
 - [x] **Phase 27: Group Schema Foundation** - GroupEntity + UserGroups junction table + GroupId FKs + data migration seeding EuphoriaInn group (completed 2026-06-30)
@@ -82,6 +82,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
 - [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
 - [x] **Phase 33: Session Persistence & Admin Email Rate Limiting** - ActiveGroupId survives app restarts via AddDistributedSqlServerCache; admin email resend buttons rate-limited 3/hour per target user (completed 2026-07-01)
+- [ ] **Phase 34: Codebase Cleanup & Security Hardening** - Full-codebase review: remove unused code, strip low-value/GSD-reference comments in favor of XML doc comments on interfaces, audit for vulnerabilities — not started
 
 </details>
 
@@ -303,6 +304,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
 | 32. First-Login Password Flow | v5.0 | 5/5 | Complete    | 2026-07-01 |
 | 33. Session Persistence & Admin Email Rate Limiting | v5.0 | 3/3 | Complete    | 2026-07-01 |
+| 34. Codebase Cleanup & Security Hardening | v5.0 | 0/0 | Not started | — |
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
@@ -324,3 +326,14 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Wave 3** *(blocked on 33-01, 33-02)*
 
 - [x] 33-03-PLAN.md — EMAIL-RATE integration tests + full-suite green gate + blocking human-verify checkpoint (session table schema SESSION-02 + restart survival SESSION-01)
+
+### Phase 34: Codebase Cleanup & Security Hardening
+
+**Goal:** Full review of the codebase — remove unused/dead code; strip low-value inline comments (especially ones referencing GSD requirement IDs or phase numbers, which add no value once merged) in favor of XML doc comments (`///<summary>`) on interfaces; audit for security vulnerabilities and other known issues. Covers the entire codebase, including code that predates GSD tracking. Closes out the v5.0 Multi-Tenancy milestone.
+**Requirements**: TBD
+**Depends on:** Phase 33
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 34 to break down)
