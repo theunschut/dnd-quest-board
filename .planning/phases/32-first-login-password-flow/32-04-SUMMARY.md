@@ -123,3 +123,7 @@ None - no external service configuration required.
 ---
 *Phase: 32-first-login-password-flow*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+All claimed files exist (32-04-SUMMARY.md) and all claimed commits (159b7fc, c0c3584, 1a8d220, 610715e) are present in git history.
