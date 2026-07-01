@@ -5,6 +5,7 @@ using QuestBoard.Service.ViewModels.AccountViewModels;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.Text;
@@ -50,6 +51,80 @@ public class AccountController(IUserService userService, IIdentityService identi
         }
 
         return RedirectToAction(nameof(Login));
+    }
+
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [EnableRateLimiting("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var userId = await identityService.GetIdByEmailAsync(model.Email);
+            if (userId.HasValue)
+            {
+                var rawToken = await identityService.GeneratePasswordResetTokenForUserAsync(userId.Value);
+                if (rawToken != null)
+                {
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+                    var callbackUrl = Url.Action(nameof(SetPassword), "Account",
+                        new { userId = userId.Value, token = encodedToken }, Request.Scheme);
+                    jobClient.Enqueue<ForgotPasswordEmailJob>(j => j.ExecuteAsync(model.Email, callbackUrl!, CancellationToken.None));
+                }
+            }
+
+            // Enumeration-safe (D-11): identical message/redirect whether or not the email matched an account.
+            TempData["Success"] = "If that email is registered, a reset link has been sent.";
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public IActionResult SetPassword(int userId, string token)
+    {
+        return View(new SetPasswordViewModel { UserId = userId, Token = token });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+                var result = await identityService.ResetPasswordAsync(model.UserId, decodedToken, model.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    await identityService.ConfirmEmailDirectlyAsync(model.UserId);
+                    TempData["Success"] = "Your password has been set. Please log in.";
+                    return RedirectToAction(nameof(Login));
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "SetPassword failed for userId {UserId}", model.UserId);
+                TempData["Error"] = "Password reset failed. The link may be expired or invalid. Please request a new one.";
+                return RedirectToAction(nameof(Login));
+            }
+        }
+
+        return View(model);
     }
 
     [HttpPost]
