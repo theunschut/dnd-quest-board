@@ -10,11 +10,13 @@ using QuestBoard.Service.Middleware;
 using QuestBoard.Service.Services;
 using QuestBoard.Service.ViewExpanders;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Threading.RateLimiting;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -79,10 +81,23 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("SuperAdminOnly", policy =>
         policy.RequireRole("SuperAdmin"));
 
+// T-32-04 remediation: trust X-Forwarded-For from the configured reverse proxy (e.g. Traefik)
+// so RemoteIpAddress reflects the real client instead of the proxy — otherwise every request
+// shares one partition key below. KnownProxies comes from ReverseProxy:KnownProxies config
+// (empty by default; set via env var in production, see docs/server-setup.md).
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+
+    var knownProxies = builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [];
+    foreach (var proxy in knownProxies)
+    {
+        if (IPAddress.TryParse(proxy, out var ip))
+            options.KnownProxies.Add(ip);
+    }
+});
+
 // PWFLOW-04 (D-12): rate limit the ForgotPassword POST action — 3 requests / 15 minutes per client IP.
-// T-32-04: partitioned by RemoteIpAddress; behind a reverse proxy without ForwardedHeaders configured,
-// this may reflect the proxy's IP rather than the real client — documented manual deploy-environment
-// verification item (ForwardedHeaders is confirmed absent and intentionally not added in this phase).
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("forgot-password", httpContext =>
@@ -194,6 +209,9 @@ if (app.Environment.IsDevelopment())
     app.Configuration.DumpConfiguration();
 
 // Configure the HTTP request pipeline.
+// Must run first so RemoteIpAddress is corrected before any downstream middleware reads it.
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
