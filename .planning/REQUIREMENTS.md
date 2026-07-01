@@ -69,10 +69,10 @@
 
 ### Admin Email Rate Limiting (Phase 33)
 
-- [ ] **EMAIL-RATE-01**: `AdminController.SendConfirmationEmail` (POST) rejects the 4th request within 1 hour for the same target `userId` with HTTP 429 and the body `"Too many requests. Please try again later."`, enforced via a programmatic `PartitionedRateLimiter<int>` `AttemptAcquire(userId)` check inside the action body (not `[EnableRateLimiting]`, because `userId` is a POST form field unavailable to policy factories that run before model binding).
-- [ ] **EMAIL-RATE-02**: The admin email resend rate limit is partitioned per target user (`$"email-resend:{userId}"`); two different target users each get an independent 3/hour budget.
-- [ ] **EMAIL-RATE-03**: `AdminController.EditUser` (POST) applies the same `AttemptAcquire(model.Id)` check only inside the `emailChanged && !string.IsNullOrEmpty(model.Email)` branch (the email-dispatch sub-path), so non-email-changing saves are not counted.
-- [ ] **EMAIL-RATE-04**: `AdminController.CreateUser` (POST, welcome email) is explicitly NOT rate-limited — it is a one-shot automated send, not a repeatable manual button.
+- [x] **EMAIL-RATE-01**: `AdminController.SendConfirmationEmail` (POST) rejects the 4th request within 1 hour for the same target `userId` with HTTP 429 and the body `"Too many requests. Please try again later."`, enforced via a programmatic `PartitionedRateLimiter<int>` `AttemptAcquire(userId)` check inside the action body (not `[EnableRateLimiting]`, because `userId` is a POST form field unavailable to policy factories that run before model binding).
+- [x] **EMAIL-RATE-02**: The admin email resend rate limit is partitioned per target user (`$"email-resend:{userId}"`); two different target users each get an independent 3/hour budget.
+- [x] **EMAIL-RATE-03**: `AdminController.EditUser` (POST) applies the same `AttemptAcquire(model.Id)` check only inside the `emailChanged && !string.IsNullOrEmpty(model.Email)` branch (the email-dispatch sub-path), so non-email-changing saves are not counted.
+- [x] **EMAIL-RATE-04**: `AdminController.CreateUser` (POST, welcome email) is explicitly NOT rate-limited — it is a one-shot automated send, not a repeatable manual button.
 
 ### Password Flow (Phase 32)
 

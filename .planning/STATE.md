@@ -6,14 +6,14 @@ current_phase: 33
 current_phase_name: session-persistence-persist-activegroupid-across-app-restart
 status: executing
 stopped_at: Completed 33-01-PLAN.md
-last_updated: "2026-07-01T16:43:43.917Z"
+last_updated: "2026-07-01T16:48:33.687Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 33 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 30
-  completed_plans: 28
+  completed_plans: 29
   percent: 88
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29 — v5.0 Multi-Tenancy started)
 ## Current Position
 
 Phase: 33 (session-persistence-persist-activegroupid-across-app-restart) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-01 — Phase 33 execution started
 
@@ -115,7 +115,7 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 
 **Resume file:** None
 
-Last session: 2026-07-01T16:43:43.904Z
+Last session: 2026-07-01T16:47:40.064Z
 Stopped at: Completed 33-01-PLAN.md
 Next step: /gsd-execute-phase 31
 
@@ -140,6 +140,7 @@ Next step: /gsd-execute-phase 31
 | Phase 30 P02 | 15min | 2 tasks | 6 files |
 | Phase 30 P04 | 10min | 2 tasks | 2 files |
 | Phase 33 P01 | 12min | 3 tasks | 4 files |
+| Phase 33 P02 | 2min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -152,3 +153,5 @@ Next step: /gsd-execute-phase 31
 - [Phase ?]: [Phase 30-04]: Used SessionKeys.ActiveGroupName constant reference (not literal string) in both layouts, importing QuestBoard.Service.Constants
 - [Phase 33-01]: Distributed cache registered before AddSession, Testing-guarded exactly like the existing Hangfire branch — No new structural pattern needed; matches established convention
 - [Phase 33-01]: ExpiredItemsDeletionInterval left unset (framework default 30 min) — Per plan D-04; no Hangfire cleanup job needed for single-tenant scale
+- [Phase ?]: Used a programmatic PartitionedRateLimiter<int> singleton + AttemptAcquire instead of an AddRateLimiter policy (Phase 33-02) — userId/Id are POST form fields, not route values
+- [Phase ?]: EditUser's email-resend rate-limit guard placed inside the emailChanged branch only, not at method entry (Phase 33-02, D-07) — non-email-changing saves are not counted
