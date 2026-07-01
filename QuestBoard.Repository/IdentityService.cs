@@ -30,7 +30,7 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
         return await userManager.ChangePasswordAsync(entity, oldPassword, newPassword);
     }
 
-    public async Task<IdentityResult> CreateUserAsync(string email, string name, string password)
+    public async Task<IdentityResult> CreateUserAsync(string email, string name)
     {
         var entity = new UserEntity
         {
@@ -38,13 +38,13 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
             Email = email,
             Name = name
         };
-        var result = await userManager.CreateAsync(entity, password);
+        var result = await userManager.CreateAsync(entity);
 
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(entity, "Player");
-            // Do not sign in until email is confirmed — the admin must send a confirmation
-            // link first (via AdminController.SendConfirmationEmail).
+            // Account is created without a password (PasswordHash stays null) — the user
+            // must complete the Welcome/SetPassword flow before they can sign in.
         }
 
         return result;
@@ -107,6 +107,23 @@ internal class IdentityService(UserManager<UserEntity> userManager, SignInManage
 
         var resetToken = await userManager.GeneratePasswordResetTokenAsync(entity);
         return await userManager.ResetPasswordAsync(entity, resetToken, newPassword);
+    }
+
+    public async Task<string?> GeneratePasswordResetTokenForUserAsync(int userId)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null) return null;
+        return await userManager.GeneratePasswordResetTokenAsync(entity);
+    }
+
+    public async Task<IdentityResult> ConfirmEmailDirectlyAsync(int userId)
+    {
+        var entity = await userManager.FindByIdAsync(userId.ToString());
+        if (entity == null)
+            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+
+        entity.EmailConfirmed = true;
+        return await userManager.UpdateAsync(entity);
     }
 
     public async Task<int?> GetIdByEmailAsync(string email)
