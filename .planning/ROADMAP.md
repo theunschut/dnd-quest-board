@@ -82,7 +82,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
 - [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
 - [x] **Phase 33: Session Persistence & Admin Email Rate Limiting** - ActiveGroupId survives app restarts via AddDistributedSqlServerCache; admin email resend buttons rate-limited 3/hour per target user (completed 2026-07-01)
-- [ ] **Phase 34: Codebase Cleanup & Security Hardening (34a — Mechanical Cleanup)** - Remove dead code, strip GSD-ID/phase comment tags codebase-wide, backfill XML docs on all 35 interfaces, capture clean dependency scan — 5 plans (Wave 1, parallel). Remaining CONCERNS.md fixes split into recommended 34b (Security & Bugs) + 34c (Performance & Architecture) per D-03.
+- [x] **Phase 34: Codebase Cleanup & Security Hardening (34a — Mechanical Cleanup)** - Remove dead code, strip GSD-ID/phase comment tags codebase-wide, backfill XML docs on all 35 interfaces, capture clean dependency scan — 5 plans (Wave 1, parallel). Remaining CONCERNS.md fixes split into recommended 34b (Security & Bugs) + 34c (Performance & Architecture) per D-03. (completed 2026-07-01)
 - [ ] **Phase 34.1: Security & Bugs -- fix Known Bugs and Security Considerations items from CONCERNS.md plus related Test Coverage Gaps (verify-and-close the stale SessionReminderJob null-dereference claim; Resend 429 retry-backoff; CSRF regression test; secret-logging verification) -- deferred from the Phase 34 split per D-03**
 - [ ] **Phase 34.2: Performance & Architecture** - `QuestController`/`AdminController` cleanup via selective service-layer extraction + net-new MVC-boilerplate helpers (no physical split, D-01/D-02), composite index + shop-query projection + Hangfire `AutomaticRetryAttribute`, `HangfireJobHelper` scope helper, `ActiveGroupId` null-guard, and documentation-only notes for `Forbid()` defense-in-depth (D-06) and Hangfire job-queue batching (D-09) — 5 plans (2 waves), depends on Phase 34 and 34.1
 
@@ -306,7 +306,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
 | 32. First-Login Password Flow | v5.0 | 5/5 | Complete    | 2026-07-01 |
 | 33. Session Persistence & Admin Email Rate Limiting | v5.0 | 3/3 | Complete    | 2026-07-01 |
-| 34. Codebase Cleanup & Security Hardening | v5.0 | 5/5 | Complete   | 2026-07-01 |
+| 34. Codebase Cleanup & Security Hardening | v5.0 | 5/5 | Complete    | 2026-07-01 |
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
