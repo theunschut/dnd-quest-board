@@ -45,15 +45,15 @@ completed: 2026-07-01
 
 # Phase 32 Plan 05: Dead-Code Retirement + Verification Summary
 
-**Deleted the orphaned confirm-email-only code (zero callers confirmed by pre-flight grep), added integration test coverage proving PWFLOW-01..05 (enumeration-safe/rate-limited ForgotPassword, SetPassword password-set + email-confirm, passwordless-login-fails, adapted Admin Welcome-resend contract), and got the full suite green at 57 unit + 196 integration tests — 0 failures. This plan's human-verify checkpoint (Task 4) has NOT been executed by this agent; see Checkpoint Status below.**
+**Deleted the orphaned confirm-email-only code (zero callers confirmed by pre-flight grep), added integration test coverage proving PWFLOW-01..05 (enumeration-safe/rate-limited ForgotPassword, SetPassword password-set + email-confirm, passwordless-login-fails, adapted Admin Welcome-resend contract), and got the full suite green at 57 unit + 196 integration tests — 0 failures. Task 4 (human-verify checkpoint) was completed and approved by the user; see Checkpoint Status below.**
 
 ## Performance
 
-- **Duration:** ~35 min
+- **Duration:** ~35 min (Tasks 1-3) + checkpoint session (Task 4)
 - **Started:** 2026-07-01
-- **Completed:** 2026-07-01 (auto tasks only; checkpoint pending)
-- **Tasks:** 3 of 4 completed (Tasks 1-3 auto; Task 4 is a human-verify checkpoint)
-- **Files modified:** 5
+- **Completed:** 2026-07-01
+- **Tasks:** 4 of 4 completed (Tasks 1-3 auto; Task 4 human-verify checkpoint, approved)
+- **Files modified:** 5 (Tasks 1-3) + 12 more during the checkpoint session (see Checkpoint Status)
 
 ## Accomplishments
 
@@ -127,26 +127,26 @@ None — this plan removes attack surface (the orphaned anonymous `ConfirmEmail`
 
 ## Checkpoint Status
 
-**Task 4 (`checkpoint:human-verify`, gate="blocking") has NOT been executed.** Per this plan's execution instructions, a human-visual-verification checkpoint must be surfaced to the user rather than resolved by the executing agent. All three automated tasks (dead-code deletion, AccountController tests, AdminController tests + full-suite gate) are complete and committed; the full automated suite is green (57 unit + 196 integration tests, 0 failures).
+**Task 4 (`checkpoint:human-verify`, gate="blocking") is complete — approved by the user.** Full results recorded in [32-HUMAN-UAT.md](32-HUMAN-UAT.md): 8/8 items pass.
 
-**What remains for the checkpoint (see 32-05-PLAN.md Task 4 `<how-to-verify>` for full steps):**
-1. Run the app (`dotnet run --project QuestBoard.Service`) and visit `/EmailPreview` to visually confirm the Welcome and ForgotPassword email templates render correctly (Cinzel/wax-seal style, correct CTA button text, no ConfirmEmail preview remaining).
-2. Confirm the Admin Create User form has no password field and creates passwordless accounts.
-3. Click through the real Welcome email link to `/Account/SetPassword`, set a password, and confirm login works.
-4. Click through the real Forgot Password flow (known + unknown email, generic message, rate limit at 4th rapid submission).
-5. Confirm a passwordless account cannot log in before SetPassword is completed.
-6. Confirm the Users admin page "Resend Welcome Email" button works.
-7. Manually verify `ForwardedHeaders` behavior in the deployed environment for the rate-limit partition key (non-blocking, deploy-environment-only item).
+Two real issues were found and fixed during the checkpoint session (outside this plan's original task scope, done directly in the orchestrating conversation rather than by a plan task):
+
+1. **Reverse-proxy IP / shared rate-limit bucket (commit `836f9ac`):** `docs/server-setup.md`'s architecture shows Traefik on a separate CT from the App CT; without `ForwardedHeaders` configured, Kestrel saw every request's `RemoteIpAddress` as Traefik's IP, collapsing the forgot-password rate limiter into one shared bucket for all users in production. Fixed by adding `ReverseProxy:KnownProxies` config (empty by default, set via env var in production) and `app.UseForwardedHeaders()` scoped to `X-Forwarded-For`.
+2. **Welcome email copy inaccurate for legacy accounts (commit `3386b8c`):** the repurposed "Resend Welcome Email" button (D-07/D-14) fires for any `EmailConfirmed == false` account, but pre-Phase-32 legacy accounts can already have a password from the old admin-set-password flow — the "a guild registrar has opened an account in your name" copy was wrong for them. Fixed by adding `HasPasswordAsync` through `IIdentityService`/`IUserService` and a new `Welcome.razor` `IsNewAccount` parameter that picks the correct copy variant.
+
+A third finding — the user wants email-sending rate limits extended to other manually-triggered admin actions (not just `ForgotPassword`) to protect the mail relay's send quota — was scoped out to Phase 33 rather than fixed here, since it touches multiple endpoints and needs its own design decision (global vs per-admin partition, exact relay limits).
+
+Both fixes are covered by tests: build clean, 254 tests pass (58 unit + 196 integration) as of commit `3386b8c`.
 
 ## User Setup Required
 
-None - no external service configuration required for the completed automated tasks. The checkpoint above requires interactive human verification of the running app, which cannot be performed by this agent.
+None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- All automated verification for Phase 32 is complete and green: dead code fully retired, PWFLOW-01..05 proven by integration tests, full suite passing.
-- The phase cannot be marked fully complete until a human approves the Task 4 checkpoint (email rendering + end-to-end click-through). The orchestrator should resume this plan at Task 4 once a fresh agent or the user performs that verification.
-- No blockers for any subsequent phase — this plan's automated scope is fully done; only the human-verify gate remains.
+- All verification for Phase 32 is complete: dead code fully retired, PWFLOW-01..05 proven by integration tests (PWFLOW-06 covered in Plan 02), full suite passing, human-verify checkpoint approved (8/8 UAT items pass).
+- Two follow-up items tracked for Phase 33 (session persistence, plus the extended email rate-limiting scope added during this checkpoint) — see `.planning/ROADMAP.md` Phase 33 entry.
+- No blockers for any subsequent phase.
 
 ---
 *Phase: 32-first-login-password-flow*
