@@ -14,11 +14,12 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Threading.RateLimiting;
 
 namespace QuestBoard.Service.Controllers.Admin;
 
 [Authorize(Policy = "AdminOnly")]
-public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache, IActiveGroupContext activeGroupContext, ILogger<AdminController> logger) : Controller
+public class AdminController(IUserService userService, IQuestService questService, IIdentityService identityService, IBackgroundJobClient jobClient, IHttpClientFactory httpClientFactory, IOptions<EmailSettings> emailOptions, IMemoryCache cache, IActiveGroupContext activeGroupContext, ILogger<AdminController> logger, PartitionedRateLimiter<int> emailResendLimiter) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Users()
@@ -188,6 +189,15 @@ public class AdminController(IUserService userService, IQuestService questServic
 
             if (emailChanged && !string.IsNullOrEmpty(model.Email))
             {
+                // EMAIL-RATE-02/03: rate-limited on the same per-target-user budget as
+                // SendConfirmationEmail — only email-changing saves are counted (D-07).
+                using var lease = emailResendLimiter.AttemptAcquire(model.Id);
+                if (!lease.IsAcquired)
+                {
+                    Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    return Content("Too many requests. Please try again later.");
+                }
+
                 var rawToken = await identityService.GenerateChangeEmailTokenAsync(user.Id, model.Email);
                 if (rawToken != null)
                 {
@@ -271,6 +281,15 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendConfirmationEmail(int userId)
     {
+        // EMAIL-RATE-01/03: repeatable manual resend button, rate-limited per target user (3/hour)
+        // to protect the Resend relay's 100/day quota from accidental button-mashing.
+        using var lease = emailResendLimiter.AttemptAcquire(userId);
+        if (!lease.IsAcquired)
+        {
+            Response.StatusCode = StatusCodes.Status429TooManyRequests;
+            return Content("Too many requests. Please try again later.");
+        }
+
         var user = await userService.GetByIdAsync(userId);
         if (user == null)
         {
