@@ -12,6 +12,7 @@ namespace QuestBoard.Service.Controllers;
 public class GroupPickerController(IGroupService groupService) : Controller
 {
     [HttpGet]
+    [Route("groups/pick")]
     public async Task<IActionResult> Index(string? returnUrl = null)
     {
         var isSuperAdmin = User.IsInRole("SuperAdmin");
