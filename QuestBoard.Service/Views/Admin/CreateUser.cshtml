@@ -35,12 +35,6 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" type="password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
                         <label asp-for="GroupRole" class="form-label"></label>
                         <select asp-for="GroupRole" asp-items="Html.GetEnumSelectList<GroupRole>()" class="form-select"></select>
                         <span asp-validation-for="GroupRole" class="text-danger"></span>

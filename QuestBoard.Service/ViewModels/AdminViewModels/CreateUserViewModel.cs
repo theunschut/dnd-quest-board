@@ -15,12 +15,6 @@ public class CreateUserViewModel
     [Display(Name = "Display Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(100, MinimumLength = 8)]
-    [DataType(DataType.Password)]
-    [Display(Name = "Password")]
-    public string Password { get; set; } = string.Empty;
-
     [Display(Name = "Group Role")]
     public GroupRole GroupRole { get; set; } = GroupRole.Player;
 }
