@@ -110,7 +110,7 @@ public class AdminController(IUserService userService, IQuestService questServic
         var groupId = activeGroupContext.ActiveGroupId;
         if (groupId == null) return RedirectToAction("Index", "GroupPicker");
 
-        var result = await userService.CreateAsync(model.Email, model.Name, model.Password);
+        var result = await userService.CreateAsync(model.Email, model.Name);
 
         if (result.Succeeded)
         {
@@ -119,16 +119,16 @@ public class AdminController(IUserService userService, IQuestService questServic
             {
                 await userService.SetGroupRoleAsync(userId.Value, groupId.Value, model.GroupRole);
 
-                var rawToken = await identityService.GenerateEmailConfirmationAsync(userId.Value);
+                var rawToken = await identityService.GeneratePasswordResetTokenForUserAsync(userId.Value);
                 if (rawToken != null)
                 {
                     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
-                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
-                    jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
+                    var callbackUrl = Url.Action("SetPassword", "Account", new { userId = userId.Value, token = encodedToken }, Request.Scheme);
+                    jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(model.Email, model.Name, callbackUrl!, CancellationToken.None));
                 }
             }
 
-            TempData["Success"] = $"Account created for {model.Name}. A confirmation email has been sent.";
+            TempData["Success"] = $"Account created for {model.Name}. A welcome email with a set-password link has been sent.";
             return RedirectToAction(nameof(Users));
         }
 
@@ -274,7 +274,7 @@ public class AdminController(IUserService userService, IQuestService questServic
             return RedirectToAction(nameof(Users));
         }
 
-        var rawToken = await identityService.GenerateEmailConfirmationAsync(userId);
+        var rawToken = await identityService.GeneratePasswordResetTokenForUserAsync(userId);
         if (rawToken == null || string.IsNullOrEmpty(user.Email))
         {
             TempData["Error"] = $"Failed to send confirmation email to {user.Name}. Please try again.";
@@ -282,10 +282,10 @@ public class AdminController(IUserService userService, IQuestService questServic
         }
 
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
-        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId, token = encodedToken }, Request.Scheme);
+        var callbackUrl = Url.Action("SetPassword", "Account", new { userId, token = encodedToken }, Request.Scheme);
 
-        jobClient.Enqueue<ConfirmationEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, CancellationToken.None));
-        TempData["Success"] = $"Confirmation email queued for {user.Name}.";
+        jobClient.Enqueue<WelcomeEmailJob>(j => j.ExecuteAsync(user.Email!, user.Name, callbackUrl!, CancellationToken.None));
+        TempData["Success"] = $"Welcome email queued for {user.Name}.";
         return RedirectToAction(nameof(Users));
     }
 
