@@ -62,10 +62,20 @@
 - [x] **REG-02**: Newly created user accounts are automatically assigned to the creating admin's active group with the specified `GroupRole`
 - [x] **REG-03**: The existing email confirmation flow is triggered when a group admin or SuperAdmin creates a new user account
 
+### Password Flow (Phase 32)
+
+- [ ] **PWFLOW-01**: Admin-created accounts have no password at creation (`UserManager.CreateAsync(user)` no-password overload; `PasswordHash` stays null); `CreateUserViewModel.Password` and the password input in `CreateUser.cshtml`/`CreateUser.Mobile.cshtml` are removed
+- [ ] **PWFLOW-02**: A newly created user receives one combined "Welcome — set your password" email; clicking the link and submitting a new password sets `PasswordHash` AND marks `EmailConfirmed = true` in a single `SetPassword` action (no separate confirm-email step)
+- [ ] **PWFLOW-03**: A passwordless account cannot sign in until `SetPassword` is completed — `PasswordSignInAsync` fails gracefully (returns `Failed`, never throws) against a null `PasswordHash`
+- [ ] **PWFLOW-04**: Self-service "Forgot password?" flow (`GET/POST /Account/ForgotPassword`) sends a reset link that lands on `SetPassword`; the POST is enumeration-safe (identical generic response whether or not the email matches) and rate-limited to 3 requests / 15 minutes per client IP via built-in `Microsoft.AspNetCore.RateLimiting`
+- [ ] **PWFLOW-05**: The admin "Resend welcome email" button on `Views/Admin/Users.cshtml` (shown when `EmailConfirmed == false`) sends the new Welcome email; the old `ConfirmEmail.razor` + `ConfirmationEmailJob` flow is retired
+- [ ] **PWFLOW-06**: `DataProtectionTokenProviderOptions.TokenLifespan` is configured to 7 days (net-new config; uniformly affects password-reset, email-confirmation, and change-email tokens)
+
 ## Future Requirements
 
 Deferred to v5.x or later — tracked but not in current roadmap.
 
+- **"Password changed" notification email** — for `AccountController.ChangePassword` (self-service) and `AdminController.ResetPassword` (admin-triggered); deferred from Phase 32 to a future phase once `Welcome.razor` establishes the pattern
 - Per-group email configuration (custom sender address per group)
 - Group invitation flow (invite by email link rather than admin-created account)
 - Cross-group quest browsing or character directory
@@ -120,3 +130,9 @@ Deferred to v5.x or later — tracked but not in current roadmap.
 | REG-01 | Phase 30 | Complete |
 | REG-02 | Phase 30 | Complete |
 | REG-03 | Phase 30 | Complete |
+| PWFLOW-01 | Phase 32 | Planned — 32-04 |
+| PWFLOW-02 | Phase 32 | Planned — 32-01 + 32-02 + 32-03 |
+| PWFLOW-03 | Phase 32 | Planned — 32-01 + 32-03 |
+| PWFLOW-04 | Phase 32 | Planned — 32-02 + 32-03 |
+| PWFLOW-05 | Phase 32 | Planned — 32-02 + 32-04 |
+| PWFLOW-06 | Phase 32 | Planned — 32-02 |

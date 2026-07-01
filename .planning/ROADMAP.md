@@ -79,8 +79,8 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 28: Tenant Isolation** - IActiveGroupContext + EF Core Global Query Filters + Hangfire adaptation + test factory stub (completed 2026-06-30)
 - [x] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (completed 2026-06-30)
 - [x] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation (completed 2026-06-30)
-- [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
-- [ ] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form
+- [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
+- [ ] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow
 
 </details>
 
@@ -224,6 +224,47 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 - [x] 30-05-PLAN.md — GroupPickerControllerIntegrationTests + Register tests → 404 + AdminController CreateUser tests + full-suite green gate + blocking human-verify checkpoint
 
+### Phase 31: Unauthenticated landing redirect
+
+**Goal:** Unauthenticated visitors are redirected to login (not shown empty/broken group-scoped pages), a public landing page lives at `/`, the quest board moves to `/quests`, and authenticated users with an expired group session are seamlessly recovered to the group picker.
+**Requirements**: UX-01, UX-04
+**Depends on:** Phase 30
+**Plans:** 4/4 plans complete
+
+**Wave 1** *(parallel — no overlap in files_modified)*
+
+- [x] 31-01-PLAN.md — class-level [Authorize] on Calendar + QuestLog controllers; remove [AllowAnonymous] from DM profile actions (D-01, D-02)
+- [x] 31-02-PLAN.md — QuestController.Index at /quests + public landing HomeController.Index + migrate quest views to Views/Quest + new landing views + reference sweep (D-04..D-08)
+
+**Wave 2** *(blocked on 31-02)*
+
+- [x] 31-03-PLAN.md — GroupSessionMiddleware (session-recovery redirect) + Program.cs registration + [Route("groups/pick")] on GroupPicker (D-09, D-10, D-11)
+
+**Wave 3** *(blocked on 31-01, 31-02, 31-03)*
+
+- [x] 31-04-PLAN.md — update Calendar/QuestLog/Home tests + /quests route tests + new GroupSessionMiddleware tests + full-suite gate + blocking human-verify
+
+### Phase 32: First-login password flow
+
+**Goal:** Admin-created accounts are created with no password; the new user receives a single "Welcome — set your password" email whose link both sets their password and confirms their email in one click. Existing users can self-recover access via a rate-limited, enumeration-safe "Forgot password?" flow that reuses the same password-set landing page. The old admin-set-password field and the separate confirm-email-only flow are retired.
+**Requirements**: PWFLOW-01, PWFLOW-02, PWFLOW-03, PWFLOW-04, PWFLOW-05, PWFLOW-06
+**Depends on:** Phase 31
+**Plans:** 5 plans
+
+**Wave 1** *(parallel — no overlap in files_modified)*
+
+- [ ] 32-01-PLAN.md — Service layer: passwordless `CreateUserAsync`, `GeneratePasswordResetTokenForUserAsync`, `ConfirmEmailDirectlyAsync` across `IIdentityService`/`IdentityService`/`IUserService`/`UserService` (PWFLOW-01, PWFLOW-02, PWFLOW-03 backend)
+- [ ] 32-02-PLAN.md — Email jobs + templates + Program.cs config: `WelcomeEmailJob`/`ForgotPasswordEmailJob` + `Welcome.razor`/`ForgotPassword.razor` + delete `ConfirmationEmailJob`/`ConfirmEmail.razor` + `EmailPreviewController` swap + `TokenLifespan` 7d + `AddRateLimiter` (PWFLOW-04 config, PWFLOW-05 job, PWFLOW-06) + job unit tests
+
+**Wave 2** *(blocked on 32-01, 32-02)*
+
+- [ ] 32-03-PLAN.md — `AccountController` ForgotPassword + SetPassword actions + `ForgotPasswordViewModel`/`SetPasswordViewModel` + Account views (desktop/mobile) + Login "Forgot password?" link (PWFLOW-02, PWFLOW-03, PWFLOW-04 UI)
+- [ ] 32-04-PLAN.md — `AdminController` passwordless CreateUser + retargeted SendConfirmationEmail (Welcome) + `CreateUserViewModel` password removal + CreateUser views + Users.cshtml button relabel (PWFLOW-01, PWFLOW-05)
+
+**Wave 3** *(blocked on 32-03, 32-04)*
+
+- [ ] 32-05-PLAN.md — Integration tests (ForgotPassword/SetPassword enumeration-safety + rate limit + passwordless-login-fails + Admin Welcome-resend) + delete `ConfirmationEmailJobTests` + full-suite green gate + blocking human-verify checkpoint
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -259,34 +300,4 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
-
-### Phase 31: Unauthenticated landing redirect
-
-**Goal:** Unauthenticated visitors are redirected to login (not shown empty/broken group-scoped pages), a public landing page lives at `/`, the quest board moves to `/quests`, and authenticated users with an expired group session are seamlessly recovered to the group picker.
-**Requirements**: UX-01, UX-04
-**Depends on:** Phase 30
-**Plans:** 4/4 plans complete
-
-**Wave 1** *(parallel — no overlap in files_modified)*
-
-- [x] 31-01-PLAN.md — class-level [Authorize] on Calendar + QuestLog controllers; remove [AllowAnonymous] from DM profile actions (D-01, D-02)
-- [x] 31-02-PLAN.md — QuestController.Index at /quests + public landing HomeController.Index + migrate quest views to Views/Quest + new landing views + reference sweep (D-04..D-08)
-
-**Wave 2** *(blocked on 31-02)*
-
-- [x] 31-03-PLAN.md — GroupSessionMiddleware (session-recovery redirect) + Program.cs registration + [Route("groups/pick")] on GroupPicker (D-09, D-10, D-11)
-
-**Wave 3** *(blocked on 31-01, 31-02, 31-03)*
-
-- [x] 31-04-PLAN.md — update Calendar/QuestLog/Home tests + /quests route tests + new GroupSessionMiddleware tests + full-suite gate + blocking human-verify
-
-### Phase 32: First-login password flow
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 31
-**Plans:** 0 plans
-
-Plans:
-
-- [ ] TBD (run /gsd-plan-phase 32 to break down)
+| 32. First-Login Password Flow | v5.0 | 0/5 | Planned | — |
