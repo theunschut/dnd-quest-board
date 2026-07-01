@@ -48,6 +48,29 @@ public class GroupPickerControllerIntegrationTests : IClassFixture<WebApplicatio
         location.Should().NotContain("GroupPicker");
     }
 
+    // WR-02 (31-REVIEW): an authenticated user with ZERO group memberships (as opposed to
+    // simply not having selected one yet) must land on a friendly empty-state picker page —
+    // not a 500, and not a redirect loop back into the group-gate (the picker path is on the
+    // middleware's exempt list, so it must render directly).
+    [Fact]
+    public async Task Index_WhenUserHasNoGroupMemberships_ShouldReturnFriendlyEmptyState()
+    {
+        // Arrange — pass roles: [] so the helper skips its UserGroups-seeding block entirely,
+        // leaving this user authenticated but with zero group memberships.
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (client, _) = await AuthenticationHelper.CreateAuthenticatedClientWithUserAsync(
+            _factory, "nogroupuser", "nogroup@example.com", roles: []);
+
+        // Act
+        var response = await client.GetAsync("/GroupPicker/Index", TestContext.Current.CancellationToken);
+
+        // Assert — a rendered empty-state page (200), never a 500 and never a redirect back
+        // into the group-gate (which would indicate an infinite loop).
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("not assigned to any group");
+    }
+
     // UX-02: A multi-group user receives the picker page
     [Fact]
     public async Task Index_WhenMultiGroupUser_ShouldReturnPickerPage()
