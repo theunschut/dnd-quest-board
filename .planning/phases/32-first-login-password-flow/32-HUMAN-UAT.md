@@ -42,14 +42,14 @@ result: [pending]
 
 ### 8. Reverse-proxy IP note (deploy-env only, non-blocking)
 expected: In the deployed environment, confirm `ForwardedHeaders` behavior is correct for the rate-limit partition key (client IP, not the reverse proxy's IP).
-result: [pending]
+result: confirmed via static analysis 2026-07-01 (no deploy needed) — `docs/server-setup.md` architecture diagram shows Traefik runs on a separate CT from the App CT, connecting over the internal Proxmox bridge to `:5000`. `Program.cs:82-97` partitions the forgot-password rate limiter by `httpContext.Connection.RemoteIpAddress`, and `UseForwardedHeaders()` is intentionally absent this phase (confirmed by grep — no matches). Since Traefik is not loopback, Kestrel sees every request's RemoteIpAddress as Traefik's internal IP. Effect: in production, ALL visitors share ONE rate-limit bucket (keyed on Traefik's IP) rather than one bucket per real client — worse than "imprecise," since one user's attempts throttle everyone. This was a deliberate scope decision documented in the code comment, not a bug introduced by this phase, but the severity (shared-fate across all users, not just reduced precision) is worth the team's explicit sign-off before relying on this rate limiter in production.
 
 ## Summary
 
 total: 8
 passed: 0
-issues: 0
-pending: 8
+issues: 1
+pending: 7
 skipped: 0
 blocked: 0
 
