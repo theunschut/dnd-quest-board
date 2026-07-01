@@ -49,7 +49,7 @@ public class QuestServiceTests
         };
 
     // ---------------------------------------------------------------------------
-    // FinalizeQuestAsync — CTRL-01 / EMAIL-04
+    // FinalizeQuestAsync
     // ---------------------------------------------------------------------------
 
     [Fact]
@@ -106,7 +106,7 @@ public class QuestServiceTests
     }
 
     // ---------------------------------------------------------------------------
-    // UpdateQuestPropertiesWithNotificationsAsync — CTRL-03
+    // UpdateQuestPropertiesWithNotificationsAsync
     // ---------------------------------------------------------------------------
 
     [Fact]

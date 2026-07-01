@@ -49,7 +49,7 @@ public class DailyReminderJobTests
         };
 
     // ---------------------------------------------------------------------------
-    // REMIND-01: Date-filter and enqueue behavior
+    // Date-filter and enqueue behavior
     // ---------------------------------------------------------------------------
 
     [Fact]

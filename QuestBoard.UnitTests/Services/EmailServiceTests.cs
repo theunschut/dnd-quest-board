@@ -52,7 +52,7 @@ public class EmailServiceTests
     [Fact]
     public void EmailServiceSource_SendAsyncSendsHtmlBody()
     {
-        // EMAIL-03: SendAsync passes the caller-rendered HTML body through as IsBodyHtml = true.
+        // SendAsync passes the caller-rendered HTML body through as IsBodyHtml = true.
         // AppUrl substitution is now the responsibility of individual Hangfire jobs, not EmailService.
         var sourcePath = Path.Combine(
             AppContext.BaseDirectory, "..", "..", "..", "..",

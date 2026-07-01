@@ -82,7 +82,7 @@ public class SessionReminderJobTests
         };
 
     // ---------------------------------------------------------------------------
-    // REMIND-04: Per-player dedup via ExistsAsync
+    // Per-player dedup via ExistsAsync
     // ---------------------------------------------------------------------------
 
     [Fact]
@@ -175,7 +175,7 @@ public class SessionReminderJobTests
     }
 
     // ---------------------------------------------------------------------------
-    // REQ-24-04: EmailConfirmed guard in SessionReminderJob
+    // EmailConfirmed guard in SessionReminderJob
     // ---------------------------------------------------------------------------
 
     [Fact]

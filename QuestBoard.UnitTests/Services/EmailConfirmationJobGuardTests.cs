@@ -9,7 +9,7 @@ using NSubstitute;
 namespace QuestBoard.UnitTests.Services;
 
 /// <summary>
-/// REQ-24-04: Proves that QuestService excludes unconfirmed recipients from both
+/// Proves that QuestService excludes unconfirmed recipients from both
 /// string[]-array dispatch sites (QuestFinalizedEmailJob and QuestDateChangedEmailJob).
 /// </summary>
 public class EmailConfirmationJobGuardTests
