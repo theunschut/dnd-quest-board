@@ -12,7 +12,7 @@ namespace QuestBoard.Service.Areas.Platform.Controllers;
 [Authorize(Policy = "SuperAdminOnly")]
 public class GroupController(IGroupService groupService, IUserService userService) : Controller
 {
-    // MGMT-02: Groups index
+    // Groups index
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -20,7 +20,7 @@ public class GroupController(IGroupService groupService, IUserService userServic
         return View(new GroupListViewModel { Groups = groups });
     }
 
-    // MGMT-03: Create group
+    // Create group
     [HttpGet]
     public IActionResult Create() => View(new GroupCreateViewModel());
 
@@ -44,7 +44,7 @@ public class GroupController(IGroupService groupService, IUserService userServic
         }
     }
 
-    // MGMT-04a: Edit group
+    // Edit group
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -76,7 +76,7 @@ public class GroupController(IGroupService groupService, IUserService userServic
         }
     }
 
-    // MGMT-04b: Delete group (only empty groups)
+    // Delete group (only empty groups)
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
@@ -110,7 +110,7 @@ public class GroupController(IGroupService groupService, IUserService userServic
         return RedirectToAction(nameof(Index));
     }
 
-    // MGMT-05/06: Members page
+    // Members page
     [HttpGet]
     public async Task<IActionResult> Members(int id)
     {

@@ -689,7 +689,7 @@ public class QuestController(
             return RedirectToAction("Manage", new { id });
         }
 
-        // D-08: DM trigger sends to Yes + Maybe voters for the finalized date only.
+        // DM trigger sends to Yes + Maybe voters for the finalized date only.
         // RESEARCH.md Pitfall 1: filter by finalized proposed date to avoid including
         // players who voted Yes/Maybe on a different proposed date.
         var finalizedProposedDate = quest.ProposedDates
@@ -707,8 +707,8 @@ public class QuestController(
             return RedirectToAction("Manage", new { id });
         }
 
-        // D-11: Enqueue a fire-and-forget Hangfire job.
-        // The job itself checks the ReminderLog per-player before sending (REMIND-04 idempotency).
+        // Enqueue a fire-and-forget Hangfire job.
+        // The job itself checks the ReminderLog per-player before sending (idempotency).
         // The forceResend flag (from the confirm button) bypasses the log check in the job.
         reminderJobDispatcher.EnqueueSessionReminder(id, activeGroupContext.ActiveGroupId ?? 1, forceResend, useYesMaybeVoters: true);
 
@@ -760,7 +760,7 @@ public class QuestController(
         if (!isQuestDm && !isAdmin)
             return Forbid();
 
-        // Guard D-11: enforce at most one direct follow-up
+        // Guard: enforce at most one direct follow-up
         if (original.FollowUpQuest != null)
         {
             TempData["Error"] = "A follow-up quest already exists for this quest.";
@@ -774,7 +774,7 @@ public class QuestController(
             return RedirectToAction("Manage", new { id });
         }
 
-        // D-01, D-02, D-03, D-04: pre-fill view model
+        // Pre-fill view model: copy fields, append title, clear dates, reset DM session
         var viewModel = new FollowUpQuestViewModel
         {
             OriginalQuestId = original.Id,
@@ -784,10 +784,10 @@ public class QuestController(
             TotalPlayerCount = original.TotalPlayerCount,
             DungeonMasterId = original.DungeonMasterId,
             DungeonMasterSession = false,
-            ProposedDates = [],   // D-03: always empty
+            ProposedDates = [],   // always empty
         };
 
-        // D-05: list IsSelected=true players for the sidebar (display only)
+        // List IsSelected=true players for the sidebar (display only)
         ViewBag.PreApprovedPlayers = original.PlayerSignups
             .Where(ps => ps.IsSelected)
             .Select(ps => new { ps.Player.Name })
@@ -815,7 +815,7 @@ public class QuestController(
         if (!isQuestDm && !isAdmin)
             return Forbid();
 
-        // Guard D-11: enforce at most one direct follow-up
+        // Guard: enforce at most one direct follow-up
         if (original.FollowUpQuest != null)
         {
             TempData["Error"] = "A follow-up quest already exists for this quest.";
@@ -829,7 +829,7 @@ public class QuestController(
             return RedirectToAction("Manage", new { id });
         }
 
-        // FOLLOW-03: require at least one proposed date
+        // Require at least one proposed date
         if (!ModelState.IsValid || viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
         {
             if (viewModel.ProposedDates == null || viewModel.ProposedDates.Count == 0)
@@ -846,10 +846,10 @@ public class QuestController(
             return View(viewModel);
         }
 
-        // Override OriginalQuestId from route to prevent form spoofing (T-06-06)
+        // Override OriginalQuestId from route to prevent form spoofing
         viewModel.OriginalQuestId = id;
 
-        // D-07: player import happens at the service layer inside CreateFollowUpQuestAsync
+        // Player import happens at the service layer inside CreateFollowUpQuestAsync
         int newQuestId;
         try
         {
@@ -867,7 +867,7 @@ public class QuestController(
 
         // Apply the proposed dates and title/description edits from the form
         // (CreateFollowUpQuestAsync creates the quest shell without dates; dates come from the form)
-        // WR-03: if the update fails, clean up the orphaned shell quest before re-throwing
+        // If the update fails, clean up the orphaned shell quest before re-throwing
         try
         {
             await questService.UpdateQuestPropertiesWithNotificationsAsync(

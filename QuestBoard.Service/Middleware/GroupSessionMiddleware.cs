@@ -7,7 +7,7 @@ using QuestBoard.Service.Controllers.Admin;
 namespace QuestBoard.Service.Middleware;
 
 /// <summary>
-/// Session-recovery middleware (D-09, D-10, D-11). Redirects an authenticated user whose
+/// Session-recovery middleware. Redirects an authenticated user whose
 /// group session has expired (no ActiveGroupId) to the group picker instead of letting the
 /// request fall through to a broken, group-scoped page.
 ///
@@ -29,7 +29,7 @@ namespace QuestBoard.Service.Middleware;
 /// </summary>
 public class GroupSessionMiddleware(RequestDelegate next)
 {
-    // WR-03 (31-REVIEW): "/GroupPicker" and "/Account" are derived from nameof(...) rather than
+    // "/GroupPicker" and "/Account" are derived from nameof(...) rather than
     // typed as raw literals so that renaming either controller is a compile-time-visible change
     // here (the call site keeps compiling, but a `git grep`/refactor-rename tool will surface
     // this file too) instead of a silent runtime redirect loop. ControllerNameOf strips the

@@ -14,7 +14,7 @@ public class QuestFinalizedEmailJob(
 {
     public async Task ExecuteAsync(
         int questId,
-        int groupId,                  // NEW — D-06, D-09
+        int groupId,                  // group context for the Hangfire job's query filter
         DateTime finalizedDate,
         string[] recipientEmails,
         string[] playerNames,
@@ -26,7 +26,7 @@ public class QuestFinalizedEmailJob(
     {
         await using var scope = scopeFactory.CreateAsyncScope();
 
-        // D-09: inject concrete type (not interface) to call SetGroupId — interface has no SetGroupId
+        // Inject concrete type (not interface) to call SetGroupId — interface has no SetGroupId
         // SetGroupId MUST be called before any repository resolution to ensure the filter is active
         var groupContext = scope.ServiceProvider.GetRequiredService<ActiveGroupContextService>();
         groupContext.SetGroupId(groupId);
@@ -36,7 +36,7 @@ public class QuestFinalizedEmailJob(
         var emailService    = scope.ServiceProvider.GetRequiredService<IEmailService>();
         var emailSettings   = scope.ServiceProvider.GetRequiredService<IOptions<EmailSettings>>().Value;
 
-        // Dedup guard (D-13): use .Date comparison — "same session date" intent, not same millisecond
+        // Dedup guard: use .Date comparison — "same session date" intent, not same millisecond
         var quest = await questRepository.GetQuestWithDetailsAsync(questId, cancellationToken);
         if (quest?.FinalizedEmailSentForDate?.Date == finalizedDate.Date)
         {

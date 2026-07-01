@@ -15,14 +15,14 @@ public class SessionReminderJob(
 {
     public async Task ExecuteAsync(
         int questId,
-        int groupId,                  // NEW — D-06, D-09
+        int groupId,                  // group context for the Hangfire job's query filter
         bool forceResend = false,
         bool useYesMaybeVoters = false,
         CancellationToken cancellationToken = default)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
 
-        // D-09: inject concrete type to call SetGroupId before any repository call
+        // Inject concrete type to call SetGroupId before any repository call
         var groupContext = scope.ServiceProvider.GetRequiredService<ActiveGroupContextService>();
         groupContext.SetGroupId(groupId);
 
@@ -55,8 +55,8 @@ public class SessionReminderJob(
             .ToList();
 
         // Determine target recipient set:
-        //   - Automated daily job (useYesMaybeVoters=false, D-06): IsSelected players only.
-        //   - DM manual trigger (useYesMaybeVoters=true, D-08): Yes + Maybe voters on the
+        //   - Automated daily job (useYesMaybeVoters=false): IsSelected players only.
+        //   - DM manual trigger (useYesMaybeVoters=true): Yes + Maybe voters on the
         //     finalized proposed date — not restricted to the finalized confirmed list.
         IEnumerable<Domain.Models.QuestBoard.PlayerSignup> targetSignups;
         if (useYesMaybeVoters)

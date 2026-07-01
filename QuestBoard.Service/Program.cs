@@ -62,7 +62,7 @@ builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 .AddEntityFrameworkStores<QuestBoardContext>()
 .AddDefaultTokenProviders();
 
-// PWFLOW-06 (D-13): extend the shared "Default" token provider lifespan to 7 days.
+// Extend the shared "Default" token provider lifespan to 7 days.
 // This affects password-reset, email-confirmation, and change-email tokens uniformly —
 // net-new configuration block (framework default was 1 day, previously unconfigured).
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
@@ -81,7 +81,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("SuperAdminOnly", policy =>
         policy.RequireRole("SuperAdmin"));
 
-// T-32-04 remediation: trust X-Forwarded-For from the configured reverse proxy (e.g. Traefik)
+// Trust X-Forwarded-For from the configured reverse proxy (e.g. Traefik)
 // so RemoteIpAddress reflects the real client instead of the proxy — otherwise every request
 // shares one partition key below. KnownProxies comes from ReverseProxy:KnownProxies config
 // (empty by default; set via env var in production, see docs/server-setup.md).
@@ -97,7 +97,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     }
 });
 
-// PWFLOW-04 (D-12): rate limit the ForgotPassword POST action — 3 requests / 15 minutes per client IP.
+// Rate limit the ForgotPassword POST action — 3 requests / 15 minutes per client IP.
 // SetPassword gets its own independent "set-password" policy (same limits) rather than sharing
 // "forgot-password"'s budget — a legitimate forgot-password + set-password flow by one user
 // shouldn't eat into the same 3-request window twice, and their abuse surfaces are distinct
@@ -134,13 +134,13 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// EMAIL-RATE-01..04: rate-limit the repeatable manual admin email-send buttons (SendConfirmationEmail,
+// Rate-limit the repeatable manual admin email-send buttons (SendConfirmationEmail,
 // EditUser's email-change branch), partitioned per TARGET userId so no single recipient's inbox is
 // spammed regardless of which admin triggers it. This is a singleton PartitionedRateLimiter<int>
 // consumed via AttemptAcquire in AdminController — NOT an AddRateLimiter policy, because userId/Id
 // are POST form fields (not route values) and the policy-factory path runs before MVC model binding
 // (RESEARCH.md Pitfall 1). 3 requests / 1 hour per target user, key "email-resend:{userId}".
-// CreateUser's one-shot automated welcome email is explicitly exempt (D-08).
+// CreateUser's one-shot automated welcome email is explicitly exempt.
 builder.Services.AddSingleton(_ => PartitionedRateLimiter.Create<int, string>(userId =>
     RateLimitPartition.GetFixedWindowLimiter(
         partitionKey: $"email-resend:{userId}",
@@ -152,7 +152,7 @@ builder.Services.AddSingleton(_ => PartitionedRateLimiter.Create<int, string>(us
             AutoReplenishment = true
         })));
 
-// SESSION-01/SESSION-02: back ASP.NET Core Session with a SQL Server distributed cache so
+// Back ASP.NET Core Session with a SQL Server distributed cache so
 // ActiveGroupId (and other session data) survives app restarts, instead of the in-memory
 // default that is wiped on every deploy. Guarded like the Hangfire branch below: the Testing
 // environment falls back to AddDistributedMemoryCache so dotnet test never writes session rows
@@ -184,7 +184,7 @@ builder.Services
     .AddRepositoryServices(builder.Configuration)
     .AddDomainServices(builder.Configuration);
 
-// Named HttpClient for Resend API stats (D-10)
+// Named HttpClient for Resend API stats
 // Authorization header is NOT set here — added per-request in AdminController.GetResendStatsAsync (Pitfall 4)
 builder.Services.AddHttpClient("Resend", client =>
 {
@@ -200,7 +200,7 @@ builder.Services.AddScoped<IEmailRenderService, RazorEmailRenderService>();
 // In Testing environment the WebApplicationFactoryBase overrides this with MutableGroupContext singleton.
 builder.Services.AddHttpContextAccessor();
 
-// D-09 dual registration pattern (see STATE.md):
+// Dual registration pattern (see STATE.md):
 //   1. AddScoped<ActiveGroupContextService>() — registers the CONCRETE type so that Hangfire
 //      jobs (QuestFinalizedEmailJob, SessionReminderJob) can resolve it by concrete type and
 //      call SetGroupId(groupId), which is NOT on the IActiveGroupContext interface.

@@ -189,8 +189,8 @@ public class AdminController(IUserService userService, IQuestService questServic
 
             if (emailChanged && !string.IsNullOrEmpty(model.Email))
             {
-                // EMAIL-RATE-02/03: rate-limited on the same per-target-user budget as
-                // SendConfirmationEmail — only email-changing saves are counted (D-07).
+                // Rate-limited on the same per-target-user budget as
+                // SendConfirmationEmail — only email-changing saves are counted.
                 using var lease = emailResendLimiter.AttemptAcquire(model.Id);
                 if (!lease.IsAcquired)
                 {
@@ -281,7 +281,7 @@ public class AdminController(IUserService userService, IQuestService questServic
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendConfirmationEmail(int userId)
     {
-        // EMAIL-RATE-01/03: repeatable manual resend button, rate-limited per target user (3/hour)
+        // Repeatable manual resend button, rate-limited per target user (3/hour)
         // to protect the Resend relay's 100/day quota from accidental button-mashing.
         using var lease = emailResendLimiter.AttemptAcquire(userId);
         if (!lease.IsAcquired)
