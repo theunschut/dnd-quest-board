@@ -57,6 +57,10 @@ Authorization policies: `"DungeonMasterOnly"` (DungeonMaster or Admin role), `"A
 
 **IMPORTANT**: EF packages belong only in `QuestBoard.Repository` — never add them to the Service project.
 
+## Code Comments
+
+**Never embed GSD planning/tracking references in source code** — no requirement IDs (`D-06`, `TENANT-03`, `EMAIL-04`), phase/plan numbers (`Phase 28`, `31-01`), or review-finding IDs (`WR-03`, `31-REVIEW`) in comments, XML doc comments, or string literals. These references go stale the moment a phase closes and become dead noise that a future cleanup phase has to hunt down and strip (see Phase 34). Write comments that explain the *why* in plain language that stays true independent of which phase touched the code — e.g. `// Backfill LockoutEnabled for existing users so the lockout policy applies retroactively`, not `// SEC-02: backfill LockoutEnabled...`. Planning/tracking context belongs in `.planning/`, not in source. This does not apply to git commit messages, which are expected to reference phase/plan IDs for traceability.
+
 ## Code Navigation — RIP MCP
 
 If the `rip` MCP server is available (tools prefixed `mcp__rip__`), **always prefer it over reading files** for any symbol-navigation question. It has the full codebase indexed.
