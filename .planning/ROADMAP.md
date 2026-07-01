@@ -80,7 +80,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 29: SuperAdmin Role & Management Area** - SuperAdmin Identity role + updated authorization handlers + /platform MVC Area for group management (completed 2026-06-30)
 - [x] **Phase 30: Group UX & Admin User Creation** - Group-picker flow + navigation + self-registration removal + admin user creation (completed 2026-06-30)
 - [x] **Phase 31: Unauthenticated Landing Redirect** - Auth lockdown on group-scoped pages + public landing page at / + quest board moved to /quests + session-recovery middleware (completed 2026-07-01)
-- [ ] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow
+- [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
 
 </details>
 
@@ -249,7 +249,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Goal:** Admin-created accounts are created with no password; the new user receives a single "Welcome — set your password" email whose link both sets their password and confirms their email in one click. Existing users can self-recover access via a rate-limited, enumeration-safe "Forgot password?" flow that reuses the same password-set landing page. The old admin-set-password field and the separate confirm-email-only flow are retired.
 **Requirements**: PWFLOW-01, PWFLOW-02, PWFLOW-03, PWFLOW-04, PWFLOW-05, PWFLOW-06
 **Depends on:** Phase 31
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 **Wave 1** *(parallel — no overlap in files_modified)*
 
@@ -263,7 +263,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 
 **Wave 3** *(blocked on 32-03, 32-04)*
 
-- [ ] 32-05-PLAN.md — Integration tests (ForgotPassword/SetPassword enumeration-safety + rate limit + passwordless-login-fails + Admin Welcome-resend) + delete `ConfirmationEmailJobTests` + full-suite green gate + blocking human-verify checkpoint
+- [x] 32-05-PLAN.md — Integration tests (ForgotPassword/SetPassword enumeration-safety + rate limit + passwordless-login-fails + Admin Welcome-resend) + delete `ConfirmationEmailJobTests` + full-suite green gate + blocking human-verify checkpoint
 
 ## Progress
 
@@ -300,7 +300,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
-| 32. First-Login Password Flow | v5.0 | 4/5 | In Progress|  |
+| 32. First-Login Password Flow | v5.0 | 5/5 | Complete   | 2026-07-01 |
 
 ### Phase 33: Session persistence — persist ActiveGroupId across app restarts via distributed cache
 
