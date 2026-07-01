@@ -6,15 +6,15 @@ current_phase: 34
 current_phase_name: last phase of v5.0
 status: not_started
 stopped_at: Phase 34 context gathered
-last_updated: "2026-07-01T17:49:05.870Z"
+last_updated: "2026-07-01T18:25:13.654Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 34 added to roadmap
 progress:
-  total_phases: 9
+  total_phases: 11
   completed_phases: 8
-  total_plans: 30
+  total_plans: 35
   completed_plans: 30
-  percent: 89
+  percent: 73
 ---
 
 # Project State
@@ -109,6 +109,8 @@ Items acknowledged and deferred at milestone close on 2026-06-28:
 - Phase 33 added: Session persistence — ASP.NET Core Session has no distributed cache registered (confirmed via grep — no AddDistributedMemoryCache/AddStackExchangeRedisCache/AddDistributedSqlServerCache/IDistributedCache anywhere in the solution), so it falls back to an in-memory store wiped on every app restart. Auth cookie survives restarts (Identity's cookie is self-contained via Data Protection) but ActiveGroupContextService's ActiveGroupId does not, forcing every logged-in user to re-pick their group after every deploy. Discovered incidentally during Phase 32 UAT. Recommended fix: Microsoft.Extensions.Caching.SqlServer + AddDistributedSqlServerCache against the existing SQL Server connection (no new infrastructure like Redis needed) plus a small periodic cleanup job.
 - Phase 33 scope extended (2026-07-01): also rate-limit manual/admin-triggered email-sending buttons (e.g. "Resend Welcome Email" on /Admin/Users, EditUser's email-change confirmation) to protect the mail relay's send quota — discovered when testing showed SendConfirmationEmail has no rate limit (only ForgotPassword does, by design — PWFLOW-04/D-12 scoped it to the anonymous self-service form). User wants one-shot automated sends (e.g. CreateUser's welcome email) exempted, only repeatable manual buttons limited.
 - Phase 34 added (2026-07-01): Codebase cleanup and security hardening, requested as the closing phase of v5.0 — full-codebase review (not scoped to GSD-tracked work only): remove unused/dead code, strip low-value inline comments (especially ones referencing GSD requirement IDs or phase numbers — user finds these unhelpful and unread later) in favor of XML doc comments (`///<summary>`) on interfaces, and audit for security vulnerabilities and other known issues. User considers the v5.0 milestone done once this phase completes.
+- Phase 34.1 inserted after Phase 34: Security & Bugs slice split off Phase 34 per D-03 (Known Bugs, Security Considerations, related Test Coverage Gaps) (URGENT)
+- Phase 34.2 inserted after Phase 34: Performance & Architecture slice split off Phase 34 per D-03 (Tech Debt, Performance Bottlenecks, Fragile Areas, Scaling Limits, Dependencies at Risk, remaining Test Coverage Gaps) (URGENT)
 
 ### Pending for Next Milestone
 

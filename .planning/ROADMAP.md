@@ -83,6 +83,8 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 - [x] **Phase 32: First-Login Password Flow** - Admin-created users set their own password via a welcome email link; removes admin-set password from CreateUser form; adds a self-service Forgot Password flow (completed 2026-07-01)
 - [x] **Phase 33: Session Persistence & Admin Email Rate Limiting** - ActiveGroupId survives app restarts via AddDistributedSqlServerCache; admin email resend buttons rate-limited 3/hour per target user (completed 2026-07-01)
 - [ ] **Phase 34: Codebase Cleanup & Security Hardening (34a — Mechanical Cleanup)** - Remove dead code, strip GSD-ID/phase comment tags codebase-wide, backfill XML docs on all 35 interfaces, capture clean dependency scan — 5 plans (Wave 1, parallel). Remaining CONCERNS.md fixes split into recommended 34b (Security & Bugs) + 34c (Performance & Architecture) per D-03.
+- [ ] **Phase 34.1: Security & Bugs -- fix Known Bugs and Security Considerations items from CONCERNS.md plus related Test Coverage Gaps (verify-and-close the stale SessionReminderJob null-dereference claim; Resend 429 retry-backoff; CSRF regression test; secret-logging verification) -- deferred from the Phase 34 split per D-03**
+- [ ] **Phase 34.2: Performance & Architecture -- fix Tech Debt refactors (QuestController/AdminController split, DateTime.Now to UtcNow, follow-up two-phase to service method), Performance Bottlenecks (composite index, shop-query projection, Hangfire batching note), Fragile Areas (Hangfire scope helper, query-filter docs, enum-cast validation), Scaling Limits (Hangfire AutomaticRetryAttribute, ActiveGroupId null-guard, cross-controller Forbid() defense-in-depth), Dependencies at Risk, and remaining Test Coverage Gaps from CONCERNS.md -- deferred from the Phase 34 split per D-03**
 
 </details>
 
@@ -334,7 +336,7 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Depends on:** Phase 33
 **Plans:** 5 plans
 
-**Phase split (per D-03, pre-approved):** The full CONCERNS.md scope (~26 fix items + 120 comment occurrences + 35-interface doc backfill, 60-80+ file touches) exceeds one phase's full-fidelity budget. This Phase 34 covers the **mechanical-cleanup** slice only. The remaining CONCERNS.md fixes are recommended for two follow-on sub-phases: **34b (Security & Bugs)** and **34c (Performance & Architecture)** — insert via `/gsd-phase --insert`.
+**Phase split (per D-03, pre-approved):** The full CONCERNS.md scope (~26 fix items + 120 comment occurrences + 35-interface doc backfill, 60-80+ file touches) exceeds one phase's full-fidelity budget. This Phase 34 covers the **mechanical-cleanup** slice only. The remaining CONCERNS.md fixes were split into **Phase 34.1 (Security & Bugs)** and **Phase 34.2 (Performance & Architecture)** — see summary list above; each needs `/gsd-plan-phase 34.1` / `/gsd-plan-phase 34.2` before execution.
 
 **Wave 1** *(all 5 plans parallel — disjoint file sets: dead-code, impl-source comments, test comments, Domain interfaces, Repository interfaces)*
 
