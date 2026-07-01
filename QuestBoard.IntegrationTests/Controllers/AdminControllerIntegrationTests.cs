@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using QuestBoard.Domain.Enums;
+using QuestBoard.Domain.Interfaces;
 using QuestBoard.IntegrationTests.Helpers;
 using System.Net;
 
@@ -121,8 +122,9 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         content.Should().Contain("GroupRole");
     }
 
-    // MGMT-07, REG-02, REG-03: Admin-created users are assigned to the admin's active
-    // group with the chosen GroupRole, and the existing confirmation email job fires.
+    // MGMT-07, REG-02, REG-03, PWFLOW-01: Admin-created users are assigned to the admin's
+    // active group with the chosen GroupRole, created passwordless, and the Welcome email
+    // job fires (targeting the SetPassword callback) instead of an admin-set password.
     [Fact]
     public async Task CreateUser_Post_WhenAdmin_CreatesUserInActiveGroup()
     {
@@ -132,11 +134,11 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
 
         var uniqueSuffix = Guid.NewGuid().ToString("N")[..8];
         var newUserEmail = $"createduser_{uniqueSuffix}@example.com";
+        // PWFLOW-01/D-01: no Password field is submitted — CreateUser is passwordless.
         var formData = new Dictionary<string, string>
         {
             ["Email"] = newUserEmail,
             ["Name"] = "Created User",
-            ["Password"] = "CreatedUser123!",
             ["GroupRole"] = ((int)GroupRole.DungeonMaster).ToString()
         };
 
@@ -152,10 +154,58 @@ public class AdminControllerIntegrationTests : IClassFixture<WebApplicationFacto
         var createdUser = await userManager.FindByEmailAsync(newUserEmail);
         createdUser.Should().NotBeNull();
         createdUser!.Name.Should().Be("Created User");
+        createdUser.PasswordHash.Should().BeNull("accounts are created passwordless (PWFLOW-01/D-01)");
+        createdUser.EmailConfirmed.Should().BeFalse("email is only confirmed once the user completes SetPassword (D-09)");
 
         var context = scope.ServiceProvider.GetRequiredService<QuestBoardContext>();
         var membership = context.UserGroups.FirstOrDefault(ug => ug.UserId == createdUser.Id && ug.GroupId == 1);
         membership.Should().NotBeNull("the created user should be assigned to the admin's active group");
         membership!.GroupRole.Should().Be((int)GroupRole.DungeonMaster);
+    }
+
+    // PWFLOW-05: SendConfirmationEmail (the "Resend Welcome Email" action) succeeds for an
+    // unconfirmed user and redirects to Users with a success outcome. Job-enqueue internals
+    // are not observable via HTTP (covered by Plan 02's WelcomeEmailJobTests unit tests).
+    [Fact]
+    public async Task SendConfirmationEmail_Post_WhenUserUnconfirmed_ShouldRedirectToUsersWithSuccess()
+    {
+        // Arrange
+        await TestDataHelper.ClearDatabaseAsync(_factory.Services);
+        var (adminClient, _) = await AuthenticationHelper.CreateAuthenticatedAdminClientAsync(_factory);
+
+        var uniqueSuffix = Guid.NewGuid().ToString("N")[..8];
+        var targetEmail = $"resendwelcome_{uniqueSuffix}@example.com";
+
+        int targetUserId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var identityService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+
+            var createResult = await userService.CreateAsync(targetEmail, "Resend Welcome User");
+            createResult.Succeeded.Should().BeTrue();
+
+            var resolvedUserId = await identityService.GetIdByEmailAsync(targetEmail);
+            resolvedUserId.Should().NotBeNull();
+            targetUserId = resolvedUserId!.Value;
+        }
+
+        var getResponse = await adminClient.GetAsync("/Admin/Users", TestContext.Current.CancellationToken);
+        var (token, cookieValue) = await AntiForgeryHelper.ExtractAntiForgeryTokenAsync(getResponse);
+        if (!string.IsNullOrEmpty(cookieValue))
+        {
+            adminClient.DefaultRequestHeaders.Add("Cookie", $".AspNetCore.Antiforgery={cookieValue}");
+        }
+
+        var formContent = AntiForgeryHelper.CreateFormContentWithAntiForgeryToken(
+            new Dictionary<string, string> { ["userId"] = targetUserId.ToString() },
+            token);
+
+        // Act
+        var response = await adminClient.PostAsync("/Admin/SendConfirmationEmail", formContent, TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found);
+        response.Headers.Location!.OriginalString.Should().Contain("Users");
     }
 }
