@@ -249,12 +249,12 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 **Goal:** Admin-created accounts are created with no password; the new user receives a single "Welcome — set your password" email whose link both sets their password and confirms their email in one click. Existing users can self-recover access via a rate-limited, enumeration-safe "Forgot password?" flow that reuses the same password-set landing page. The old admin-set-password field and the separate confirm-email-only flow are retired.
 **Requirements**: PWFLOW-01, PWFLOW-02, PWFLOW-03, PWFLOW-04, PWFLOW-05, PWFLOW-06
 **Depends on:** Phase 31
-**Plans:** 5 plans
+**Plans:** 2/5 plans executed
 
 **Wave 1** *(parallel — no overlap in files_modified)*
 
-- [ ] 32-01-PLAN.md — Service layer: passwordless `CreateUserAsync`, `GeneratePasswordResetTokenForUserAsync`, `ConfirmEmailDirectlyAsync` across `IIdentityService`/`IdentityService`/`IUserService`/`UserService` (PWFLOW-01, PWFLOW-02, PWFLOW-03 backend)
-- [ ] 32-02-PLAN.md — Email jobs + templates + Program.cs config: `WelcomeEmailJob`/`ForgotPasswordEmailJob` + `Welcome.razor`/`ForgotPassword.razor` + delete `ConfirmationEmailJob`/`ConfirmEmail.razor` + `EmailPreviewController` swap + `TokenLifespan` 7d + `AddRateLimiter` (PWFLOW-04 config, PWFLOW-05 job, PWFLOW-06) + job unit tests
+- [x] 32-01-PLAN.md — Service layer: passwordless `CreateUserAsync`, `GeneratePasswordResetTokenForUserAsync`, `ConfirmEmailDirectlyAsync` across `IIdentityService`/`IdentityService`/`IUserService`/`UserService` (PWFLOW-01, PWFLOW-02, PWFLOW-03 backend)
+- [x] 32-02-PLAN.md — Email jobs + templates + Program.cs config: `WelcomeEmailJob`/`ForgotPasswordEmailJob` + `Welcome.razor`/`ForgotPassword.razor` + delete `ConfirmationEmailJob`/`ConfirmEmail.razor` + `EmailPreviewController` swap + `TokenLifespan` 7d + `AddRateLimiter` (PWFLOW-04 config, PWFLOW-05 job, PWFLOW-06) + job unit tests
 
 **Wave 2** *(blocked on 32-01, 32-02)*
 
@@ -300,4 +300,4 @@ _Note: Phase 8 (profile picture avatar crop) was scoped in v1.0 but deferred; it
 | 29. SuperAdmin Role & Management Area | v5.0 | 5/5 | Complete | 2026-06-30 |
 | 30. Group UX & Admin User Creation | v5.0 | 5/5 | Complete    | 2026-06-30 |
 | 31. Unauthenticated Landing Redirect | v5.0 | 4/4 | Complete    | 2026-07-01 |
-| 32. First-Login Password Flow | v5.0 | 0/5 | Planned | — |
+| 32. First-Login Password Flow | v5.0 | 2/5 | In Progress|  |
